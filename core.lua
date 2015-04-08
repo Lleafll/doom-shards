@@ -7,7 +7,7 @@ local ASTimer = LibStub("AceAddon-3.0"):GetAddon("AS Timer")
 
 
 -- Upvalues
-local print, C_TimerAfter, UnitCanAttack, UnitIsDead, GetSpecialization, ItemHasRange, IsItemInRange, UnitGUID, IsInRaid, IsInGroup, UnitAffectingCombat, tostring, UnitPower, UnitExists, tableinsert, tableremove, pairs, GetTalentInfo, GetActiveSpecGroup, GetTime = print, C_Timer.After, UnitCanAttack, UnitIsDead, GetSpecialization, ItemHasRange, IsItemInRange, UnitGUID, IsInRaid, IsInGroup, UnitAffectingCombat, tostring, UnitPower, UnitExists, table.insert, table.remove, pairs, GetTalentInfo, GetActiveSpecGroup, GetTime
+local print, C_TimerAfter, UnitCanAttack, UnitIsDead, GetSpecialization, ItemHasRange, IsItemInRange, UnitGUID, IsInRaid, IsInGroup, UnitAffectingCombat, tostring, UnitPower, UnitExists, tableremove, pairs, GetTalentInfo, GetActiveSpecGroup, GetTime = print, C_Timer.After, UnitCanAttack, UnitIsDead, GetSpecialization, ItemHasRange, IsItemInRange, UnitGUID, IsInRaid, IsInGroup, UnitAffectingCombat, tostring, UnitPower, UnitExists, table.remove, pairs, GetTalentInfo, GetActiveSpecGroup, GetTime
 
 
 -- Frames
@@ -160,8 +160,8 @@ local function addGUID(timeStamp, GUID)
 	count = count + 1
 	timerID = ASTimer:ScheduleTimer("removeTimer_timed", maxToleratedTime, GUID)
 	timerID.travelTime = getTravelTime(timeStamp, GUID, true)
-	tableinsert(targets[GUID], timerID)
-	tableinsert(timers, timerID)
+	targets[GUID][#targets[GUID]+1] = timerID
+	timers[#timers+1] = timerID
 end
 
 local function popTimer(timerID)
