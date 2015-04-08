@@ -7,7 +7,7 @@ local ASTimer = LibStub("AceAddon-3.0"):GetAddon("AS Timer")
 
 
 -- Upvalues
-local print, C_TimerAfter, UnitCanAttack, UnitIsDead, GetSpecialization, ItemHasRange, IsItemInRange, UnitGUID, IsInRaid, IsInGroup, UnitAffectingCombat, tostring, UnitPower, UnitExists, tableinsert, tableremove, pairs, GetTalentInfo, GetActiveSpecGroup = print, C_Timer.After, UnitCanAttack, UnitIsDead, GetSpecialization, ItemHasRange, IsItemInRange, UnitGUID, IsInRaid, IsInGroup, UnitAffectingCombat, tostring, UnitPower, UnitExists, table.insert, table.remove, pairs, GetTalentInfo, GetActiveSpecGroup
+local print, C_TimerAfter, UnitCanAttack, UnitIsDead, GetSpecialization, ItemHasRange, IsItemInRange, UnitGUID, IsInRaid, IsInGroup, UnitAffectingCombat, tostring, UnitPower, UnitExists, tableinsert, tableremove, pairs, GetTalentInfo, GetActiveSpecGroup, GetTime = print, C_Timer.After, UnitCanAttack, UnitIsDead, GetSpecialization, ItemHasRange, IsItemInRange, UnitGUID, IsInRaid, IsInGroup, UnitAffectingCombat, tostring, UnitPower, UnitExists, table.insert, table.remove, pairs, GetTalentInfo, GetActiveSpecGroup, GetTime
 
 
 -- Frames
@@ -62,7 +62,7 @@ local function calculateTravelTime(unitID)
 	local maxDistance = nil
 
 	for i = 0, 80 do
-		if UnitCanAttack('player', unitID) and not UnitIsDead(unitID) and GetSpecialization() == 3 then
+		if UnitCanAttack("player", unitID) and not UnitIsDead(unitID) then
 			distanceItem = distanceTable[i]
 			if ItemHasRange(distanceItem) and not IsItemInRange(distanceItem, unitID) then
 				minDistance = i
@@ -263,6 +263,18 @@ function ASTimer:COMBAT_LOG_EVENT_UNFILTERED(_, ...)
 	end
 end
 
+function ASTimer:PLAYER_TARGET_CHANGED(cause)
+	if cause == "up" and UnitCanAttack("player", "target") then
+		getTravelTime(GetTime(), UnitGUID("target"))
+	end
+end
+
+function ASTimer:UPDATE_MOUSEOVER_UNIT()
+	if UnitCanAttack("player", "mouseover") then
+		getTravelTime(GetTime(), UnitGUID("mouseover"))
+	end
+end
+
 function ASTimer:PLAYER_REGEN_DISABLED()
 	if not (self.db.display == "Weakauras") then
 		if self.db.display == "Complex" then timerFrame:Show() end
@@ -298,10 +310,14 @@ end
 
 local function registerAllEvents()
 	ASTimer:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	ASTimer:RegisterEvent("PLAYER_TARGET_CHANGED")
+	ASTimer:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
 end
 
 local function unregisterAllEvents()
 	ASTimer:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	ASTimer:UnregisterEvent("PLAYER_TARGET_CHANGED")
+	ASTimer:UnregisterEvent("UPDATE_MOUSEOVER_UNIT")
 end
 
 function ASTimer:talentsChanged()
@@ -332,7 +348,7 @@ function ASTimer:OnInitialize()
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	self:RegisterEvent("UNIT_POWER")
 	self:RegisterEvent("PLAYER_TALENT_UPDATE", "talentsChanged")
-	
+			
 	if UnitAffectingCombat("player") then
 		self:PLAYER_REGEN_DISABLED()
 	else
