@@ -58,30 +58,32 @@ local cacheMaxTime = 1  -- seconds in which the cache does not get refreshed
 
 -- Functions
 local function calculateTravelTime(unitID)
-	local minDistance = nil
-	local maxDistance = nil
+	local minDistance
+	local maxDistance
 
-	for i = 0, 80 do
-		if UnitCanAttack("player", unitID) and not UnitIsDead(unitID) then
+	if UnitCanAttack("player", unitID) and not UnitIsDead(unitID) then
+		for i = 0, 80 do
 			distanceItem = distanceTable[i]
-			if ItemHasRange(distanceItem) and not IsItemInRange(distanceItem, unitID) then
-				minDistance = i
-			end
-			if ItemHasRange(distanceItem) and IsItemInRange(distanceItem, unitID) then	
-				maxDistance = i
-				if maxDistance <= 5 then
-					minDistance = 0
-					maxDistance = 5
+			if ItemHasRange(distanceItem) then
+				if IsItemInRange(distanceItem, unitID) then
+					maxDistance = i
+					if maxDistance <= 5 then
+						minDistance = 0
+						maxDistance = 5
+					end
+				else
+					minDistance = i
 				end
 			end
 			if minDistance and maxDistance then break end
 		end
 	end
 	
-	minDistance = minDistance or 40
-	maxDistance = maxDistance or 40
-	
-	return (minDistance + maxDistance) / 2 / SAVelocity
+	if not minDistance and not maxDistance then
+		return 40 / SAVelocity
+	else
+		return (minDistance + maxDistance) / 2 / SAVelocity
+	end
 end
 
 local function iterateUnitIDs(tbl, GUID)
