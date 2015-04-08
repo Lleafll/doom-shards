@@ -297,16 +297,17 @@ function ASTimer:PLAYER_REGEN_ENABLED()
 	function warningSound() end
 end
 
+local callback = function()
+	if UnitAffectingCombat("player") then
+		orbs = UnitPower("player", 13)
+		self:update()
+	end 
+end
+
 function ASTimer:UNIT_POWER(_, unitID, power)
 	if not (unitID == "player" and power == "SHADOW_ORBS") then return end
 	
 	-- needs to be delayed so it fires after the SA events, otherwise everything will assume the SA is still in flight
-	local callback = function()
-		if UnitAffectingCombat("player") then
-			orbs = UnitPower("player", 13)
-			self:update()
-		end 
-	end
 	C_TimerAfter(0.01, callback)
 end
 
