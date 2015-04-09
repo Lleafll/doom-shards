@@ -78,11 +78,7 @@ local function calculateTravelTime(unitID)
 		end
 	end
 	
-	if not minDistance and not maxDistance then
-		return 40 / SAVelocity
-	else
-		return (minDistance + maxDistance) / 2 / SAVelocity
-	end
+	return ((minDistance or 40) + (maxDistance or 40)) / 2 / SAVelocity
 end
 
 local function iterateUnitIDs(tbl, GUID)
@@ -297,7 +293,7 @@ end
 local callback = function()
 	if UnitAffectingCombat("player") then
 		orbs = UnitPower("player", 13)
-		self:update()
+		CS:update()
 	end 
 end
 
@@ -331,7 +327,7 @@ function CS:talentsChanged()
 end
 
 function CS:OnInitialize()
-	self.db = LibStub("AceDB-3.0"):New("CSDB", self.defaultSettings, true).global
+	self.db = LibStub("AceDB-3.0"):New("ConspicuousSpiritsDB", self.defaultSettings, true).global
 	
 	timerFrame:HideChildren()
 	timerFrame:Lock()
@@ -340,7 +336,7 @@ function CS:OnInitialize()
 	elseif self.db.display == "Simple" then
 		self:initializeSimple()
 	elseif self.db.display == "WeakAuras" then
-		self:initializeWeakAuras()
+		self:initializeWeakAuras(timers)
 	end
 	self:applySettings()
 	
