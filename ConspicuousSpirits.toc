@@ -1,9 +1,9 @@
 ## Interface: 61000
-## Title: Auspicious Spirits Timer
+## Title: Conspicuous Spirits
 ## Notes: Track your incoming Shadow Orbs from Auspicious Spirits!
 ## Author: Lleaf
-## Version: beta2
-## SavedVariables: ASTimerDB
+## Version: beta3
+## SavedVariables: ConspicuousSpiritsDB
 ## OptionalDeps: WeakAuras
 
 Libs\LibStub\LibStub.lua
