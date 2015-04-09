@@ -12,16 +12,14 @@ local stringformat = string.format
 
 -- Frames
 local timerFrame = CS.frame
-local timerText
+local timerTextShort
+local timerTextLong
 
 
 -- Variables
 local timerID
 local maxToleratedTime = 10
 local remainingThreshold = 2 -- threshold between short and long Shadowy Apparitions
-local color1 = {r=0.53, b=0.53, g=0.53, a=1.00}  -- lowest threshold color
-local color2 = {r=0.38, b=0.23, g=0.51, a=1.00}  -- middle threshold color
-local color3 = {r=0.51, b=0.00, g=0.24, a=1.00}  -- highest threshold color
 
 
 -- Functions
@@ -45,24 +43,27 @@ local function refreshDisplay(orbs, timers)
 			break
 		end
 	end
-	local text = stringformat("%s  %s", short, long)
-	timerText:SetText(text)
+	--local text = stringformat("%s  %s", short, long)
+	timerTextShort:SetText(short)
+	timerTextLong:SetText(long)
 	
 	if orbs >= 3 and short + long > 0 and ((short + orbs >= 5) or (short + long + orbs >= 6)) then
 		timerFrame:Show()
-		timerFrame:SetBackdropColor(color3.r, color3.b, color3.g, color3.a)
+		timerFrame:SetBackdropColor(CS.db.simple.color3.r, CS.db.simple.color3.b, CS.db.simple.color3.g, CS.db.simple.color3.a)
 	elseif short > 0 then
 		timerFrame:Show()
-		timerFrame:SetBackdropColor(color2.r, color2.b, color2.g, color2.a)
+		timerFrame:SetBackdropColor(CS.db.simple.color2.r, CS.db.simple.color2.b, CS.db.simple.color2.g, CS.db.simple.color2.a)
 	elseif long > 0 then
 		timerFrame:Show()
-		timerFrame:SetBackdropColor(color1.r, color1.b, color1.g, color1.a)
+		timerFrame:SetBackdropColor(CS.db.simple.color1.r, CS.db.simple.color1.b, CS.db.simple.color1.g, CS.db.simple.color1.a)
 	else
 		timerFrame:Hide()
 	end
 end
 
 local function createFrames()
+	local spacing = CS.db.simple.spacing / 2
+	
 	timerFrame:SetBackdrop({
 		bgFile="Interface\\ChatFrame\\ChatFrameBackground",
 		edgeFile="Interface\\ChatFrame\\ChatFrameBackground",
@@ -70,28 +71,37 @@ local function createFrames()
 		tileSize=5,
 		edgeSize= 1
 	})
-	timerFrame:SetBackdropColor(0.53, 0.53, 0.53)
+	timerFrame:SetBackdropColor(CS.db.simple.color1.r, CS.db.simple.color1.b, CS.db.simple.color1.g, CS.db.simple.color1.a)
 	timerFrame:SetBackdropBorderColor(0, 0, 0, 1)
-
-	if not timerText then timerText = timerFrame:CreateFontString(nil, "OVERLAY") end
-	timerText:Show()
-	timerText:SetFont("Fonts\\FRIZQT__.TTF", 15)
-	timerText:SetTextColor(1, 1, 1, 1)
-	timerText:SetShadowOffset(1, -1)
-	timerText:SetShadowColor(0, 0, 0, 1)
-	timerText:SetPoint("CENTER")
-	timerText:SetText("0  0")
+	
+	local function setTimerText(fontstring)
+		fontstring:Show()
+		fontstring:SetFont("Fonts\\FRIZQT__.TTF", CS.db.simple.fontSize)
+		fontstring:SetTextColor(1, 1, 1, 1)
+		fontstring:SetShadowOffset(1, -1)
+		fontstring:SetShadowColor(0, 0, 0, 1)
+		fontstring:SetText("0")
+	end
+	
+	if not timerTextShort then timerTextShort = timerFrame:CreateFontString(nil, "OVERLAY") end
+	timerTextShort:SetPoint("CENTER", -spacing, 0)
+	setTimerText(timerTextShort)
+	
+	if not timerTextLong then timerTextLong = timerFrame:CreateFontString(nil, "OVERLAY") end
+	timerTextLong:SetPoint("CENTER", spacing, 0)
+	setTimerText(timerTextLong)
 end
 
 local function HideChildren()
 	timerFrame:SetBackdropColor(1, 1, 1, 0)
 	timerFrame:SetBackdropBorderColor(0, 0, 0, 0)
-	timerText:Hide()
+	timerTextShort:Hide()
+	timerTextLong:Hide()
 end
 
 function CS:initializeSimple()
-	timerFrame:SetWidth(65)
-	timerFrame:SetHeight(33)
+	timerFrame:SetHeight(self.db.simple.height)
+	timerFrame:SetWidth(self.db.simple.width)
 	createFrames()
 	function CS:refreshDisplay(orbs, timers) refreshDisplay(orbs, timers) end
 	function timerFrame:HideChildren() HideChildren() end

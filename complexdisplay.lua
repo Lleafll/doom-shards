@@ -57,13 +57,14 @@ local function refreshDisplay(orbs, timers)
 end
 
 local function createFrames()
-	if orbFrames[1] then return end  -- don't create frames if already initialized
-	
+	local spacing = CS.db.complex.spacing
+	local height = CS.db.complex.height
+	local width = CS.db.complex.width
 	local function createOrbFrame(number)
-		frame = CreateFrame("frame", nil, CSFrame)
-		frame:SetPoint("BOTTOMLEFT", 33 * (number - 1), 0)
-		frame:SetWidth(32)
-		frame:SetHeight(8)
+		frame = orbFrames[i] or CreateFrame("frame", nil, CSFrame)
+		frame:SetPoint("BOTTOMLEFT", (width + spacing) * (number - 1), 0)
+		frame:SetHeight(height)
+		frame:SetWidth(width)
 		frame:SetBackdrop({
 			bgFile="Interface\\ChatFrame\\ChatFrameBackground",
 			edgeFile="Interface\\ChatFrame\\ChatFrameBackground",
@@ -78,19 +79,12 @@ local function createFrames()
 	for i = 1, 6 do
 		orbFrames[i] = createOrbFrame(i)
 	end
-	orbFrames[1]:SetBackdropColor(0.38, 0.23, 0.51, 1.00)
-	orbFrames[2]:SetBackdropColor(0.38, 0.23, 0.51, 1.00)
-	orbFrames[3]:SetBackdropColor(0.38, 0.23, 0.51, 1.00)
-	orbFrames[4]:SetBackdropColor(0.51, 0.00, 0.24, 1.00)
-	orbFrames[5]:SetBackdropColor(0.51, 0.00, 0.24, 1.00)
-	orbFrames[6]:SetBackdropColor(0, 0, 0, 0)  -- dummy frame to anchor overflow fontstring to
 
-	local function createTimerFontString(referenceFrame)
-		fontString = timerFrame:CreateFontString(nil, "OVERLAY")
-		fontString:SetPoint("TOP", timerFrame, "TOP", 0, -16)
+	local function createTimerFontString(referenceFrame, number)
+		fontString = SATimers[i] or timerFrame:CreateFontString(nil, "OVERLAY")
 		fontString:SetPoint("BOTTOMLEFT", referenceFrame, "TOPLEFT", 0, 1)
 		fontString:SetPoint("BOTTOMRIGHT", referenceFrame, "TOPRIGHT", 0, 1)
-		fontString:SetFont("Fonts\\FRIZQT__.TTF", 15)
+		fontString:SetFont("Fonts\\FRIZQT__.TTF", width / 2)
 		fontString:SetTextColor(1, 1, 1, 1)
 		fontString:SetShadowOffset(1, -1)
 		fontString:SetShadowColor(0, 0, 0, 1)
@@ -99,8 +93,17 @@ local function createFrames()
 		return fontString
 	end
 	for i = 1, 6 do
-		SATimers[i] = createTimerFontString(orbFrames[i])
+		SATimers[i] = createTimerFontString(orbFrames[i], i)
 	end
+	
+	local c1r, c1b, c1g, c1a = CS.db.complex.color1.r, CS.db.complex.color1.b, CS.db.complex.color1.g, CS.db.complex.color1.a 
+	local c2r, c2b, c2g, c2a = CS.db.complex.color2.r, CS.db.complex.color2.b, CS.db.complex.color2.g, CS.db.complex.color2.a 
+	orbFrames[1]:SetBackdropColor(c1r, c1b, c1g, c1a)
+	orbFrames[2]:SetBackdropColor(c1r, c1b, c1g, c1a)
+	orbFrames[3]:SetBackdropColor(c1r, c1b, c1g, c1a)
+	orbFrames[4]:SetBackdropColor(c2r, c2b, c2g, c2a)
+	orbFrames[5]:SetBackdropColor(c2r, c2b, c2g, c2a)
+	orbFrames[6]:SetBackdropColor(0, 0, 0, 0)  -- dummy frame to anchor overflow fontstring to
 end
 
 local function HideChildren()
@@ -111,8 +114,8 @@ local function HideChildren()
 end
 
 function CS:initializeComplex()
-	timerFrame:SetWidth(164)
-	timerFrame:SetHeight(40)
+	timerFrame:SetHeight(5 * self.db.complex.height)
+	timerFrame:SetWidth(5 * self.db.complex.width + 4 * self.db.complex.spacing)
 	createFrames()
 	function CS:refreshDisplay(orbs, timers) refreshDisplay(orbs, timers) end
 	function timerFrame:HideChildren() HideChildren() end

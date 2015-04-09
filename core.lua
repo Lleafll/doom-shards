@@ -299,9 +299,7 @@ end
 
 function CS:UNIT_POWER(_, unitID, power)
 	if not (unitID == "player" and power == "SHADOW_ORBS") then return end
-	
-	-- needs to be delayed so it fires after the SA events, otherwise everything will assume the SA is still in flight
-	C_TimerAfter(0.01, callback)
+	C_TimerAfter(0.01, callback)  -- needs to be delayed so it fires after the SA events, otherwise everything will assume the SA is still in flight
 end
 
 local function registerAllEvents()
@@ -326,9 +324,7 @@ function CS:talentsChanged()
 	end
 end
 
-function CS:OnInitialize()
-	self.db = LibStub("AceDB-3.0"):New("ConspicuousSpiritsDB", self.defaultSettings, true).global
-	
+function CS:Initialize()
 	timerFrame:HideChildren()
 	timerFrame:Lock()
 	if self.db.display == "Complex" then
@@ -350,4 +346,11 @@ function CS:OnInitialize()
 	else
 		self:PLAYER_REGEN_ENABLED()
 	end
+end
+
+function CS:OnInitialize()
+	local CSDB = LibStub("AceDB-3.0"):New("ConspicuousSpiritsDB", self.defaultSettings, true)
+	self.db = CSDB.global
+	function self:ResetDB() CSDB:ResetDB("global") end
+	self:Initialize()
 end
