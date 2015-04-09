@@ -3,7 +3,7 @@ if class ~= "PRIEST" then return end
 
 
 -- Get Addon object
-local ASTimer = LibStub("AceAddon-3.0"):GetAddon("AS Timer")
+local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits")
 
 
 -- Upvalues
@@ -11,7 +11,7 @@ local stringformat = string.format
 
 
 -- Frames
-local timerFrame = ASTimer.frame
+local timerFrame = CS.frame
 local timerText
 
 
@@ -31,7 +31,7 @@ local function refreshDisplay(orbs, timers)
 	for i = 1, #timers do
 		timerID = timers[i]
 		if timerID then
-			local timeLeft = ASTimer:TimeLeft(timerID)
+			local timeLeft = CS:TimeLeft(timerID)
 			if timeLeft > 0 then
 				local travelTime = timerID.travelTime
 				local remaining = timeLeft - maxToleratedTime + travelTime
@@ -89,10 +89,10 @@ local function HideChildren()
 	timerText:Hide()
 end
 
-function ASTimer:initializeSimple()
+function CS:initializeSimple()
 	timerFrame:SetWidth(65)
 	timerFrame:SetHeight(33)
 	createFrames()
-	function ASTimer:refreshDisplay(orbs, timers) refreshDisplay(orbs, timers) end
+	function CS:refreshDisplay(orbs, timers) refreshDisplay(orbs, timers) end
 	function timerFrame:HideChildren() HideChildren() end
 end

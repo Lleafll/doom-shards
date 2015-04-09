@@ -3,7 +3,7 @@ if class ~= "PRIEST" then return end
 
 
 -- Get Addon object
-local ASTimer = LibStub("AceAddon-3.0"):GetAddon("AS Timer")
+local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits")
 
 
 -- Upvalues
@@ -15,10 +15,10 @@ local lastTime = GetTime()
 
 
 -- Functions
-function ASTimer:warningSound(orbs, timers)
+function CS:warningSound(orbs, timers)
 	if GetTime() - lastTime >= 2 then
 		if orbs >= 3 and orbs + (#timers or 0) >= 5 then
-			PlaySoundFile("Interface\\addons\\AS_Timer\\Media\\ASTimerDroplet.mp3", "Master")
+			PlaySoundFile("Interface\\addons\\ConspicuousSpirits\\Media\\CSDroplet.mp3", "Master")
 			lastTime = GetTime()
 		end
 	end

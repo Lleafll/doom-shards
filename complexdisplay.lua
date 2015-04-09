@@ -3,7 +3,7 @@ if class ~= "PRIEST" then return end
 
 
 -- Get Addon object
-local ASTimer = LibStub("AceAddon-3.0"):GetAddon("AS Timer")
+local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits")
 
 
 -- Upvalues
@@ -11,7 +11,7 @@ local stringformat = string.format
 
 
 -- Frames
-local timerFrame = ASTimer.frame
+local timerFrame = CS.frame
 local orbFrames = {}
 local SATimers = {}
 
@@ -35,7 +35,7 @@ local function refreshDisplay(orbs, timers)
 			orbFrames[i]:Hide()
 			timerID = timers[k]
 			if timerID then
-				local timeLeft = ASTimer:TimeLeft(timerID)
+				local timeLeft = CS:TimeLeft(timerID)
 				if timeLeft > 0 then
 					SATimers[i]:Show()
 					local travelTime = timerID.travelTime
@@ -60,7 +60,7 @@ local function createFrames()
 	if orbFrames[1] then return end  -- don't create frames if already initialized
 	
 	local function createOrbFrame(number)
-		frame = CreateFrame("frame", nil, ASTimerFrame)
+		frame = CreateFrame("frame", nil, CSFrame)
 		frame:SetPoint("BOTTOMLEFT", 33 * (number - 1), 0)
 		frame:SetWidth(32)
 		frame:SetHeight(8)
@@ -110,10 +110,10 @@ local function HideChildren()
 	end
 end
 
-function ASTimer:initializeComplex()
+function CS:initializeComplex()
 	timerFrame:SetWidth(164)
 	timerFrame:SetHeight(40)
 	createFrames()
-	function ASTimer:refreshDisplay(orbs, timers) refreshDisplay(orbs, timers) end
+	function CS:refreshDisplay(orbs, timers) refreshDisplay(orbs, timers) end
 	function timerFrame:HideChildren() HideChildren() end
 end
