@@ -7,11 +7,11 @@ local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits")
 
 
 -- Upvalues
-local WeakaurasScanEvents
+local WeakAurasScanEvents
 if IsAddOnLoaded("WeakAuras") then
-	WeakaurasScanEvents = Weakauras.ScanEvents
+	WeakAurasScanEvents = WeakAuras.ScanEvents
 else
-	WeakaurasScanEvents = function() end
+	WeakAurasScanEvents = function() end
 end
 
 
@@ -28,7 +28,7 @@ local function refreshDisplay(orbs, timers)
 	local count = #timers or 0
 	wa_as.orbs = orbs
 	wa_as.timers = timers
-	WeakaurasScanEvents("WA_AUSPICIOUS_SPIRITS", count, orbs)
+	WeakAurasScanEvents("WA_AUSPICIOUS_SPIRITS", count, orbs)
 end
 
 function CS:initializeWeakAuras()
