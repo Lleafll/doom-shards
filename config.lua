@@ -88,6 +88,10 @@ local optionsTable = {
 					desc = "Shows the frame and toggles it for repositioning.",
 					func = function()
 						if UnitAffectingCombat("player") then return end
+						if CS.db.display == "WeakAuras" then
+							print("Not possible to unlock in WeakAuras mode!")
+							return
+						end
 						if not timerFrame.lock then
 							if not (CS.db.display == "Complex") or not CS.db.outofcombat then
 								timerFrame:Hide()
