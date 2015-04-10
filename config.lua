@@ -221,13 +221,7 @@ local optionsTable = {
 					end,
 					set = function(info, val)
 						CS.db.outofcombat = val
-						if val then
-							if CS.db.display == "Complex" then timerFrame:Show() end
-							print("CS now shows out of combat.")
-						else
-							if CS.db.display == "Complex" and not UnitAffectingCombat("player") then timerFrame:Hide() end
-							print("CS hidden out of combat.")
-						end
+						CS:Initialize()
 					end
 				}
 			}
