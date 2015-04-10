@@ -7,6 +7,7 @@ local CS = LibStub("AceAddon-3.0"):NewAddon("Conspicuous Spirits")
 LibStub("AceEvent-3.0"):Embed(CS)
 LibStub("AceTimer-3.0"):Embed(CS)
 LibStub("AceConsole-3.0"):Embed(CS)
+local AceConfigDialog
 
 
 -- Upvalues
@@ -73,8 +74,7 @@ local optionsTable = {
 			name = "Open Configuration Window",
 			guiHidden = true,
 			func = function()
-				InterfaceOptionsFrame_OpenToCategory("Conspicuous Spirits")
-				InterfaceOptionsFrame_OpenToCategory("Conspicuous Spirits")  -- calling twice because bugs suck
+				AceConfigDialog:Open("Conspicuous Spirits", optionsFrame)
 			end
 		},
 		display = {
@@ -460,7 +460,8 @@ local optionsTable = {
 	}
 }
 LibStub("AceConfig-3.0"):RegisterOptionsTable("Conspicuous Spirits", optionsTable, {"cs", "csp", "conspicuousspirits"})
-LibStub("AceConfigDialog-3.0"):AddToBlizOptions("Conspicuous Spirits")
+AceConfigDialog = LibStub("AceConfigDialog-3.0")
+local optionsFrame = AceConfigDialog:AddToBlizOptions("Conspicuous Spirits")
 
 
 CS.defaultSettings = {
