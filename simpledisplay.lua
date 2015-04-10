@@ -104,5 +104,6 @@ function CS:initializeSimple()
 	timerFrame:SetWidth(self.db.simple.width)
 	createFrames()
 	function CS:refreshDisplay(orbs, timers) refreshDisplay(orbs, timers) end
+	function timerFrame:ShowChildren() end
 	function timerFrame:HideChildren() HideChildren() end
 end

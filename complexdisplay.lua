@@ -73,7 +73,11 @@ local function createFrames()
 			edgeSize= 1
 		})
 		frame:SetBackdropBorderColor(0, 0, 0, 1)
-		frame:Show()
+		if number < 6 then
+			frame:Show()
+		else
+			frame:Hide()
+		end
 		return frame
 	end
 	for i = 1, 6 do
@@ -106,6 +110,14 @@ local function createFrames()
 	orbFrames[6]:SetBackdropColor(0, 0, 0, 0)  -- dummy frame to anchor overflow fontstring to
 end
 
+local function ShowChildren()
+	for i = 1, 5 do
+		orbFrames[i]:Show()
+		SATimers[i]:Show()
+	end
+	SATimers[6]:Show()
+end
+
 local function HideChildren()
 	for i = 1, 6 do
 		orbFrames[i]:Hide()
@@ -118,5 +130,6 @@ function CS:initializeComplex()
 	timerFrame:SetWidth(5 * self.db.complex.width + 4 * self.db.complex.spacing)
 	createFrames()
 	function CS:refreshDisplay(orbs, timers) refreshDisplay(orbs, timers) end
+	function timerFrame:ShowChildren() ShowChildren() end
 	function timerFrame:HideChildren() HideChildren() end
 end

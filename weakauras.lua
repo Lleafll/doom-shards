@@ -43,6 +43,7 @@ function CS:initializeWeakAuras(timers)
 	wa_as.timers = {}
 	function wa_as.TimeLeft(timerId) return CS:TimeLeft(timerId) end
 	function CS:refreshDisplay(orbs, timers) refreshDisplay(orbs, timers) end
+	function timerFrame:ShowChildren() end
 	function timerFrame:HideChildren() end
 end
 

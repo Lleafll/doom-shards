@@ -19,15 +19,17 @@ local timerFrame = CS.frame
 timerFrame:SetFrameStrata("MEDIUM")
 timerFrame:SetMovable(true)
 timerFrame.lock = true
-timerFrame.texture = timerFrame:CreateTexture(nil, "BACKGROUND")
+timerFrame.texture = timerFrame:CreateTexture(nil, "LOW")
 timerFrame.texture:SetAllPoints(timerFrame)
 timerFrame.texture:SetTexture(0.38, 0.23, 0.51, 0.7)
 timerFrame.texture:Hide()
 
+function timerFrame:ShowChildren() end
 function timerFrame:HideChildren() end
 
 function timerFrame:Unlock()
 	timerFrame:Show()
+	timerFrame:ShowChildren()
 	timerFrame.texture:Show()
 	timerFrame:SetScript("OnEnter", function(self) 
 		GameTooltip:SetOwner(self, "ANCHOR_TOP")
@@ -113,8 +115,8 @@ local optionsTable = {
 					end,
 					set = function(info, val)
 						CS.db.display = val
-						CS:OnInitialize()
-						print("Conspicuous Spirits is now in "..val.." mode.")
+						CS:Initialize()
+						if val == "WeakAuras" then timerFrame:Lock() end
 					end
 				}
 			}
@@ -146,7 +148,7 @@ local optionsTable = {
 					end,
 					set = function(info, val)
 						CS.db.complex.height = val
-						CS:OnInitialize()
+						CS:Initialize()
 					end
 				},
 				width = {
@@ -162,7 +164,7 @@ local optionsTable = {
 					end,
 					set = function(info, val)
 						CS.db.complex.width = val
-						CS:OnInitialize()
+						CS:Initialize()
 					end
 				},
 				spacing = {
@@ -178,7 +180,7 @@ local optionsTable = {
 					end,
 					set = function(info, val)
 						CS.db.complex.spacing = val
-						CS:OnInitialize()
+						CS:Initialize()
 					end
 				},
 				color1 = {
@@ -192,7 +194,7 @@ local optionsTable = {
 					end,
 					set = function(info, r, b, g, a)
 						CS.db.complex.color1.r, CS.db.complex.color1.b, CS.db.complex.color1.g, CS.db.complex.color1.a = r, b, g, a
-						CS:OnInitialize()
+						CS:Initialize()
 					end
 				},
 				color2 = {
@@ -206,7 +208,7 @@ local optionsTable = {
 					end,
 					set = function(info, r, b, g, a)
 						CS.db.complex.color2.r, CS.db.complex.color2.b, CS.db.complex.color2.g, CS.db.complex.color2.a = r, b, g, a
-						CS:OnInitialize()
+						CS:Initialize()
 					end
 				},
 				outofcombat = {
@@ -257,7 +259,7 @@ local optionsTable = {
 					end,
 					set = function(info, val)
 						CS.db.simple.height = val
-						CS:OnInitialize()
+						CS:Initialize()
 					end
 				},
 				width = {
@@ -273,7 +275,7 @@ local optionsTable = {
 					end,
 					set = function(info, val)
 						CS.db.simple.width = val
-						CS:OnInitialize()
+						CS:Initialize()
 					end
 				},
 				spacing = {
@@ -289,7 +291,7 @@ local optionsTable = {
 					end,
 					set = function(info, val)
 						CS.db.simple.spacing = val
-						CS:OnInitialize()
+						CS:Initialize()
 					end
 				},
 				color1 = {
@@ -303,7 +305,7 @@ local optionsTable = {
 					end,
 					set = function(info, r, b, g, a)
 						CS.db.simple.color1.r, CS.db.simple.color1.b, CS.db.simple.color1.g, CS.db.simple.color1.a = r, b, g, a
-						CS:OnInitialize()
+						CS:Initialize()
 					end
 				},
 				color2 = {
@@ -317,7 +319,7 @@ local optionsTable = {
 					end,
 					set = function(info, r, b, g, a)
 						CS.db.simple.color2.r, CS.db.simple.color2.b, CS.db.simple.color2.g, CS.db.simple.color2.a = r, b, g, a
-						CS:OnInitialize()
+						CS:Initialize()
 					end
 				},
 				color3 = {
@@ -331,7 +333,7 @@ local optionsTable = {
 					end,
 					set = function(info, r, b, g, a)
 						CS.db.simple.color3.r, CS.db.simple.color3.b, CS.db.simple.color3.g, CS.db.simple.color3.a = r, b, g, a
-						CS:OnInitialize()
+						CS:Initialize()
 					end
 				},
 				fontSize = {
@@ -340,14 +342,14 @@ local optionsTable = {
 					name = "Font Size",
 					desc = "Set Font Size",
 					min = 1,
-					max = 50,
+					max = 32,
 					step = 1,
 					get = function()
 						return CS.db.simple.fontSize
 					end,
 					set = function(info, val)
 						CS.db.simple.fontSize = val
-						CS:OnInitialize()
+						CS:Initialize()
 					end
 				}
 			}
@@ -396,10 +398,8 @@ local optionsTable = {
 							return
 						end
 						if not timerFrame.lock then
-							if not (CS.db.display == "Complex") or not CS.db.outofcombat then
-								timerFrame:Hide()
-							end
 							timerFrame:Lock()
+							CS:Initialize()
 						else
 							timerFrame:Unlock()
 						end
@@ -409,14 +409,12 @@ local optionsTable = {
 					order = 2,
 					type = "execute",
 					name = "Reset Position",
-					desc = "Reset Frame Position.",
+					cmdHidden  = true,
 					confirm  = true,
 					func = function()
-						local posX = CS.defaultSettings.global.posX
-						local posY = CS.defaultSettings.global.posY
-						CS.db.posX = posX
-						CS.db.posY = posY
-						timerFrame:SetPoint("CENTER", posX, posY)
+						CS.db.posX = 0
+						CS.db.posY = 0
+						timerFrame:SetPoint("CENTER", 0, 0)
 					end
 				}
 			}
@@ -431,7 +429,7 @@ local optionsTable = {
 					order = 6,
 					type = "toggle",
 					name = "Warning Sound",
-					desc = "Play Warning Sound when about to cap Shadow Orbs. Does not work in \"WeakAuras\" mode.",
+					desc = "Play Warning Sound when about to cap Shadow Orbs.",
 					get = function()
 						return CS.db.sound
 					end,
@@ -448,18 +446,19 @@ local optionsTable = {
 			order = 7,
 			type = "group",
 			name = "Reset",
+			cmdHidden  = true,
 			inline = true,
 			args = {
 				reset = {
 					order = 1,
 					type = "execute",
 					name = "Reset to Defaults",
-					desc = "Reset to Defaults",
 					confirm = true,
 					func = function()
 						CS:ResetDB()
 						print("Conspicuous Spirits reset!")
-						CS:OnInitialize()
+						CS:getDB()
+						CS:Initialize()
 					end
 				}
 			}

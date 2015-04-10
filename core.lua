@@ -271,6 +271,7 @@ function CS:UPDATE_MOUSEOVER_UNIT()
 end
 
 function CS:PLAYER_REGEN_DISABLED()
+	orbs = UnitPower("player", 13)
 	if not (self.db.display == "WeakAuras") then
 		if self.db.display == "Complex" then timerFrame:Show() end
 		self:ScheduleRepeatingTimer("update", 0.1)
@@ -291,7 +292,7 @@ function CS:PLAYER_REGEN_ENABLED()
 end
 
 local callback = function()
-	if UnitAffectingCombat("player") then
+	if UnitAffectingCombat("player") or (CS.db.display == "Complex" and CS.db.outofcombat) then
 		orbs = UnitPower("player", 13)
 		CS:update()
 	end 
@@ -328,9 +329,15 @@ function CS:talentsChanged()
 	end
 end
 
+function CS:getDB()
+	local CSDB = LibStub("AceDB-3.0"):New("ConspicuousSpiritsDB", self.defaultSettings, true)
+	self.db = CSDB.global
+	function self:ResetDB() CSDB:ResetDB() end
+end
+
 function CS:Initialize()
 	timerFrame:HideChildren()
-	timerFrame:Lock()
+	
 	if self.db.display == "Complex" then
 		self:initializeComplex()
 	elseif self.db.display == "Simple" then
@@ -339,18 +346,18 @@ function CS:Initialize()
 		self:initializeWeakAuras(timers)
 	end
 	self:applySettings()
-	
+		
 	if UnitAffectingCombat("player") then
 		self:PLAYER_REGEN_DISABLED()
-	else
+	elseif timerFrame.lock then
 		self:PLAYER_REGEN_ENABLED()
+	else
+		timerFrame:ShowChildren()
 	end
 end
 
 function CS:OnInitialize()
-	local CSDB = LibStub("AceDB-3.0"):New("ConspicuousSpiritsDB", self.defaultSettings, true)
-	self.db = CSDB.global
-	function self:ResetDB() CSDB:ResetDB("global") end
+	self:getDB()
 	self:Initialize()
 	
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
