@@ -2,7 +2,7 @@
 ## Title: Conspicuous Spirits
 ## Notes: Track your incoming Shadow Orbs from Auspicious Spirits!
 ## Author: Lleaf
-## Version: beta4
+## Version: @project-version@
 ## SavedVariables: ConspicuousSpiritsDB
 ## OptionalDeps: WeakAuras
 
