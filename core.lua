@@ -302,6 +302,10 @@ function CS:UNIT_POWER(_, unitID, power)
 	C_TimerAfter(0.01, callback)  -- needs to be delayed so it fires after the SA events, otherwise everything will assume the SA is still in flight
 end
 
+function CS:PLAYER_ENTERING_WORLD()
+	orbs = UnitPower("player", 13)
+end
+
 local function registerAllEvents()
 	CS:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	CS:RegisterEvent("PLAYER_TARGET_CHANGED")
@@ -336,11 +340,6 @@ function CS:Initialize()
 	end
 	self:applySettings()
 	
-	self:RegisterEvent("PLAYER_REGEN_DISABLED")
-	self:RegisterEvent("PLAYER_REGEN_ENABLED")
-	self:RegisterEvent("UNIT_POWER")
-	self:RegisterEvent("PLAYER_TALENT_UPDATE", "talentsChanged")
-			
 	if UnitAffectingCombat("player") then
 		self:PLAYER_REGEN_DISABLED()
 	else
@@ -353,4 +352,10 @@ function CS:OnInitialize()
 	self.db = CSDB.global
 	function self:ResetDB() CSDB:ResetDB("global") end
 	self:Initialize()
+	
+	self:RegisterEvent("PLAYER_REGEN_DISABLED")
+	self:RegisterEvent("PLAYER_REGEN_ENABLED")
+	self:RegisterEvent("UNIT_POWER")
+	self:RegisterEvent("PLAYER_TALENT_UPDATE", "talentsChanged")
+	self:RegisterEvent("PLAYER_ENTERING_WORLD")
 end
