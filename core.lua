@@ -345,6 +345,7 @@ function CS:Initialize()
 	elseif self.db.display == "WeakAuras" then
 		self:initializeWeakAuras(timers)
 	end
+	self:initializeSound()
 	self:applySettings()
 		
 	if UnitAffectingCombat("player") then

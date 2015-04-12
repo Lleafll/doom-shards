@@ -4,10 +4,11 @@ if class ~= "PRIEST" then return end
 
 -- Embedding and Libraries and stuff
 local CS = LibStub("AceAddon-3.0"):NewAddon("Conspicuous Spirits")
+local LSM = LibStub("LibSharedMedia-3.0")
 LibStub("AceEvent-3.0"):Embed(CS)
 LibStub("AceTimer-3.0"):Embed(CS)
 LibStub("AceConsole-3.0"):Embed(CS)
-local AceConfigDialog
+local ACD
 
 
 -- Upvalues
@@ -74,13 +75,14 @@ local optionsTable = {
 			name = "Open Configuration Window",
 			guiHidden = true,
 			func = function()
-				AceConfigDialog:Open("Conspicuous Spirits", optionsFrame)
+				ACD:Open("Conspicuous Spirits", optionsFrame)
 			end
 		},
 		display = {
 			order = 1,
 			type = "group",
 			name = "Display",
+			cmdHidden = true,
 			inline = true,
 			args = {
 				scale = {
@@ -103,8 +105,7 @@ local optionsTable = {
 					order = 1,
 					type = "select",
 					style = "dropdown",
-					name = "Choose Display Type",
-					cmdHidden  = true,
+					name = "Display Type",
 					values = {
 						["Complex"] = "Complex",
 						["Simple"] = "Simple",
@@ -403,7 +404,7 @@ local optionsTable = {
 					order = 2,
 					type = "execute",
 					name = "Reset Position",
-					cmdHidden  = true,
+					cmdHidden = true,
 					confirm  = true,
 					func = function()
 						CS.db.posX = 0
@@ -417,10 +418,11 @@ local optionsTable = {
 			order = 6,
 			type = "group",
 			name = "Sound",
+			cmdHidden = true,
 			inline = true,
 			args = {
 				sound = {
-					order = 6,
+					order = 1,
 					type = "toggle",
 					name = "Warning Sound",
 					desc = "Play Warning Sound when about to cap Shadow Orbs.",
@@ -429,10 +431,22 @@ local optionsTable = {
 					end,
 					set = function(info, val)
 						CS.db.sound = val
-						if val then
-							PlaySoundFile("Interface\\addons\\ConspicuousSpirits\\Media\\CSDroplet.mp3", "Master")
-						end
 					end
+				},
+				file = {
+					order = 2,
+					 type = "select",
+					 dialogControl = "LSM30_Sound",
+					 name = "",
+					 desc = "File to play.",
+					 values = LSM:HashTable("sound"),
+					 get = function()
+						  return CS.db.soundHandle
+					 end,
+					 set = function(_,key)
+						  CS.db.soundHandle = key
+						  CS.soundFile = LSM:Fetch("sound", CS.db.soundHandle)
+					 end
 				}
 			}
 		},
@@ -460,8 +474,8 @@ local optionsTable = {
 	}
 }
 LibStub("AceConfig-3.0"):RegisterOptionsTable("Conspicuous Spirits", optionsTable, {"cs", "csp", "conspicuousspirits"})
-AceConfigDialog = LibStub("AceConfigDialog-3.0")
-local optionsFrame = AceConfigDialog:AddToBlizOptions("Conspicuous Spirits")
+ACD = LibStub("AceConfigDialog-3.0")
+local optionsFrame = ACD:AddToBlizOptions("Conspicuous Spirits")
 
 
 CS.defaultSettings = {
@@ -487,7 +501,8 @@ CS.defaultSettings = {
 		},
 		outofcombat = true,
 		display = "Complex",
-		sound = false
+		sound = false,
+		soundHandle = "Droplet"
 	}
 }
 
