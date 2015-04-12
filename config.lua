@@ -4,6 +4,7 @@ if class ~= "PRIEST" then return end
 
 -- Embedding and Libraries and stuff
 local CS = LibStub("AceAddon-3.0"):NewAddon("Conspicuous Spirits")
+local L = LibStub("AceLocale-3.0"):GetLocale("ConspicuousSpirits")
 local LSM = LibStub("LibSharedMedia-3.0")
 LibStub("AceEvent-3.0"):Embed(CS)
 LibStub("AceTimer-3.0"):Embed(CS)
@@ -36,7 +37,7 @@ function timerFrame:Unlock()
 	timerFrame:SetScript("OnEnter", function(self) 
 		GameTooltip:SetOwner(self, "ANCHOR_TOP")
 		GameTooltip:AddLine("Conspicuous Spirits", 0.38, 0.23, 0.51, 1, 1, 1)
-		GameTooltip:AddLine("Left mouse button to drag.", 1, 1, 1, 1, 1, 1)
+		GameTooltip:AddLine(L["Left mouse button to drag."], 1, 1, 1, 1, 1, 1)
 		GameTooltip:Show()
 	end)
 	timerFrame:SetScript("OnLeave", function(s) GameTooltip:Hide() end)
@@ -49,7 +50,7 @@ function timerFrame:Unlock()
 		end
 	)
 	timerFrame.lock = false
-	print("Conspicuous Spirits unlocked!")
+	print(L["Conspicuous Spirits unlocked!"])
 end
 
 function timerFrame:Lock()
@@ -59,7 +60,7 @@ function timerFrame:Lock()
 	timerFrame:SetScript("OnLeave", nil)
 	timerFrame:SetScript("OnMouseDown", nil)
 	timerFrame:SetScript("OnMouseUp", nil)
-	if not timerFrame.lock then print("Conspicuous Spirits locked!") end
+	if not timerFrame.lock then print(L["Conspicuous Spirits locked!"]) end
 	timerFrame.lock = true
 end
 
@@ -72,7 +73,7 @@ local optionsTable = {
 		config = {
 			order = 0,
 			type = "execute",
-			name = "Open Configuration Window",
+			name = L["Open Configuration Window"],
 			guiHidden = true,
 			func = function()
 				ACD:Open("Conspicuous Spirits", optionsFrame)
@@ -81,15 +82,15 @@ local optionsTable = {
 		display = {
 			order = 1,
 			type = "group",
-			name = "Display",
+			name = L["Display"],
 			cmdHidden = true,
 			inline = true,
 			args = {
 				scale = {
 					order = 2,
 					type = "range",
-					name = "Scale",
-					desc = "Set Frame Scale",
+					name = L["Scale"],
+					desc = L["Set Frame Scale"],
 					min = 0,
 					max = 3,
 					step = 0.01,
@@ -105,16 +106,19 @@ local optionsTable = {
 					order = 1,
 					type = "select",
 					style = "dropdown",
-					name = "Display Type",
+					name = L["Display Type"],
 					values = {
-						["Complex"] = "Complex",
-						["Simple"] = "Simple",
-						["WeakAuras"] = "WeakAuras"
+						["Complex"] = L["Complex"],
+						["Simple"] = L["Simple"],
+						["WeakAuras"] = L["WeakAuras"]
 					},
 					get = function()
 						return CS.db.display
 					end,
 					set = function(info, val)
+						if val == L["Complex"] then val = "Complex"
+						elseif val == L["Simple"] then val = "Simple"
+						elseif val == L["WeakAuras"] then val = "WeakAuras" end
 						CS.db.display = val
 						CS:Initialize()
 						if val == "WeakAuras" then timerFrame:Lock() end
@@ -125,7 +129,7 @@ local optionsTable = {
 		complex = {
 			order = 2,
 			type = "group",
-			name = "Complex Display",
+			name = L["Complex Display"],
 			hidden = function()
 				if CS.db then
 					return not (CS.db.display == "Complex")
@@ -139,8 +143,8 @@ local optionsTable = {
 				height = {
 					order = 1,
 					type = "range",
-					name = "Height",
-					desc = "Set Shadow Orb Height",
+					name = L["Height"],
+					desc = L["Set Shadow Orb Height"],
 					min = 0,
 					max = 100,
 					step = 1,
@@ -155,8 +159,8 @@ local optionsTable = {
 				width = {
 					order = 2,
 					type = "range",
-					name = "Width",
-					desc = "Set Shadow Orb Width",
+					name = L["Width"],
+					desc = L["Set Shadow Orb Width"],
 					min = 0,
 					max = 100,
 					step = 1,
@@ -171,8 +175,8 @@ local optionsTable = {
 				spacing = {
 					order = 3,
 					type = "range",
-					name = "Spacing",
-					desc = "Set Shadow Orb Spacing",
+					name = L["Spacing"],
+					desc = L["Set Shadow Orb Spacing"],
 					min = 0,
 					max = 100,
 					step = 1,
@@ -187,8 +191,8 @@ local optionsTable = {
 				color1 = {
 					order = 4,
 					type = "color",
-					name = "Color 1",
-					desc = "Set Color 1",
+					name = L["Color 1"],
+					desc = L["Set Color 1"],
 					get = function()
 						local r, b, g, a = CS.db.complex.color1.r, CS.db.complex.color1.b, CS.db.complex.color1.g, CS.db.complex.color1.a
 						return r, b, g, a
@@ -201,8 +205,8 @@ local optionsTable = {
 				color2 = {
 					order = 5,
 					type = "color",
-					name = "Color 2",
-					desc = "Set Color 2",
+					name = L["Color 2"],
+					desc = L["Set Color 2"],
 					get = function()
 						local r, b, g, a = CS.db.complex.color2.r, CS.db.complex.color2.b, CS.db.complex.color2.g, CS.db.complex.color2.a
 						return r, b, g, a
@@ -215,8 +219,8 @@ local optionsTable = {
 				outofcombat = {
 					order = 6,
 					type = "toggle",
-					name = "Show Orbs out of combat",
-					desc = "Will show Shadow Orbs frame even when not in combat.",
+					name = L["Show Orbs out of combat"],
+					desc = L["Will show Shadow Orbs frame even when not in combat."],
 					get = function()
 						return CS.db.outofcombat
 					end,
@@ -230,7 +234,7 @@ local optionsTable = {
 		simple = {
 			order = 2,
 			type = "group",
-			name = "Simple Display",
+			name = L["Simple Display"],
 			hidden = function()
 				if CS.db then
 					return not (CS.db.display == "Simple")
@@ -244,8 +248,8 @@ local optionsTable = {
 				height = {
 					order = 1,
 					type = "range",
-					name = "Height",
-					desc = "Set Frame Height",
+					name = L["Height"],
+					desc = L["Set Frame Height"],
 					min = 0,
 					max = 300,
 					step = 1,
@@ -260,8 +264,8 @@ local optionsTable = {
 				width = {
 					order = 2,
 					type = "range",
-					name = "Width",
-					desc = "Set Frame Width",
+					name = L["Width"],
+					desc = L["Set Frame Width"],
 					min = 0,
 					max = 300,
 					step = 1,
@@ -276,8 +280,8 @@ local optionsTable = {
 				spacing = {
 					order = 3,
 					type = "range",
-					name = "Spacing",
-					desc = "Set Number Spacing",
+					name = L["Spacing"],
+					desc = L["Set Number Spacing"],
 					min = 0,
 					max = 100,
 					step = 1,
@@ -292,8 +296,8 @@ local optionsTable = {
 				color1 = {
 					order = 4,
 					type = "color",
-					name = "Color 1",
-					desc = "Set Color 1",
+					name = L["Color 1"],
+					desc = L["Set Color 1"],
 					get = function()
 						local r, b, g, a = CS.db.simple.color1.r, CS.db.simple.color1.b, CS.db.simple.color1.g, CS.db.simple.color1.a
 						return r, b, g, a
@@ -306,8 +310,8 @@ local optionsTable = {
 				color2 = {
 					order = 5,
 					type = "color",
-					name = "Color 2",
-					desc = "Set Color 2",
+					name = L["Color 2"],
+					desc = L["Set Color 2"],
 					get = function()
 						local r, b, g, a = CS.db.simple.color2.r, CS.db.simple.color2.b, CS.db.simple.color2.g, CS.db.simple.color2.a
 						return r, b, g, a
@@ -320,8 +324,8 @@ local optionsTable = {
 				color3 = {
 					order = 6,
 					type = "color",
-					name = "Color 3",
-					desc = "Set Color 3",
+					name = L["Color 3"],
+					desc = L["Set Color 3"],
 					get = function()
 						local r, b, g, a = CS.db.simple.color3.r, CS.db.simple.color3.b, CS.db.simple.color3.g, CS.db.simple.color3.a
 						return r, b, g, a
@@ -334,8 +338,8 @@ local optionsTable = {
 				fontSize = {
 					order = 7,
 					type = "range",
-					name = "Font Size",
-					desc = "Set Font Size",
+					name = L["Font Size"],
+					desc = L["Set Font Size"],
 					min = 1,
 					max = 32,
 					step = 1,
@@ -352,7 +356,7 @@ local optionsTable = {
 		weakauras = {
 			order = 4,
 			type = "group",
-			name = "WeakAuras String",
+			name = L["WeakAuras String"],
 			hidden = function()
 				if CS.db then
 					return not (CS.db.display == "WeakAuras")
@@ -367,7 +371,7 @@ local optionsTable = {
 					order = 1,
 					type = "input",
 					name = "",
-					desc = "WeakAuras String to use when \"WeakAuras\" Display is selected. Copy & paste into WeakAuras to import.",
+					desc = L["WeakAuras String to use when \"WeakAuras\" Display is selected. Copy & paste into WeakAuras to import."],
 					width = "full",
 					get = function()
 						return CS.weakaurasString
@@ -378,18 +382,18 @@ local optionsTable = {
 		position = {
 			order = 5,
 			type = "group",
-			name = "Position",
+			name = L["Position"],
 			inline = true,
 			args = {
 				lock = {
 					order = 1,
 					type = "execute",
-					name = "Toggle Lock",
-					desc = "Shows the frame and toggles it for repositioning.",
+					name = L["Toggle Lock"],
+					desc = L["Shows the frame and toggles it for repositioning."],
 					func = function()
 						if UnitAffectingCombat("player") then return end
 						if CS.db.display == "WeakAuras" then
-							print("Not possible to unlock in WeakAuras mode!")
+							print(L["Not possible to unlock in WeakAuras mode!"])
 							return
 						end
 						if not timerFrame.lock then
@@ -403,7 +407,7 @@ local optionsTable = {
 				reset = {
 					order = 2,
 					type = "execute",
-					name = "Reset Position",
+					name = L["Reset Position"],
 					cmdHidden = true,
 					confirm  = true,
 					func = function()
@@ -417,15 +421,15 @@ local optionsTable = {
 		sound = {
 			order = 6,
 			type = "group",
-			name = "Sound",
+			name = L["Sound"],
 			cmdHidden = true,
 			inline = true,
 			args = {
 				sound = {
 					order = 1,
 					type = "toggle",
-					name = "Warning Sound",
-					desc = "Play Warning Sound when about to cap Shadow Orbs.",
+					name = L["Warning Sound"],
+					desc = L["Play Warning Sound when about to cap Shadow Orbs."],
 					get = function()
 						return CS.db.sound
 					end,
@@ -438,7 +442,7 @@ local optionsTable = {
 					 type = "select",
 					 dialogControl = "LSM30_Sound",
 					 name = "",
-					 desc = "File to play.",
+					 desc = L["File to play."],
 					 values = LSM:HashTable("sound"),
 					 get = function()
 						  return CS.db.soundHandle
@@ -453,18 +457,18 @@ local optionsTable = {
 		reset = {
 			order = 7,
 			type = "group",
-			name = "Reset",
+			name = L["Reset"],
 			cmdHidden  = true,
 			inline = true,
 			args = {
 				reset = {
 					order = 1,
 					type = "execute",
-					name = "Reset to Defaults",
+					name = L["Reset to Defaults"],
 					confirm = true,
 					func = function()
 						CS:ResetDB()
-						print("Conspicuous Spirits reset!")
+						print(L["Conspicuous Spirits reset!"])
 						CS:getDB()
 						CS:Initialize()
 					end

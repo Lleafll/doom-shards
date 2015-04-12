@@ -22,6 +22,9 @@ Libs\AceConfig-3.0\AceConfigRegistry-3.0\AceConfigRegistry-3.0.xml
 Libs\LibSharedMedia-3.0\lib.xml
 Libs\AceGUI-3.0-SharedMediaWidgets\widget.xml
 
+Localizations\enUS.lua
+Localizations\deDE.lua
+
 config.lua
 complexdisplay.lua
 simpledisplay.lua
