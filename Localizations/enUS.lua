@@ -1,5 +1,3 @@
-GAME_LOCALE = "deDE"
-
 -- Libraries
 local L = LibStub("AceLocale-3.0"):NewLocale("ConspicuousSpirits", "enUS", true)
 if not L then return end
@@ -24,6 +22,7 @@ L["Not possible to unlock in WeakAuras mode!"] = true
 L["Open Configuration Window"] = true
 L["Play Warning Sound when about to cap Shadow Orbs."] = true
 L["Position"] = true
+L["Reset"] = true
 L["Reset Position"] = true
 L["Reset to Defaults"] = true
 L["Scale"] = true

@@ -22,6 +22,7 @@ L["Not possible to unlock in WeakAuras mode!"] = "Entsperren nicht m\195\182glic
 L["Open Configuration Window"] = "Einstellungsfenster \195\182ffnen"
 L["Play Warning Sound when about to cap Shadow Orbs."] = "Warnton abspielen bei zu vielen Schattenkugeln."
 L["Position"] = "Position"
+L["Reset"] = "Zur\195\188cksetzen"
 L["Reset Position"] = "Position zur\195\188cksetzen"
 L["Reset to Defaults"] = "Einstellungen zur\195\188cksetzen"
 L["Scale"] = "Gr\195\182\195\159e"
