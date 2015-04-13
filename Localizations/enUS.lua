@@ -26,7 +26,6 @@ L["Reset"] = true
 L["Reset Position"] = true
 L["Reset to Defaults"] = true
 L["Scale"] = true
-L["Spacing"] = true
 L["Set Frame Scale"] = true
 L["Set Color 1"] = true
 L["Set Color 2"] = true
