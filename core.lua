@@ -156,7 +156,7 @@ local function getTravelTime(timeStamp, GUID, forced)
 		end
 	end
 	
-	return travelTime
+	return travelTime + 0.5  -- accounting for extra 0.5 sec travel time due to hitbox size (estimated)
 end
 
 local function addGUID(timeStamp, GUID)
@@ -301,7 +301,7 @@ local unitPowerCallback = function()
 	if UnitAffectingCombat("player") or (CS.db.display == "Complex" and CS.db.outofcombat) then
 		orbs = UnitPower("player", 13)
 		CS:update()
-	end 
+	end
 end
 
 function CS:UNIT_POWER(_, unitID, power)

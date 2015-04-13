@@ -41,7 +41,7 @@ local function refreshDisplay(orbs, timers)
 	timerTextShort:SetText(short)
 	timerTextLong:SetText(long)
 	
-	if orbs >= 3 and short + long > 0 and ((short + orbs >= 5) or (short + long + orbs >= 6)) then
+	if (orbs >= 3) and (short + long > 0) and ((short + orbs >= 5) or (short + long + orbs >= 6)) then
 		timerFrame:Show()
 		timerFrame:SetBackdropColor(CS.db.simple.color3.r, CS.db.simple.color3.b, CS.db.simple.color3.g, CS.db.simple.color3.a)
 	elseif short > 0 then
