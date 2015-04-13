@@ -21,7 +21,6 @@ local UnitAffectingCombat = UnitAffectingCombat
 local UnitCanAttack = UnitCanAttack
 local UnitExists = UnitExists
 local UnitGUID = UnitGUID
-local UnitIsDead = UnitIsDead
 local UnitPower = UnitPower
 
 
@@ -75,22 +74,20 @@ local function calculateTravelTime(unitID)
 	local minDistance
 	local maxDistance
 
-	if UnitCanAttack("player", unitID) and not UnitIsDead(unitID) then
-		for i = 0, 80 do
-			local distanceItem = distanceTable[i]
-			if ItemHasRange(distanceItem) then
-				if IsItemInRange(distanceItem, unitID) then
-					maxDistance = i
-					if maxDistance <= 5 then
-						minDistance = 0
-						maxDistance = 5
-					end
-				else
-					minDistance = i
+	for i = 0, 80 do
+		local distanceItem = distanceTable[i]
+		if ItemHasRange(distanceItem) then
+			if IsItemInRange(distanceItem, unitID) then
+				maxDistance = i
+				if maxDistance <= 5 then
+					minDistance = 0
+					maxDistance = 5
 				end
+			else
+				minDistance = i
 			end
-			if minDistance and maxDistance then break end
 		end
+		if minDistance and maxDistance then break end
 	end
 	
 	return ((minDistance or 40) + (maxDistance or 40)) / 2 / SAVelocity

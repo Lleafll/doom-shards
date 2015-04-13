@@ -17,7 +17,6 @@ local SATimers = {}
 
 -- Variables
 local timerID
-local maxToleratedTime = 10
 local remainingThreshold = 2 -- threshold between short and long Shadowy Apparitions
 local frame
 local fontString
