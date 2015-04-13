@@ -30,7 +30,6 @@ local timerFrame = CS.frame
 
 
 -- Variables
-local count = 0  -- Shadowy Apparitions in flight
 local orbs = UnitPower("player", 13)
 local targets = {}  -- used to attribute timer IDs to mobs
 local timers = {}  -- ordered table of all timer IDs
@@ -162,7 +161,6 @@ end
 
 local function addGUID(timeStamp, GUID)
 	targets[GUID] = targets[GUID] or {}
-	count = count + 1
 	timerID = CS:ScheduleTimer("removeTimer_timed", maxToleratedTime, GUID)
 	timerID.impactTime = GetTime() + getTravelTime(timeStamp, GUID, true)  -- can't use timeStamp instead of GetTime() because of different time reference
 	targets[GUID][#targets[GUID]+1] = timerID
@@ -205,18 +203,14 @@ end
 	
 local function removeGUID(GUID)
 	for _, timerID in pairs(targets[GUID]) do
-		count = count - 1
 		removeTimer(timerID)
 	end
-	if count < 0 then count = 0 end
 	targets[GUID] = nil
 	distanceCache[GUID] = nil
 end
 
 local function popGUID(GUID)
-	if targets[GUID] then 
-		count = count - 1
-		if count < 0 then count = 0 end
+	if targets[GUID] then
 		return tableremove(targets[GUID], 1)
 	else
 		return false
@@ -230,7 +224,6 @@ function CS:removeTimer_timed(GUID)
 end
         
 local function resetCount()
-	count = 0
 	targets = {}
 	timers = {}
 	distanceCache = {}
