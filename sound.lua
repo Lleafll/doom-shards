@@ -9,7 +9,8 @@ LSM:Register("sound", "Droplet", "Interface\\addons\\ConspicuousSpirits\\Media\\
 
 
 -- Upvalues
-local GetTime, PlaySoundFile = GetTime, PlaySoundFile
+local GetTime = GetTime
+local PlaySoundFile = PlaySoundFile
 
 
 -- Variables

@@ -13,7 +13,8 @@ local ACD
 
 
 -- Upvalues
-local UnitAffectingCombat, print, InterfaceOptionsFrame_OpenToCategory = UnitAffectingCombat, print, InterfaceOptionsFrame_OpenToCategory
+local print = print
+local UnitAffectingCombat = UnitAffectingCombat 
 
 
 -- Frames

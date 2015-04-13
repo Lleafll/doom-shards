@@ -7,7 +7,25 @@ local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits")
 
 
 -- Upvalues
-local print, C_TimerAfter, UnitCanAttack, UnitIsDead, GetSpecialization, ItemHasRange, IsItemInRange, UnitGUID, IsInRaid, IsInGroup, UnitAffectingCombat, tostring, UnitPower, UnitExists, tableremove, pairs, GetTalentInfo, GetActiveSpecGroup, GetTime = print, C_Timer.After, UnitCanAttack, UnitIsDead, GetSpecialization, ItemHasRange, IsItemInRange, UnitGUID, IsInRaid, IsInGroup, UnitAffectingCombat, tostring, UnitPower, UnitExists, table.remove, pairs, GetTalentInfo, GetActiveSpecGroup, GetTime
+local C_TimerAfter = C_Timer.After
+local GetActiveSpecGroup = GetActiveSpecGroup
+local GetSpecialization = GetSpecialization
+local GetTalentInfo = GetTalentInfo
+local GetTime = GetTime
+local IsInGroup = IsInGroup
+local IsInRaid = IsInRaid
+local IsItemInRange = IsItemInRange
+local ItemHasRange = ItemHasRange
+local pairs = pairs
+local print = print
+local tableremove = table.remove
+local tostring = tostring
+local UnitAffectingCombat = UnitAffectingCombat
+local UnitCanAttack = UnitCanAttack
+local UnitExists = UnitExists
+local UnitGUID = UnitGUID
+local UnitIsDead = UnitIsDead
+local UnitPower = UnitPower
 
 
 -- Frames
@@ -151,9 +169,21 @@ local function addGUID(timeStamp, GUID)
 	targets[GUID] = targets[GUID] or {}
 	count = count + 1
 	timerID = CS:ScheduleTimer("removeTimer_timed", maxToleratedTime, GUID)
-	timerID.travelTime = getTravelTime(timeStamp, GUID, true)
+	timerID.impactTime = GetTime() + getTravelTime(timeStamp, GUID, true)  -- can't use timeStamp instead of GetTime() because of different 
 	targets[GUID][#targets[GUID]+1] = timerID
-	timers[#timers+1] = timerID
+	
+	local timersCount = #timers
+	if timersCount == 0 then
+		timers[1] = timerID
+		return
+	end
+	for i = 1, timersCount do
+		if timerID.impactTime < timers[i].impactTime then
+			table.insert(timers, i, timerID)
+			return
+		end
+	end
+	timers[timersCount+1] = timerID
 end
 
 local function popTimer(timerID)
@@ -291,7 +321,7 @@ function CS:PLAYER_REGEN_ENABLED()
 	function warningSound() end
 end
 
-local callback = function()
+local unitPowerCallback = function()
 	if UnitAffectingCombat("player") or (CS.db.display == "Complex" and CS.db.outofcombat) then
 		orbs = UnitPower("player", 13)
 		CS:update()
@@ -300,7 +330,7 @@ end
 
 function CS:UNIT_POWER(_, unitID, power)
 	if not (unitID == "player" and power == "SHADOW_ORBS") then return end
-	C_TimerAfter(0.01, callback)  -- needs to be delayed so it fires after the SA events, otherwise everything will assume the SA is still in flight
+	C_TimerAfter(0.01, unitPowerCallback)  -- needs to be delayed so it fires after the SA events, otherwise everything will assume the SA is still in flight
 end
 
 function CS:PLAYER_ENTERING_WORLD()

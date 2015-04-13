@@ -7,6 +7,8 @@ local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits")
 
 
 -- Upvalues
+local GetTime = GetTime
+local mathmax = math.max
 local stringformat = string.format
 
 
@@ -35,18 +37,12 @@ local function refreshDisplay(orbs, timers)
 			orbFrames[i]:Hide()
 			timerID = timers[k]
 			if timerID then
-				local timeLeft = CS:TimeLeft(timerID)
-				if timeLeft > 0 then
-					SATimers[i]:Show()
-					local travelTime = timerID.travelTime
-					local remaining = math.max(0, timeLeft - maxToleratedTime + travelTime)
-					if remaining < remainingThreshold then
-						SATimers[i]:SetText(stringformat("%.1f", remaining))
-					else
-						SATimers[i]:SetText(stringformat("%.0f", remaining))
-					end
+				SATimers[i]:Show()
+				local remaining = mathmax(0, timerID.impactTime - GetTime())
+				if remaining < remainingThreshold then
+					SATimers[i]:SetText(stringformat("%.1f", remaining))
 				else
-					SATimers[i]:Hide()
+					SATimers[i]:SetText(stringformat("%.0f", remaining))
 				end
 				k = k + 1
 			else
