@@ -15,6 +15,7 @@ local IsItemInRange = IsItemInRange
 local ItemHasRange = ItemHasRange
 local pairs = pairs
 local print = print
+local tableinsert = table.insert
 local tableremove = table.remove
 local tostring = tostring
 local UnitAffectingCombat = UnitAffectingCombat
@@ -87,7 +88,7 @@ local function calculateTravelTime(unitID)
 				minDistance = i
 			end
 		end
-		if minDistance and maxDistance then break end
+		if maxDistance and minDistance then break end  -- check maxDistance first since minDistance will almost always be != nil
 	end
 	
 	return ((minDistance or 40) + (maxDistance or 40)) / 2 / SAVelocity
@@ -95,7 +96,7 @@ end
 
 local function iterateUnitIDs(tbl, GUID)
 	for i = 1, #tbl do
-		unitID = tbl[i]
+		local unitID = tbl[i]
 		if UnitGUID(unitID) == GUID then
 			return calculateTravelTime(unitID)
 		end
@@ -149,7 +150,7 @@ local function getTravelTime(timeStamp, GUID, forced)
 		travelTime = getTravelTimeByGUID(timeStamp, GUID) or (40 / SAVelocity)
 	else
 		local delta = timeStamp - distanceCache_GUID.timeStamp
-		if forced or delta > cacheMaxTime then
+		if forced or (delta > cacheMaxTime) then
 			travelTime = getTravelTimeByGUID(timeStamp, GUID) or distanceCache_GUID.travelTime
 		else
 			travelTime = distanceCache_GUID.travelTime
@@ -163,7 +164,7 @@ local function addGUID(timeStamp, GUID)
 	targets[GUID] = targets[GUID] or {}
 	count = count + 1
 	timerID = CS:ScheduleTimer("removeTimer_timed", maxToleratedTime, GUID)
-	timerID.impactTime = GetTime() + getTravelTime(timeStamp, GUID, true)  -- can't use timeStamp instead of GetTime() because of different 
+	timerID.impactTime = GetTime() + getTravelTime(timeStamp, GUID, true)  -- can't use timeStamp instead of GetTime() because of different time reference
 	targets[GUID][#targets[GUID]+1] = timerID
 	
 	local timersCount = #timers
@@ -173,7 +174,7 @@ local function addGUID(timeStamp, GUID)
 	end
 	for i = 1, timersCount do
 		if timerID.impactTime < timers[i].impactTime then
-			table.insert(timers, i, timerID)
+			tableinsert(timers, i, timerID)
 			return
 		end
 	end
@@ -282,18 +283,6 @@ function CS:COMBAT_LOG_EVENT_UNFILTERED(_, ...)
 	end
 end
 
-function CS:PLAYER_TARGET_CHANGED(cause)
-	if cause == "up" and UnitCanAttack("player", "target") then
-		getTravelTime(GetTime(), UnitGUID("target"))
-	end
-end
-
-function CS:UPDATE_MOUSEOVER_UNIT()
-	if UnitCanAttack("player", "mouseover") then
-		getTravelTime(GetTime(), UnitGUID("mouseover"))
-	end
-end
-
 function CS:PLAYER_REGEN_DISABLED()
 	orbs = UnitPower("player", 13)
 	if not (self.db.display == "WeakAuras") then
@@ -333,14 +322,10 @@ end
 
 local function registerAllEvents()
 	CS:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-	CS:RegisterEvent("PLAYER_TARGET_CHANGED")
-	CS:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
 end
 
 local function unregisterAllEvents()
 	CS:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-	CS:UnregisterEvent("PLAYER_TARGET_CHANGED")
-	CS:UnregisterEvent("UPDATE_MOUSEOVER_UNIT")
 end
 
 function CS:talentsChanged()
