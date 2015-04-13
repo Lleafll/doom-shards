@@ -28,6 +28,7 @@ local fontString
 
 -- Functions
 local function refreshDisplay(orbs, timers)
+	local currentTime
 	local k = 1
 	for i = 1, 6 do
 		if orbs >= i then
@@ -38,7 +39,8 @@ local function refreshDisplay(orbs, timers)
 			timerID = timers[k]
 			if timerID then
 				SATimers[i]:Show()
-				local remaining = mathmax(0, timerID.impactTime - GetTime())
+				currentTime = currentTime or GetTime()
+				local remaining = mathmax(0, timerID.impactTime - currentTime)
 				if remaining < remainingThreshold then
 					SATimers[i]:SetText(stringformat("%.1f", remaining))
 				else

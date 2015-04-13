@@ -7,6 +7,7 @@ local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits")
 
 
 -- Upvalues
+local GetTime = GetTime
 local stringformat = string.format
 
 
@@ -24,26 +25,23 @@ local remainingThreshold = 2 -- threshold between short and long Shadowy Apparit
 
 -- Functions
 local function refreshDisplay(orbs, timers)
+	local currentTime
 	local short = 0
 	local long = 0
 	for i = 1, #timers do
 		timerID = timers[i]
 		if timerID then
-			local timeLeft = CS:TimeLeft(timerID)
-			if timeLeft > 0 then
-				local travelTime = timerID.travelTime
-				local remaining = timeLeft - maxToleratedTime + travelTime
-				if remaining < remainingThreshold then
-					short = short + 1
-				else
-					long = long + 1
-				end
+			currentTime = currentTime or GetTime()
+			local remaining = timerID.impactTime - currentTime
+			if remaining < remainingThreshold then
+				short = short + 1
+			else
+				long = long + 1
 			end
 		else
 			break
 		end
 	end
-	--local text = stringformat("%s  %s", short, long)
 	timerTextShort:SetText(short)
 	timerTextLong:SetText(long)
 	
