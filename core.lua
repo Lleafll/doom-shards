@@ -1,9 +1,6 @@
-local _, class = UnitClass("player")
-if class ~= "PRIEST" then return end
-
-
 -- Get Addon object
-local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits")
+local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
+if not CS then return end
 
 
 -- Upvalues

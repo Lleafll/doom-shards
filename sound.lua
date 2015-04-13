@@ -1,10 +1,6 @@
-local _, class = UnitClass("player")
-if class ~= "PRIEST" then return end
-
-
 -- Libraries
-local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits")
-local LSM = LibStub("LibSharedMedia-3.0")
+local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
+if not CS then return endlocal LSM = LibStub("LibSharedMedia-3.0")
 LSM:Register("sound", "Droplet", "Interface\\addons\\ConspicuousSpirits\\Media\\CSDroplet.mp3")
 
 
