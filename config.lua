@@ -9,7 +9,7 @@ local LSM = LibStub("LibSharedMedia-3.0")
 LibStub("AceEvent-3.0"):Embed(CS)
 LibStub("AceTimer-3.0"):Embed(CS)
 LibStub("AceConsole-3.0"):Embed(CS)
-local ACD
+local ACD = LibStub("AceConfigDialog-3.0")
 
 
 -- Upvalues
@@ -71,15 +71,6 @@ local optionsTable = {
 	type = "group",
 	name = "Conspicuous Spirits",
 	args = {
-		config = {
-			order = 0,
-			type = "execute",
-			name = L["Open Configuration Window"],
-			guiHidden = true,
-			func = function()
-				ACD:Open("Conspicuous Spirits", optionsFrame)
-			end
-		},
 		display = {
 			order = 1,
 			type = "group",
@@ -478,9 +469,14 @@ local optionsTable = {
 		}
 	}
 }
-LibStub("AceConfig-3.0"):RegisterOptionsTable("Conspicuous Spirits", optionsTable, {"cs", "csp", "conspicuousspirits"})
-ACD = LibStub("AceConfigDialog-3.0")
-local optionsFrame = ACD:AddToBlizOptions("Conspicuous Spirits")
+LibStub("AceConfig-3.0"):RegisterOptionsTable("Conspicuous Spirits", optionsTable)
+ACD:AddToBlizOptions("Conspicuous Spirits")
+function CS:openOptions()
+	ACD:Open("Conspicuous Spirits")
+end
+CS:RegisterChatCommand("cs", "openOptions")
+CS:RegisterChatCommand("csp", "openOptions")
+CS:RegisterChatCommand("conspicuousspirits", "openOptions")
 
 
 CS.defaultSettings = {
