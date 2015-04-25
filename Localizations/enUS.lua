@@ -17,6 +17,7 @@ L["Display Type"] = true
 L["File to play."] = true
 L["Font Size"] = true
 L["Height"] = true
+L["IronMaidensShipMessage"] = "prepares to man the Dreadnaught's Main Cannon!"
 L["Left mouse button to drag."] = true
 L["Not possible to unlock in WeakAuras mode!"] = true
 L["Open Configuration Window"] = true

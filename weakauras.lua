@@ -29,7 +29,7 @@ local function refreshDisplay(orbs, timers)
 	WeakAurasScanEvents("WA_AUSPICIOUS_SPIRITS", count, orbs)
 end
 
-function CS:initializeWeakAuras(timers)
+function CS:initializeWeakAuras()
 	timerFrame:SetWidth(0)
 	timerFrame:SetHeight(0)
 	
@@ -38,8 +38,8 @@ function CS:initializeWeakAuras(timers)
 	wa_as.count = 0
 	wa_as.orbs = UnitPower("player", 13)
 	wa_as.timers = {}
-	function wa_as.TimeLeft(timerId) return CS:TimeLeft(timerId) end
-	function CS:refreshDisplay(orbs, timers) refreshDisplay(orbs, timers) end
-	function timerFrame:ShowChildren() end
-	function timerFrame:HideChildren() end
+	wa_as.TimeLeft = CS.TimeLeft
+	CS.refreshDisplay = refreshDisplay
+	timerFrame:ShowChildren() = function end
+	timerFrame:HideChildren() = function end
 end

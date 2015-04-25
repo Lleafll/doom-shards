@@ -123,7 +123,7 @@ function CS:initializeComplex()
 	timerFrame:SetHeight(5 * self.db.complex.height)
 	timerFrame:SetWidth(5 * self.db.complex.width + 4 * self.db.complex.spacing)
 	createFrames()
-	function CS:refreshDisplay(orbs, timers) refreshDisplay(orbs, timers) end
-	function timerFrame:ShowChildren() ShowChildren() end
-	function timerFrame:HideChildren() HideChildren() end
+	CS.refreshDisplay = refreshDisplay
+	timerFrame.ShowChildren = ShowChildren
+	timerFrame.HideChildren = HideChildren
 end

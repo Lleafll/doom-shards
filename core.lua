@@ -201,7 +201,7 @@ function CS:update()
 	if self.db.sound then warningSound(orbs, timers) end
 end
 	
-local function removeGUID(GUID)
+function CS:removeGUID(GUID)
 	for _, timerID in pairs(targets[GUID]) do
 		removeTimer(timerID)
 	end
@@ -231,7 +231,7 @@ local function resetCount()
 end
 
 function CS:COMBAT_LOG_EVENT_UNFILTERED(_, ...)
-	local timeStamp, event, _, sourceGUID, _, _, _, destGUID,_, _, _, spellId, _, _, _, _, _, _, _, _, _, _, _, _, multistrike = ...
+	local timeStamp, event, _, sourceGUID, _, _, _, destGUID,_, _, _, spellID, _, _, _, _, _, _, _, _, _, _, _, _, multistrike = ...
         
 	if event == "UNIT_DIED" or event == "UNIT_DESTROYED" or event == "SPELL_INSTAKILL" then
 		if destGUID == UnitGUID("player") then
@@ -241,7 +241,7 @@ function CS:COMBAT_LOG_EVENT_UNFILTERED(_, ...)
 			return
 			
 		elseif targets[destGUID] then
-			removeGUID(destGUID)
+			self:removeGUID(destGUID)
 			self:update()
 			return
 			
@@ -250,7 +250,7 @@ function CS:COMBAT_LOG_EVENT_UNFILTERED(_, ...)
 		
 	elseif sourceGUID == UnitGUID("player")  then
 		-- Shadowy Apparition cast
-		if spellId == 147193 then
+		if spellID == 147193 and destGUID then
 			if UnitAffectingCombat("player") then
 				addGUID(timeStamp, destGUID)
 				self:update()
@@ -258,20 +258,23 @@ function CS:COMBAT_LOG_EVENT_UNFILTERED(_, ...)
 			return
 			
 		-- catch all Shadowy Apparition hit events
-		elseif spellId == 148859 and not multistrike then
+		elseif spellID == 148859 and not multistrike then
 			timerID = popGUID(destGUID)
 			if timerID then removeTimer(timerID) end
 			self:update()
 			return
 		
 		-- Shadowy Word: Pain tick
-		elseif spellId == 589 and not multistrike and (event == "SPELL_PERIODIC_DAMAGE" or event == "SPELL_DAMAGE") then
+		elseif spellID == 589 and not multistrike and (event == "SPELL_PERIODIC_DAMAGE" or event == "SPELL_DAMAGE") then
 			if UnitAffectingCombat("player") then
 				getTravelTime(timeStamp, destGUID)  -- adds GUID to distance table
 			end
 			return
 			
 		end
+		
+	else
+		self:encounterFix(event, sourceGUID, destGUID, spellID)
 		
 	end
 end
@@ -297,16 +300,14 @@ function CS:PLAYER_REGEN_ENABLED()
 	function warningSound() end
 end
 
-local unitPowerCallback = function()
-	if UnitAffectingCombat("player") or (CS.db.display == "Complex" and CS.db.outofcombat) then
-		orbs = UnitPower("player", 13)
-		CS:update()
-	end
-end
-
 function CS:UNIT_POWER(_, unitID, power)
 	if not (unitID == "player" and power == "SHADOW_ORBS") then return end
-	C_TimerAfter(0.01, unitPowerCallback)  -- needs to be delayed so it fires after the SA events, otherwise everything will assume the SA is still in flight
+	C_TimerAfter(0.01, function() -- needs to be delayed so it fires after the SA events, otherwise everything will assume the SA is still in flight
+		if UnitAffectingCombat("player") or (CS.db.display == "Complex" and CS.db.outofcombat) then
+			orbs = UnitPower("player", 13)
+			CS:update()
+		end
+	end)
 end
 
 function CS:PLAYER_ENTERING_WORLD()
@@ -340,13 +341,6 @@ end
 function CS:Initialize()
 	timerFrame:HideChildren()
 	
-	if self.db.display == "Complex" then
-		self:initializeComplex()
-	elseif self.db.display == "Simple" then
-		self:initializeSimple()
-	elseif self.db.display == "WeakAuras" then
-		self:initializeWeakAuras(timers)
-	end
 	self:initializeSound()
 	self:applySettings()
 		
@@ -357,6 +351,8 @@ function CS:Initialize()
 	else
 		timerFrame:ShowChildren()
 	end
+	
+	-- TODO: Add encounter fixes when logging in and already in-combat
 end
 
 function CS:OnInitialize()
@@ -368,4 +364,6 @@ function CS:OnInitialize()
 	self:RegisterEvent("UNIT_POWER")
 	self:RegisterEvent("PLAYER_TALENT_UPDATE", "talentsChanged")
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
+	self:RegisterEvent("ENCOUNTER_START")
+	self:RegisterEvent("ENCOUNTER_END")
 end

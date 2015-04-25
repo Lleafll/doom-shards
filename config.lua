@@ -510,4 +510,12 @@ CS.defaultSettings = {
 function CS:applySettings()
 	timerFrame:SetPoint("CENTER", self.db.posX, self.db.posY)
 	timerFrame:SetScale(self.db.scale)
+	
+	if self.db.display == "Complex" then
+		self:initializeComplex()
+	elseif self.db.display == "Simple" then
+		self:initializeSimple()
+	elseif self.db.display == "WeakAuras" then
+		self:initializeWeakAuras()
+	end
 end

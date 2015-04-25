@@ -30,4 +30,5 @@ complexdisplay.lua
 simpledisplay.lua
 sound.lua
 weakauras.lua
+encounterFixes.lua
 core.lua
