@@ -14,7 +14,6 @@ local IsInRaid = IsInRaid
 local IsItemInRange = IsItemInRange
 local ItemHasRange = ItemHasRange
 local pairs = pairs
-local print = print
 local tableinsert = table.insert
 local tableremove = table.remove
 local tostring = tostring
@@ -32,10 +31,12 @@ local timerFrame = CS.frame
 -- Variables
 local orbs = UnitPower("player", 13)
 local targets = {}  -- used to attribute timer IDs to mobs
+local additionalSATime = {}  -- converging additional travel time due to hit box size for all GUIDs
 local timers = {}  -- ordered table of all timer IDs
 local distanceCache = {}
 local distanceCache_GUID
 local timerID
+local playerGUID = UnitGUID("player")
 
 local distanceTable = {}
 distanceTable[5] = 37727 -- Ruby Acorn 5 yards
@@ -64,12 +65,16 @@ local raidPetTable = buildUnitIDTable("raid", 40, "pettarget")
 local partyTable = buildUnitIDTable("party", 5, "target")
 local partyPetTable = buildUnitIDTable("party", 5, "pettarget")
 
-local SAVelocity = 5.5  -- estimated
+local SAVelocity = 6  -- estimated
 local maxToleratedTime = 10  -- maximum time before Shadowy Apparition gets purged if it should not have hit in the meantime
 local cacheMaxTime = 1  -- seconds in which the cache does not get refreshed
 
 
 -- Functions
+local function getNPCID(GUID)
+	return GUID:sub(-16, -12)
+end
+
 local function calculateTravelTime(unitID)
 	local minDistance
 	local maxDistance
@@ -156,11 +161,13 @@ local function getTravelTime(timeStamp, GUID, forced)
 		end
 	end
 	
-	return travelTime + 0.5  -- accounting for extra 0.5 sec travel time due to hitbox size (estimated)
+	return travelTime + (additionalSATime[getNPCID(GUID)] or 1)
 end
 
 local function addGUID(timeStamp, GUID)
 	targets[GUID] = targets[GUID] or {}
+	local NPCID = getNPCID(GUID)
+	additionalSATime[NPCID] = additionalSATime[NPCID] or 1  -- initially accounting for extra 0.8 sec travel time due to hitbox size (estimated)
 	timerID = CS:ScheduleTimer("removeTimer_timed", maxToleratedTime, GUID)
 	timerID.impactTime = GetTime() + getTravelTime(timeStamp, GUID, true)  -- can't use timeStamp instead of GetTime() because of different time reference
 	targets[GUID][#targets[GUID]+1] = timerID
@@ -202,11 +209,13 @@ function CS:update()
 end
 	
 function CS:removeGUID(GUID)
+	if not targets[GUID] then return end
 	for _, timerID in pairs(targets[GUID]) do
 		removeTimer(timerID)
 	end
 	targets[GUID] = nil
 	distanceCache[GUID] = nil
+	self:update()
 end
 
 local function popGUID(GUID)
@@ -225,51 +234,58 @@ end
         
 local function resetCount()
 	targets = {}
+	additionalSATime = {}
 	timers = {}
 	distanceCache = {}
 	CS:CancelAllTimers()
 end
 
+
+
 function CS:COMBAT_LOG_EVENT_UNFILTERED(_, ...)
-	local timeStamp, event, _, sourceGUID, _, _, _, destGUID,_, _, _, spellID, _, _, _, _, _, _, _, _, _, _, _, _, multistrike = ...
+	local timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID, _, _, _, _, _, _, _, _, _, _, _, _, multistrike = ...
         
 	if event == "UNIT_DIED" or event == "UNIT_DESTROYED" or event == "SPELL_INSTAKILL" then
-		if destGUID == UnitGUID("player") then
+		if destGUID == playerGUID then
 			orbs = UnitPower("player", 13)
 			resetCount()
 			self:update()
-			return
 			
-		elseif targets[destGUID] then
+		else
 			self:removeGUID(destGUID)
-			self:update()
-			return
 			
 		end
 		
 		
-	elseif sourceGUID == UnitGUID("player")  then
+	elseif sourceGUID == playerGUID then
+	
 		-- Shadowy Apparition cast
-		if spellID == 147193 and destGUID then
+		if spellID == 147193 and destName ~= nil then  -- SAs without a targeet won't generate orbs
 			if UnitAffectingCombat("player") then
 				addGUID(timeStamp, destGUID)
 				self:update()
 			end
-			return
-			
+		
 		-- catch all Shadowy Apparition hit events
 		elseif spellID == 148859 and not multistrike then
 			timerID = popGUID(destGUID)
-			if timerID then removeTimer(timerID) end
+			if timerID then
+				local additionalTime = timerID.impactTime - GetTime()
+				local NPCID = getNPCID(destGUID)
+				additionalSATime[NPCID] = additionalSATime[NPCID] - additionalTime / 2
+				
+				-- debug
+				--print(additionalTime, additionalSATime[NPCID])
+				
+				removeTimer(timerID)
+			end
 			self:update()
-			return
-		
+			
 		-- Shadowy Word: Pain tick
 		elseif spellID == 589 and not multistrike and (event == "SPELL_PERIODIC_DAMAGE" or event == "SPELL_DAMAGE") then
 			if UnitAffectingCombat("player") then
 				getTravelTime(timeStamp, destGUID)  -- adds GUID to distance table
 			end
-			return
 			
 		end
 		
@@ -310,8 +326,9 @@ function CS:UNIT_POWER(_, unitID, power)
 	end)
 end
 
-function CS:PLAYER_ENTERING_WORLD()
+function CS:setOrbs()
 	orbs = UnitPower("player", 13)
+	self:update()
 end
 
 local function registerAllEvents()
@@ -363,7 +380,8 @@ function CS:OnInitialize()
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	self:RegisterEvent("UNIT_POWER")
 	self:RegisterEvent("PLAYER_TALENT_UPDATE", "talentsChanged")
-	self:RegisterEvent("PLAYER_ENTERING_WORLD")
+	self:RegisterEvent("PLAYER_ENTERING_WORLD", "setOrbs")
+	--self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "setOrbs")
 	self:RegisterEvent("ENCOUNTER_START")
 	self:RegisterEvent("ENCOUNTER_END")
 end

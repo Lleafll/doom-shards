@@ -23,7 +23,7 @@ local fontString
 
 
 -- Functions
-local function refreshDisplay(orbs, timers)
+local function refreshDisplay(self, orbs, timers)
 	local currentTime
 	local k = 1
 	for i = 1, 6 do

@@ -21,7 +21,7 @@ local wa_as
 
 
 -- Functions
-local function refreshDisplay(orbs, timers)
+local function refreshDisplay(self, orbs, timers)
 	local count = #timers
 	wa_as.count = count
 	wa_as.orbs = orbs
@@ -40,6 +40,6 @@ function CS:initializeWeakAuras()
 	wa_as.timers = {}
 	wa_as.TimeLeft = CS.TimeLeft
 	CS.refreshDisplay = refreshDisplay
-	timerFrame:ShowChildren() = function end
-	timerFrame:HideChildren() = function end
+	timerFrame.ShowChildren = function() end
+	timerFrame.HideChildren = function() end
 end

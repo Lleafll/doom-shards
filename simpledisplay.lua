@@ -20,7 +20,7 @@ local remainingThreshold = 2 -- threshold between short and long Shadowy Apparit
 
 
 -- Functions
-local function refreshDisplay(orbs, timers)
+local function refreshDisplay(self, orbs, timers)
 	local currentTime
 	local short = 0
 	local long = 0
@@ -98,6 +98,6 @@ function CS:initializeSimple()
 	timerFrame:SetWidth(self.db.simple.width)
 	createFrames()
 	CS.refreshDisplay = refreshDisplay
-	timerFrame:ShowChildren() = function end
+	timerFrame.ShowChildren = function() end
 	timerFrame.HideChildren = HideChildren
 end

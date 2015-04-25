@@ -7,6 +7,13 @@ if not CS then return end
 local L = LibStub("AceLocale-3.0"):GetLocale("ConspicuousSpirits")
 
 
+-- Upvalues
+local C_TimerAfter = C_Timer.After
+local tostring = tostring
+local UnitExists = UnitExists
+local UnitGUID = UnitGUID
+
+
 -- Variables
 local boss1GUID
 local boss2GUID
@@ -17,68 +24,64 @@ local boss3Name
 
 
 -- Functions
-CS:encounterFix = function() end
+function CS:encounterFix() end
 
-local function hansgarAndFranzokFix()
+function CS:beastlordFix()
 	if not UnitExists("boss1") then
-	
-		-- debug
-		print("Boss 1 jumps away")
-		
-		if targets[boss1GUID] then
-			CS:removeGUID(boss1GUID)
-			CS:update()
-		end
+		CS:removeGUID(boss1GUID)
+	end
+end
+
+function CS:hansgarAndFranzokFix()
+	if not UnitExists("boss1") then
+		CS:removeGUID(boss1GUID)
 	
 	elseif not UnitExists("boss2") then
-	
-		-- debug
-		print("Boss 2 jumps away")
-		
-		if targets[boss2GUID] then
-			CS:removeGUID(boss2GUID)
-			CS:update()
-		end
+		CS:removeGUID(boss2GUID)
 	
 	end
 end
 
 local function flamebenderFix(event, sourceGUID, destGUID, spellID)
-	if spellID == 181089 and targets[sourceGUID] then
+	if spellID == 181089 then
 		CS:removeGUID(sourceGUID)
-		CS:update()
 	end
 end
 
 local function ironMaidensTimer(GUID)
 	C_TimerAfter(3, function()
-		if targets[GUID] then
-			CS:removeGUID(GUID)
-			CS:update()
-		end
+		CS:removeGUID(GUID)
 	end)
 end
 
-local function ironMaidensFix(message, sender)
+-- basically from DBM
+function CS:ironMaidensFix(_, message, sender)
+
+	-- debug
+	--print(sender, message)
+
 	if message:find(L["IronMaidensShipMessage"]) then
 		if sender == boss1Name then
 		
 			-- debug
-			print(boss1Name.." auf's Schiff")
+			--print(boss1Name.." auf's Schiff")
+			--print(boss1GUID)
 			
 			ironMaidensTimer(boss1GUID)
 			
 		elseif sender == boss2Name then
 		
 			-- debug
-			print(boss2Name.." auf's Schiff")
+			--print(boss2Name.." auf's Schiff")
+			--print(boss2GUID)
 			
 			ironMaidensTimer(boss2GUID)
 			
 		elseif sender == boss3Name then
 		
 			-- debug
-			print(boss2Name.." auf's Schiff")
+			--print(boss3Name.." auf's Schiff")
+			--print(boss3GUID)
 		
 			ironMaidensTimer(boss3GUID)
 			
@@ -86,42 +89,117 @@ local function ironMaidensFix(message, sender)
 	end
 end
 
+--[[
+-- debug
+function CS:alysrazorFix(_, message, sender)
+
+	-- debug
+	print(sender, message)
+	
+	if message:find("begins casting") then
+		if sender == boss1Name then
+		
+			-- debug
+			print(boss1Name.." auf's Schiff")
+			print(boss1GUID)
+			
+			C_TimerAfter(3, function()
+				print("removed")
+			end)
+		end
+	end
+end
+]]--
+
 function CS:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSize)
-	print("Encounter ID: "..tostring(encounterID))
 	if encounterID == 1689 then
 		self.encounterFix = flamebenderFix
 		
 	elseif encounterID == 1693 then
-		boss1GUID = UnitGUID("boss1")
-		boss2GUID = UnitGUID("boss2")
+		self:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
+			boss1GUID = UnitGUID("boss1")
+			boss2GUID = UnitGUID("boss2")
+			if boss2GUID and boss1GUID then
+				self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
+			end
+		end)
 		self:RegisterEvent("UNIT_TARGETABLE_CHANGED", "hansgarAndFranzokFix")
 		
-	elseif encounterID == 1695 then
-		for i = 1,3 do
-			local unitID = "boss"..tostring(i)
-			local GUID = UnitGUID(unitID)
-			local NPCID = GUID:sub(-16, -12)
-			if NPCID == 77477 then  -- Marak
-				boss1GUID = GUID
-			elseif NPCID == 77231 then  -- Sorka
-				boss2GUID = GUID
-			elseif NPCID == 77557 then  -- Ga'ran
-				boss3GUID = GUID
+	elseif encounterID == 1694 then
+		self:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
+			boss1GUID = UnitGUID("boss1")
+			if boss1GUID then
+				self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
 			end
-		end
+		end)
+		self:RegisterEvent("UNIT_TARGETABLE_CHANGED", "beastlordFix")
+		
+	elseif encounterID == 1695 then
+		self:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
+			for i = 1,3 do
+				local unitID = "boss"..tostring(i)
+				local GUID = UnitGUID(unitID)
+				if not GUID then break end
+				local NPCID = GUID:sub(-16, -12)
+				if NPCID == "77477" then  -- Marak
+					boss1GUID = GUID
+				elseif NPCID == "77231" then  -- Sorka
+					boss2GUID = GUID
+				elseif NPCID == "77557" then  -- Ga'ran
+					boss3GUID = GUID
+				end
+			end
+			if boss3GUID and boss2GUID and boss1GUID then
+			
+				-- debug
+				--print(boss1GUID, boss2GUID, boss3GUID)
+				
+				self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
+			end
+		end)
 		boss1Name = EJ_GetSectionInfo(10033)  -- Marak
 		boss2Name = EJ_GetSectionInfo(10030)  -- Sorka
 		boss3Name = EJ_GetSectionInfo(10025)  -- Ga'ran
 		self:RegisterEvent("CHAT_MSG_RAID_BOSS_EMOTE", "ironMaidensFix")
 		
-	elseif encounterID == Beastlord then
-		self.encounterFix = beastlordFix
+		--[[
+		-- debug
+	elseif encounterID == 1206 then
+		self:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
+			for i = 1,1 do
+				local unitID = "boss"..tostring(i)
+				local GUID = UnitGUID(unitID)
+				
+				-- debug
+				print("GUID: "..GUID)
+				
+				if not GUID then break end
+				local NPCID = GUID:sub(-16, -12)
+				
+				-- debug
+				print("NPCID: "..NPCID)
+				
+				if NPCID == "52530" then  -- Alysrazor
+					boss1GUID = GUID
+				end
+			end
+			if boss1GUID then
+			
+				-- debug
+				print(boss1GUID)
+				
+				self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
+			end
+		end)
+		boss1Name = "Herald of the Burning End"
+		self:RegisterEvent("CHAT_MSG_RAID_BOSS_EMOTE", "alysrazorFix")
+		]]--
 		
 	end
 end
 
 function CS:ENCOUNTER_END()
-	self:encounterFix = function() end
+	self.encounterFix = function() end
 	boss1GUID = nil
 	boss2GUID = nil
 	boss3GUID = nil
@@ -130,4 +208,5 @@ function CS:ENCOUNTER_END()
 	boss3Name = nil
 	self:UnregisterEvent("UNIT_TARGETABLE_CHANGED")
 	self:UnregisterEvent("CHAT_MSG_RAID_BOSS_EMOTE")
+	self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
 end
