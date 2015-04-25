@@ -24,6 +24,7 @@ Libs\AceGUI-3.0-SharedMediaWidgets\widget.xml
 
 Localizations\enUS.lua
 Localizations\deDE.lua
+Localizations\koKR.lua
 
 config.lua
 complexdisplay.lua

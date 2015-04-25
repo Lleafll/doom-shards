@@ -1,3 +1,5 @@
+GAME_LOCALE = "koKR"
+
 -- Libraries
 local L = LibStub("AceLocale-3.0"):NewLocale("ConspicuousSpirits", "enUS", true)
 if not L then return end
