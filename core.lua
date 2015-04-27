@@ -5,6 +5,7 @@ if not CS then return end
 
 -- Upvalues
 local C_TimerAfter = C_Timer.After
+local stringfind = string.find
 local GetActiveSpecGroup = GetActiveSpecGroup
 local GetSpecialization = GetSpecialization
 local GetTalentInfo = GetTalentInfo
@@ -14,6 +15,7 @@ local IsInRaid = IsInRaid
 local IsItemInRange = IsItemInRange
 local ItemHasRange = ItemHasRange
 local pairs = pairs
+local stringsub = string.sub
 local tableinsert = table.insert
 local tableremove = table.remove
 local tostring = tostring
@@ -31,14 +33,14 @@ local timerFrame = CS.frame
 -- Variables
 local orbs = UnitPower("player", 13)
 local targets = {}  -- used to attribute timer IDs to mobs
-local additionalSATime = {}  -- converging additional travel time due to hit box size for all GUIDs
+local SATimeCorrection = {}  -- converging additional travel time due to hit box size
 local timers = {}  -- ordered table of all timer IDs
 local distanceCache = {}
 local distanceCache_GUID
 local timerID
 local playerGUID = UnitGUID("player")
 
-local distanceTable = {}
+local distanceTable = {}  -- from HaloPro (ultimately from LibRangeCheck it seems)
 distanceTable[5] = 37727 -- Ruby Acorn 5 yards
 distanceTable[8] = 34368 -- Attuned Crystal Cores 8 yards
 distanceTable[10] = 32321 -- Sparrowhawk Net 10 yards
@@ -66,14 +68,20 @@ local partyTable = buildUnitIDTable("party", 5, "target")
 local partyPetTable = buildUnitIDTable("party", 5, "pettarget")
 
 local SAVelocity = 6  -- estimated
-local maxToleratedTime = 10  -- maximum time before Shadowy Apparition gets purged if it should not have hit in the meantime
+local SAGraceTime = 3  -- maximum additional wait time before SA tiemr gets purged if it should not have hit in the meantime
 local cacheMaxTime = 1  -- seconds in which the cache does not get refreshed
 
 
 -- Functions
+--[[ maybe revisit the idea later, for now it messes up too much
 local function getNPCID(GUID)
-	return GUID:sub(-16, -12)
+	if stringfind(GUID, "player") then
+		return GUID
+	else
+		return stringsub(GUID, -16, -12)
+	end
 end
+]]--
 
 local function calculateTravelTime(unitID)
 	local minDistance
@@ -92,10 +100,15 @@ local function calculateTravelTime(unitID)
 				minDistance = i
 			end
 		end
-		if maxDistance and minDistance then break end  -- check maxDistance first since minDistance will almost always be != nil
+		if maxDistance and minDistance then break end
+		
 	end
 	
-	return ((minDistance or 40) + (maxDistance or 40)) / 2 / SAVelocity
+	if (not maxDistance) or (not maxDistance) or (minDistance >= 60) then
+		return -1
+	else
+		return (minDistance + maxDistance) / 2 / SAVelocity
+	end			
 end
 
 local function iterateUnitIDs(tbl, GUID)
@@ -119,27 +132,34 @@ local function getTravelTimeByGUID(timeStamp, GUID)
 	elseif UnitGUID("pettarget") == GUID then
 		travelTime = calculateTravelTime("pettarget")
 		
-	elseif UnitExists("boss1") then
-		travelTime = iterateUnitIDs(bossTable, GUID)
+	else
+		if UnitExists("boss1") then
+			travelTime = iterateUnitIDs(bossTable, GUID)
+		end
 		
-	end
-	
-	if not travelTime then
-		if IsInRaid() then
-			travelTime = iterateUnitIDs(raidTable, GUID)
-			if not travelTime then
-				travelTime = iterateUnitIDs(raidPetTable, GUID)
-			end
-		elseif IsInGroup() then
-			travelTime = iterateUnitIDs(partyTable, GUID)
-			if not travelTime then
-				travelTime = iterateUnitIDs(partyPetTable, GUID)
+		if not travelTime then
+			if IsInRaid() then
+				travelTime = iterateUnitIDs(raidTable, GUID)
+				if not travelTime then
+					travelTime = iterateUnitIDs(raidPetTable, GUID)
+				end
+			elseif IsInGroup() then
+				travelTime = iterateUnitIDs(partyTable, GUID)
+				if not travelTime then
+					travelTime = iterateUnitIDs(partyPetTable, GUID)
+				end
 			end
 		end
 	end
 	
+	-- target too far away
+	if travelTime == -1 then
+		distanceCache[GUID] = nil
+		return nil
+	end
+	
 	if travelTime then
-		distanceCache[GUID] = {}
+		distanceCache[GUID] = distanceCache[GUID] or {}
 		distanceCache[GUID].travelTime = travelTime
 		distanceCache[GUID].timeStamp = timeStamp
 	end
@@ -148,10 +168,11 @@ local function getTravelTimeByGUID(timeStamp, GUID)
 end
 
 local function getTravelTime(timeStamp, GUID, forced)
+	local travelTime
 	distanceCache_GUID = distanceCache[GUID]
 
 	if not distanceCache_GUID then
-		travelTime = getTravelTimeByGUID(timeStamp, GUID) or (40 / SAVelocity)
+		travelTime = getTravelTimeByGUID(timeStamp, GUID)
 	else
 		local delta = timeStamp - distanceCache_GUID.timeStamp
 		if forced or (delta > cacheMaxTime) then
@@ -161,15 +182,25 @@ local function getTravelTime(timeStamp, GUID, forced)
 		end
 	end
 	
-	return travelTime + (additionalSATime[getNPCID(GUID)] or 1)
+	if not travelTime then
+		return nil
+	else
+		return travelTime + (SATimeCorrection[GUID] or 1)
+	end
 end
 
 local function addGUID(timeStamp, GUID)
+	local cancelTime
+	local travelTime = getTravelTime(timeStamp, GUID, true)
+	if not travelTime then return end  -- target too far away, abort timer creation
+
 	targets[GUID] = targets[GUID] or {}
-	local NPCID = getNPCID(GUID)
-	additionalSATime[NPCID] = additionalSATime[NPCID] or 1  -- initially accounting for extra 0.8 sec travel time due to hitbox size (estimated)
-	timerID = CS:ScheduleTimer("removeTimer_timed", maxToleratedTime, GUID)
-	timerID.impactTime = GetTime() + getTravelTime(timeStamp, GUID, true)  -- can't use timeStamp instead of GetTime() because of different time reference
+	SATimeCorrection[GUID] = SATimeCorrection[GUID] or 1  -- initially accounting for extra travel time due to hitbox size (estimated)
+	
+	timerID = CS:ScheduleTimer("removeTimer_timed", travelTime + SAGraceTime, GUID)
+	
+	timerID.impactTime = GetTime() + travelTime  -- can't use timeStamp instead of GetTime() because of different time reference
+	
 	targets[GUID][#targets[GUID]+1] = timerID
 	
 	local timersCount = #timers
@@ -215,6 +246,7 @@ function CS:removeGUID(GUID)
 	end
 	targets[GUID] = nil
 	distanceCache[GUID] = nil
+	SATimeCorrection[GUID] = nil
 	self:update()
 end
 
@@ -234,7 +266,7 @@ end
         
 local function resetCount()
 	targets = {}
-	additionalSATime = {}
+	SATimeCorrection = {}
 	timers = {}
 	distanceCache = {}
 	CS:CancelAllTimers()
@@ -271,11 +303,10 @@ function CS:COMBAT_LOG_EVENT_UNFILTERED(_, ...)
 			timerID = popGUID(destGUID)
 			if timerID then
 				local additionalTime = timerID.impactTime - GetTime()
-				local NPCID = getNPCID(destGUID)
-				additionalSATime[NPCID] = additionalSATime[NPCID] - additionalTime / 2
+				SATimeCorrection[destGUID] = SATimeCorrection[destGUID] - additionalTime / 2
 				
 				-- debug
-				--print(additionalTime, additionalSATime[NPCID])
+				--print(additionalTime, SATimeCorrection[destGUID])
 				
 				removeTimer(timerID)
 			end
