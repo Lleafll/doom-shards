@@ -23,6 +23,7 @@ local UnitAffectingCombat = UnitAffectingCombat
 local UnitCanAttack = UnitCanAttack
 local UnitExists = UnitExists
 local UnitGUID = UnitGUID
+local UnitPosition = UnitPosition
 local UnitPower = UnitPower
 
 
@@ -121,7 +122,7 @@ local function iterateUnitIDs(tbl, GUID)
 end
 
 local function getTravelTimeByGUID(timeStamp, GUID)
-	local travelTime = nil
+	local travelTime
 
 	if UnitGUID("target") == GUID then
 		travelTime = calculateTravelTime("target")
@@ -151,14 +152,42 @@ local function getTravelTimeByGUID(timeStamp, GUID)
 			end
 		end
 	end
-	
+
 	-- target too far away
 	if travelTime == -1 then
 		distanceCache[GUID] = nil
 		return nil
 	end
 	
+	-- cache travel time
 	if travelTime then
+	
+		-- attempt to correct impact times after mob movement
+		local posX, posY = UnitPosition("player")
+		if targets[GUID] then
+			for _, timerID in pairs(targets[GUID]) do
+				local travelDelta = travelTime - timerID.travelTime
+				if (travelDelta > 3.4) or (travelDelta < -3.4) or (travelTime == -1) then
+					local playerDistanceDelta = (posX * timerID.posX + posY * timerID.posY) ^ 0.5 / 1.075  -- apparently 1 y is bigger than 1 ingame measurement unit
+					
+					if travelDelta < 0 then
+						local correction = travelDelta + playerDistanceDelta
+						if correction < 0 then
+							timerID.travelTime = travelTime + correction
+							timerID.impactTime = timerID.impactTime + correction
+						end
+					else
+						local correction = travelDelta - playerDistanceDelta
+						if correction > 0 then
+							timerID.travelTime = travelTime + correction
+							timerID.impactTime = timerID.impactTime + correction
+						end
+					end
+					
+				end
+			end
+		end
+	
 		distanceCache[GUID] = distanceCache[GUID] or {}
 		distanceCache[GUID].travelTime = travelTime
 		distanceCache[GUID].timeStamp = timeStamp
@@ -198,8 +227,9 @@ local function addGUID(timeStamp, GUID)
 	SATimeCorrection[GUID] = SATimeCorrection[GUID] or 1  -- initially accounting for extra travel time due to hitbox size (estimated)
 	
 	timerID = CS:ScheduleTimer("removeTimer_timed", travelTime + SAGraceTime, GUID)
-	
+	timerID.travelTime = travelTime
 	timerID.impactTime = GetTime() + travelTime  -- can't use timeStamp instead of GetTime() because of different time reference
+	timerID.posX, timerID.posY = UnitPosition("player")
 	
 	targets[GUID][#targets[GUID]+1] = timerID
 	
@@ -272,8 +302,6 @@ local function resetCount()
 	CS:CancelAllTimers()
 end
 
-
-
 function CS:COMBAT_LOG_EVENT_UNFILTERED(_, ...)
 	local timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID, _, _, _, _, _, _, _, _, _, _, _, _, multistrike = ...
         
@@ -292,7 +320,7 @@ function CS:COMBAT_LOG_EVENT_UNFILTERED(_, ...)
 	elseif sourceGUID == playerGUID then
 	
 		-- Shadowy Apparition cast
-		if spellID == 147193 and destName ~= nil then  -- SAs without a targeet won't generate orbs
+		if spellID == 147193 and destName ~= nil then  -- SAs without a target won't generate orbs
 			if UnitAffectingCombat("player") then
 				addGUID(timeStamp, destGUID)
 				self:update()
@@ -304,11 +332,14 @@ function CS:COMBAT_LOG_EVENT_UNFILTERED(_, ...)
 			if timerID then
 				local additionalTime = timerID.impactTime - GetTime()
 				SATimeCorrection[destGUID] = SATimeCorrection[destGUID] - additionalTime / 2
-				
-				-- debug
-				--print(additionalTime, SATimeCorrection[destGUID])
-				
 				removeTimer(timerID)
+				-- update other timers
+				if targets[GUID] and additionalTime > 0.5 then
+					for _, timerID in pairs(targets[GUID]) do
+						timerID.travelTime = timerID.travelTime + additionalTime
+						timerID.impactTime = timerID.impactTime + additionalTime
+					end
+				end
 			end
 			self:update()
 			
