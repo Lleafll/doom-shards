@@ -39,7 +39,7 @@ local timers = {}  -- ordered table of all timer IDs
 local distanceCache = {}
 local distanceCache_GUID
 local timerID
-local playerGUID = UnitGUID("player")
+local playerGUID
 
 local distanceTable = {}  -- from HaloPro (ultimately from LibRangeCheck it seems)
 distanceTable[5] = 37727 -- Ruby Acorn 5 yards
@@ -130,6 +130,9 @@ local function getTravelTimeByGUID(timeStamp, GUID)
 	elseif UnitGUID("mouseover") == GUID then
 		travelTime = calculateTravelTime("mouseover")
 		
+	elseif UnitGUID("focus") == GUID then
+		travelTime = calculateTravelTime("focus")
+		
 	elseif UnitGUID("pettarget") == GUID then
 		travelTime = calculateTravelTime("pettarget")
 		
@@ -152,7 +155,7 @@ local function getTravelTimeByGUID(timeStamp, GUID)
 			end
 		end
 	end
-
+	
 	-- target too far away
 	if travelTime == -1 then
 		distanceCache[GUID] = nil
@@ -161,7 +164,8 @@ local function getTravelTimeByGUID(timeStamp, GUID)
 	
 	-- cache travel time
 	if travelTime then
-	
+		
+		--[[ -- test for movement correction (SA impact time does not seem to be affected by mob movement after SA spawn)
 		-- attempt to correct impact times after mob movement
 		local posX, posY = UnitPosition("player")
 		if targets[GUID] then
@@ -187,6 +191,7 @@ local function getTravelTimeByGUID(timeStamp, GUID)
 				end
 			end
 		end
+		]]--
 	
 		distanceCache[GUID] = distanceCache[GUID] or {}
 		distanceCache[GUID].travelTime = travelTime
@@ -199,7 +204,7 @@ end
 local function getTravelTime(timeStamp, GUID, forced)
 	local travelTime
 	distanceCache_GUID = distanceCache[GUID]
-
+	
 	if not distanceCache_GUID then
 		travelTime = getTravelTimeByGUID(timeStamp, GUID)
 	else
@@ -227,9 +232,14 @@ local function addGUID(timeStamp, GUID)
 	SATimeCorrection[GUID] = SATimeCorrection[GUID] or 1  -- initially accounting for extra travel time due to hitbox size (estimated)
 	
 	timerID = CS:ScheduleTimer("removeTimer_timed", travelTime + SAGraceTime, GUID)
-	timerID.travelTime = travelTime
+	
+	-- test for movement correction
+	--timerID.travelTime = travelTime
+	
 	timerID.impactTime = GetTime() + travelTime  -- can't use timeStamp instead of GetTime() because of different time reference
-	timerID.posX, timerID.posY = UnitPosition("player")
+	
+	-- test for movement correction
+	--timerID.posX, timerID.posY = UnitPosition("player")
 	
 	targets[GUID][#targets[GUID]+1] = timerID
 	
@@ -306,6 +316,7 @@ function CS:COMBAT_LOG_EVENT_UNFILTERED(_, ...)
 	local timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID, _, _, _, _, _, _, _, _, _, _, _, _, multistrike = ...
         
 	if event == "UNIT_DIED" or event == "UNIT_DESTROYED" or event == "SPELL_INSTAKILL" then
+	
 		if destGUID == playerGUID then
 			orbs = UnitPower("player", 13)
 			resetCount()
@@ -333,10 +344,13 @@ function CS:COMBAT_LOG_EVENT_UNFILTERED(_, ...)
 				local additionalTime = timerID.impactTime - GetTime()
 				SATimeCorrection[destGUID] = SATimeCorrection[destGUID] - additionalTime / 2
 				removeTimer(timerID)
-				-- update other timers
+				-- correct other timers
 				if targets[GUID] and additionalTime > 0.5 then
 					for _, timerID in pairs(targets[GUID]) do
-						timerID.travelTime = timerID.travelTime + additionalTime
+						
+						-- test for movement correction
+						--timerID.travelTime = timerID.travelTime + additionalTime
+						
 						timerID.impactTime = timerID.impactTime + additionalTime
 					end
 				end
@@ -393,6 +407,11 @@ function CS:setOrbs()
 	self:update()
 end
 
+function CS:PLAYER_ENTERING_WORLD()
+	playerGUID = UnitGUID("player")
+	self:setOrbs()
+end
+
 local function registerAllEvents()
 	CS:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 end
@@ -401,7 +420,7 @@ local function unregisterAllEvents()
 	CS:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 end
 
-function CS:talentsChanged()
+function CS:talentsCheck()
 	local specialization = GetSpecialization()
 	local _, _, _, ASSpecced = GetTalentInfo(7, 3, GetActiveSpecGroup())
 	if specialization and specialization == 3 and ASSpecced then
@@ -441,8 +460,8 @@ function CS:OnInitialize()
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	self:RegisterEvent("UNIT_POWER")
-	self:RegisterEvent("PLAYER_TALENT_UPDATE", "talentsChanged")
-	self:RegisterEvent("PLAYER_ENTERING_WORLD", "setOrbs")
+	self:RegisterEvent("PLAYER_TALENT_UPDATE", "talentsCheck")
+	self:RegisterEvent("PLAYER_ENTERING_WORLD")
 	--self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "setOrbs")
 	self:RegisterEvent("ENCOUNTER_START")
 	self:RegisterEvent("ENCOUNTER_END")
