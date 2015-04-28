@@ -219,7 +219,8 @@ local function getTravelTime(timeStamp, GUID, forced)
 	if not travelTime then
 		return nil
 	else
-		return travelTime + (SATimeCorrection[GUID] or 1)
+		SATimeCorrection[GUID] = SATimeCorrection[GUID] or 1  -- initially accounting for extra travel time due to hitbox size (estimated)
+		return travelTime + SATimeCorrection[GUID] or 1
 	end
 end
 
@@ -229,8 +230,6 @@ local function addGUID(timeStamp, GUID)
 	if not travelTime then return end  -- target too far away, abort timer creation
 
 	targets[GUID] = targets[GUID] or {}
-	SATimeCorrection[GUID] = SATimeCorrection[GUID] or 1  -- initially accounting for extra travel time due to hitbox size (estimated)
-	
 	timerID = CS:ScheduleTimer("removeTimer_timed", travelTime + SAGraceTime, GUID)
 	
 	-- test for movement correction
@@ -354,6 +353,11 @@ function CS:COMBAT_LOG_EVENT_UNFILTERED(_, ...)
 						timerID.impactTime = timerID.impactTime + additionalTime
 					end
 				end
+			end
+			if distanceCache[GUID] and timeStamp > distanceCache[GUID].timeStamp + cacheMaxTime then  -- update cached distances if over cacheMaxTime
+				distanceCache[GUID] = distanceCache[GUID] or {}
+				distanceCache[GUID].travelTime = timerID.impactTime - GetTime() - SATimeCorrection[destGUID]
+				distanceCache[GUID].timeStamp = timeStamp
 			end
 			self:update()
 			
