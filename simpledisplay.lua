@@ -3,6 +3,10 @@ local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
 if not CS then return end
 
 
+-- Libraries
+local LSM = LibStub("LibSharedMedia-3.0")
+
+
 -- Upvalues
 local GetTime = GetTime
 local stringformat = string.format
@@ -15,6 +19,7 @@ local timerTextLong
 
 
 -- Variables
+local fontPath
 local timerID
 local remainingThreshold = 2 -- threshold between short and long Shadowy Apparitions
 
@@ -70,7 +75,7 @@ local function createFrames()
 	
 	local function setTimerText(fontstring)
 		fontstring:Show()
-		fontstring:SetFont("Fonts\\FRIZQT__.TTF", CS.db.simple.fontSize)
+		fontstring:SetFont(fontPath, CS.db.simple.fontSize)
 		fontstring:SetTextColor(1, 1, 1, 1)
 		fontstring:SetShadowOffset(1, -1)
 		fontstring:SetShadowColor(0, 0, 0, 1)
@@ -96,6 +101,7 @@ end
 function CS:initializeSimple()
 	timerFrame:SetHeight(self.db.simple.height)
 	timerFrame:SetWidth(self.db.simple.width)
+	fontPath = LSM:Fetch("font", CS.db.simple.fontName)
 	createFrames()
 	CS.refreshDisplay = refreshDisplay
 	timerFrame.ShowChildren = function() end

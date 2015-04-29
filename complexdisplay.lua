@@ -3,6 +3,10 @@ local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
 if not CS then return end
 
 
+-- Libraries
+local LSM = LibStub("LibSharedMedia-3.0")
+
+
 -- Upvalues
 local GetTime = GetTime
 local mathmax = math.max
@@ -19,6 +23,7 @@ local SATimers = {}
 local timerID
 local remainingThreshold = 2 -- threshold between short and long Shadowy Apparitions
 local frame
+local fontPath
 local fontString
 
 
@@ -55,7 +60,7 @@ local function createFrames()
 	local height = CS.db.complex.height
 	local width = CS.db.complex.width
 	local function createOrbFrame(number)
-		frame = orbFrames[i] or CreateFrame("frame", nil, CSFrame)
+		frame = orbFrames[number] or CreateFrame("frame", nil, timerFrame)
 		frame:SetPoint("BOTTOMLEFT", (width + spacing) * (number - 1), 0)
 		frame:SetHeight(height)
 		frame:SetWidth(width)
@@ -79,10 +84,9 @@ local function createFrames()
 	end
 
 	local function createTimerFontString(referenceFrame, number)
-		fontString = SATimers[i] or timerFrame:CreateFontString(nil, "OVERLAY")
-		fontString:SetPoint("BOTTOMLEFT", referenceFrame, "TOPLEFT", 0, 1)
-		fontString:SetPoint("BOTTOMRIGHT", referenceFrame, "TOPRIGHT", 0, 1)
-		fontString:SetFont("Fonts\\FRIZQT__.TTF", width / 2)
+		fontString = SATimers[number] or timerFrame:CreateFontString(nil, "OVERLAY")
+		fontString:SetPoint("BOTTOM", referenceFrame, "TOP", CS.db.complex.stringXOffset, CS.db.complex.stringYOffset + 1)
+		fontString:SetFont(fontPath, CS.db.complex.fontSize)
 		fontString:SetTextColor(1, 1, 1, 1)
 		fontString:SetShadowOffset(1, -1)
 		fontString:SetShadowColor(0, 0, 0, 1)
@@ -117,12 +121,17 @@ local function HideChildren()
 		orbFrames[i]:Hide()
 		SATimers[i]:Hide()
 	end
+	RegisterStateDriver(timerFrame, "visibility", "")
 end
 
 function CS:initializeComplex()
-	timerFrame:SetHeight(5 * self.db.complex.height)
+	timerFrame:SetHeight(self.db.complex.height + 25)
 	timerFrame:SetWidth(5 * self.db.complex.width + 4 * self.db.complex.spacing)
+	fontPath = LSM:Fetch("font", CS.db.complex.fontName)
 	createFrames()
+	if timerFrame.lock then
+		RegisterStateDriver(timerFrame, "visibility", CS.db.complex.visibilityConditionals)
+	end
 	CS.refreshDisplay = refreshDisplay
 	timerFrame.ShowChildren = ShowChildren
 	timerFrame.HideChildren = HideChildren

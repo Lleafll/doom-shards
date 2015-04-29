@@ -378,31 +378,25 @@ end
 function CS:PLAYER_REGEN_DISABLED()
 	orbs = UnitPower("player", 13)
 	if not (self.db.display == "WeakAuras") then
-		if self.db.display == "Complex" then timerFrame:Show() end
 		self:ScheduleRepeatingTimer("update", 0.1)
 		function warningSound(orbs, timers) CS:warningSound(orbs, timers) end
 	end
-	timerFrame:Lock()
+	if not timerFrame.lock then
+		timerFrame:Lock()
+	end
 end
 
 function CS:PLAYER_REGEN_ENABLED()
 	resetCount()
 	self:update()
-	if not (CS.db.display == "Complex") or not CS.db.outofcombat then
-		timerFrame:Hide()
-	else
-		timerFrame:Show()
-	end
 	function warningSound() end
 end
 
 function CS:UNIT_POWER(_, unitID, power)
 	if not (unitID == "player" and power == "SHADOW_ORBS") then return end
 	C_TimerAfter(0.01, function() -- needs to be delayed so it fires after the SA events, otherwise everything will assume the SA is still in flight
-		if UnitAffectingCombat("player") or (CS.db.display == "Complex" and CS.db.outofcombat) then
-			orbs = UnitPower("player", 13)
-			CS:update()
-		end
+	orbs = UnitPower("player", 13)
+	CS:update()
 	end)
 end
 

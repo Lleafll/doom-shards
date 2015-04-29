@@ -50,8 +50,9 @@ function timerFrame:Unlock()
 			CS.db.posY = posY
 		end
 	)
-	timerFrame.lock = false
+	RegisterStateDriver(timerFrame, "visibility", "")
 	print(L["Conspicuous Spirits unlocked!"])
+	timerFrame.lock = false
 end
 
 function timerFrame:Lock()
@@ -61,6 +62,10 @@ function timerFrame:Lock()
 	timerFrame:SetScript("OnLeave", nil)
 	timerFrame:SetScript("OnMouseDown", nil)
 	timerFrame:SetScript("OnMouseUp", nil)
+	CS:applySettings()
+	if CS.db.display == "Complex" then
+		RegisterStateDriver(timerFrame, CS.db.complex.visibilityConditionals)
+	end
 	if not timerFrame.lock then print(L["Conspicuous Spirits locked!"]) end
 	timerFrame.lock = true
 end
@@ -132,94 +137,187 @@ local optionsTable = {
 			cmdHidden  = true,
 			inline = true,
 			args = {
-				height = {
+				orbs = {
 					order = 1,
-					type = "range",
-					name = L["Height"],
-					desc = L["Set Shadow Orb Height"],
-					min = 0,
-					max = 100,
-					step = 1,
-					get = function()
-						return CS.db.complex.height
-					end,
-					set = function(info, val)
-						CS.db.complex.height = val
-						CS:Initialize()
-					end
+					type = "group",
+					name = L["Orbs"],
+					args = {
+						height = {
+							order = 1,
+							type = "range",
+							name = L["Height"],
+							desc = L["Set Shadow Orb Height"],
+							min = 0,
+							max = 100,
+							step = 1,
+							get = function()
+								return CS.db.complex.height
+							end,
+							set = function(info, val)
+								CS.db.complex.height = val
+								CS:Initialize()
+							end
+						},
+						width = {
+							order = 2,
+							type = "range",
+							name = L["Width"],
+							desc = L["Set Shadow Orb Width"],
+							min = 0,
+							max = 100,
+							step = 1,
+							get = function()
+								return CS.db.complex.width
+							end,
+							set = function(info, val)
+								CS.db.complex.width = val
+								CS:Initialize()
+							end
+						},
+						spacing = {
+							order = 3,
+							type = "range",
+							name = L["Spacing"],
+							desc = L["Set Shadow Orb Spacing"],
+							min = 0,
+							max = 100,
+							step = 1,
+							get = function()
+								return CS.db.complex.spacing
+							end,
+							set = function(info, val)
+								CS.db.complex.spacing = val
+								CS:Initialize()
+							end
+						},
+						spacer = {
+							order = 3.5,
+							type="description",
+							name=""
+						},
+						color1 = {
+							order = 4,
+							type = "color",
+							name = L["Color 1"],
+							desc = L["Set Color 1"],
+							get = function()
+								local r, b, g, a = CS.db.complex.color1.r, CS.db.complex.color1.b, CS.db.complex.color1.g, CS.db.complex.color1.a
+								return r, b, g, a
+							end,
+							set = function(info, r, b, g, a)
+								CS.db.complex.color1.r, CS.db.complex.color1.b, CS.db.complex.color1.g, CS.db.complex.color1.a = r, b, g, a
+								CS:Initialize()
+							end
+						},
+						color2 = {
+							order = 5,
+							type = "color",
+							name = L["Color 2"],
+							desc = L["Set Color 2"],
+							get = function()
+								local r, b, g, a = CS.db.complex.color2.r, CS.db.complex.color2.b, CS.db.complex.color2.g, CS.db.complex.color2.a
+								return r, b, g, a
+							end,
+							set = function(info, r, b, g, a)
+								CS.db.complex.color2.r, CS.db.complex.color2.b, CS.db.complex.color2.g, CS.db.complex.color2.a = r, b, g, a
+								CS:Initialize()
+							end
+						},
+						spacer2 = {
+							order = 5.5,
+							type="description",
+							name=""
+						},
+						visibility = {
+							order = 6,
+							type = "input",
+							name = L["Visibility"],
+							desc = L["Regulate display visibility with macro conditionals"],
+							width = "full",
+							get = function()
+								return CS.db.complex.visibilityConditionals
+							end,
+							set = function(info, val)
+								CS.db.complex.visibilityConditionals = val
+								CS:Initialize()
+							end
+						}
+					},
 				},
-				width = {
+				text = {
 					order = 2,
-					type = "range",
-					name = L["Width"],
-					desc = L["Set Shadow Orb Width"],
-					min = 0,
-					max = 100,
-					step = 1,
-					get = function()
-						return CS.db.complex.width
-					end,
-					set = function(info, val)
-						CS.db.complex.width = val
-						CS:Initialize()
-					end
-				},
-				spacing = {
-					order = 3,
-					type = "range",
-					name = L["Spacing"],
-					desc = L["Set Shadow Orb Spacing"],
-					min = 0,
-					max = 100,
-					step = 1,
-					get = function()
-						return CS.db.complex.spacing
-					end,
-					set = function(info, val)
-						CS.db.complex.spacing = val
-						CS:Initialize()
-					end
-				},
-				color1 = {
-					order = 4,
-					type = "color",
-					name = L["Color 1"],
-					desc = L["Set Color 1"],
-					get = function()
-						local r, b, g, a = CS.db.complex.color1.r, CS.db.complex.color1.b, CS.db.complex.color1.g, CS.db.complex.color1.a
-						return r, b, g, a
-					end,
-					set = function(info, r, b, g, a)
-						CS.db.complex.color1.r, CS.db.complex.color1.b, CS.db.complex.color1.g, CS.db.complex.color1.a = r, b, g, a
-						CS:Initialize()
-					end
-				},
-				color2 = {
-					order = 5,
-					type = "color",
-					name = L["Color 2"],
-					desc = L["Set Color 2"],
-					get = function()
-						local r, b, g, a = CS.db.complex.color2.r, CS.db.complex.color2.b, CS.db.complex.color2.g, CS.db.complex.color2.a
-						return r, b, g, a
-					end,
-					set = function(info, r, b, g, a)
-						CS.db.complex.color2.r, CS.db.complex.color2.b, CS.db.complex.color2.g, CS.db.complex.color2.a = r, b, g, a
-						CS:Initialize()
-					end
-				},
-				outofcombat = {
-					order = 6,
-					type = "toggle",
-					name = L["Show Orbs out of combat"],
-					desc = L["Will show Shadow Orbs frame even when not in combat."],
-					get = function()
-						return CS.db.outofcombat
-					end,
-					set = function(info, val)
-						CS.db.outofcombat = val
-						CS:Initialize()
-					end
+					type = "group",
+					name = L["Text"],
+					args = {
+						fontName = {
+							order = 7,
+							type = "select",
+							dialogControl = "LSM30_Font",
+							name = L["Font"],
+							desc = L["Select font for the Complex display"],
+							values = LSM:HashTable("font"),
+							get = function()
+								return CS.db.complex.fontName
+							end,
+							set = function(_,key)
+								CS.db.complex.fontName = key
+								CS:Initialize()
+							end
+						},
+						fontSize = {
+							order = 8,
+							type = "range",
+							name = L["Font Size"],
+							desc = L["Set Font Size"],
+							min = 1,
+							max = 32,
+							step = 1,
+							get = function()
+								return CS.db.complex.fontSize
+							end,
+							set = function(info, val)
+								CS.db.complex.fontSize = val
+								CS:Initialize()
+							end
+						},
+						spacer = {
+							order = 8.5,
+							type="description",
+							name=""
+						},
+						stringXOffset = {
+							order = 9,
+							type = "range",
+							name = L["X Offset"],
+							desc = L["X offset for the Shadowy Apparition time text"],
+							min = -1000,
+							max = 1000,
+							step = 1,
+							get = function()
+								return CS.db.complex.stringXOffset
+							end,
+							set = function(info, val)
+								CS.db.complex.stringXOffset = val
+								CS:Initialize()
+							end
+						},
+						stringYOffset = {
+							order = 10,
+							type = "range",
+							name = L["Y Offset"],
+							desc = L["Y offset for the Shadowy Apparition time text"],
+							min = -1000,
+							max = 1000,
+							step = 1,
+							get = function()
+								return CS.db.complex.stringYOffset
+							end,
+							set = function(info, val)
+								CS.db.complex.stringYOffset = val
+								CS:Initialize()
+							end
+						}
+					}
 				}
 			}
 		},
@@ -285,6 +383,11 @@ local optionsTable = {
 						CS:Initialize()
 					end
 				},
+				spacer = {
+					order = 3.5,
+					type="description",
+					name=""
+				},
 				color1 = {
 					order = 4,
 					type = "color",
@@ -327,8 +430,28 @@ local optionsTable = {
 						CS:Initialize()
 					end
 				},
-				fontSize = {
+				spacer2 = {
+					order = 6.5,
+					type="description",
+					name=""
+				},
+				fontName = {
 					order = 7,
+					type = "select",
+					dialogControl = "LSM30_Font",
+					name = L["Font"],
+					desc = L["Select font for the Simple display"],
+					values = LSM:HashTable("font"),
+					get = function()
+						return CS.db.simple.fontName
+					end,
+					set = function(_, val)
+						CS.db.simple.fontName = val
+						CS:Initialize()
+					end
+				},
+				fontSize = {
+					order = 8,
 					type = "range",
 					name = L["Font Size"],
 					desc = L["Set Font Size"],
@@ -431,18 +554,18 @@ local optionsTable = {
 				},
 				file = {
 					order = 2,
-					 type = "select",
-					 dialogControl = "LSM30_Sound",
-					 name = "",
-					 desc = L["File to play."],
-					 values = LSM:HashTable("sound"),
-					 get = function()
-						  return CS.db.soundHandle
-					 end,
-					 set = function(_,key)
-						  CS.db.soundHandle = key
-						  CS.soundFile = LSM:Fetch("sound", CS.db.soundHandle)
-					 end
+					type = "select",
+					dialogControl = "LSM30_Sound",
+					name = "",
+					desc = L["File to play."],
+					values = LSM:HashTable("sound"),
+					get = function()
+						return CS.db.soundHandle
+					end,
+					set = function(_,key)
+						CS.db.soundHandle = key
+						CS.soundFile = LSM:Fetch("sound", CS.db.soundHandle)
+					end
 				}
 			}
 		},
@@ -489,7 +612,12 @@ CS.defaultSettings = {
 			width = 32,
 			spacing = 1,
 			color1 = {r=0.38, b=0.23, g=0.51, a=1.00},
-			color2 = {r=0.51, b=0.00, g=0.24, a=1.00}
+			color2 = {r=0.51, b=0.00, g=0.24, a=1.00},
+			fontSize = 15,
+			fontName = "Fritz Quadrata TT",
+			stringXOffset = 0,
+			stringYOffset = 0,
+			visibilityConditionals = "[harm] [combat] show; hide"
 		},
 		simple = {
 			height = 33,
@@ -498,9 +626,9 @@ CS.defaultSettings = {
 			color1 = {r=0.53, b=0.53, g=0.53, a=1.00},  -- lowest threshold color
 			color2 = {r=0.38, b=0.23, g=0.51, a=1.00},  -- middle threshold color
 			color3 = {r=0.51, b=0.00, g=0.24, a=1.00},  -- highest threshold color
-			fontSize = 15
+			fontSize = 15,
+			fontName = "Fritz Quadrata TT"
 		},
-		outofcombat = true,
 		display = "Complex",
 		sound = false,
 		soundHandle = "Droplet"
