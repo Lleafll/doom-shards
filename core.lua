@@ -40,6 +40,7 @@ local distanceCache = {}
 local distanceCache_GUID
 local timerID
 local playerGUID
+local aggressiveCachingInterval
 
 local distanceTable = {}  -- from HaloPro (ultimately from LibRangeCheck it seems)
 distanceTable[5] = 37727 -- Ruby Acorn 5 yards
@@ -121,41 +122,7 @@ local function iterateUnitIDs(tbl, GUID)
 	end
 end
 
-local function getTravelTimeByGUID(timeStamp, GUID)
-	local travelTime
-
-	if UnitGUID("target") == GUID then
-		travelTime = calculateTravelTime("target")
-		
-	elseif UnitGUID("mouseover") == GUID then
-		travelTime = calculateTravelTime("mouseover")
-		
-	elseif UnitGUID("focus") == GUID then
-		travelTime = calculateTravelTime("focus")
-		
-	elseif UnitGUID("pettarget") == GUID then
-		travelTime = calculateTravelTime("pettarget")
-		
-	else
-		if UnitExists("boss1") then
-			travelTime = iterateUnitIDs(bossTable, GUID)
-		end
-		
-		if not travelTime then
-			if IsInRaid() then
-				travelTime = iterateUnitIDs(raidTable, GUID)
-				if not travelTime then
-					travelTime = iterateUnitIDs(raidPetTable, GUID)
-				end
-			elseif IsInGroup() then
-				travelTime = iterateUnitIDs(partyTable, GUID)
-				if not travelTime then
-					travelTime = iterateUnitIDs(partyPetTable, GUID)
-				end
-			end
-		end
-	end
-	
+local function cacheTravelTime(travelTime)
 	-- target too far away
 	if travelTime == -1 then
 		distanceCache[GUID] = nil
@@ -201,6 +168,44 @@ local function getTravelTimeByGUID(timeStamp, GUID)
 	return travelTime
 end
 
+local function getTravelTimeByGUID(timeStamp, GUID)
+	local travelTime
+
+	if UnitGUID("target") == GUID then
+		travelTime = calculateTravelTime("target")
+		
+	elseif UnitGUID("mouseover") == GUID then
+		travelTime = calculateTravelTime("mouseover")
+		
+	elseif UnitGUID("focus") == GUID then
+		travelTime = calculateTravelTime("focus")
+		
+	elseif UnitGUID("pettarget") == GUID then
+		travelTime = calculateTravelTime("pettarget")
+		
+	else
+		if UnitExists("boss1") then
+			travelTime = iterateUnitIDs(bossTable, GUID)
+		end
+		
+		if not travelTime then
+			if IsInRaid() then
+				travelTime = iterateUnitIDs(raidTable, GUID)
+				if not travelTime then
+					travelTime = iterateUnitIDs(raidPetTable, GUID)
+				end
+			elseif IsInGroup() then
+				travelTime = iterateUnitIDs(partyTable, GUID)
+				if not travelTime then
+					travelTime = iterateUnitIDs(partyPetTable, GUID)
+				end
+			end
+		end
+	end
+	
+	return cacheTravelTime(travelTime)
+end
+
 local function getTravelTime(timeStamp, GUID, forced)
 	local travelTime
 	distanceCache_GUID = distanceCache[GUID]
@@ -222,6 +227,56 @@ local function getTravelTime(timeStamp, GUID, forced)
 		SATimeCorrection[GUID] = SATimeCorrection[GUID] or 1  -- initially accounting for extra travel time due to hitbox size (estimated)
 		return travelTime + SATimeCorrection[GUID] or 1
 	end
+end
+
+local function aggressiveCachingByUnitID(unitID, timeStamp)
+	if not UnitCanAttack("player", unitID) then return end
+	
+	local GUID = UnitGUID(unitID)
+	
+	if timeStamp - distanceCache[GUID].timeStamp < aggressiveCachingInterval then return end
+	
+	cacheTravelTime(calculateTravelTime(unitID))
+end
+
+local function aggressiveCachingIteration(tbl, timeStamp)
+	for i = 1, #tbl do
+		aggressiveCachingByUnitID(tbl[i], timeStamp)
+	end
+end
+
+local function aggressiveCaching()
+	local timeStamp = time() + 1  -- sadly no milliseconds :/
+
+	aggressiveCachingByUnitID("target", timeStamp)
+	aggressiveCachingByUnitID("mouseover", timeStamp)
+	aggressiveCachingByUnitID("focus", timeStamp)
+	aggressiveCachingByUnitID("pettarget", timeStamp)
+	if UnitExists("boss1") then
+		aggressiveCachingIteration(bossTable, timeStamp)
+	end
+	if IsInRaid() then
+		aggressiveCachingIteration(raidTable, timeStamp)
+		aggressiveCachingIteration(raidPetTable, timeStamp)
+	elseif IsInGroup() then
+		aggressiveCachingIteration(partyTable, timeStamp)
+		aggressiveCachingIteration(partyPetTable, timeStamp)
+	end
+	
+	-- target too far away
+	if travelTime == -1 then
+		distanceCache[GUID] = nil
+		return nil
+	end
+	
+	-- cache travel time
+	if travelTime then
+		distanceCache[GUID] = distanceCache[GUID] or {}
+		distanceCache[GUID].travelTime = travelTime
+		distanceCache[GUID].timeStamp = timeStamp
+	end
+
+	return travelTime
 end
 
 local function addGUID(timeStamp, GUID)
@@ -379,6 +434,7 @@ function CS:PLAYER_REGEN_DISABLED()
 	orbs = UnitPower("player", 13)
 	if not (self.db.display == "WeakAuras") then
 		self:ScheduleRepeatingTimer("update", 0.1)
+		if CS.db.aggressiveCaching then self:ScheduleRepeatingTimer("aggressiveCaching", CS.db.aggressiveCachingInterval) end
 		function warningSound(orbs, timers) CS:warningSound(orbs, timers) end
 	end
 	if not timerFrame.lock then
@@ -447,6 +503,8 @@ function CS:Initialize()
 	else
 		timerFrame:ShowChildren()
 	end
+	
+	aggressiveCachingInterval = CS.db.aggressiveCachingInterval
 	
 	-- TODO: Add encounter fixes when logging in and already in-combat
 end

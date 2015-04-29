@@ -4,6 +4,8 @@ if not L then return end
 
 
 -- Translations
+L["Aggressive Caching"] = true
+L["Aggressive Caching Interval"] = true
 L["Color 1"] = "색상 1"
 L["Color 2"] = "색상 2"
 L["Color 3"] = "색상 3"
@@ -14,6 +16,7 @@ L["Conspicuous Spirits reset!"] = "Conspicuous Spirits 초기화!"
 L["Conspicuous Spirits unlocked!"] = "Conspicuous Spirits 잠금해제!"
 L["Display"] = "디스플레이"
 L["Display Type"] = "디스플레이 형식"
+L["Enables frequent distance scanning of all available targets. Will increase CPU usage slightly and is only going to increase accuracy in situations with many fast-moving mobs."] = true
 L["File to play."] = "재생할 파일."
 L["Font"] = true
 L["Font Size"] = "글꼴 크기"
@@ -30,6 +33,7 @@ L["Reset"] = "초기화"
 L["Reset Position"] = "위치 초기화"
 L["Reset to Defaults"] = "기본으로 초기화"
 L["Scale"] = "크기"
+L["Scanning interval when Aggressive Caching is enabled"] = true
 L["Select font for the Complex display"] = true
 L["Select font for the Simple display"] = true
 L["Set Color 1"] = "색상 1 설정"
