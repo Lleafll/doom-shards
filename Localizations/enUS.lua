@@ -4,6 +4,8 @@ if not L then return end
 
 
 -- Translations
+L["Aggressive Caching"] = true
+L["Aggressive Caching Interval"] = true
 L["Conspicuous Spirits locked!"] = true
 L["Conspicuous Spirits unlocked!"] = true
 L["Color 1"] = true
@@ -14,9 +16,11 @@ L["Complex Display"] = true
 L["Conspicuous Spirits reset!"] = true
 L["Display"] = true
 L["Display Type"] = true
+L["Enables frequent distance scanning of all available targets. Will increase CPU usage slightly and is only going to increase accuracy in situations with many fast-moving mobs."] = true
 L["File to play."] = true
 L["Font"] = true
 L["Font Size"] = true
+L["General"] = true
 L["Height"] = true
 L["IronMaidensShipMessage"] = "prepares to man the Dreadnaught's Main Cannon!"
 L["Left mouse button to drag."] = true
@@ -30,6 +34,7 @@ L["Reset"] = true
 L["Reset Position"] = true
 L["Reset to Defaults"] = true
 L["Scale"] = true
+L["Scanning interval when Aggressive Caching is enabled"] = true
 L["Select font for the Complex display"] = true
 L["Select font for the Simple display"] = true
 L["Set Frame Scale"] = true

@@ -40,6 +40,7 @@ local distanceCache = {}
 local distanceCache_GUID
 local timerID
 local playerGUID
+local aggressiveCachingInterval
 
 local distanceTable = {}  -- from HaloPro (ultimately from LibRangeCheck it seems)
 distanceTable[5] = 37727 -- Ruby Acorn 5 yards
@@ -69,21 +70,11 @@ local partyTable = buildUnitIDTable("party", 5, "target")
 local partyPetTable = buildUnitIDTable("party", 5, "pettarget")
 
 local SAVelocity = 6  -- estimated
-local SAGraceTime = 3  -- maximum additional wait time before SA tiemr gets purged if it should not have hit in the meantime
+local SAGraceTime = 3  -- maximum additional wait time before SA timer gets purged if it should not have hit in the meantime
 local cacheMaxTime = 1  -- seconds in which the cache does not get refreshed
 
 
 -- Functions
---[[ maybe revisit the idea later, for now it messes up too much
-local function getNPCID(GUID)
-	if stringfind(GUID, "player") then
-		return GUID
-	else
-		return stringsub(GUID, -16, -12)
-	end
-end
-]]--
-
 local function calculateTravelTime(unitID)
 	local minDistance
 	local maxDistance
@@ -121,7 +112,24 @@ local function iterateUnitIDs(tbl, GUID)
 	end
 end
 
-local function getTravelTimeByGUID(timeStamp, GUID)
+local function cacheTravelTime(travelTime, GUID)
+	-- target too far away
+	if travelTime == -1 then
+		distanceCache[GUID] = nil
+		return nil
+	end
+	
+	-- cache travel time
+	if travelTime then
+		distanceCache[GUID] = distanceCache[GUID] or {}
+		distanceCache[GUID].travelTime = travelTime
+		distanceCache[GUID].timeStamp = GetTime()
+	end
+
+	return travelTime
+end
+
+local function getTravelTimeByGUID(GUID)
 	local travelTime
 
 	if UnitGUID("target") == GUID then
@@ -156,61 +164,19 @@ local function getTravelTimeByGUID(timeStamp, GUID)
 		end
 	end
 	
-	-- target too far away
-	if travelTime == -1 then
-		distanceCache[GUID] = nil
-		return nil
-	end
-	
-	-- cache travel time
-	if travelTime then
-		
-		--[[ -- test for movement correction (SA impact time does not seem to be affected by mob movement after SA spawn)
-		-- attempt to correct impact times after mob movement
-		local posX, posY = UnitPosition("player")
-		if targets[GUID] then
-			for _, timerID in pairs(targets[GUID]) do
-				local travelDelta = travelTime - timerID.travelTime
-				if (travelDelta > 3.4) or (travelDelta < -3.4) or (travelTime == -1) then
-					local playerDistanceDelta = (posX * timerID.posX + posY * timerID.posY) ^ 0.5 / 1.075  -- apparently 1 y is bigger than 1 ingame measurement unit
-					
-					if travelDelta < 0 then
-						local correction = travelDelta + playerDistanceDelta
-						if correction < 0 then
-							timerID.travelTime = travelTime + correction
-							timerID.impactTime = timerID.impactTime + correction
-						end
-					else
-						local correction = travelDelta - playerDistanceDelta
-						if correction > 0 then
-							timerID.travelTime = travelTime + correction
-							timerID.impactTime = timerID.impactTime + correction
-						end
-					end
-					
-				end
-			end
-		end
-		]]--
-	
-		distanceCache[GUID] = distanceCache[GUID] or {}
-		distanceCache[GUID].travelTime = travelTime
-		distanceCache[GUID].timeStamp = timeStamp
-	end
-
-	return travelTime
+	return cacheTravelTime(travelTime, GUID)
 end
 
-local function getTravelTime(timeStamp, GUID, forced)
+local function getTravelTime(GUID, forced)
 	local travelTime
 	distanceCache_GUID = distanceCache[GUID]
 	
 	if not distanceCache_GUID then
-		travelTime = getTravelTimeByGUID(timeStamp, GUID)
+		travelTime = getTravelTimeByGUID(GUID)
 	else
-		local delta = timeStamp - distanceCache_GUID.timeStamp
+		local delta = GetTime() - distanceCache_GUID.timeStamp
 		if forced or (delta > cacheMaxTime) then
-			travelTime = getTravelTimeByGUID(timeStamp, GUID) or distanceCache_GUID.travelTime
+			travelTime = getTravelTimeByGUID(GUID) or distanceCache_GUID.travelTime
 		else
 			travelTime = distanceCache_GUID.travelTime
 		end
@@ -224,22 +190,54 @@ local function getTravelTime(timeStamp, GUID, forced)
 	end
 end
 
-local function addGUID(timeStamp, GUID)
+local function aggressiveCachingByUnitID(unitID, timeStamp)
+	if not UnitCanAttack("player", unitID) then return end
+	
+	local GUID = UnitGUID(unitID)
+	
+	if distanceCache[GUID] and timeStamp - distanceCache[GUID].timeStamp < aggressiveCachingInterval then return end
+	
+	-- debug
+	--print("Caching "..unitID)
+	
+	cacheTravelTime(calculateTravelTime(unitID), GUID)
+end
+
+local function aggressiveCachingIteration(tbl, timeStamp)
+	for i = 1, #tbl do
+		aggressiveCachingByUnitID(tbl[i], timeStamp)
+	end
+end
+
+function CS:aggressiveCaching()
+	local timeStamp = GetTime()  -- sadly no milliseconds :/
+
+	aggressiveCachingByUnitID("target", timeStamp)
+	aggressiveCachingByUnitID("mouseover", timeStamp)
+	aggressiveCachingByUnitID("focus", timeStamp)
+	aggressiveCachingByUnitID("pettarget", timeStamp)
+	if UnitExists("boss1") then
+		aggressiveCachingIteration(bossTable, timeStamp)
+	end
+	if IsInRaid() then
+		aggressiveCachingIteration(raidTable, timeStamp)
+		aggressiveCachingIteration(raidPetTable, timeStamp)
+	elseif IsInGroup() then
+		aggressiveCachingIteration(partyTable, timeStamp)
+		aggressiveCachingIteration(partyPetTable, timeStamp)
+	end
+	
+	cacheTravelTime(travelTime)
+end
+
+local function addGUID(GUID)
 	local cancelTime
-	local travelTime = getTravelTime(timeStamp, GUID, true)
+	local travelTime = getTravelTime(GUID, true)
 	if not travelTime then return end  -- target too far away, abort timer creation
 
 	targets[GUID] = targets[GUID] or {}
 	timerID = CS:ScheduleTimer("removeTimer_timed", travelTime + SAGraceTime, GUID)
-	
-	-- test for movement correction
-	--timerID.travelTime = travelTime
-	
 	timerID.impactTime = GetTime() + travelTime  -- can't use timeStamp instead of GetTime() because of different time reference
-	
-	-- test for movement correction
-	--timerID.posX, timerID.posY = UnitPosition("player")
-	
 	targets[GUID][#targets[GUID]+1] = timerID
 	
 	local timersCount = #timers
@@ -332,39 +330,36 @@ function CS:COMBAT_LOG_EVENT_UNFILTERED(_, ...)
 		-- Shadowy Apparition cast
 		if spellID == 147193 and destName ~= nil then  -- SAs without a target won't generate orbs
 			if UnitAffectingCombat("player") then
-				addGUID(timeStamp, destGUID)
+				addGUID(destGUID)
 				self:update()
 			end
 		
 		-- catch all Shadowy Apparition hit events
 		elseif spellID == 148859 and not multistrike then
 			timerID = popGUID(destGUID)
+			local currentTime = GetTime()
 			if timerID then
-				local additionalTime = timerID.impactTime - GetTime()
+				local additionalTime = timerID.impactTime - currentTime
 				SATimeCorrection[destGUID] = SATimeCorrection[destGUID] - additionalTime / 2
 				removeTimer(timerID)
 				-- correct other timers
 				if targets[GUID] and additionalTime > 0.5 then
 					for _, timerID in pairs(targets[GUID]) do
-						
-						-- test for movement correction
-						--timerID.travelTime = timerID.travelTime + additionalTime
-						
-						timerID.impactTime = timerID.impactTime + additionalTime
+						timerID.impactTime = timerID.impactTime - additionalTime
 					end
 				end
 			end
-			if distanceCache[GUID] and timeStamp > distanceCache[GUID].timeStamp + cacheMaxTime then  -- update cached distances if over cacheMaxTime
+			if distanceCache[GUID] and currentTime > distanceCache[GUID].timeStamp + cacheMaxTime then  -- update cached distances if over cacheMaxTime
 				distanceCache[GUID] = distanceCache[GUID] or {}
 				distanceCache[GUID].travelTime = timerID.impactTime - GetTime() - SATimeCorrection[destGUID]
-				distanceCache[GUID].timeStamp = timeStamp
+				distanceCache[GUID].timeStamp = currentTime
 			end
 			self:update()
 			
 		-- Shadowy Word: Pain tick
 		elseif spellID == 589 and not multistrike and (event == "SPELL_PERIODIC_DAMAGE" or event == "SPELL_DAMAGE") then
 			if UnitAffectingCombat("player") then
-				getTravelTime(timeStamp, destGUID)  -- adds GUID to distance table
+				getTravelTime(destGUID)  -- adds GUID to distance table
 			end
 			
 		end
@@ -379,6 +374,7 @@ function CS:PLAYER_REGEN_DISABLED()
 	orbs = UnitPower("player", 13)
 	if not (self.db.display == "WeakAuras") then
 		self:ScheduleRepeatingTimer("update", 0.1)
+		if CS.db.aggressiveCaching then self:ScheduleRepeatingTimer("aggressiveCaching", CS.db.aggressiveCachingInterval) end
 		function warningSound(orbs, timers) CS:warningSound(orbs, timers) end
 	end
 	if not timerFrame.lock then
@@ -447,6 +443,8 @@ function CS:Initialize()
 	else
 		timerFrame:ShowChildren()
 	end
+	
+	aggressiveCachingInterval = CS.db.aggressiveCachingInterval
 	
 	-- TODO: Add encounter fixes when logging in and already in-combat
 end

@@ -76,10 +76,10 @@ local optionsTable = {
 	type = "group",
 	name = "Conspicuous Spirits",
 	args = {
-		display = {
+		general = {
 			order = 1,
 			type = "group",
-			name = L["Display"],
+			name = L["General"],
 			cmdHidden = true,
 			inline = true,
 			args = {
@@ -120,7 +120,39 @@ local optionsTable = {
 						CS:Initialize()
 						if val == "WeakAuras" then timerFrame:Lock() end
 					end
-				}
+				},
+				spacer = {
+					order = 2.5,
+					type="description",
+					name = ""
+				},
+				aggressiveCaching = {
+					order = 3,
+					type = "toggle",
+					name = L["Aggressive Caching"],
+					desc = L["Enables frequent distance scanning of all available targets. Will increase CPU usage slightly and is only going to increase accuracy in situations with many fast-moving mobs."],
+					get = function()
+						return CS.db.aggressiveCaching
+					end,
+					set = function(_, val)
+						CS.db.aggressiveCaching = val
+					end
+				},
+				aggressiveCachingInterval = {
+					order = 4,
+					type = "range",
+					name = L["Aggressive Caching Interval"],
+					desc = L["Scanning interval when Aggressive Caching is enabled"],
+					min = 0.2,
+					max = 3,
+					step = 0.1,
+					get = function()
+						return CS.db.aggressiveCachingInterval
+					end,
+					set = function(_, val)
+						CS.db.aggressiveCachingInterval = val
+					end
+				},
 			}
 		},
 		complex = {
@@ -631,7 +663,9 @@ CS.defaultSettings = {
 		},
 		display = "Complex",
 		sound = false,
-		soundHandle = "Droplet"
+		soundHandle = "Droplet",
+		aggressiveCaching = false,
+		aggressiveCachingInterval = 1
 	}
 }
 
