@@ -1,25 +1,30 @@
---debug
+-- Debugging
+local debug = false
+--@debug@
 --GAME_LOCALE = "deDE"
+--debug = true
+--@end-debug@
+
 
 -- Libraries
-local L = LibStub("AceLocale-3.0"):NewLocale("ConspicuousSpirits", "enUS", true)
+local L = LibStub("AceLocale-3.0"):NewLocale("ConspicuousSpirits", "enUS", true, debug)
 if not L then return end
 
 
 -- Translations
+--@localization(locale="enUS", format="lua_additive_table", same-key-is-true=true)@
+
+--@do-not-package@
+
 L["Aggressive Caching"] = true
 L["Aggressive Caching Interval"] = true
 L["Color 1"] = true
 L["Color 2"] = true
 L["Color 3"] = true
-L["Complex"] = true
 L["Complex Display"] = true
 L["Conspicuous Spirits locked!"] = true
 L["Conspicuous Spirits reset!"] = true
 L["Conspicuous Spirits unlocked!"] = true
-L["Display"] = true
-L["Display Type"] = true
-L["Display Types"] = true
 L["Enable"] = true
 L["Enables frequent distance scanning of all available targets. Will increase CPU usage slightly and is only going to increase accuracy in situations with many fast-moving mobs."] = true
 L["File to play."] = true
@@ -38,7 +43,6 @@ L["Left mouse button to drag."] = true
 L["MONOCHROMEOUTLINE"] = true
 L["None"] = true
 L["Not possible to unlock in WeakAuras mode!"] = true
-L["Open Configuration Window"] = true
 L["Orbs"] = true
 L["Order in which the Shadow Orbs get filled in"] = true
 L["Orientation"] = true
@@ -47,7 +51,6 @@ L["Play Warning Sound when about to cap Shadow Orbs."] = true
 L["Position"] = true
 L["Regular"] = true
 L["Regulate display visibility with macro conditionals"] = true
-L["Reset"] = true
 L["Reset Position"] = true
 L["Reset to Defaults"] = true
 L["Reversed"] = true
@@ -72,7 +75,6 @@ L["Set Shadow Orb Width"] = true
 L["Shadow"] = true
 L["Show Orbs out of combat"] = true
 L["Shows the frame and toggles it for repositioning."] = true
-L["Simple"] = true
 L["Simple Display"] = true
 L["Sound"] = true
 L["Spacing"] = true
@@ -82,8 +84,6 @@ L["Time between warning sounds"] = true
 L["Toggle Lock"] = true
 L["Vertical"] = true
 L["Visibility"] = true
-L["Warning Sound"] = true
-L["WeakAuras"] = true
 L["WeakAuras Import String"] = true
 L["WeakAuras Interface"] = true
 L["WeakAuras String"] = true
@@ -94,3 +94,5 @@ L["X Offset"] = true
 L["X offset for the Shadowy Apparition time text"] = true
 L["Y Offset"] = true
 L["Y offset for the Shadowy Apparition time text"] = true
+
+--@end-do-not-package@

@@ -4,6 +4,10 @@ if not L then return end
 
 
 -- Translations
+--@localization(locale="koKR", format="lua_additive_table", same-key-is-true=true)@
+
+--@do-not-package@
+
 L["Aggressive Caching"] = "Aggressive Caching" -- Requires localization
 L["Aggressive Caching Interval"] = "Aggressive Caching Interval" -- Requires localization
 L["Color 1"] = "색상 1"
@@ -67,3 +71,5 @@ L["X Offset"] = "X 좌표"
 L["X offset for the Shadowy Apparition time text"] = "상서로운 영혼 시간 문자의 X 좌표"
 L["Y Offset"] = "Y 좌표"
 L["Y offset for the Shadowy Apparition time text"] = "상서로운 영혼 시간 문자의 Y 좌표"
+
+--@end-do-not-package@

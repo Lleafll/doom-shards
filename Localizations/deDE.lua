@@ -4,6 +4,10 @@ if not L then return end
 
 
 -- Translations
+--@localization(locale="deDE", format="lua_additive_table", same-key-is-true=true)@
+
+--@do-not-package@
+
 L["Aggressive Caching"] = "Aggressives Cachen"
 L["Aggressive Caching Interval"] = "Intervall für Aggressives Cachen"
 L["Conspicuous Spirits locked!"] = "Conspicuous Spirits entsperrt!"
@@ -67,3 +71,5 @@ L["X Offset"] = "X-Abstand des Textes"
 L["X offset for the Shadowy Apparition time text"] = "X-Abstand des Textes für die Schattenhafte-Erscheinungen-Zeit"
 L["Y Offset"] = "Y-Abstand des Textes"
 L["Y offset for the Shadowy Apparition time text"] = "Y-Abstand des Textes für die Schattenhafte-Erscheinungen-Zeit"
+
+--@end-do-not-package@
