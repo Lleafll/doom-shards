@@ -330,13 +330,26 @@ local optionsTable = {
 								CS:Initialize()
 							end
 						},
+						color = {
+							order = 10,
+							type = "color",
+							name = L["Font Color"],
+							desc = L["Set Font Color"],
+							get = function()
+								return CS.db.complex.fontColor.r, CS.db.complex.fontColor.b, CS.db.complex.fontColor.g, CS.db.complex.fontColor.a
+							end,
+							set = function(info, r, b, g, a)
+								CS.db.complex.fontColor.r, CS.db.complex.fontColor.b, CS.db.complex.fontColor.g, CS.db.complex.fontColor.a = r, b, g, a
+								CS:Initialize()
+							end
+						},
 						spacer = {
-							order = 9.5,
+							order = 10.5,
 							type="description",
 							name=""
 						},
 						stringXOffset = {
-							order = 10,
+							order = 11,
 							type = "range",
 							name = L["X Offset"],
 							desc = L["X offset for the Shadowy Apparition time text"],
@@ -352,7 +365,7 @@ local optionsTable = {
 							end
 						},
 						stringYOffset = {
-							order = 11,
+							order = 12,
 							type = "range",
 							name = L["Y Offset"],
 							desc = L["Y offset for the Shadowy Apparition time text"],
@@ -536,7 +549,20 @@ local optionsTable = {
 						CS.db.simple.fontFlags = val
 						CS:Initialize()
 					end
-				}
+				},
+				color = {
+					order = 10,
+					type = "color",
+					name = L["Font Color"],
+					desc = L["Set Font Color"],
+					get = function()
+						return CS.db.simple.fontColor.r, CS.db.simple.fontColor.b, CS.db.simple.fontColor.g, CS.db.simple.fontColor.a
+					end,
+					set = function(info, r, b, g, a)
+						CS.db.simple.fontColor.r, CS.db.simple.fontColor.b, CS.db.simple.fontColor.g, CS.db.simple.fontColor.a = r, b, g, a
+						CS:Initialize()
+					end
+				},
 			}
 		},
 		weakauras = {
@@ -686,6 +712,7 @@ CS.defaultSettings = {
 			fontSize = 15,
 			fontName = "Fritz Quadrata TT",
 			fontFlags = "Shadow",
+			fontColor = {r=1, b=1, g=1, a=1},
 			stringXOffset = 0,
 			stringYOffset = 0,
 			visibilityConditionals = "[harm] [combat] show; hide"
@@ -699,7 +726,8 @@ CS.defaultSettings = {
 			color3 = {r=0.51, b=0.00, g=0.24, a=1.00},  -- highest threshold color
 			fontSize = 15,
 			fontName = "Fritz Quadrata TT",
-			fontFlags = "Shadow"
+			fontFlags = "Shadow",
+			fontColor = {r=1, b=1, g=1, a=1}
 		},
 		display = "Complex",
 		sound = false,

@@ -77,7 +77,7 @@ local function createFrames()
 		local flags = CS.db.simple.fontFlags
 		fontstring:Show()
 		fontstring:SetFont(fontPath, CS.db.simple.fontSize, flags == "MONOCHROMEOUTLINE" and "MONOCHROME, OUTLINE" or (flags == "OUTLINE" or flags == "THICKOUTLINE") and flags or "")
-		fontstring:SetTextColor(1, 1, 1, 1)
+		fontstring:SetTextColor(CS.db.simple.fontColor.r, CS.db.simple.fontColor.b, CS.db.simple.fontColor.g, CS.db.simple.fontColor.a)
 		fontstring:SetShadowOffset(1, -1)
 		fontstring:SetShadowColor(0, 0, 0, flags == "Shadow" and 1 or 0)
 		fontstring:SetText("0")
