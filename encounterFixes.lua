@@ -24,36 +24,33 @@ local boss3Name
 
 
 -- Functions
-function CS:encounterFix(...)
-	-- debug
-	print(...)
-end
+function CS:encounterFix(...) end
 
 function CS:beastlordFix()
 	if not UnitExists("boss1") then
-		CS:removeGUID(boss1GUID)
+		self:removeGUID(boss1GUID)
 	end
 end
 
-local function blastFurnaceFix(event, sourceGUID, destGUID, spellID)
+local function blastFurnaceFix(self, event, sourceGUID, destGUID, spellID)
 	if spellID == 605 and event == "SPELL_CAST_SUCCESS" then
-		CS:removeGUID(destGUID)
+		self:removeGUID(destGUID)
 	end
 end
 
 function CS:hansgarAndFranzokFix()
 	if not UnitExists("boss1") then
-		CS:removeGUID(boss1GUID)
+		self:removeGUID(boss1GUID)
 	
 	elseif not UnitExists("boss2") then
-		CS:removeGUID(boss2GUID)
+		self:removeGUID(boss2GUID)
 	
 	end
 end
 
-local function flamebenderFix(event, sourceGUID, destGUID, spellID)
+local function flamebenderFix(self, event, sourceGUID, destGUID, spellID)
 	if spellID == 181089 then
-		CS:removeGUID(sourceGUID)
+		self:removeGUID(sourceGUID)
 	end
 end
 
