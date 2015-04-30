@@ -113,9 +113,6 @@ local optionsTable = {
 						return CS.db.display
 					end,
 					set = function(info, val)
-						--if val == L["Complex"] then val = "Complex"
-						--elseif val == L["Simple"] then val = "Simple"
-						--elseif val == L["WeakAuras"] then val = "WeakAuras" end
 						CS.db.display = val
 						CS:Initialize()
 						if val == "WeakAuras" then timerFrame:Lock() end
@@ -156,7 +153,7 @@ local optionsTable = {
 			}
 		},
 		complex = {
-			order = 2,
+			order = 3,
 			type = "group",
 			name = L["Complex Display"],
 			hidden = function()
@@ -329,11 +326,6 @@ local optionsTable = {
 								return CS.db.complex.fontFlags
 							end,
 							set = function(info, val)
-								--if val == L["None"] then val = "None"
-								--elseif val == L["Shadow"] then val = "Shadow"
-								--elseif val == L["OUTLINE"] then val = "OUTLINE"
-								--elseif val == L["THICKOUTLINE"] then val = "THICKOUTLINE"
-								--elseif val == L["MONOCHROMEOUTLINE"] then val = "MONOCHROMEOUTLINE" end
 								CS.db.complex.fontFlags = val
 								CS:Initialize()
 							end
@@ -380,7 +372,7 @@ local optionsTable = {
 			}
 		},
 		simple = {
-			order = 2,
+			order = 3,
 			type = "group",
 			name = L["Simple Display"],
 			hidden = function()
@@ -541,12 +533,6 @@ local optionsTable = {
 						return CS.db.simple.fontFlags
 					end,
 					set = function(info, val)
-						--if val == L["None"] then val = "None"
-						--elseif val == L["Shadow"] then val = "Shadow"
-						--elseif val == L["OUTLINE"] then val = "OUTLINE"
-						--elseif val == L["THICKOUTLINE"] then val = "THICKOUTLINE"
-						--elseif val == L["MONOCHROMEOUTLINE"] then val = "MONOCHROMEOUTLINE" end
-						print(val)
 						CS.db.simple.fontFlags = val
 						CS:Initialize()
 					end
@@ -554,7 +540,7 @@ local optionsTable = {
 			}
 		},
 		weakauras = {
-			order = 4,
+			order = 3,
 			type = "group",
 			name = L["WeakAuras String"],
 			hidden = function()
@@ -580,7 +566,7 @@ local optionsTable = {
 			}
 		},
 		position = {
-			order = 5,
+			order = 2,
 			type = "group",
 			name = L["Position"],
 			inline = true,
@@ -619,7 +605,7 @@ local optionsTable = {
 			}
 		},
 		sound = {
-			order = 6,
+			order = 4,
 			type = "group",
 			name = L["Sound"],
 			cmdHidden = true,
@@ -649,13 +635,12 @@ local optionsTable = {
 					end,
 					set = function(_,key)
 						CS.db.soundHandle = key
-						CS.soundFile = LSM:Fetch("sound", CS.db.soundHandle)
 					end
 				}
 			}
 		},
 		reset = {
-			order = 7,
+			order = 5,
 			type = "group",
 			name = L["Reset"],
 			cmdHidden  = true,
