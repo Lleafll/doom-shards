@@ -75,6 +75,7 @@ end
 local optionsTable = {
 	type = "group",
 	name = "Conspicuous Spirits",
+	childGroups = "tab",
 	args = {
 		general = {
 			order = 1,
@@ -84,7 +85,7 @@ local optionsTable = {
 			inline = true,
 			args = {
 				scale = {
-					order = 2,
+					order = 1,
 					type = "range",
 					name = L["Scale"],
 					desc = L["Set Frame Scale"],
@@ -98,30 +99,6 @@ local optionsTable = {
 						CS.db.scale = val
 						timerFrame:SetScale(val)
 					end
-				},
-				display = {
-					order = 1,
-					type = "select",
-					style = "dropdown",
-					name = L["Display Type"],
-					values = {
-						["Complex"] = L["Complex"],
-						["Simple"] = L["Simple"],
-						["WeakAuras"] = L["WeakAuras"]
-					},
-					get = function()
-						return CS.db.display
-					end,
-					set = function(info, val)
-						CS.db.display = val
-						CS:Initialize()
-						if val == "WeakAuras" then timerFrame:Lock() end
-					end
-				},
-				spacer = {
-					order = 2.5,
-					type="description",
-					name = ""
 				},
 				aggressiveCaching = {
 					order = 3,
@@ -150,26 +127,48 @@ local optionsTable = {
 						CS.db.aggressiveCachingInterval = val
 					end
 				},
+				spacer = {
+					order = 2.5,
+					type = "description",
+					name = ""
+				},
+				reset = {
+					order = 2,
+					type = "execute",
+					name = L["Reset to Defaults"],
+					confirm = true,
+					func = function()
+						CS:ResetDB()
+						print(L["Conspicuous Spirits reset!"])
+						CS:getDB()
+						CS:Initialize()
+					end
+				}
 			}
 		},
 		complex = {
-			order = 3,
+			order = 2,
 			type = "group",
 			name = L["Complex Display"],
-			hidden = function()
-				if CS.db then
-					return not (CS.db.display == "Complex")
-				else
-					return false
-				end
-			end,
 			cmdHidden  = true,
-			inline = true,
 			args = {
-				layout = {
+				enable = {
 					order = 1,
+					type = "toggle",
+					name = L["Enable"],
+					get = function()
+						return CS.db.display == "Complex"
+					end,
+					set = function(info, val)
+						if val then CS.db.display = "Complex" end
+						CS:Initialize()
+					end
+				},
+				layout = {
+					order = 2,
 					type = "group",
 					name = L["Layout"],
+					inline = true,
 					args = {
 						orientation = {
 							order = 1,
@@ -209,9 +208,10 @@ local optionsTable = {
 					}
 				},
 				orbs = {
-					order = 2,
+					order = 3,
 					type = "group",
 					name = L["Orbs"],
+					inline = true,
 					args = {
 						height = {
 							order = 1,
@@ -316,9 +316,10 @@ local optionsTable = {
 					},
 				},
 				text = {
-					order = 3,
+					order = 4,
 					type = "group",
 					name = L["Text"],
+					inline = true,
 					args = {
 						fontName = {
 							order = 7,
@@ -430,18 +431,27 @@ local optionsTable = {
 			order = 3,
 			type = "group",
 			name = L["Simple Display"],
-			hidden = function()
-				if CS.db then
-					return not (CS.db.display == "Simple")
-				else
-					return false
-				end
-			end,
 			cmdHidden  = true,
-			inline = true,
 			args = {
-				height = {
+				enable = {
 					order = 1,
+					type = "toggle",
+					name = L["Enable"],
+					get = function()
+						return CS.db.display == "Simple"
+					end,
+					set = function(info, val)
+						if val then CS.db.display = "Simple" end
+						CS:Initialize()
+					end
+				},
+				spacer0 = {
+					order = 1.5,
+					type="description",
+					name=""
+				},
+				height = {
+					order = 2,
 					type = "range",
 					name = L["Height"],
 					desc = L["Set Frame Height"],
@@ -457,7 +467,7 @@ local optionsTable = {
 					end
 				},
 				width = {
-					order = 2,
+					order = 3,
 					type = "range",
 					name = L["Width"],
 					desc = L["Set Frame Width"],
@@ -473,7 +483,7 @@ local optionsTable = {
 					end
 				},
 				spacing = {
-					order = 3,
+					order = 4,
 					type = "range",
 					name = L["Spacing"],
 					desc = L["Set Number Spacing"],
@@ -489,12 +499,12 @@ local optionsTable = {
 					end
 				},
 				spacer = {
-					order = 3.5,
+					order = 4.5,
 					type="description",
 					name=""
 				},
 				color1 = {
-					order = 4,
+					order = 5,
 					type = "color",
 					name = L["Color 1"],
 					desc = L["Set Color 1"],
@@ -508,7 +518,7 @@ local optionsTable = {
 					end
 				},
 				color2 = {
-					order = 5,
+					order = 6,
 					type = "color",
 					name = L["Color 2"],
 					desc = L["Set Color 2"],
@@ -522,7 +532,7 @@ local optionsTable = {
 					end
 				},
 				color3 = {
-					order = 6,
+					order = 7,
 					type = "color",
 					name = L["Color 3"],
 					desc = L["Set Color 3"],
@@ -536,12 +546,12 @@ local optionsTable = {
 					end
 				},
 				spacer2 = {
-					order = 6.5,
+					order = 7.5,
 					type="description",
 					name=""
 				},
 				fontName = {
-					order = 7,
+					order = 8,
 					type = "select",
 					dialogControl = "LSM30_Font",
 					name = L["Font"],
@@ -556,7 +566,7 @@ local optionsTable = {
 					end
 				},
 				fontSize = {
-					order = 8,
+					order = 9,
 					type = "range",
 					name = L["Font Size"],
 					desc = L["Set Font Size"],
@@ -572,7 +582,7 @@ local optionsTable = {
 					end
 				},
 				fontFlags = {
-					order = 9,
+					order = 10,
 					type = "select",
 					style = "dropdown",
 					name = L["Font Flags"],
@@ -593,7 +603,7 @@ local optionsTable = {
 					end
 				},
 				color = {
-					order = 10,
+					order = 11,
 					type = "color",
 					name = L["Font Color"],
 					desc = L["Set Font Color"],
@@ -608,23 +618,31 @@ local optionsTable = {
 			}
 		},
 		weakauras = {
-			order = 3,
+			order = 4,
 			type = "group",
-			name = L["WeakAuras String"],
-			hidden = function()
-				if CS.db then
-					return not (CS.db.display == "WeakAuras")
-				else
-					return false
-				end
-			end,
+			name = L["WeakAuras Interface"],
 			cmdHidden  = true,
-			inline = true,
 			args = {
-				weakauras = {
+				enable = {
 					order = 1,
+					type = "toggle",
+					name = L["Enable"],
+					get = function()
+						return CS.db.display == "WeakAuras"
+					end,
+					set = function(info, val)
+						if val then
+							CS.db.display = "WeakAuras"
+							timerFrame:HideChildren()
+							timerFrame:Lock()
+						end
+						CS:Initialize()
+					end
+				},
+				weakaurasString = {
+					order = 2,
 					type = "input",
-					name = "",
+					name = L["WeakAuras Import String"],
 					desc = L["WeakAuras String to use when \"WeakAuras\" Display is selected. Copy & paste into WeakAuras to import."],
 					width = "full",
 					get = function()
@@ -634,7 +652,7 @@ local optionsTable = {
 			}
 		},
 		position = {
-			order = 2,
+			order = 5,
 			type = "group",
 			name = L["Position"],
 			inline = true,
@@ -673,16 +691,15 @@ local optionsTable = {
 			}
 		},
 		sound = {
-			order = 4,
+			order = 6,
 			type = "group",
 			name = L["Sound"],
 			cmdHidden = true,
-			inline = true,
 			args = {
 				sound = {
 					order = 1,
 					type = "toggle",
-					name = L["Warning Sound"],
+					name = L["Enable"],
 					desc = L["Play Warning Sound when about to cap Shadow Orbs."],
 					get = function()
 						return CS.db.sound
@@ -701,37 +718,33 @@ local optionsTable = {
 					get = function()
 						return CS.db.soundHandle
 					end,
-					set = function(_,key)
+					set = function(_, key)
 						CS.db.soundHandle = key
 					end
-				}
-			}
-		},
-		reset = {
-			order = 5,
-			type = "group",
-			name = L["Reset"],
-			cmdHidden  = true,
-			inline = true,
-			args = {
-				reset = {
-					order = 1,
-					type = "execute",
-					name = L["Reset to Defaults"],
-					confirm = true,
-					func = function()
-						CS:ResetDB()
-						print(L["Conspicuous Spirits reset!"])
-						CS:getDB()
+				},
+				width = {
+					order = 3,
+					type = "range",
+					name = L["Interval"],
+					desc = L["Time between warning sounds"],
+					min = 0.1,
+					max = 10,
+					step = 0.1,
+					get = function()
+						return CS.db.soundInterval
+					end,
+					set = function(info, val)
+						CS.db.soundInterval = val
 						CS:Initialize()
 					end
-				}
+				},
 			}
 		}
 	}
 }
 LibStub("AceConfig-3.0"):RegisterOptionsTable("Conspicuous Spirits", optionsTable)
 ACD:AddToBlizOptions("Conspicuous Spirits")
+ACD:SetDefaultSize("Conspicuous Spirits", 700, 810)
 function CS:openOptions()
 	ACD:Open("Conspicuous Spirits")
 end
@@ -776,6 +789,7 @@ CS.defaultSettings = {
 		display = "Complex",
 		sound = false,
 		soundHandle = "Droplet",
+		soundInterval = 2,
 		aggressiveCaching = false,
 		aggressiveCachingInterval = 1
 	}
