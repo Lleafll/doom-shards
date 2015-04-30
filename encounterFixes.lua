@@ -24,11 +24,20 @@ local boss3Name
 
 
 -- Functions
-function CS:encounterFix() end
+function CS:encounterFix(...)
+	-- debug
+	print(...)
+end
 
 function CS:beastlordFix()
 	if not UnitExists("boss1") then
 		CS:removeGUID(boss1GUID)
+	end
+end
+
+local function blastFurnaceFix(event, sourceGUID, destGUID, spellID)
+	if spellID == 605 and event == "SPELL_CAST_SUCCESS" then
+		CS:removeGUID(destGUID)
 	end
 end
 
@@ -114,6 +123,9 @@ end
 function CS:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSize)
 	if encounterID == 1689 then
 		self.encounterFix = flamebenderFix
+		
+	elseif encounterID == 1690 then
+		self.encounterFix = blastFurnaceFix
 		
 	elseif encounterID == 1693 then
 		self:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
