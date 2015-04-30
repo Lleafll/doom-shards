@@ -56,14 +56,35 @@ local function refreshDisplay(self, orbs, timers)
 end
 
 local function createFrames()
+	local orientation = CS.db.complex.orientation
+	local growthDirection = CS.db.complex.growthDirection
 	local spacing = CS.db.complex.spacing
 	local height = CS.db.complex.height
 	local width = CS.db.complex.width
-	local function createOrbFrame(number)
-		frame = orbFrames[number] or CreateFrame("frame", nil, timerFrame)
-		frame:SetPoint("BOTTOMLEFT", (width + spacing) * (number - 1), 0)
-		frame:SetHeight(height)
-		frame:SetWidth(width)
+	local flags = CS.db.complex.fontFlags
+	
+	local function createOrbFrame(numeration)
+		frame = orbFrames[numeration] or CreateFrame("frame", nil, timerFrame)
+		frame:ClearAllPoints()
+		local displacement = (width + spacing) * (numeration - 1)
+		if orientation == "Vertical" then
+			frame:SetHeight(width)
+			frame:SetWidth(height)
+			if growthDirection == "Reversed" then
+				frame:SetPoint("TOPRIGHT", 0, -displacement)
+			else
+				frame:SetPoint("BOTTOMRIGHT", 0, displacement)
+			end
+		else
+			frame:SetHeight(height)
+			frame:SetWidth(width)
+			if growthDirection == "Reversed" then
+				frame:SetPoint("BOTTOMRIGHT", -displacement, 0)
+			else
+				frame:SetPoint("BOTTOMLEFT", displacement, 0)
+			end
+		end
+		
 		frame:SetBackdrop({
 			bgFile="Interface\\ChatFrame\\ChatFrameBackground",
 			edgeFile="Interface\\ChatFrame\\ChatFrameBackground",
@@ -72,7 +93,7 @@ local function createFrames()
 			edgeSize= 1
 		})
 		frame:SetBackdropBorderColor(0, 0, 0, 1)
-		if number < 6 then
+		if numeration < 6 then
 			frame:Show()
 		else
 			frame:Hide()
@@ -83,16 +104,21 @@ local function createFrames()
 		orbFrames[i] = createOrbFrame(i)
 	end
 
-	local function createTimerFontString(referenceFrame, number)
-		local flags = CS.db.complex.fontFlags
-		fontString = SATimers[number] or timerFrame:CreateFontString(nil, "OVERLAY")
-		fontString:SetPoint("BOTTOM", referenceFrame, "TOP", CS.db.complex.stringXOffset, CS.db.complex.stringYOffset + 1)
+	local function createTimerFontString(referenceFrame, numeration)
+		fontString = SATimers[numeration] or timerFrame:CreateFontString(nil, "OVERLAY")
+		fontString:ClearAllPoints()
+		if orientation == "Vertical" then
+			fontString:SetPoint("RIGHT", referenceFrame, "LEFT", CS.db.complex.stringYOffset - 1, CS.db.complex.stringXOffset)
+		else
+			fontString:SetPoint("BOTTOM", referenceFrame, "TOP", CS.db.complex.stringXOffset, CS.db.complex.stringYOffset + 1)
+		end
 		fontString:SetFont(fontPath, CS.db.complex.fontSize, flags == "MONOCHROMEOUTLINE" and "MONOCHROME, OUTLINE" or (flags == "OUTLINE" or flags == "THICKOUTLINE") and flags or "")
 		fontString:SetTextColor(CS.db.complex.fontColor.r, CS.db.complex.fontColor.b, CS.db.complex.fontColor.g, CS.db.complex.fontColor.a)
 		fontString:SetShadowOffset(1, -1)
 		fontString:SetShadowColor(0, 0, 0, CS.db.complex.fontFlags == "Shadow" and 1 or 0)
 		fontString:Show()
 		fontString:SetText("0.0")
+		
 		return fontString
 	end
 	for i = 1, 6 do
@@ -126,12 +152,16 @@ local function HideChildren()
 end
 
 function CS:initializeComplex()
-	timerFrame:SetHeight(self.db.complex.height + 25)
-	timerFrame:SetWidth(5 * self.db.complex.width + 4 * self.db.complex.spacing)
-	fontPath = LSM:Fetch("font", CS.db.complex.fontName)
+	local db = self.db.complex
+	local height = db.height + 25
+	local width = 5 * db.width + 4 * db.spacing
+
+	timerFrame:SetHeight(db.orientation == "Vertical" and width or height)
+	timerFrame:SetWidth(db.orientation == "Vertical" and height or width)
+	fontPath = LSM:Fetch("font", db.fontName)
 	createFrames()
 	if timerFrame.lock then
-		RegisterStateDriver(timerFrame, "visibility", CS.db.complex.visibilityConditionals)
+		RegisterStateDriver(timerFrame, "visibility", db.visibilityConditionals)
 	end
 	CS.refreshDisplay = refreshDisplay
 	timerFrame.ShowChildren = ShowChildren

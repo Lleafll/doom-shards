@@ -166,8 +166,50 @@ local optionsTable = {
 			cmdHidden  = true,
 			inline = true,
 			args = {
-				orbs = {
+				layout = {
 					order = 1,
+					type = "group",
+					name = L["Layout"],
+					args = {
+						orientation = {
+							order = 1,
+							type = "select",
+							style = "dropdown",
+							name = L["Orientation"],
+							desc = L["Set Display orientation"],
+							values = {
+								["Horizontal"] = L["Horizontal"],
+								["Vertical"] = L["Vertical"]
+							},
+							get = function()
+								return CS.db.complex.orientation
+							end,
+							set = function(info, val)
+								CS.db.complex.orientation = val
+								CS:Initialize()
+							end
+						},
+						direction = {
+							order = 2,
+							type = "select",
+							name = L["Growth direction"],
+							desc = L["Order in which the Shadow Orbs get filled in"],
+							values = {
+								["Regular"] = L["Regular"],
+								["Reversed"] = L["Reversed"]
+							},
+							get = function()
+								return CS.db.complex.growthDirection
+							end,
+							set = function(info, val)
+								CS.db.complex.growthDirection = val
+								CS:Initialize()
+							end
+						}
+					}
+				},
+				orbs = {
+					order = 2,
 					type = "group",
 					name = L["Orbs"],
 					args = {
@@ -176,7 +218,7 @@ local optionsTable = {
 							type = "range",
 							name = L["Height"],
 							desc = L["Set Shadow Orb Height"],
-							min = 0,
+							min = 1,
 							max = 100,
 							step = 1,
 							get = function()
@@ -192,7 +234,7 @@ local optionsTable = {
 							type = "range",
 							name = L["Width"],
 							desc = L["Set Shadow Orb Width"],
-							min = 0,
+							min = 1,
 							max = 100,
 							step = 1,
 							get = function()
@@ -274,7 +316,7 @@ local optionsTable = {
 					},
 				},
 				text = {
-					order = 2,
+					order = 3,
 					type = "group",
 					name = L["Text"],
 					args = {
@@ -314,7 +356,7 @@ local optionsTable = {
 							type = "select",
 							style = "dropdown",
 							name = L["Font Flags"],
-							desc = L["Font Flags"],
+							desc = L["Set Font Flags"],
 							values = {
 								["None"] = L["None"],
 								["Shadow"] = L["Shadow"],
@@ -419,7 +461,7 @@ local optionsTable = {
 					type = "range",
 					name = L["Width"],
 					desc = L["Set Frame Width"],
-					min = 0,
+					min = 1,
 					max = 300,
 					step = 1,
 					get = function()
@@ -435,7 +477,7 @@ local optionsTable = {
 					type = "range",
 					name = L["Spacing"],
 					desc = L["Set Number Spacing"],
-					min = 0,
+					min = 1,
 					max = 100,
 					step = 1,
 					get = function()
@@ -715,7 +757,9 @@ CS.defaultSettings = {
 			fontColor = {r=1, b=1, g=1, a=1},
 			stringXOffset = 0,
 			stringYOffset = 0,
-			visibilityConditionals = "[harm] [combat] show; hide"
+			visibilityConditionals = "[harm] [combat] show; hide",
+			orientation = "Horizontal",
+			growthDirection = "Regular"
 		},
 		simple = {
 			height = 33,
