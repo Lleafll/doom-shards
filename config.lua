@@ -113,9 +113,9 @@ local optionsTable = {
 						return CS.db.display
 					end,
 					set = function(info, val)
-						if val == L["Complex"] then val = "Complex"
-						elseif val == L["Simple"] then val = "Simple"
-						elseif val == L["WeakAuras"] then val = "WeakAuras" end
+						--if val == L["Complex"] then val = "Complex"
+						--elseif val == L["Simple"] then val = "Simple"
+						--elseif val == L["WeakAuras"] then val = "WeakAuras" end
 						CS.db.display = val
 						CS:Initialize()
 						if val == "WeakAuras" then timerFrame:Lock() end
@@ -312,13 +312,39 @@ local optionsTable = {
 								CS:Initialize()
 							end
 						},
+						fontFlags = {
+							order = 9,
+							type = "select",
+							style = "dropdown",
+							name = L["Font Flags"],
+							desc = L["Font Flags"],
+							values = {
+								["None"] = L["None"],
+								["Shadow"] = L["Shadow"],
+								["OUTLINE"] = L["OUTLINE"],
+								["THICKOUTLINE"] = L["THICKOUTLINE"],
+								["MONOCHROMEOUTLINE"] = L["MONOCHROMEOUTLINE"]
+							},
+							get = function()
+								return CS.db.complex.fontFlags
+							end,
+							set = function(info, val)
+								--if val == L["None"] then val = "None"
+								--elseif val == L["Shadow"] then val = "Shadow"
+								--elseif val == L["OUTLINE"] then val = "OUTLINE"
+								--elseif val == L["THICKOUTLINE"] then val = "THICKOUTLINE"
+								--elseif val == L["MONOCHROMEOUTLINE"] then val = "MONOCHROMEOUTLINE" end
+								CS.db.complex.fontFlags = val
+								CS:Initialize()
+							end
+						},
 						spacer = {
-							order = 8.5,
+							order = 9.5,
 							type="description",
 							name=""
 						},
 						stringXOffset = {
-							order = 9,
+							order = 10,
 							type = "range",
 							name = L["X Offset"],
 							desc = L["X offset for the Shadowy Apparition time text"],
@@ -334,7 +360,7 @@ local optionsTable = {
 							end
 						},
 						stringYOffset = {
-							order = 10,
+							order = 11,
 							type = "range",
 							name = L["Y Offset"],
 							desc = L["Y offset for the Shadowy Apparition time text"],
@@ -497,6 +523,33 @@ local optionsTable = {
 						CS.db.simple.fontSize = val
 						CS:Initialize()
 					end
+				},
+				fontFlags = {
+					order = 9,
+					type = "select",
+					style = "dropdown",
+					name = L["Font Flags"],
+					desc = L["Font Flags"],
+					values = {
+						["None"] = L["None"],
+						["Shadow"] = L["Shadow"],
+						["OUTLINE"] = L["OUTLINE"],
+						["THICKOUTLINE"] = L["THICKOUTLINE"],
+						["MONOCHROMEOUTLINE"] = L["MONOCHROMEOUTLINE"]
+					},
+					get = function()
+						return CS.db.simple.fontFlags
+					end,
+					set = function(info, val)
+						--if val == L["None"] then val = "None"
+						--elseif val == L["Shadow"] then val = "Shadow"
+						--elseif val == L["OUTLINE"] then val = "OUTLINE"
+						--elseif val == L["THICKOUTLINE"] then val = "THICKOUTLINE"
+						--elseif val == L["MONOCHROMEOUTLINE"] then val = "MONOCHROMEOUTLINE" end
+						print(val)
+						CS.db.simple.fontFlags = val
+						CS:Initialize()
+					end
 				}
 			}
 		},
@@ -647,6 +700,7 @@ CS.defaultSettings = {
 			color2 = {r=0.51, b=0.00, g=0.24, a=1.00},
 			fontSize = 15,
 			fontName = "Fritz Quadrata TT",
+			fontFlags = "Shadow",
 			stringXOffset = 0,
 			stringYOffset = 0,
 			visibilityConditionals = "[harm] [combat] show; hide"
@@ -659,7 +713,8 @@ CS.defaultSettings = {
 			color2 = {r=0.38, b=0.23, g=0.51, a=1.00},  -- middle threshold color
 			color3 = {r=0.51, b=0.00, g=0.24, a=1.00},  -- highest threshold color
 			fontSize = 15,
-			fontName = "Fritz Quadrata TT"
+			fontName = "Fritz Quadrata TT",
+			fontFlags = "Shadow"
 		},
 		display = "Complex",
 		sound = false,

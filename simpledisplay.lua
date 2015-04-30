@@ -74,11 +74,12 @@ local function createFrames()
 	timerFrame:SetBackdropBorderColor(0, 0, 0, 1)
 	
 	local function setTimerText(fontstring)
+		local flags = CS.db.simple.fontFlags
 		fontstring:Show()
-		fontstring:SetFont(fontPath, CS.db.simple.fontSize)
+		fontstring:SetFont(fontPath, CS.db.simple.fontSize, flags == "MONOCHROMEOUTLINE" and "MONOCHROME, OUTLINE" or (flags == "OUTLINE" or flags == "THICKOUTLINE") and flags or "")
 		fontstring:SetTextColor(1, 1, 1, 1)
 		fontstring:SetShadowOffset(1, -1)
-		fontstring:SetShadowColor(0, 0, 0, 1)
+		fontstring:SetShadowColor(0, 0, 0, flags == "Shadow" and 1 or 0)
 		fontstring:SetText("0")
 	end
 	

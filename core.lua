@@ -435,7 +435,7 @@ function CS:Initialize()
 	
 	self:initializeSound()
 	self:applySettings()
-		
+	
 	if UnitAffectingCombat("player") then
 		self:PLAYER_REGEN_DISABLED()
 	elseif timerFrame.lock then
