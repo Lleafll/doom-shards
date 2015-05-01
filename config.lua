@@ -32,6 +32,9 @@ function timerFrame:ShowChildren() end
 function timerFrame:HideChildren() end
 
 function timerFrame:Unlock()
+	print(L["Conspicuous Spirits unlocked!"])
+	timerFrame.lock = false
+	CS:PLAYER_REGEN_ENABLED()
 	timerFrame:Show()
 	timerFrame:ShowChildren()
 	timerFrame.texture:Show()
@@ -51,11 +54,12 @@ function timerFrame:Unlock()
 		end
 	)
 	RegisterStateDriver(timerFrame, "visibility", "")
-	print(L["Conspicuous Spirits unlocked!"])
-	timerFrame.lock = false
 end
 
 function timerFrame:Lock()
+	if not timerFrame.lock then print(L["Conspicuous Spirits locked!"]) end
+	timerFrame.lock = true
+	if CS.db.calculateOutOfCombat then CS:PLAYER_REGEN_DISABLED() end
 	timerFrame.texture:Hide()
 	timerFrame:EnableMouse(false)
 	timerFrame:SetScript("OnEnter", nil)
@@ -63,11 +67,7 @@ function timerFrame:Lock()
 	timerFrame:SetScript("OnMouseDown", nil)
 	timerFrame:SetScript("OnMouseUp", nil)
 	CS:applySettings()
-	if CS.db.display == "Complex" then
-		RegisterStateDriver(timerFrame, CS.db.complex.visibilityConditionals)
-	end
-	if not timerFrame.lock then print(L["Conspicuous Spirits locked!"]) end
-	timerFrame.lock = true
+	if CS.db.display == "Complex" then RegisterStateDriver(timerFrame, CS.db.complex.visibilityConditionals) end
 end
 
 
@@ -100,6 +100,23 @@ local optionsTable = {
 						timerFrame:SetScale(val)
 					end
 				},
+				reset = {
+					order = 2,
+					type = "execute",
+					name = L["Reset to Defaults"],
+					confirm = true,
+					func = function()
+						CS:ResetDB()
+						print(L["Conspicuous Spirits reset!"])
+						CS:getDB()
+						CS:Initialize()
+					end
+				},
+				spacer = {
+					order = 2.5,
+					type = "description",
+					name = ""
+				},
 				aggressiveCaching = {
 					order = 3,
 					type = "toggle",
@@ -127,21 +144,21 @@ local optionsTable = {
 						CS.db.aggressiveCachingInterval = val
 					end
 				},
-				spacer = {
-					order = 2.5,
-					type = "description",
-					name = ""
-				},
-				reset = {
-					order = 2,
-					type = "execute",
-					name = L["Reset to Defaults"],
-					confirm = true,
-					func = function()
-						CS:ResetDB()
-						print(L["Conspicuous Spirits reset!"])
-						CS:getDB()
-						CS:Initialize()
+				calculateOutOfCombat = {
+					order = 5,
+					type = "toggle",
+					name = L["Out-of-Combat Calculation"],
+					desc = L["Keep calculating distances and anticipated Orbs when leaving combat."],
+					get = function()
+						return CS.db.calculateOutOfCombat
+					end,
+					set = function(_, val)
+						if CS.db.calculateOutOfCombat then
+							CS:PLAYER_REGEN_DISABLED()
+						elseif not UnitAffectingCombat("player") then
+							CS:PLAYER_REGEN_ENABLED()
+						end
+						CS.db.calculateOutOfCombat = val
 					end
 				}
 			}
@@ -791,7 +808,8 @@ CS.defaultSettings = {
 		soundHandle = "Droplet",
 		soundInterval = 2,
 		aggressiveCaching = false,
-		aggressiveCachingInterval = 1
+		aggressiveCachingInterval = 1,
+		calculateOutOfCombat = false
 	}
 }
 

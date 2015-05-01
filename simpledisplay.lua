@@ -9,7 +9,6 @@ local LSM = LibStub("LibSharedMedia-3.0")
 
 -- Upvalues
 local GetTime = GetTime
-local stringformat = string.format
 
 
 -- Frames
@@ -76,7 +75,7 @@ local function createFrames()
 	local function setTimerText(fontstring)
 		local flags = CS.db.simple.fontFlags
 		fontstring:Show()
-		fontstring:SetFont(fontPath, CS.db.simple.fontSize, flags == "MONOCHROMEOUTLINE" and "MONOCHROME, OUTLINE" or (flags == "OUTLINE" or flags == "THICKOUTLINE") and flags or "")
+		fontstring:SetFont(fontPath, CS.db.simple.fontSize, (flags == "MONOCHROMEOUTLINE" or flags == "OUTLINE" or flags == "THICKOUTLINE") and flags or nil)
 		fontstring:SetTextColor(CS.db.simple.fontColor.r, CS.db.simple.fontColor.b, CS.db.simple.fontColor.g, CS.db.simple.fontColor.a)
 		fontstring:SetShadowOffset(1, -1)
 		fontstring:SetShadowColor(0, 0, 0, flags == "Shadow" and 1 or 0)

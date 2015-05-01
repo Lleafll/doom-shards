@@ -314,25 +314,15 @@ function CS:COMBAT_LOG_EVENT_UNFILTERED(_, ...)
         
 	if event == "UNIT_DIED" or event == "UNIT_DESTROYED" or event == "SPELL_INSTAKILL" then
 	
-		if destGUID == playerGUID then
-			orbs = UnitPower("player", 13)
-			resetCount()
-			self:update()
-			
-		else
-			self:removeGUID(destGUID)
-			
-		end
+		self:removeGUID(destGUID)
 		
 		
 	elseif sourceGUID == playerGUID then
 	
 		-- Shadowy Apparition cast
 		if spellID == 147193 and destName ~= nil then  -- SAs without a target won't generate orbs
-			if UnitAffectingCombat("player") then
-				addGUID(destGUID)
-				self:update()
-			end
+			addGUID(destGUID)
+			self:update()
 		
 		-- catch all Shadowy Apparition hit events
 		elseif spellID == 148859 and not multistrike then
@@ -358,9 +348,7 @@ function CS:COMBAT_LOG_EVENT_UNFILTERED(_, ...)
 			
 		-- Shadowy Word: Pain tick
 		elseif spellID == 589 and not multistrike and (event == "SPELL_PERIODIC_DAMAGE" or event == "SPELL_DAMAGE") then
-			if UnitAffectingCombat("player") then
-				getTravelTime(destGUID)  -- adds GUID to distance table
-			end
+			getTravelTime(destGUID)  -- adds GUID to distance table
 			
 		end
 		
@@ -370,21 +358,43 @@ function CS:COMBAT_LOG_EVENT_UNFILTERED(_, ...)
 	end
 end
 
-function CS:PLAYER_REGEN_DISABLED()
+function CS:setOrbs()
 	orbs = UnitPower("player", 13)
+	self:update()
+end
+
+function CS:PLAYER_DEAD()
+	resetCount()
+	self:setOrbs()
+	self:update()
+end
+
+function CS:PLAYER_REGEN_DISABLED()
+	self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	orbs = UnitPower("player", 13)
+	
 	if not (self.db.display == "WeakAuras") then
 		self:ScheduleRepeatingTimer("update", 0.1)
-		if CS.db.aggressiveCaching then self:ScheduleRepeatingTimer("aggressiveCaching", CS.db.aggressiveCachingInterval) end
-		function warningSound(orbs, timers) CS:warningSound(orbs, timers) end
+		if UnitAffectingCombat("player") then
+			function warningSound(orbs, timers) CS:warningSound(orbs, timers) end
+		end
 	end
+	
+	if CS.db.aggressiveCaching then
+		self:ScheduleRepeatingTimer("aggressiveCaching", CS.db.aggressiveCachingInterval)
+	end
+		
 	if not timerFrame.lock then
 		timerFrame:Lock()
 	end
 end
 
 function CS:PLAYER_REGEN_ENABLED()
-	resetCount()
-	self:update()
+	if not timerFrame.lock or not self.db.calculateOutOfCombat then
+		self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+		resetCount()
+		self:update()
+	end
 	function warningSound() end
 end
 
@@ -396,31 +406,21 @@ function CS:UNIT_POWER(_, unitID, power)
 	end)
 end
 
-function CS:setOrbs()
-	orbs = UnitPower("player", 13)
-	self:update()
-end
-
 function CS:PLAYER_ENTERING_WORLD()
 	playerGUID = UnitGUID("player")
 	self:setOrbs()
-end
-
-local function registerAllEvents()
-	CS:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-end
-
-local function unregisterAllEvents()
-	CS:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	resetCount()
+	self:update()
 end
 
 function CS:talentsCheck()
+	self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	function warningSound() end
+	
 	local specialization = GetSpecialization()
 	local _, _, _, ASSpecced = GetTalentInfo(7, 3, GetActiveSpecGroup())
 	if specialization and specialization == 3 and ASSpecced then
-		registerAllEvents()
-	else
-		unregisterAllEvents()
+		self:PLAYER_REGEN_DISABLED()
 	end
 end
 
@@ -461,4 +461,5 @@ function CS:OnInitialize()
 	--self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "setOrbs")
 	self:RegisterEvent("ENCOUNTER_START")
 	self:RegisterEvent("ENCOUNTER_END")
+	self:RegisterEvent("PLAYER_DEAD")
 end

@@ -1,7 +1,7 @@
 -- Debugging
 local debug = false
 --@debug@
---GAME_LOCALE = "deDE"
+--GAME_LOCALE = "koKR"
 --debug = true
 --@end-debug@
 
@@ -38,6 +38,7 @@ L["Height"] = true
 L["Horizontal"] = true
 L["Interval"] = true
 L["IronMaidensShipMessage"] = "prepares to man the Dreadnaught's Main Cannon!"
+L["Keep calculating distances and anticipated Orbs when leaving combat."] = true
 L["Layout"] = true
 L["Left mouse button to drag."] = true
 L["MONOCHROMEOUTLINE"] = true
@@ -46,6 +47,7 @@ L["Not possible to unlock in WeakAuras mode!"] = true
 L["Orbs"] = true
 L["Order in which the Shadow Orbs get filled in"] = true
 L["Orientation"] = true
+L["Out-of-Combat Calculation"] = true
 L["OUTLINE"] = true
 L["Play Warning Sound when about to cap Shadow Orbs."] = true
 L["Position"] = true

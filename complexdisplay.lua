@@ -112,7 +112,7 @@ local function createFrames()
 		else
 			fontString:SetPoint("BOTTOM", referenceFrame, "TOP", CS.db.complex.stringXOffset, CS.db.complex.stringYOffset + 1)
 		end
-		fontString:SetFont(fontPath, CS.db.complex.fontSize, flags == "MONOCHROMEOUTLINE" and "MONOCHROME, OUTLINE" or (flags == "OUTLINE" or flags == "THICKOUTLINE") and flags or "")
+		fontString:SetFont(fontPath, CS.db.complex.fontSize, (flags == "MONOCHROMEOUTLINE" or flags == "OUTLINE" or flags == "THICKOUTLINE") and flags or nil)
 		fontString:SetTextColor(CS.db.complex.fontColor.r, CS.db.complex.fontColor.b, CS.db.complex.fontColor.g, CS.db.complex.fontColor.a)
 		fontString:SetShadowOffset(1, -1)
 		fontString:SetShadowColor(0, 0, 0, CS.db.complex.fontFlags == "Shadow" and 1 or 0)
