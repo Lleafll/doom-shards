@@ -18,6 +18,7 @@ if not L then return end
 
 L["Aggressive Caching"] = true
 L["Aggressive Caching Interval"] = true
+L["Border"] = true
 L["Color 1"] = true
 L["Color 2"] = true
 L["Color 3"] = true
@@ -74,6 +75,10 @@ L["Set Number Spacing"] = true
 L["Set Shadow Orb Height"] = true
 L["Set Shadow Orb Spacing"] = true
 L["Set Shadow Orb Width"] = true
+L["Set texture used for the background"] = true
+L["Set texture used for the Shadow Orbs"] = true
+L["Set whether the display will have a border"] = true
+L["Set whether the Shadow Orbs texture will have a border"] = true
 L["Shadow"] = true
 L["Show Orbs out of combat"] = true
 L["Shows the frame and toggles it for repositioning."] = true
@@ -81,6 +86,7 @@ L["Simple Display"] = true
 L["Sound"] = true
 L["Spacing"] = true
 L["Text"] = true
+L["Texture"] = true
 L["THICKOUTLINE"] = true
 L["Time between warning sounds"] = true
 L["Toggle Lock"] = true

@@ -5,6 +5,7 @@ if not CS then return end
 
 -- Libraries
 local LSM = LibStub("LibSharedMedia-3.0")
+LSM:Register("statusbar", "Droplet", "Interface\\addons\\ConspicuousSpirits\\Media\\Orbs_noborder.tga")
 
 
 -- Upvalues
@@ -25,6 +26,7 @@ local remainingThreshold = 2 -- threshold between short and long Shadowy Apparit
 local frame
 local fontPath
 local fontString
+local texturePath
 
 
 -- Functions
@@ -86,11 +88,10 @@ local function createFrames()
 		end
 		
 		frame:SetBackdrop({
-			bgFile="Interface\\ChatFrame\\ChatFrameBackground",
-			edgeFile="Interface\\ChatFrame\\ChatFrameBackground",
-			tile=true,
-			tileSize=5,
-			edgeSize= 1
+			bgFile = texturePath,
+			edgeFile = CS.db.complex.textureBorder and "Interface\\ChatFrame\\ChatFrameBackground" or nil,
+			tile = false,
+			edgeSize = 1
 		})
 		frame:SetBackdropBorderColor(0, 0, 0, 1)
 		if numeration < 6 then
@@ -158,7 +159,10 @@ function CS:initializeComplex()
 
 	timerFrame:SetHeight(db.orientation == "Vertical" and width or height)
 	timerFrame:SetWidth(db.orientation == "Vertical" and height or width)
+	
 	fontPath = LSM:Fetch("font", db.fontName)
+	texturePath = (db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
+	
 	createFrames()
 	if timerFrame.lock then
 		RegisterStateDriver(timerFrame, "visibility", db.visibilityConditionals)
