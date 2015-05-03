@@ -26,7 +26,12 @@ local remainingThreshold = 2 -- threshold between short and long Shadowy Apparit
 local frame
 local fontPath
 local fontString
-local texturePath
+local backdropTable = {
+	bgFile = nil,
+	edgeFile = nil,
+	tile = false,
+	edgeSize = 1
+}
 
 
 -- Functions
@@ -87,12 +92,7 @@ local function createFrames()
 			end
 		end
 		
-		frame:SetBackdrop({
-			bgFile = texturePath,
-			edgeFile = CS.db.complex.textureBorder and "Interface\\ChatFrame\\ChatFrameBackground" or nil,
-			tile = false,
-			edgeSize = 1
-		})
+		frame:SetBackdrop(backdropTable)
 		frame:SetBackdropBorderColor(0, 0, 0, 1)
 		if numeration < 6 then
 			frame:Show()
@@ -161,13 +161,14 @@ function CS:initializeComplex()
 	timerFrame:SetWidth(db.orientation == "Vertical" and height or width)
 	
 	fontPath = LSM:Fetch("font", db.fontName)
-	texturePath = (db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
+	backdropTable.bgfile = (db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
+	backdropTable.edgefile = db.complex.textureBorder and "Interface\\ChatFrame\\ChatFrameBackground" or nil
 	
 	createFrames()
 	if timerFrame.lock then
 		RegisterStateDriver(timerFrame, "visibility", db.visibilityConditionals)
 	end
-	CS.refreshDisplay = refreshDisplay
+	self.refreshDisplay = refreshDisplay
 	timerFrame.ShowChildren = ShowChildren
 	timerFrame.HideChildren = HideChildren
 end

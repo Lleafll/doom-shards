@@ -21,7 +21,12 @@ local timerTextLong
 local fontPath
 local timerID
 local remainingThreshold = 2 -- threshold between short and long Shadowy Apparitions
-local texturePath
+local backdropTable = {
+	bgFile = nil,
+	edgeFile = "Interface\\ChatFrame\\ChatFrameBackground",
+	tile = false,
+	edgeSize= 1
+}
 
 
 -- Functions
@@ -63,12 +68,7 @@ end
 local function createFrames()
 	local spacing = CS.db.simple.spacing / 2
 	
-	timerFrame:SetBackdrop({
-		bgFile = texturePath,
-		edgeFile = "Interface\\ChatFrame\\ChatFrameBackground",
-		tile = false,
-		edgeSize= 1
-	})
+	timerFrame:SetBackdrop(backdropTable)
 	timerFrame:SetBackdropColor(CS.db.simple.color1.r, CS.db.simple.color1.b, CS.db.simple.color1.g, CS.db.simple.color1.a)
 	timerFrame:SetBackdropBorderColor(0, 0, 0, CS.db.simple.textureBorder and 1 or 0)
 	
@@ -99,16 +99,16 @@ local function HideChildren()
 end
 
 function CS:initializeSimple()
-	local db = CS.db.simple
+	local db = self.db.simple
 
 	timerFrame:SetHeight(db.height)
 	timerFrame:SetWidth(db.width)
 	
 	fontPath = LSM:Fetch("font", db.fontName)
-	texturePath = (db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
+	backdropTable.bgfile = (db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
 	
 	createFrames()
-	CS.refreshDisplay = refreshDisplay
+	self.refreshDisplay = refreshDisplay
 	timerFrame.ShowChildren = function() end
 	timerFrame.HideChildren = HideChildren
 end
