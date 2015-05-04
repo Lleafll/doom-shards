@@ -237,8 +237,8 @@ local optionsTable = {
 						height = {
 							order = 1,
 							type = "range",
-							name = L["Height"],
-							desc = L["Set Shadow Orb Height"],
+							name = function() if CS.db.complex.orientation == "Vertical" then return L["Width"] else return L["Height"] end end,
+							desc = function() if CS.db.complex.orientation == "Vertical" then return L["Set Shadow Orb Width"] else return L["Set Shadow Orb Height"] end end,
 							min = 1,
 							max = 100,
 							step = 1,
@@ -253,8 +253,8 @@ local optionsTable = {
 						width = {
 							order = 2,
 							type = "range",
-							name = L["Width"],
-							desc = L["Set Shadow Orb Width"],
+							name = function() if CS.db.complex.orientation == "Vertical" then return L["Height"] else return L["Width"] end end,
+							desc = function() if CS.db.complex.orientation == "Vertical" then return L["Set Shadow Orb Height"] else return L["Set Shadow Orb Width"] end end,
 							min = 1,
 							max = 100,
 							step = 1,
