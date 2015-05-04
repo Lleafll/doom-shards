@@ -99,7 +99,18 @@ L["WeakAuras Import String 2"] = true
 L["WeakAuras Interface"] = true
 L["WeakAuras Example Strings"] = true
 L["WeakAuras String to use when \"WeakAuras\" Display is selected. Copy & paste into WeakAuras to import."] = true
-L["WeakAurasDocumentation"] = "WA_AUSPICIOUS_SPIRITS(event, count, orbs)\n  event - event name (string)\n  count - Shadowy Apparition currently in flight (number)\n  orbs - player's Shadow Orbs (number) \n\nProperties wa_as:\n  count - Shadowy Apparitions currently in flight (number)\n  orbs - player's Shadow Orbs (number)\n  timers - chronologically ordered table of AceTimer timer objects (table)"
+L["WeakAurasDocumentation"] = [=[WA_AUSPICIOUS_SPIRITS(event, count, orbs)
+  event - event name (string)
+  count - Shadowy Apparition currently in flight (number)
+  orbs - player's Shadow Orbs (number) 
+
+Properties wa_as:
+  count - Shadowy Apparitions currently in flight (number)
+  orbs - player's Shadow Orbs (number)
+  timers - chronologically ordered table of AceTimer timer objects corresponding to the Shadowy Apparitions (table)
+
+New property AceTimer object:
+  impactTime - estimated point in time for the Shadowy Apparition impact (timestamp)]=]
 L["Width"] = true
 L["Will show Shadow Orbs frame even when not in combat."] = true
 L["X Offset"] = true
