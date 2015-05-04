@@ -38,8 +38,8 @@ function CS:initializeWeakAuras()
 	wa_as.count = 0
 	wa_as.orbs = UnitPower("player", 13)
 	wa_as.timers = {}
-	wa_as.TimeLeft = CS.TimeLeft
-	CS.refreshDisplay = refreshDisplay
+	wa_as.TimeLeft = self.TimeLeft
+	self.refreshDisplay = refreshDisplay
 	timerFrame.ShowChildren = function() end
 	timerFrame.HideChildren = function() end
 end

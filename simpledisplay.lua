@@ -18,6 +18,7 @@ local timerTextLong
 
 
 -- Variables
+local db
 local fontPath
 local timerID
 local remainingThreshold = 2 -- threshold between short and long Shadowy Apparitions
@@ -53,30 +54,30 @@ local function refreshDisplay(self, orbs, timers)
 	
 	if (orbs >= 3) and (short + long > 0) and ((short + orbs >= 5) or (short + long + orbs >= 6)) then
 		timerFrame:Show()
-		timerFrame:SetBackdropColor(CS.db.simple.color3.r, CS.db.simple.color3.b, CS.db.simple.color3.g, CS.db.simple.color3.a)
+		timerFrame:SetBackdropColor(db.color3.r, db.color3.b, db.color3.g, db.color3.a)
 	elseif short > 0 then
 		timerFrame:Show()
-		timerFrame:SetBackdropColor(CS.db.simple.color2.r, CS.db.simple.color2.b, CS.db.simple.color2.g, CS.db.simple.color2.a)
+		timerFrame:SetBackdropColor(db.color2.r, db.color2.b, db.color2.g, db.color2.a)
 	elseif long > 0 then
 		timerFrame:Show()
-		timerFrame:SetBackdropColor(CS.db.simple.color1.r, CS.db.simple.color1.b, CS.db.simple.color1.g, CS.db.simple.color1.a)
+		timerFrame:SetBackdropColor(db.color1.r, db.color1.b, db.color1.g, db.color1.a)
 	else
 		timerFrame:Hide()
 	end
 end
 
 local function createFrames()
-	local spacing = CS.db.simple.spacing / 2
+	local spacing = db.spacing / 2
 	
 	timerFrame:SetBackdrop(backdropTable)
-	timerFrame:SetBackdropColor(CS.db.simple.color1.r, CS.db.simple.color1.b, CS.db.simple.color1.g, CS.db.simple.color1.a)
-	timerFrame:SetBackdropBorderColor(0, 0, 0, CS.db.simple.textureBorder and 1 or 0)
+	timerFrame:SetBackdropColor(db.color1.r, db.color1.b, db.color1.g, db.color1.a)
+	timerFrame:SetBackdropBorderColor(db.borderColor.r, db.borderColor.b, db.borderColor.g, db.borderColor.a)
 	
 	local function setTimerText(fontstring)
-		local flags = CS.db.simple.fontFlags
+		local flags = db.fontFlags
 		fontstring:Show()
-		fontstring:SetFont(fontPath, CS.db.simple.fontSize, (flags == "MONOCHROMEOUTLINE" or flags == "OUTLINE" or flags == "THICKOUTLINE") and flags or nil)
-		fontstring:SetTextColor(CS.db.simple.fontColor.r, CS.db.simple.fontColor.b, CS.db.simple.fontColor.g, CS.db.simple.fontColor.a)
+		fontstring:SetFont(fontPath, db.fontSize, (flags == "MONOCHROMEOUTLINE" or flags == "OUTLINE" or flags == "THICKOUTLINE") and flags or nil)
+		fontstring:SetTextColor(db.fontColor.r, db.fontColor.b, db.fontColor.g, db.fontColor.a)
 		fontstring:SetShadowOffset(1, -1)
 		fontstring:SetShadowColor(0, 0, 0, flags == "Shadow" and 1 or 0)
 		fontstring:SetText("0")
@@ -99,7 +100,7 @@ local function HideChildren()
 end
 
 function CS:initializeSimple()
-	local db = self.db.simple
+	db = self.db.simple
 
 	timerFrame:SetHeight(db.height)
 	timerFrame:SetWidth(db.width)

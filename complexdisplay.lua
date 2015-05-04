@@ -29,7 +29,7 @@ local fontPath
 local fontString
 local backdropTable = {
 	bgFile = nil,
-	edgeFile = nil,
+	edgeFile = "Interface\\ChatFrame\\ChatFrameBackground",
 	tile = false,
 	edgeSize = 1
 }
@@ -93,7 +93,7 @@ local function createFrames()
 		end
 		
 		frame:SetBackdrop(backdropTable)
-		frame:SetBackdropBorderColor(0, 0, 0, 1)
+		frame:SetBackdropBorderColor(db.borderColor.r, db.borderColor.b, db.borderColor.g, db.borderColor.a)
 		if numeration < 6 then
 			frame:Show()
 		else
@@ -162,7 +162,6 @@ function CS:initializeComplex()
 	
 	fontPath = LSM:Fetch("font", db.fontName)
 	backdropTable.bgFile = (db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
-	backdropTable.edgeFile = db.textureBorder and "Interface\\ChatFrame\\ChatFrameBackground" or nil
 	
 	createFrames()
 	if timerFrame.lock then

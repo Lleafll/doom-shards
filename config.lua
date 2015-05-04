@@ -330,23 +330,24 @@ local optionsTable = {
 							desc = L["Set texture used for the Shadow Orbs"],
 							values = LSM:HashTable("statusbar"),
 							get = function()
-								return CS.db.simple.textureHandle
+								return CS.db.complex.textureHandle
 							end,
 							set = function(_, key)
-								CS.db.simple.textureHandle = key
+								CS.db.complex.textureHandle = key
 								CS:Initialize()
 							end
 						},
-						textureBorder = {
+						borderColor = {
 							order = 7,
-							type = "toggle",
-							name = L["Border"],
-							desc = L["Set whether the display will have a border"],
+							type = "color",
+							name = L["Border Color"],
+							desc = L["Set Shadow Orb border color"],
+							hasAlpha = true,
 							get = function()
-								return CS.db.simple.textureBorder
+								return CS.db.complex.borderColor.r, CS.db.complex.borderColor.b, CS.db.complex.borderColor.g, CS.db.complex.borderColor.a
 							end,
-							set = function(_, val)
-								CS.db.simple.textureBorder = val
+							set = function(info, r, b, g, a)
+								CS.db.complex.borderColor.r, CS.db.complex.borderColor.b, CS.db.complex.borderColor.g, CS.db.complex.borderColor.a = r, b, g, a
 								CS:Initialize()
 							end
 						},
@@ -566,8 +567,7 @@ local optionsTable = {
 					desc = L["Set Color 1"],
 					hasAlpha = true,
 					get = function()
-						local r, b, g, a = CS.db.simple.color1.r, CS.db.simple.color1.b, CS.db.simple.color1.g, CS.db.simple.color1.a
-						return r, b, g, a
+						return CS.db.simple.color1.r, CS.db.simple.color1.b, CS.db.simple.color1.g, CS.db.simple.color1.a
 					end,
 					set = function(info, r, b, g, a)
 						CS.db.simple.color1.r, CS.db.simple.color1.b, CS.db.simple.color1.g, CS.db.simple.color1.a = r, b, g, a
@@ -581,8 +581,7 @@ local optionsTable = {
 					desc = L["Set Color 2"],
 					hasAlpha = true,
 					get = function()
-						local r, b, g, a = CS.db.simple.color2.r, CS.db.simple.color2.b, CS.db.simple.color2.g, CS.db.simple.color2.a
-						return r, b, g, a
+						return CS.db.simple.color2.r, CS.db.simple.color2.b, CS.db.simple.color2.g, CS.db.simple.color2.a
 					end,
 					set = function(info, r, b, g, a)
 						CS.db.simple.color2.r, CS.db.simple.color2.b, CS.db.simple.color2.g, CS.db.simple.color2.a = r, b, g, a
@@ -596,8 +595,7 @@ local optionsTable = {
 					desc = L["Set Color 3"],
 					hasAlpha = true,
 					get = function()
-						local r, b, g, a = CS.db.simple.color3.r, CS.db.simple.color3.b, CS.db.simple.color3.g, CS.db.simple.color3.a
-						return r, b, g, a
+						return CS.db.simple.color3.r, CS.db.simple.color3.b, CS.db.simple.color3.g, CS.db.simple.color3.a
 					end,
 					set = function(info, r, b, g, a)
 						CS.db.simple.color3.r, CS.db.simple.color3.b, CS.db.simple.color3.g, CS.db.simple.color3.a = r, b, g, a
@@ -624,16 +622,17 @@ local optionsTable = {
 						CS:Initialize()
 					end
 				},
-				textureBorder = {
+				borderColor = {
 					order = 9,
-					type = "toggle",
-					name = L["Border"],
-					desc = L["Set whether the Shadow Orbs texture will have a border"],
+					type = "color",
+					name = L["Border Color"],
+					desc = L["Set Display border color"],
+					hasAlpha = true,
 					get = function()
-						return CS.db.complex.textureBorder
+						return CS.db.simple.borderColor.r, CS.db.simple.borderColor.b, CS.db.simple.borderColor.g, CS.db.simple.borderColor.a
 					end,
-					set = function(_, val)
-						CS.db.complex.textureBorder = val
+					set = function(info, r, b, g, a)
+						CS.db.simple.borderColor.r, CS.db.simple.borderColor.b, CS.db.simple.borderColor.g, CS.db.simple.borderColor.a = r, b, g, a
 						CS:Initialize()
 					end
 				},
@@ -866,7 +865,7 @@ CS.defaultSettings = {
 			orientation = "Horizontal",
 			growthDirection = "Regular",
 			textureHandle = "Empty",
-			textureBorder = true
+			borderColor = {r=0, b=0, g=0, a=1}
 		},
 		simple = {
 			height = 33,
@@ -880,7 +879,7 @@ CS.defaultSettings = {
 			fontFlags = "Shadow",
 			fontColor = {r=1, b=1, g=1, a=1},
 			textureHandle = "Empty",
-			textureBorder = true
+			borderColor = {r=0, b=0, g=0, a=1}
 		},
 		display = "Complex",
 		sound = false,
