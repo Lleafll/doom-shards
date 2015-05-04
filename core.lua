@@ -407,6 +407,10 @@ function CS:PLAYER_ENTERING_WORLD()
 	self:update()
 end
 
+function CS:PLAYER_STARTED_MOVING()
+	SATimeCorrection = {}
+end
+
 function CS:talentsCheck()
 	self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	function warningSound() end
@@ -415,10 +419,12 @@ function CS:talentsCheck()
 	local _, _, _, ASSpecced = GetTalentInfo(7, 3, GetActiveSpecGroup())
 	if specialization and specialization == 3 and ASSpecced then
 		self:RegisterEvent("PLAYER_REGEN_DISABLED")
+		self:RegisterEvent("PLAYER_STARTED_MOVING")
 		self:Initialize()
 		self:update()
 	else
 		self:UnregisterEvent("PLAYER_REGEN_DISABLED")
+		self:UnregisterEvent("PLAYER_STARTED_MOVING")
 		resetCount()
 		self:update()
 	end
