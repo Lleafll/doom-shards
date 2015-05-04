@@ -370,7 +370,7 @@ local optionsTable = {
 								CS:Initialize()
 							end
 						}
-					},
+					}
 				},
 				text = {
 					order = 4,
@@ -457,10 +457,17 @@ local optionsTable = {
 							max = 1000,
 							step = 1,
 							get = function()
-								return CS.db.complex.stringXOffset
+								local offset = CS.db.complex.orientation == "Vertical" and -CS.db.complex.stringYOffset or CS.db.complex.stringXOffset
+								if (CS.db.complex.growthDirection == "Reversed") and (CS.db.complex.orientation ~= "Vertical") then offset = -offset end
+								return offset
 							end,
 							set = function(info, val)
-								CS.db.complex.stringXOffset = val
+								if CS.db.complex.orientation == "Vertical" then
+									CS.db.complex.stringYOffset = -val
+								else
+									if CS.db.complex.growthDirection == "Reversed" then val = -val end
+									CS.db.complex.stringXOffset = val
+								end
 								CS:Initialize()
 							end
 						},
@@ -473,10 +480,17 @@ local optionsTable = {
 							max = 1000,
 							step = 1,
 							get = function()
-								return CS.db.complex.stringYOffset
+								local offset = CS.db.complex.orientation == "Vertical" and CS.db.complex.stringXOffset or CS.db.complex.stringYOffset
+								if CS.db.complex.growthDirection == "Reversed" and CS.db.complex.orientation == "Vertical" then offset = -offset end
+								return offset
 							end,
 							set = function(info, val)
-								CS.db.complex.stringYOffset = val
+								if CS.db.complex.orientation == "Vertical" then
+									if CS.db.complex.growthDirection == "Reversed" and CS.db.complex.orientation == "Vertical" then val = -val end
+									CS.db.complex.stringXOffset = val
+								else
+									CS.db.complex.stringYOffset = val
+								end
 								CS:Initialize()
 							end
 						}
@@ -502,210 +516,221 @@ local optionsTable = {
 						CS:Initialize()
 					end
 				},
-				spacer0 = {
-					order = 1.5,
-					type="description",
-					name=""
-				},
-				height = {
+				frame = {
 					order = 2,
-					type = "range",
-					name = L["Height"],
-					desc = L["Set Frame Height"],
-					min = 0,
-					max = 300,
-					step = 1,
-					get = function()
-						return CS.db.simple.height
-					end,
-					set = function(info, val)
-						CS.db.simple.height = val
-						CS:Initialize()
-					end
+					type = "group",
+					name = L["Frame"],
+					inline = true,
+					args = {
+						height = {
+							order = 2,
+							type = "range",
+							name = L["Height"],
+							desc = L["Set Frame Height"],
+							min = 1,
+							max = 300,
+							step = 1,
+							get = function()
+								return CS.db.simple.height
+							end,
+							set = function(info, val)
+								CS.db.simple.height = val
+								CS:Initialize()
+							end
+						},
+						width = {
+							order = 3,
+							type = "range",
+							name = L["Width"],
+							desc = L["Set Frame Width"],
+							min = 1,
+							max = 300,
+							step = 1,
+							get = function()
+								return CS.db.simple.width
+							end,
+							set = function(info, val)
+								CS.db.simple.width = val
+								CS:Initialize()
+							end
+						},
+						spacing = {
+							order = 4,
+							type = "range",
+							name = L["Spacing"],
+							desc = L["Set Number Spacing"],
+							min = 0,
+							max = 100,
+							step = 1,
+							get = function()
+								return CS.db.simple.spacing
+							end,
+							set = function(info, val)
+								CS.db.simple.spacing = val
+								CS:Initialize()
+							end
+						},
+						spacer = {
+							order = 4.5,
+							type="description",
+							name=""
+						},
+						color1 = {
+							order = 5,
+							type = "color",
+							name = L["Color 1"],
+							desc = L["Set Color 1"],
+							hasAlpha = true,
+							get = function()
+								return CS.db.simple.color1.r, CS.db.simple.color1.b, CS.db.simple.color1.g, CS.db.simple.color1.a
+							end,
+							set = function(info, r, b, g, a)
+								CS.db.simple.color1.r, CS.db.simple.color1.b, CS.db.simple.color1.g, CS.db.simple.color1.a = r, b, g, a
+								CS:Initialize()
+							end
+						},
+						color2 = {
+							order = 6,
+							type = "color",
+							name = L["Color 2"],
+							desc = L["Set Color 2"],
+							hasAlpha = true,
+							get = function()
+								return CS.db.simple.color2.r, CS.db.simple.color2.b, CS.db.simple.color2.g, CS.db.simple.color2.a
+							end,
+							set = function(info, r, b, g, a)
+								CS.db.simple.color2.r, CS.db.simple.color2.b, CS.db.simple.color2.g, CS.db.simple.color2.a = r, b, g, a
+								CS:Initialize()
+							end
+						},
+						color3 = {
+							order = 7,
+							type = "color",
+							name = L["Color 3"],
+							desc = L["Set Color 3"],
+							hasAlpha = true,
+							get = function()
+								return CS.db.simple.color3.r, CS.db.simple.color3.b, CS.db.simple.color3.g, CS.db.simple.color3.a
+							end,
+							set = function(info, r, b, g, a)
+								CS.db.simple.color3.r, CS.db.simple.color3.b, CS.db.simple.color3.g, CS.db.simple.color3.a = r, b, g, a
+								CS:Initialize()
+							end
+						},
+						spacer2 = {
+							order = 7.5,
+							type="description",
+							name=""
+						},
+						textureHandle = {
+							order = 8,
+							type = "select",
+							dialogControl = "LSM30_Statusbar",
+							name = L["Texture"],
+							desc = L["Set texture used for the background"],
+							values = LSM:HashTable("statusbar"),
+							get = function()
+								return CS.db.simple.textureHandle
+							end,
+							set = function(_, key)
+								CS.db.simple.textureHandle = key
+								CS:Initialize()
+							end
+						},
+						borderColor = {
+							order = 9,
+							type = "color",
+							name = L["Border Color"],
+							desc = L["Set Display border color"],
+							hasAlpha = true,
+							get = function()
+								return CS.db.simple.borderColor.r, CS.db.simple.borderColor.b, CS.db.simple.borderColor.g, CS.db.simple.borderColor.a
+							end,
+							set = function(info, r, b, g, a)
+								CS.db.simple.borderColor.r, CS.db.simple.borderColor.b, CS.db.simple.borderColor.g, CS.db.simple.borderColor.a = r, b, g, a
+								CS:Initialize()
+							end
+						},
+						spacer3 = {
+							order = 9.5,
+							type="description",
+							name=""
+						}
+					}
 				},
-				width = {
+				text = {
 					order = 3,
-					type = "range",
-					name = L["Width"],
-					desc = L["Set Frame Width"],
-					min = 1,
-					max = 300,
-					step = 1,
-					get = function()
-						return CS.db.simple.width
-					end,
-					set = function(info, val)
-						CS.db.simple.width = val
-						CS:Initialize()
-					end
-				},
-				spacing = {
-					order = 4,
-					type = "range",
-					name = L["Spacing"],
-					desc = L["Set Number Spacing"],
-					min = 1,
-					max = 100,
-					step = 1,
-					get = function()
-						return CS.db.simple.spacing
-					end,
-					set = function(info, val)
-						CS.db.simple.spacing = val
-						CS:Initialize()
-					end
-				},
-				spacer = {
-					order = 4.5,
-					type="description",
-					name=""
-				},
-				color1 = {
-					order = 5,
-					type = "color",
-					name = L["Color 1"],
-					desc = L["Set Color 1"],
-					hasAlpha = true,
-					get = function()
-						return CS.db.simple.color1.r, CS.db.simple.color1.b, CS.db.simple.color1.g, CS.db.simple.color1.a
-					end,
-					set = function(info, r, b, g, a)
-						CS.db.simple.color1.r, CS.db.simple.color1.b, CS.db.simple.color1.g, CS.db.simple.color1.a = r, b, g, a
-						CS:Initialize()
-					end
-				},
-				color2 = {
-					order = 6,
-					type = "color",
-					name = L["Color 2"],
-					desc = L["Set Color 2"],
-					hasAlpha = true,
-					get = function()
-						return CS.db.simple.color2.r, CS.db.simple.color2.b, CS.db.simple.color2.g, CS.db.simple.color2.a
-					end,
-					set = function(info, r, b, g, a)
-						CS.db.simple.color2.r, CS.db.simple.color2.b, CS.db.simple.color2.g, CS.db.simple.color2.a = r, b, g, a
-						CS:Initialize()
-					end
-				},
-				color3 = {
-					order = 7,
-					type = "color",
-					name = L["Color 3"],
-					desc = L["Set Color 3"],
-					hasAlpha = true,
-					get = function()
-						return CS.db.simple.color3.r, CS.db.simple.color3.b, CS.db.simple.color3.g, CS.db.simple.color3.a
-					end,
-					set = function(info, r, b, g, a)
-						CS.db.simple.color3.r, CS.db.simple.color3.b, CS.db.simple.color3.g, CS.db.simple.color3.a = r, b, g, a
-						CS:Initialize()
-					end
-				},
-				spacer2 = {
-					order = 7.5,
-					type="description",
-					name=""
-				},
-				textureHandle = {
-					order = 8,
-					type = "select",
-					dialogControl = "LSM30_Statusbar",
-					name = L["Texture"],
-					desc = L["Set texture used for the background"],
-					values = LSM:HashTable("statusbar"),
-					get = function()
-						return CS.db.complex.textureHandle
-					end,
-					set = function(_, key)
-						CS.db.complex.textureHandle = key
-						CS:Initialize()
-					end
-				},
-				borderColor = {
-					order = 9,
-					type = "color",
-					name = L["Border Color"],
-					desc = L["Set Display border color"],
-					hasAlpha = true,
-					get = function()
-						return CS.db.simple.borderColor.r, CS.db.simple.borderColor.b, CS.db.simple.borderColor.g, CS.db.simple.borderColor.a
-					end,
-					set = function(info, r, b, g, a)
-						CS.db.simple.borderColor.r, CS.db.simple.borderColor.b, CS.db.simple.borderColor.g, CS.db.simple.borderColor.a = r, b, g, a
-						CS:Initialize()
-					end
-				},
-				spacer3 = {
-					order = 9.5,
-					type="description",
-					name=""
-				},
-				fontName = {
-					order = 10,
-					type = "select",
-					dialogControl = "LSM30_Font",
-					name = L["Font"],
-					desc = L["Select font for the Simple display"],
-					values = LSM:HashTable("font"),
-					get = function()
-						return CS.db.simple.fontName
-					end,
-					set = function(_, val)
-						CS.db.simple.fontName = val
-						CS:Initialize()
-					end
-				},
-				fontSize = {
-					order = 11,
-					type = "range",
-					name = L["Font Size"],
-					desc = L["Set Font Size"],
-					min = 1,
-					max = 32,
-					step = 1,
-					get = function()
-						return CS.db.simple.fontSize
-					end,
-					set = function(info, val)
-						CS.db.simple.fontSize = val
-						CS:Initialize()
-					end
-				},
-				fontFlags = {
-					order = 12,
-					type = "select",
-					style = "dropdown",
-					name = L["Font Flags"],
-					desc = L["Font Flags"],
-					values = {
-						["None"] = L["None"],
-						["Shadow"] = L["Shadow"],
-						["OUTLINE"] = L["OUTLINE"],
-						["THICKOUTLINE"] = L["THICKOUTLINE"],
-						["MONOCHROMEOUTLINE"] = L["MONOCHROMEOUTLINE"]
-					},
-					get = function()
-						return CS.db.simple.fontFlags
-					end,
-					set = function(info, val)
-						CS.db.simple.fontFlags = val
-						CS:Initialize()
-					end
-				},
-				color = {
-					order = 13,
-					type = "color",
-					name = L["Font Color"],
-					desc = L["Set Font Color"],
-					get = function()
-						return CS.db.simple.fontColor.r, CS.db.simple.fontColor.b, CS.db.simple.fontColor.g, CS.db.simple.fontColor.a
-					end,
-					set = function(info, r, b, g, a)
-						CS.db.simple.fontColor.r, CS.db.simple.fontColor.b, CS.db.simple.fontColor.g, CS.db.simple.fontColor.a = r, b, g, a
-						CS:Initialize()
-					end
-				},
+					type = "group",
+					name = L["Text"],
+					inline = true,
+					args = {
+						fontName = {
+							order = 10,
+							type = "select",
+							dialogControl = "LSM30_Font",
+							name = L["Font"],
+							desc = L["Select font for the Simple display"],
+							values = LSM:HashTable("font"),
+							get = function()
+								return CS.db.simple.fontName
+							end,
+							set = function(_, val)
+								CS.db.simple.fontName = val
+								CS:Initialize()
+							end
+						},
+						fontSize = {
+							order = 11,
+							type = "range",
+							name = L["Font Size"],
+							desc = L["Set Font Size"],
+							min = 1,
+							max = 32,
+							step = 1,
+							get = function()
+								return CS.db.simple.fontSize
+							end,
+							set = function(info, val)
+								CS.db.simple.fontSize = val
+								CS:Initialize()
+							end
+						},
+						fontFlags = {
+							order = 12,
+							type = "select",
+							style = "dropdown",
+							name = L["Font Flags"],
+							desc = L["Font Flags"],
+							values = {
+								["None"] = L["None"],
+								["Shadow"] = L["Shadow"],
+								["OUTLINE"] = L["OUTLINE"],
+								["THICKOUTLINE"] = L["THICKOUTLINE"],
+								["MONOCHROMEOUTLINE"] = L["MONOCHROMEOUTLINE"]
+							},
+							get = function()
+								return CS.db.simple.fontFlags
+							end,
+							set = function(info, val)
+								CS.db.simple.fontFlags = val
+								CS:Initialize()
+							end
+						},
+						color = {
+							order = 13,
+							type = "color",
+							name = L["Font Color"],
+							desc = L["Set Font Color"],
+							get = function()
+								return CS.db.simple.fontColor.r, CS.db.simple.fontColor.b, CS.db.simple.fontColor.g, CS.db.simple.fontColor.a
+							end,
+							set = function(info, r, b, g, a)
+								CS.db.simple.fontColor.r, CS.db.simple.fontColor.b, CS.db.simple.fontColor.g, CS.db.simple.fontColor.a = r, b, g, a
+								CS:Initialize()
+							end
+						}
+					}
+				}
 			}
 		},
 		weakauras = {
@@ -835,7 +860,7 @@ local optionsTable = {
 }
 LibStub("AceConfig-3.0"):RegisterOptionsTable("Conspicuous Spirits", optionsTable)
 ACD:AddToBlizOptions("Conspicuous Spirits")
-ACD:SetDefaultSize("Conspicuous Spirits", 700, 810)
+ACD:SetDefaultSize("Conspicuous Spirits", 700, 750)
 function CS:openOptions()
 	ACD:Open("Conspicuous Spirits")
 end

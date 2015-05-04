@@ -27,7 +27,7 @@ local remainingThreshold = 2 -- threshold between short and long Shadowy Apparit
 local frame
 local fontPath
 local fontString
-local backdropTable = {
+local backdrop = {
 	bgFile = nil,
 	edgeFile = "Interface\\ChatFrame\\ChatFrameBackground",
 	tile = false,
@@ -69,6 +69,12 @@ local function createFrames()
 	local height = db.height
 	local width = db.width
 	local flags = db.fontFlags
+	local stringXOffset = db.stringXOffset
+	local stringYOffset = db.stringYOffset
+	
+	if growthDirection == "Reversed" then
+		stringXOffset = -1 * stringXOffset
+	end
 	
 	local function createOrbFrame(numeration)
 		frame = orbFrames[numeration] or CreateFrame("frame", nil, timerFrame)
@@ -92,7 +98,7 @@ local function createFrames()
 			end
 		end
 		
-		frame:SetBackdrop(backdropTable)
+		frame:SetBackdrop(backdrop)
 		frame:SetBackdropBorderColor(db.borderColor.r, db.borderColor.b, db.borderColor.g, db.borderColor.a)
 		if numeration < 6 then
 			frame:Show()
@@ -109,9 +115,9 @@ local function createFrames()
 		fontString = SATimers[numeration] or timerFrame:CreateFontString(nil, "OVERLAY")
 		fontString:ClearAllPoints()
 		if orientation == "Vertical" then
-			fontString:SetPoint("RIGHT", referenceFrame, "LEFT", db.stringYOffset - 1, db.stringXOffset)
+			fontString:SetPoint("RIGHT", referenceFrame, "LEFT", -stringYOffset - 1, stringXOffset)
 		else
-			fontString:SetPoint("BOTTOM", referenceFrame, "TOP", db.stringXOffset, db.stringYOffset + 1)
+			fontString:SetPoint("BOTTOM", referenceFrame, "TOP", stringXOffset, stringYOffset + 1)
 		end
 		fontString:SetFont(fontPath, db.fontSize, (flags == "MONOCHROMEOUTLINE" or flags == "OUTLINE" or flags == "THICKOUTLINE") and flags or nil)
 		fontString:SetTextColor(db.fontColor.r, db.fontColor.b, db.fontColor.g, db.fontColor.a)
@@ -161,7 +167,7 @@ function CS:initializeComplex()
 	timerFrame:SetWidth(db.orientation == "Vertical" and height or width)
 	
 	fontPath = LSM:Fetch("font", db.fontName)
-	backdropTable.bgFile = (db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
+	backdrop.bgFile = (db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
 	
 	createFrames()
 	if timerFrame.lock then

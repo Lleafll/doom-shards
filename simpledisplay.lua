@@ -22,7 +22,7 @@ local db
 local fontPath
 local timerID
 local remainingThreshold = 2 -- threshold between short and long Shadowy Apparitions
-local backdropTable = {
+local backdrop = {
 	bgFile = nil,
 	edgeFile = "Interface\\ChatFrame\\ChatFrameBackground",
 	tile = false,
@@ -69,7 +69,7 @@ end
 local function createFrames()
 	local spacing = db.spacing / 2
 	
-	timerFrame:SetBackdrop(backdropTable)
+	timerFrame:SetBackdrop(backdrop)
 	timerFrame:SetBackdropColor(db.color1.r, db.color1.b, db.color1.g, db.color1.a)
 	timerFrame:SetBackdropBorderColor(db.borderColor.r, db.borderColor.b, db.borderColor.g, db.borderColor.a)
 	
@@ -106,7 +106,7 @@ function CS:initializeSimple()
 	timerFrame:SetWidth(db.width)
 	
 	fontPath = LSM:Fetch("font", db.fontName)
-	backdropTable.bgFile = (db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
+	backdrop.bgFile = (db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
 	
 	createFrames()
 	self.refreshDisplay = refreshDisplay

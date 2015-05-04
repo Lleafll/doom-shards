@@ -33,6 +33,7 @@ L["Font"] = true
 L["Font Color"] = true
 L["Font Flags"] = true
 L["Font Size"] = true
+L["Frame"] = true
 L["General"] = true
 L["Growth direction"] = true
 L["Height"] = true
