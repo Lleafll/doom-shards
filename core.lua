@@ -196,10 +196,6 @@ local function aggressiveCachingByUnitID(unitID, timeStamp)
 	local GUID = UnitGUID(unitID)
 	
 	if distanceCache[GUID] and timeStamp - distanceCache[GUID].timeStamp < aggressiveCachingInterval then return end
-	
-	-- debug
-	--print("Caching "..unitID)
-	
 	cacheTravelTime(calculateTravelTime(unitID), GUID)
 end
 
@@ -389,7 +385,7 @@ function CS:PLAYER_REGEN_ENABLED()
 		self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		resetCount()
 	end
-	function warningSound() end
+	warningSound = function(orbs, timers) end
 	self:update()
 end
 
@@ -415,7 +411,7 @@ end
 
 function CS:talentsCheck()
 	self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-	function warningSound() end
+	warningSound = function() end
 	
 	local specialization = GetSpecialization()
 	local _, _, _, ASSpecced = GetTalentInfo(7, 3, GetActiveSpecGroup())
@@ -460,7 +456,7 @@ function CS:OnInitialize()
 	self:getDB()
 	self:Initialize()
 	
-	self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	self:RegisterEvent("UNIT_POWER")
 	self:RegisterEvent("PLAYER_TALENT_UPDATE", "talentsCheck")
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
