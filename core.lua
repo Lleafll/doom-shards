@@ -408,7 +408,7 @@ function CS:PLAYER_ENTERING_WORLD()
 end
 
 function CS:PLAYER_STARTED_MOVING()  -- maybe also add PLAYER_STOPPED_MOVING?
-	SATimeCorrection = {}  -- maybe recycle table?
+	--SATimeCorrection = {}  -- maybe recycle table?
 end
 
 function CS:talentsCheck()
