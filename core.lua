@@ -390,6 +390,7 @@ function CS:PLAYER_REGEN_ENABLED()
 		resetCount()
 	end
 	function warningSound() end
+	self:update()
 end
 
 function CS:UNIT_POWER(_, unitID, power)
@@ -407,9 +408,10 @@ function CS:PLAYER_ENTERING_WORLD()
 	self:update()
 end
 
-function CS:PLAYER_STARTED_MOVING()  -- maybe also add PLAYER_STOPPED_MOVING?
-	--SATimeCorrection = {}  -- maybe recycle table?
-end
+-- make a better implementation later
+--function CS:PLAYER_STARTED_MOVING()  -- maybe also add PLAYER_STOPPED_MOVING?
+--	SATimeCorrection = {}  -- maybe recycle table?
+--end
 
 function CS:talentsCheck()
 	self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
@@ -419,15 +421,14 @@ function CS:talentsCheck()
 	local _, _, _, ASSpecced = GetTalentInfo(7, 3, GetActiveSpecGroup())
 	if specialization and specialization == 3 and ASSpecced then
 		self:RegisterEvent("PLAYER_REGEN_DISABLED")
-		self:RegisterEvent("PLAYER_STARTED_MOVING")
+		--self:RegisterEvent("PLAYER_STARTED_MOVING")  -- make a better implementation later
 		self:Initialize()
-		self:update()
 	else
 		self:UnregisterEvent("PLAYER_REGEN_DISABLED")
-		self:UnregisterEvent("PLAYER_STARTED_MOVING")
+		--self:UnregisterEvent("PLAYER_STARTED_MOVING")  -- make a better implementation later
 		resetCount()
-		self:update()
 	end
+	self:update()
 end
 
 function CS:getDB()
