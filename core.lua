@@ -358,14 +358,9 @@ function CS:COMBAT_LOG_EVENT_UNFILTERED(_, ...)
 	end
 end
 
-function CS:setOrbs()
-	orbs = UnitPower("player", 13)
-	self:update()
-end
-
 function CS:PLAYER_DEAD()
 	resetCount()
-	self:setOrbs()
+	orbs = UnitPower("player", 13)
 	self:update()
 end
 
@@ -376,12 +371,12 @@ function CS:PLAYER_REGEN_DISABLED()
 	if not (self.db.display == "WeakAuras") then
 		self:ScheduleRepeatingTimer("update", 0.1)
 		if UnitAffectingCombat("player") then
-			function warningSound(orbs, timers) CS:warningSound(orbs, timers) end
+			function warningSound(orbs, timers) self:warningSound(orbs, timers) end
 		end
 	end
 	
-	if CS.db.aggressiveCaching then
-		self:ScheduleRepeatingTimer("aggressiveCaching", CS.db.aggressiveCachingInterval)
+	if self.db.aggressiveCaching then
+		self:ScheduleRepeatingTimer("aggressiveCaching", aggressiveCachingInterval)
 	end
 		
 	if not timerFrame.lock then
@@ -393,7 +388,6 @@ function CS:PLAYER_REGEN_ENABLED()
 	if not timerFrame.lock or not self.db.calculateOutOfCombat then
 		self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		resetCount()
-		self:update()
 	end
 	function warningSound() end
 end
@@ -402,13 +396,13 @@ function CS:UNIT_POWER(_, unitID, power)
 	if not (unitID == "player" and power == "SHADOW_ORBS") then return end
 	C_TimerAfter(0.01, function() -- needs to be delayed so it fires after the SA events, otherwise everything will assume the SA is still in flight
 	orbs = UnitPower("player", 13)
-	CS:update()
+	self:update()
 	end)
 end
 
 function CS:PLAYER_ENTERING_WORLD()
 	playerGUID = UnitGUID("player")
-	self:setOrbs()
+	orbs = UnitPower("player", 13)
 	resetCount()
 	self:update()
 end
@@ -420,7 +414,13 @@ function CS:talentsCheck()
 	local specialization = GetSpecialization()
 	local _, _, _, ASSpecced = GetTalentInfo(7, 3, GetActiveSpecGroup())
 	if specialization and specialization == 3 and ASSpecced then
-		self:PLAYER_REGEN_DISABLED()
+		self:RegisterEvent("PLAYER_REGEN_DISABLED")
+		self:Initialize()
+		self:update()
+	else
+		self:UnregisterEvent("PLAYER_REGEN_DISABLED")
+		resetCount()
+		self:update()
 	end
 end
 
@@ -444,7 +444,7 @@ function CS:Initialize()
 		timerFrame:ShowChildren()
 	end
 	
-	aggressiveCachingInterval = CS.db.aggressiveCachingInterval
+	aggressiveCachingInterval = self.db.aggressiveCachingInterval
 	
 	-- TODO: Add encounter fixes when logging in and already in-combat
 end
@@ -453,12 +453,11 @@ function CS:OnInitialize()
 	self:getDB()
 	self:Initialize()
 	
-	self:RegisterEvent("PLAYER_REGEN_DISABLED")
-	self:RegisterEvent("PLAYER_REGEN_ENABLED")
+	self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 	self:RegisterEvent("UNIT_POWER")
 	self:RegisterEvent("PLAYER_TALENT_UPDATE", "talentsCheck")
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
-	--self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "setOrbs")
+	--self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "PLAYER_ENTERING_WORLD")
 	self:RegisterEvent("ENCOUNTER_START")
 	self:RegisterEvent("ENCOUNTER_END")
 	self:RegisterEvent("PLAYER_DEAD")

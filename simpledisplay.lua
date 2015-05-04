@@ -105,7 +105,7 @@ function CS:initializeSimple()
 	timerFrame:SetWidth(db.width)
 	
 	fontPath = LSM:Fetch("font", db.fontName)
-	backdropTable.bgfile = (db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
+	backdropTable.bgFile = (db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
 	
 	createFrames()
 	self.refreshDisplay = refreshDisplay

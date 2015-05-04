@@ -21,6 +21,7 @@ local SATimers = {}
 
 
 -- Variables
+local db
 local timerID
 local remainingThreshold = 2 -- threshold between short and long Shadowy Apparitions
 local frame
@@ -63,17 +64,16 @@ local function refreshDisplay(self, orbs, timers)
 end
 
 local function createFrames()
-	local orientation = CS.db.complex.orientation
-	local growthDirection = CS.db.complex.growthDirection
-	local spacing = CS.db.complex.spacing
-	local height = CS.db.complex.height
-	local width = CS.db.complex.width
-	local flags = CS.db.complex.fontFlags
+	local orientation = db.orientation
+	local growthDirection = db.growthDirection
+	local height = db.height
+	local width = db.width
+	local flags = db.fontFlags
 	
 	local function createOrbFrame(numeration)
 		frame = orbFrames[numeration] or CreateFrame("frame", nil, timerFrame)
 		frame:ClearAllPoints()
-		local displacement = (width + spacing) * (numeration - 1)
+		local displacement = (width + db.spacing) * (numeration - 1)
 		if orientation == "Vertical" then
 			frame:SetHeight(width)
 			frame:SetWidth(height)
@@ -109,14 +109,14 @@ local function createFrames()
 		fontString = SATimers[numeration] or timerFrame:CreateFontString(nil, "OVERLAY")
 		fontString:ClearAllPoints()
 		if orientation == "Vertical" then
-			fontString:SetPoint("RIGHT", referenceFrame, "LEFT", CS.db.complex.stringYOffset - 1, CS.db.complex.stringXOffset)
+			fontString:SetPoint("RIGHT", referenceFrame, "LEFT", db.stringYOffset - 1, db.stringXOffset)
 		else
-			fontString:SetPoint("BOTTOM", referenceFrame, "TOP", CS.db.complex.stringXOffset, CS.db.complex.stringYOffset + 1)
+			fontString:SetPoint("BOTTOM", referenceFrame, "TOP", db.stringXOffset, db.stringYOffset + 1)
 		end
-		fontString:SetFont(fontPath, CS.db.complex.fontSize, (flags == "MONOCHROMEOUTLINE" or flags == "OUTLINE" or flags == "THICKOUTLINE") and flags or nil)
-		fontString:SetTextColor(CS.db.complex.fontColor.r, CS.db.complex.fontColor.b, CS.db.complex.fontColor.g, CS.db.complex.fontColor.a)
+		fontString:SetFont(fontPath, db.fontSize, (flags == "MONOCHROMEOUTLINE" or flags == "OUTLINE" or flags == "THICKOUTLINE") and flags or nil)
+		fontString:SetTextColor(db.fontColor.r, db.fontColor.b, db.fontColor.g, db.fontColor.a)
 		fontString:SetShadowOffset(1, -1)
-		fontString:SetShadowColor(0, 0, 0, CS.db.complex.fontFlags == "Shadow" and 1 or 0)
+		fontString:SetShadowColor(0, 0, 0, db.fontFlags == "Shadow" and 1 or 0)
 		fontString:Show()
 		fontString:SetText("0.0")
 		
@@ -126,8 +126,8 @@ local function createFrames()
 		SATimers[i] = createTimerFontString(orbFrames[i], i)
 	end
 	
-	local c1r, c1b, c1g, c1a = CS.db.complex.color1.r, CS.db.complex.color1.b, CS.db.complex.color1.g, CS.db.complex.color1.a 
-	local c2r, c2b, c2g, c2a = CS.db.complex.color2.r, CS.db.complex.color2.b, CS.db.complex.color2.g, CS.db.complex.color2.a 
+	local c1r, c1b, c1g, c1a = db.color1.r, db.color1.b, db.color1.g, db.color1.a 
+	local c2r, c2b, c2g, c2a = db.color2.r, db.color2.b, db.color2.g, db.color2.a 
 	orbFrames[1]:SetBackdropColor(c1r, c1b, c1g, c1a)
 	orbFrames[2]:SetBackdropColor(c1r, c1b, c1g, c1a)
 	orbFrames[3]:SetBackdropColor(c1r, c1b, c1g, c1a)
@@ -153,7 +153,7 @@ local function HideChildren()
 end
 
 function CS:initializeComplex()
-	local db = self.db.complex
+	db = self.db.complex
 	local height = db.height + 25
 	local width = 5 * db.width + 4 * db.spacing
 
@@ -161,8 +161,8 @@ function CS:initializeComplex()
 	timerFrame:SetWidth(db.orientation == "Vertical" and height or width)
 	
 	fontPath = LSM:Fetch("font", db.fontName)
-	backdropTable.bgfile = (db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
-	backdropTable.edgefile = db.complex.textureBorder and "Interface\\ChatFrame\\ChatFrameBackground" or nil
+	backdropTable.bgFile = (db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
+	backdropTable.edgeFile = db.textureBorder and "Interface\\ChatFrame\\ChatFrameBackground" or nil
 	
 	createFrames()
 	if timerFrame.lock then

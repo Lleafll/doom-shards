@@ -27,6 +27,6 @@ function CS:warningSound(orbs, timers)
 end
 
 function CS:initializeSound()
-	soundFile = LSM:Fetch("sound", CS.db.soundHandle)
-	soundInterval = CS.db.soundInterval
+	soundFile = LSM:Fetch("sound", self.db.soundHandle)
+	soundInterval = self.db.soundInterval
 end
