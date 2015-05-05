@@ -159,7 +159,7 @@ local optionsTable = {
 					end,
 					set = function(_, val)
 						if CS.db.calculateOutOfCombat then
-							CS:PLAYER_REGEN_DISABLED()
+							CS:Initialize()
 						elseif not UnitAffectingCombat("player") then
 							CS:PLAYER_REGEN_ENABLED()
 						end

@@ -409,13 +409,17 @@ end
 --	SATimeCorrection = {}  -- maybe recycle table?
 --end
 
+local function isASSpecced()
+	local specialization = GetSpecialization()
+	local _, _, _, ASSpecced = GetTalentInfo(7, 3, GetActiveSpecGroup())
+	return specialization and specialization == 3 and ASSpecced
+end
+
 function CS:talentsCheck()
 	self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	warningSound = function() end
 	
-	local specialization = GetSpecialization()
-	local _, _, _, ASSpecced = GetTalentInfo(7, 3, GetActiveSpecGroup())
-	if specialization and specialization == 3 and ASSpecced then
+	if isASSpecced() then
 		self:RegisterEvent("PLAYER_REGEN_DISABLED")
 		--self:RegisterEvent("PLAYER_STARTED_MOVING")  -- make a better implementation later
 		self:Initialize()
@@ -434,13 +438,14 @@ function CS:getDB()
 end
 
 function CS:Initialize()
+	--self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	timerFrame:HideChildren()
 	
 	self:initializeSound()
 	self:applySettings()
 	
 	if UnitAffectingCombat("player") then
-		self:PLAYER_REGEN_DISABLED()
+		if isASSpecced() then self:PLAYER_REGEN_DISABLED() end
 	elseif timerFrame.lock then
 		self:PLAYER_REGEN_ENABLED()
 	else
