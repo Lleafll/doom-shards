@@ -5,25 +5,17 @@ if not CS then return end
 
 -- Upvalues
 local C_TimerAfter = C_Timer.After
-local stringfind = string.find
-local GetActiveSpecGroup = GetActiveSpecGroup
-local GetSpecialization = GetSpecialization
-local GetTalentInfo = GetTalentInfo
 local GetTime = GetTime
 local IsInGroup = IsInGroup
 local IsInRaid = IsInRaid
 local IsItemInRange = IsItemInRange
 local ItemHasRange = ItemHasRange
 local pairs = pairs
-local stringsub = string.sub
-local tableinsert = table.insert
+local tableinsert = table.insert  -- only used sparingly
 local tableremove = table.remove
-local tostring = tostring
-local UnitAffectingCombat = UnitAffectingCombat
 local UnitCanAttack = UnitCanAttack
 local UnitExists = UnitExists
 local UnitGUID = UnitGUID
-local UnitPosition = UnitPosition
 local UnitPower = UnitPower
 
 
@@ -389,12 +381,14 @@ function CS:PLAYER_REGEN_ENABLED()
 	self:update()
 end
 
-function CS:UNIT_POWER(_, unitID, power)
-	if not (unitID == "player" and power == "SHADOW_ORBS") then return end
-	C_TimerAfter(0.01, function() -- needs to be delayed so it fires after the SA events, otherwise everything will assume the SA is still in flight
+local function delayOrbs()
 	orbs = UnitPower("player", 13)
 	self:update()
-	end)
+end
+
+function CS:UNIT_POWER(_, unitID, power)
+	if not (unitID == "player" and power == "SHADOW_ORBS") then return end
+	C_TimerAfter(0.01, delayOrbs)  -- needs to be delayed so it fires after the SA events, otherwise everything will assume the SA is still in flight
 end
 
 function CS:PLAYER_ENTERING_WORLD()
