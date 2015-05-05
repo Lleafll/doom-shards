@@ -1,0 +1,6 @@
+$ cat .gitignore
+
+*.bat
+*.sh
+WoWIcookies.txt
+WoWIOutput.txt
