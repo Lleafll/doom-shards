@@ -6,8 +6,8 @@ local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
 if not CS then return end
 
 
--- Module
-CS.displayBuilders["WeakAuras"] = "initializeWeakAuras"
+-- Libraries
+local L = LibStub("AceLocale-3.0"):GetLocale("ConspicuousSpirits")
 
 
 -- Options
@@ -101,7 +101,7 @@ local function refreshDisplay(self, orbs, timers)
 	WeakAurasScanEvents("WA_AUSPICIOUS_SPIRITS", count, orbs)
 end
 
-function CS:initializeWeakAuras()
+CS.displayBuilders["WeakAuras"] = function(self)
 	timerFrame:SetWidth(0)
 	timerFrame:SetHeight(0)
 	

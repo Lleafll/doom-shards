@@ -1,6 +1,10 @@
--- Libraries
+-- Get Addon Object
 local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
 if not CS then return end
+
+
+-- Libraries
+local L = LibStub("AceLocale-3.0"):GetLocale("ConspicuousSpirits")
 local LSM = LibStub("LibSharedMedia-3.0")
 LSM:Register("sound", "Droplet", "Interface\\addons\\ConspicuousSpirits\\Media\\CSDroplet.mp3")
 
@@ -58,8 +62,8 @@ CS.optionsTable.args.sound = {
 }
 
 CS.defaultSettings.global.sound = false
-CS.defaultSettings.global.soundHandle = "Droplet",
-CS.defaultSettings.global.soundInterval = 2,
+CS.defaultSettings.global.soundHandle = "Droplet"
+CS.defaultSettings.global.soundInterval = 2
 
 
 -- Upvalues

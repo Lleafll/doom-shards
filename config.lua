@@ -235,6 +235,6 @@ function CS:applySettings()
 	timerFrame:SetPoint("CENTER", self.db.posX, self.db.posY)
 	timerFrame:SetScale(self.db.scale)
 	
-	if self.displayBuilders[self.db.display] then self[self.displayBuilders[self.db.display]] end  -- display builder functions
+	if self.displayBuilders[self.db.display] then self.displayBuilders[self.db.display](self) end  -- display builder functions
 	if self.db.sound then self:initializeSound() end
 end

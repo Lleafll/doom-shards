@@ -4,11 +4,8 @@ if not CS then return end
 
 
 -- Libraries
+local L = LibStub("AceLocale-3.0"):GetLocale("ConspicuousSpirits")
 local LSM = LibStub("LibSharedMedia-3.0")
-
-
--- Module
-CS.displayBuilders["Complex"] = "initializeComplex"
 
 
 -- Options
@@ -512,7 +509,7 @@ local function HideChildren()
 	RegisterStateDriver(timerFrame, "visibility", "")
 end
 
-function CS:initializeComplex()
+CS.displayBuilders["Complex"] = function(self)
 	db = self.db.complex
 	local height = db.height + 25
 	local width = 5 * db.width + 4 * db.spacing

@@ -4,11 +4,8 @@ if not CS then return end
 
 
 -- Libraries
+local L = LibStub("AceLocale-3.0"):GetLocale("ConspicuousSpirits")
 local LSM = LibStub("LibSharedMedia-3.0")
-
-
--- Module
-CS.displayBuilders["Simple"] = "initializeSimple"
 
 
 -- Options
@@ -356,7 +353,7 @@ local function HideChildren()
 	timerTextLong:Hide()
 end
 
-function CS:initializeSimple()
+CS.displayBuilders["Simple"] = function(self)
 	db = self.db.simple
 
 	timerFrame:SetHeight(db.height)
