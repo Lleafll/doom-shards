@@ -47,10 +47,6 @@ function CS:hellfireAssaultFix(_, unitID)
 		self:removeGUID(boss4GUID)
 		self:UnregisterEvent("UNIT_TARGETABLE_CHANGED")
 		
-	elseif boss5GUID and unitID == "boss5" then
-		self:removeGUID(boss2GUID)
-		self:UnregisterEvent("UNIT_TARGETABLE_CHANGED")
-		
 	end
 end
 
@@ -129,13 +125,21 @@ function CS:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 	
 	if encounterID == 1778 then  -- Hellfire Assault
 		self:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
-			for i = 1, 5 do
+			for i = 1, 4 do
 				local unitID = "boss"..tostring(i)
 				local GUID = UnitGUID(unitID)
 				if not GUID then return end
 				local NPCID = getNPCID(GUID)
 				if NPCID == "94515" then  -- Siegemaster Mar'tak
-					boss3GUID = GUID
+					if unitID == "boss1" then
+						boss1GUID = GUID
+					elseif unitID == "boss2" then
+						boss2GUID = GUID
+					elseif unitID == "boss3" then
+						boss3GUID = GUID
+					elseif unitID == "boss4" then
+						boss4GUID = GUID
+					end
 					self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
 					self:RegisterEvent("UNIT_TARGETABLE_CHANGED", "hellfireAssaultFix")
 				end
