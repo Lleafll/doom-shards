@@ -131,13 +131,13 @@ function CS:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 				if not GUID then return end
 				local NPCID = getNPCID(GUID)
 				if NPCID == "94515" then  -- Siegemaster Mar'tak
-					if unitID == "boss1" then
+					if i == 1 then
 						boss1GUID = GUID
-					elseif unitID == "boss2" then
+					elseif i == 2 then
 						boss2GUID = GUID
-					elseif unitID == "boss3" then
+					elseif i == 3 then
 						boss3GUID = GUID
-					elseif unitID == "boss4" then
+					elseif i == 4 then
 						boss4GUID = GUID
 					end
 					self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
