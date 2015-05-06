@@ -39,6 +39,7 @@ L["General"] = true
 L["Growth direction"] = true
 L["Height"] = true
 L["Horizontal"] = true
+L["Integrated Display"] = true
 L["Interval"] = true
 L["IronMaidensShipMessage"] = "prepares to man the Dreadnaught's Main Cannon!"
 L["Keep calculating distances and anticipated Orbs when leaving combat."] = true

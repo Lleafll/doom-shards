@@ -28,6 +28,7 @@ Localizations\koKR.lua
 
 config.lua
 complexdisplay.lua
+integrateddisplay.lua
 simpledisplay.lua
 sound.lua
 weakauras.lua
