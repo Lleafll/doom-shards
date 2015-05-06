@@ -356,7 +356,7 @@ function CS:PLAYER_REGEN_DISABLED()
 	self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	orbs = UnitPower("player", 13)
 	
-	if not (self.db.display == "WeakAuras") then
+	if self.needsFrequentUpdates then
 		self:ScheduleRepeatingTimer("update", 0.1)
 		if UnitAffectingCombat("player") then
 			function warningSound(orbs, timers) self:warningSound(orbs, timers) end
@@ -435,7 +435,6 @@ function CS:Initialize()
 	--self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	timerFrame:HideChildren()
 	
-	self:initializeSound()
 	self:applySettings()
 	
 	if UnitAffectingCombat("player") then
