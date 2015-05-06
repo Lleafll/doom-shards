@@ -381,9 +381,9 @@ function CS:PLAYER_REGEN_ENABLED()
 	self:update()
 end
 
-local function delayOrbs()
+local function delayOrbs(self)
 	orbs = UnitPower("player", 13)
-	self:update()
+	CS:update()
 end
 
 function CS:UNIT_POWER(_, unitID, power)
