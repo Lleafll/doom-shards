@@ -4,7 +4,6 @@ if not CS then return end
 
 
 -- Libraries
-local CS = LibStub("AceAddon-3.0"):NewAddon("Conspicuous Spirits")
 local L = LibStub("AceLocale-3.0"):GetLocale("ConspicuousSpirits")
 local ACD = LibStub("AceConfigDialog-3.0")
 
