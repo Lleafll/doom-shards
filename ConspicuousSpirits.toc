@@ -27,10 +27,17 @@ Localizations\deDE.lua
 Localizations\koKR.lua
 
 config.lua
-complexdisplay.lua
-integrateddisplay.lua
-simpledisplay.lua
-sound.lua
-weakauras.lua
+
+Displays\complexDisplayConfig.lua
+Displays\complexDisplay.lua
+Displays\integratedDisplayConfig.lua
+Displays\integratedDisplay.lua
+Displays\simpleDisplayConfig.lua
+Displays\simpleDisplay.lua
+Displays\weakaurasConfig.lua
+Displays\weakauras.lua
+Displays\sound.lua
+Displays\soundConfig.lua
+
 encounterFixes.lua
 core.lua
