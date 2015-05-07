@@ -26,6 +26,7 @@ Localizations\enUS.lua
 Localizations\deDE.lua
 Localizations\koKR.lua
 
+conspicuousSpirits.lua
 config.lua
 
 Displays\complexDisplayConfig.lua
