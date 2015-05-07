@@ -231,9 +231,17 @@ CS.defaultSettings = {
 	}
 }
 
+function CS:SetUpdateInterval(interval)
+	if interval and (not self.UpdateInterval or interval < self.UpdateInterval) then
+		self.UpdateInterval = interval
+	end
+end
+
 function CS:applySettings()
 	timerFrame:SetPoint("CENTER", self.db.posX, self.db.posY)
 	timerFrame:SetScale(self.db.scale)
+	
+	CS.UpdateInterval = nil
 	
 	if self.displayBuilders[self.db.display] then self.displayBuilders[self.db.display](self) end  -- display builder functions
 	if self.db.sound then self:initializeSound() end

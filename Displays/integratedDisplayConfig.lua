@@ -28,11 +28,26 @@ CS.optionsTable.args.integrated = {
 				if val then CS.db.display = "Integrated" end
 				CS:Initialize()
 			end
-		}
+		},
+		color = {
+			order = 2,
+			type = "color",
+			name = L["Color 1"],
+			desc = L["Set Color 1"],
+			hasAlpha = true,
+			get = function()
+				local r, b, g, a = CS.db.integrated.color.r, CS.db.integrated.color.b, CS.db.integrated.color.g, CS.db.integrated.color.a
+				return r, b, g, a
+			end,
+			set = function(info, r, b, g, a)
+				CS.db.integrated.color.r, CS.db.integrated.color.b, CS.db.integrated.color.g, CS.db.integrated.color.a = r, b, g, a
+				CS:Initialize()
+			end
+		},
 	}
 }
 
 CS.defaultSettings.global.integrated = {
-	
+	color = {r=0.53, b=0.53, g=0.53, a=1.00}
 }
 --@end-debug@

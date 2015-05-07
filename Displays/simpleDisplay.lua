@@ -113,5 +113,5 @@ CS.displayBuilders["Simple"] = function(self)
 	timerFrame.ShowChildren = function() end
 	timerFrame.HideChildren = HideChildren
 	
-	self.needsFrequentUpdates = true
+	self:SetUpdateInterval(0.1)
 end

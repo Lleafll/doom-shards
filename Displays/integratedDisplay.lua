@@ -22,6 +22,7 @@ local orbFrames = {}
 
 -- Variables
 local db
+local color
 local height
 local width
 local backdrop = {
@@ -46,7 +47,7 @@ local function refreshDisplay(self, orbs, timers)
 			if timerID then
 				currentTime = currentTime or GetTime()
 				local remaining = mathmax(0, timerID.impactTime - currentTime)
-				orbFrame:SetXScale(1 - remaining / 10)
+				orbFrame:SetXScale(1 - remaining / 10, i == 6)
 				orbFrame:Show()
 				k = k + 1
 			else
@@ -56,8 +57,18 @@ local function refreshDisplay(self, orbs, timers)
 	end
 end
 
-local function SetXScale(self, scale)
-	self:SetWidth(width * scale)
+local function SetXScale(self, scale, is6)
+	--self:SetWidth(width * (scale > 0 and scale or 0))
+	self:SetValue(scale)
+	
+	if is6 then return end
+	
+	if scale < 1 then 
+		self:SetBackdropColor(0, 0, 0, 0)
+	else
+		self:SetValue(0)
+		self:SetOriginalBackdropColor()
+	end
 end
 
 local function createFrames()
@@ -72,7 +83,7 @@ local function createFrames()
 	end
 	
 	local function createOrbFrame(numeration)
-		local frame = orbFrames[numeration] or CreateFrame("frame", nil, timerFrame)
+		local frame = orbFrames[numeration] or CreateFrame("StatusBar", nil, timerFrame)
 		frame:ClearAllPoints()
 		if orientation == "Vertical" then
 			local displacement = (height + db.spacing) * (numeration - 1)
@@ -102,6 +113,9 @@ local function createFrames()
 			frame:Hide()
 		end
 		
+		frame:SetStatusBarTexture((db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle), "BACKGROUND")
+		frame:SetStatusBarColor(color.r, color.b, color.g, color.a)
+		frame:SetMinMaxValues(0, 1)
 		frame.SetXScale = SetXScale
 		
 		return frame
@@ -110,14 +124,21 @@ local function createFrames()
 		orbFrames[i] = createOrbFrame(i)
 	end
 	
-	local c1r, c1b, c1g, c1a = db.color1.r, db.color1.b, db.color1.g, db.color1.a 
-	local c2r, c2b, c2g, c2a = db.color2.r, db.color2.b, db.color2.g, db.color2.a 
-	orbFrames[1]:SetBackdropColor(c1r, c1b, c1g, c1a)
-	orbFrames[2]:SetBackdropColor(c1r, c1b, c1g, c1a)
-	orbFrames[3]:SetBackdropColor(c1r, c1b, c1g, c1a)
-	orbFrames[4]:SetBackdropColor(c2r, c2b, c2g, c2a)
-	orbFrames[5]:SetBackdropColor(c2r, c2b, c2g, c2a)
-	orbFrames[6]:SetBackdropColor(c2r, c2b, c2g, c2a)  -- dummy frame to anchor overflow bar to
+	local c1r, c1b, c1g, c1a = db.color1.r, db.color1.b, db.color1.g, db.color1.a
+	local c2r, c2b, c2g, c2a = db.color2.r, db.color2.b, db.color2.g, db.color2.a
+	
+	local function makeBackdrop(frame, r, b, g, a)
+		frame:SetBackdropColor(r, b, g, a)
+		function frame:SetOriginalBackdropColor()
+			self:SetBackdropColor(r, b, g, a)
+		end
+	end
+	makeBackdrop(orbFrames[1], c1r, c1b, c1g, c1a)
+	makeBackdrop(orbFrames[2], c1r, c1b, c1g, c1a)
+	makeBackdrop(orbFrames[3], c1r, c1b, c1g, c1a)
+	makeBackdrop(orbFrames[4], c2r, c2b, c2g, c2a)
+	makeBackdrop(orbFrames[5], c2r, c2b, c2g, c2a)
+	makeBackdrop(orbFrames[6], c2r, c2b, c2g, c2a)  -- dummy frame to anchor overflow bar to
 end
 
 local function ShowChildren()
@@ -137,6 +158,7 @@ end
 CS.displayBuilders["Integrated"] = function(self)
 	db = self.db.complex
 	
+	color = self.db.integrated.color
 	height = db.orientation == "Vertical" and db.width or db.height
 	width = db.orientation == "Vertical" and db.height or db.width
 
@@ -153,7 +175,7 @@ CS.displayBuilders["Integrated"] = function(self)
 	timerFrame.ShowChildren = ShowChildren
 	timerFrame.HideChildren = HideChildren
 	
-	self.needsFrequentUpdates = true
+	self:SetUpdateInterval(1 / db.width)
 end
 
 --@end-debug@

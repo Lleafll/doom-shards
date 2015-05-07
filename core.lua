@@ -360,8 +360,8 @@ function CS:PLAYER_REGEN_DISABLED()
 	self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	orbs = UnitPower("player", 13)
 	
-	if self.needsFrequentUpdates then
-		self:ScheduleRepeatingTimer("update", 0.1)
+	if self.UpdateInterval then
+		self:ScheduleRepeatingTimer("update", self.UpdateInterval)
 		if UnitAffectingCombat("player") then
 			function warningSound(orbs, timers) self:warningSound(orbs, timers) end
 		end

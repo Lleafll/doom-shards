@@ -40,6 +40,4 @@ CS.displayBuilders["WeakAuras"] = function(self)
 	self.refreshDisplay = refreshDisplay
 	timerFrame.ShowChildren = function() end
 	timerFrame.HideChildren = function() end
-	
-	self.needsFrequentUpdates = false
 end

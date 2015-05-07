@@ -32,5 +32,5 @@ function CS:initializeSound()
 	soundFile = LSM:Fetch("sound", self.db.soundHandle)
 	soundInterval = self.db.soundInterval
 	
-	self.needsFrequentUpdates = true
+	self:SetUpdateInterval(0.1)
 end
