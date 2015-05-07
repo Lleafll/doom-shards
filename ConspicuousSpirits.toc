@@ -31,8 +31,6 @@ Config.lua
 
 Displays\ComplexDisplayConfig.lua
 Displays\ComplexDisplay.lua
-Displays\IntegratedDisplayConfig.lua
-Displays\IntegratedDisplay.lua
 Displays\SimpleDisplayConfig.lua
 Displays\SimpleDisplay.lua
 Displays\WeakaurasConfig.lua
