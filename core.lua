@@ -312,8 +312,8 @@ function CS:COMBAT_LOG_EVENT_UNFILTERED(_, ...)
 			addGUID(destGUID)
 			self:update()
 		
-		-- catch all Shadowy Apparition hit events
-		elseif spellID == 148859 and not multistrike then
+		-- catch all Auspicious Spirits and Shadowy Apparition hit events
+		elseif spellID == 155271 or spellID == 148859 and not multistrike then
 			timerID = popGUID(destGUID)
 			local currentTime = GetTime()
 			if timerID then
@@ -325,6 +325,10 @@ function CS:COMBAT_LOG_EVENT_UNFILTERED(_, ...)
 					for _, timerID in pairs(targets[GUID]) do
 						timerID.impactTime = timerID.impactTime - additionalTime
 					end
+				end
+				-- to avoid jittery counter
+				if (spellID == 155271 and (event == "SPELL_CAST_SUCCESS" or event == "SPELL_ENERGIZE") or spellID == 148859 and event == "SPELL_DAMAGE") and orbs < 5 then
+					orbs = orbs + 1
 				end
 			end
 			if distanceCache[GUID] and currentTime > distanceCache[GUID].timeStamp + cacheMaxTime then  -- update cached distances if over cacheMaxTime
