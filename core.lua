@@ -24,7 +24,7 @@ local timerFrame = CS.frame
 
 
 -- Variables
-local orbs = UnitPower("player", 13)
+local orbs
 local targets = {}  -- used to attribute timer IDs to mobs
 local SATimeCorrection = {}  -- converging additional travel time due to hit box size
 local timers = {}  -- ordered table of all timer IDs
@@ -328,6 +328,7 @@ function CS:COMBAT_LOG_EVENT_UNFILTERED(_, ...)
 				end
 				-- to avoid jittery counter
 				if (spellID == 155271 and (event == "SPELL_CAST_SUCCESS" or event == "SPELL_ENERGIZE") or spellID == 148859 and event == "SPELL_DAMAGE") and orbs < 5 then
+					-- the assumption is that any of these events fire before the respective UNIT_POWER
 					orbs = orbs + 1
 				end
 			end
@@ -385,7 +386,7 @@ function CS:PLAYER_REGEN_ENABLED()
 	self:update()
 end
 
-local function delayOrbs(self)
+local function delayOrbs()
 	orbs = UnitPower("player", 13)
 	CS:update()
 end

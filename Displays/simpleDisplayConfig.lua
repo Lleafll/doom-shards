@@ -253,7 +253,7 @@ CS.defaultSettings.global.simple = {
 	color2 = {r=0.38, b=0.23, g=0.51, a=1.00},  -- middle threshold color
 	color3 = {r=0.51, b=0.00, g=0.24, a=1.00},  -- highest threshold color
 	fontSize = 15,
-	fontName = "Fritz Quadrata TT",
+	fontName = "Friz Quadrata TT",
 	fontFlags = "Shadow",
 	fontColor = {r=1, b=1, g=1, a=1},
 	textureHandle = "Empty",

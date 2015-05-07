@@ -8,6 +8,10 @@ local L = LibStub("AceLocale-3.0"):GetLocale("ConspicuousSpirits")
 local ACD = LibStub("AceConfigDialog-3.0")
 
 
+-- Frames
+local timerFrame = CS.frame
+
+
 -- Options
 CS.optionsTable = {
 	type = "group",

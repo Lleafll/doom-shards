@@ -2,11 +2,12 @@ local _, class = UnitClass("player")
 if class ~= "PRIEST" then return end
 
 
--- Embedding and Libraries and stuff
+-- Embedding and libraries and stuff
 local CS = LibStub("AceAddon-3.0"):NewAddon("Conspicuous Spirits")
 LibStub("AceEvent-3.0"):Embed(CS)
 LibStub("AceTimer-3.0"):Embed(CS)
 LibStub("AceConsole-3.0"):Embed(CS)
+local L = LibStub("AceLocale-3.0"):GetLocale("ConspicuousSpirits")
 
 
 -- Variables
