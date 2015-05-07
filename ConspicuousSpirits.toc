@@ -1,4 +1,4 @@
-## Interface: 61000
+## Interface: 60100
 ## Title: Conspicuous Spirits
 ## Notes: Track your incoming Shadow Orbs from Auspicious Spirits!
 ## Author: Lleaf
