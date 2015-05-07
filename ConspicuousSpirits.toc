@@ -26,19 +26,19 @@ Localizations\enUS.lua
 Localizations\deDE.lua
 Localizations\koKR.lua
 
-conspicuousSpirits.lua
-config.lua
+ConspicuousSpirits.lua
+Config.lua
 
-Displays\complexDisplayConfig.lua
-Displays\complexDisplay.lua
-Displays\integratedDisplayConfig.lua
-Displays\integratedDisplay.lua
-Displays\simpleDisplayConfig.lua
-Displays\simpleDisplay.lua
-Displays\weakaurasConfig.lua
-Displays\weakauras.lua
-Displays\sound.lua
-Displays\soundConfig.lua
+Displays\ComplexDisplayConfig.lua
+Displays\ComplexDisplay.lua
+Displays\IntegratedDisplayConfig.lua
+Displays\IntegratedDisplay.lua
+Displays\SimpleDisplayConfig.lua
+Displays\SimpleDisplay.lua
+Displays\WeakaurasConfig.lua
+Displays\Weakauras.lua
+Displays\Sound.lua
+Displays\SoundConfig.lua
 
-encounterFixes.lua
-core.lua
+EncounterFixes.lua
+Core.lua
