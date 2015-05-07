@@ -215,11 +215,23 @@ CS.optionsTable.args.complex = {
 			}
 		},
 		text = {
-			order = 4,
+			order = 5,
 			type = "group",
 			name = L["Text"],
 			inline = true,
 			args = {
+				enable = {
+					order = 6,
+					type = "toggle",
+					name = L["Enable"],
+					get = function()
+						return CS.db.complex.textEnable
+					end,
+					set = function(info, val)
+						CS.db.complex.textEnable = val
+						CS:Initialize()
+					end
+				},
 				fontName = {
 					order = 7,
 					type = "select",
@@ -234,6 +246,11 @@ CS.optionsTable.args.complex = {
 						CS.db.complex.fontName = key
 						CS:Initialize()
 					end
+				},
+				spacer0 = {
+					order = 7.5,
+					type="description",
+					name=""
 				},
 				fontSize = {
 					order = 8,
@@ -337,6 +354,101 @@ CS.optionsTable.args.complex = {
 					end
 				}
 			}
+		},
+		statusbar = {
+			order = 4,
+			type = "group",
+			name = L["Anticipated Orbs"],
+			inline = true,
+			args = {
+				enable = {
+					order = 1,
+					type = "toggle",
+					name = L["Enable"],
+					desc = L["Enable display of bars for anticipated Shadow Orbs in the Shadow Orbs' positions"],
+					get = function()
+						return CS.db.complex.statusbarEnable
+					end,
+					set = function(info, val)
+						CS.db.complex.statusbarEnable = val
+						CS:Initialize()
+					end
+				},
+				reverse = {
+					order = 3,
+					type = "toggle",
+					name = L["Reverse Direction"],
+					desc = L["Fill indicator from right to left"],
+					get = function()
+						return CS.db.complex.statusbarReverse
+					end,
+					set = function(info, val)
+						CS.db.complex.statusbarReverse = val
+						CS:Initialize()
+					end
+				},
+				maxTime = {
+					order = 2,
+					type = "range",
+					name = L["Maximum Time"],
+					desc = L["Maximum remaining Shadowy Apparition flight time shown on the indicators"],
+					min = 0,
+					max = 10,
+					step = 0.1,
+					get = function()
+						return CS.db.complex.maxTime
+					end,
+					set = function(info, val)
+						CS.db.complex.maxTime = val
+						CS:Initialize()
+					end
+				},
+				spacer = {
+					order = 3.5,
+					type="description",
+					name=""
+				},
+				color = {
+					order = 4,
+					type = "color",
+					name = L["Color"],
+					hasAlpha = true,
+					get = function()
+						return CS.db.complex.statusbarColor.r, CS.db.complex.statusbarColor.b, CS.db.complex.statusbarColor.g, CS.db.complex.statusbarColor.a
+					end,
+					set = function(info, r, b, g, a)
+						CS.db.complex.statusbarColor.r, CS.db.complex.statusbarColor.b, CS.db.complex.statusbarColor.g, CS.db.complex.statusbarColor.a = r, b, g, a
+						CS:Initialize()
+					end
+				},
+				colorBackground = {
+					order = 5,
+					type = "color",
+					name = L["Background Color"],
+					hasAlpha = true,
+					get = function()
+						return CS.db.complex.statusbarColorBackground.r, CS.db.complex.statusbarColorBackground.b, CS.db.complex.statusbarColorBackground.g, CS.db.complex.statusbarColorBackground.a
+					end,
+					set = function(info, r, b, g, a)
+						CS.db.complex.statusbarColorBackground.r, CS.db.complex.statusbarColorBackground.b, CS.db.complex.statusbarColorBackground.g, CS.db.complex.statusbarColorBackground.a = r, b, g, a
+						CS:Initialize()
+					end
+				},
+				colorOverflow = {
+					order = 6,
+					type = "color",
+					name = L["\"Overcap Orb\" Color"],
+					desc = L["Color of the sixth indicator when overcapping with Shadowy Apparitions"],
+					hasAlpha = true,
+					get = function()
+						return CS.db.complex.statusbarColorOverflow.r, CS.db.complex.statusbarColorOverflow.b, CS.db.complex.statusbarColorOverflow.g, CS.db.complex.statusbarColorOverflow.a
+					end,
+					set = function(info, r, b, g, a)
+						CS.db.complex.statusbarColorOverflow.r, CS.db.complex.statusbarColorOverflow.b, CS.db.complex.statusbarColorOverflow.g, CS.db.complex.statusbarColorOverflow.a = r, b, g, a
+						CS:Initialize()
+					end
+				}
+			}
 		}
 	}
 }
@@ -345,10 +457,11 @@ CS.defaultSettings.global.complex = {
 	height = 8,
 	width = 32,
 	spacing = 1,
-	color1 = {r=0.38, b=0.23, g=0.51, a=1.00},
-	color2 = {r=0.51, b=0.00, g=0.24, a=1.00},
+	color1 = {r=0.38, b=0.23, g=0.51, a=1},
+	color2 = {r=0.51, b=0.00, g=0.24, a=1},
+	textEnable = true,
 	fontSize = 15,
-	fontName = "Fritz Quadrata TT",
+	fontName = "Friz Quadrata TT",
 	fontFlags = "Shadow",
 	fontColor = {r=1, b=1, g=1, a=1},
 	stringXOffset = 0,
@@ -357,5 +470,11 @@ CS.defaultSettings.global.complex = {
 	orientation = "Horizontal",
 	growthDirection = "Regular",
 	textureHandle = "Empty",
-	borderColor = {r=0, b=0, g=0, a=1}
+	borderColor = {r=0, b=0, g=0, a=1},
+	statusbarEnable = true,
+	statusbarColor = {r=0.33, b=0.33, g=0.33, a=0.5},
+	statusbarColorBackground = {r=0.06, b=0.06, g=0.06, a=1},
+	statusbarColorOverflow = {r=0.51, b=0.00, g=0.24, a=1},
+	statusbarReverse = false,
+	maxTime = 5,
 }
