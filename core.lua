@@ -24,7 +24,7 @@ local timerFrame = CS.frame
 
 
 -- Variables
-local orbs
+local orbs = 0
 local targets = {}  -- used to attribute timer IDs to mobs
 local SATimeCorrection = {}  -- converging additional travel time due to hit box size
 local timers = {}  -- ordered table of all timer IDs
