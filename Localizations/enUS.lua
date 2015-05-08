@@ -108,6 +108,7 @@ L["Texture"] = "Texture"
 L["THICKOUTLINE"] = "THICKOUTLINE"
 L["Time between warning sounds"] = "Time between warning sounds"
 L["Toggle Lock"] = "Toggle Lock"
+L["Version"] = true
 L["Vertical"] = "Vertical"
 L["Visibility"] = "Visibility"
 L["WeakAurasDocumentation"] = [=[WA_AUSPICIOUS_SPIRITS(event, count, orbs)

@@ -21,7 +21,7 @@ CS.optionsTable = {
 		header2 = {
 			order = 0,
 			type = "header",
-			name = "Version".." @project-version@"
+			name = L["Version"].." @project-version@"
 		},
 		general = {
 			order = 1,
