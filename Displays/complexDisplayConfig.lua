@@ -164,8 +164,39 @@ CS.optionsTable.args.complex = {
 					type="description",
 					name=""
 				},
-				textureHandle = {
+				orbCappedEnable = {
 					order = 6,
+					type = "toggle",
+					name = L["Orb Cap Color Change"],
+					desc = L["Change color of all Shadow Orbs when reaching five Shadow Orbs"],
+					get = function()
+						return CS.db.complex.orbCappedEnable
+					end,
+					set = function(info, val)
+						CS.db.complex.orbCappedEnable = val
+						CS:Initialize()
+					end
+				},
+				orbCappedColor = {
+					order = 7,
+					type = "color",
+					name = L["Color When Orb Capped"],
+					hasAlpha = true,
+					get = function()
+						return CS.db.complex.orbCappedColor.r, CS.db.complex.orbCappedColor.b, CS.db.complex.orbCappedColor.g, CS.db.complex.orbCappedColor.a
+					end,
+					set = function(info, r, b, g, a)
+						CS.db.complex.orbCappedColor.r, CS.db.complex.orbCappedColor.b, CS.db.complex.orbCappedColor.g, CS.db.complex.orbCappedColor.a = r, b, g, a
+						CS:Initialize()
+					end
+				},
+				spacer3 = {
+					order = 8.5,
+					type="description",
+					name=""
+				},
+				textureHandle = {
+					order = 9,
 					type = "select",
 					dialogControl = "LSM30_Statusbar",
 					name = L["Texture"],
@@ -180,7 +211,7 @@ CS.optionsTable.args.complex = {
 					end
 				},
 				borderColor = {
-					order = 7,
+					order = 10,
 					type = "color",
 					name = L["Border Color"],
 					desc = L["Set Shadow Orb border color"],
@@ -193,13 +224,13 @@ CS.optionsTable.args.complex = {
 						CS:Initialize()
 					end
 				},
-				spacer3 = {
-					order = 8.5,
+				spacer4 = {
+					order = 11.5,
 					type="description",
 					name=""
 				},
 				visibility = {
-					order = 9,
+					order = 12,
 					type = "input",
 					name = L["Visibility"],
 					desc = L["Regulate display visibility with macro conditionals"],
@@ -533,5 +564,7 @@ CS.defaultSettings.global.complex = {
 	statusbarReverse = false,
 	maxTime = 5,
 	statusbarXOffset = 0,
-	statusbarYOffset = 0
+	statusbarYOffset = 0,
+	orbCappedEnable = false,
+	orbCappedColor = {r=0.51, b=0.00, g=0.24, a=1},
 }

@@ -28,6 +28,7 @@ local statusbarEnable
 local fontPath
 local remainingThreshold = 2 -- threshold between short and long Shadowy Apparitions
 local statusbarMaxTime
+local orbCappedEnable
 local backdrop = {
 	bgFile = nil,
 	edgeFile = "Interface\\ChatFrame\\ChatFrameBackground",
@@ -48,7 +49,13 @@ local function refreshDisplay(self, orbs, timers)
 	local k = 1
 	for i = 1, 6 do
 		if orbs >= i then
-			orbFrames[i]:Show()
+			local orbFrame = orbFrames[i]
+			if orbCappedEnable and orbs == 5 then
+				orbFrame:SetOrbCapColor()
+			elseif orbFrame.orbCapColored then
+				orbFrame:SetOriginalColor()
+			end
+			orbFrame:Show()
 			SATimers[i]:Hide()
 			statusbars[i]:Hide()
 		else
@@ -116,25 +123,40 @@ local function createFrames()
 		
 		frame:SetBackdrop(backdrop)
 		frame:SetBackdropBorderColor(db.borderColor.r, db.borderColor.b, db.borderColor.g, db.borderColor.a)
+		
 		if numeration < 6 then
 			frame:Show()
 		else
 			frame:Hide()
 		end
+		
+		local c1r, c1b, c1g, c1a = db.color1.r, db.color1.b, db.color1.g, db.color1.a 
+		local c2r, c2b, c2g, c2a = db.color2.r, db.color2.b, db.color2.g, db.color2.a 
+		if numeration < 4 then
+			function frame:SetOriginalColor()
+				self:SetBackdropColor(c1r, c1b, c1g, c1a)
+			end
+			frame:SetOriginalColor()
+		elseif numeration < 6 then
+			function frame:SetOriginalColor()
+				self:SetBackdropColor(c2r, c2b, c2g, c2a)
+				self.orbCapColored = false
+			end
+			frame:SetOriginalColor()
+		else
+			frame:SetBackdropColor(0, 0, 0, 0)  -- dummy frame to anchor overflow fontstring to
+		end
+		local c1r, c1b, c1, c1a = db.orbCappedColor.r, db.orbCappedColor.b, db.orbCappedColor.g, db.orbCappedColor.a
+		function frame:SetOrbCapColor()
+			self:SetBackdropColor(c1r, c1b, c1, c1a)
+			self.orbCapColored = true
+		end
+		
 		return frame
 	end
 	for i = 1, 6 do
 		orbFrames[i] = createOrbFrame(i)
 	end
-	
-	local c1r, c1b, c1g, c1a = db.color1.r, db.color1.b, db.color1.g, db.color1.a 
-	local c2r, c2b, c2g, c2a = db.color2.r, db.color2.b, db.color2.g, db.color2.a 
-	orbFrames[1]:SetBackdropColor(c1r, c1b, c1g, c1a)
-	orbFrames[2]:SetBackdropColor(c1r, c1b, c1g, c1a)
-	orbFrames[3]:SetBackdropColor(c1r, c1b, c1g, c1a)
-	orbFrames[4]:SetBackdropColor(c2r, c2b, c2g, c2a)
-	orbFrames[5]:SetBackdropColor(c2r, c2b, c2g, c2a)
-	orbFrames[6]:SetBackdropColor(0, 0, 0, 0)  -- dummy frame to anchor overflow fontstring to
 	
 	if textEnable then
 		fontStringParent = fontStringParent or CreateFrame("frame", nil, timerFrame)
@@ -243,6 +265,7 @@ CS.displayBuilders["Complex"] = function(self)
 	statusbarMaxTime = db.maxTime
 	textEnable = db.textEnable
 	statusbarEnable = db.statusbarEnable
+	orbCappedEnable = db.orbCappedEnable
 	
 	local height = db.height + 25
 	local width = 5 * db.width + 4 * db.spacing

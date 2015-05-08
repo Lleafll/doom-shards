@@ -37,6 +37,12 @@ function timerFrame:Unlock()
 	self:Show()
 	self:ShowChildren()
 	self.texture:Show()
+	local function dragStop(self)
+		self:StopMovingOrSizing()
+		local _, _, _, posX, posY = self:GetPoint()
+		CS.db.posX = posX
+		CS.db.posY = posY
+	end
 	self:SetScript("OnEnter", function(self) 
 		GameTooltip:SetOwner(self, "ANCHOR_TOP")
 		GameTooltip:AddLine("Conspicuous Spirits", 0.38, 0.23, 0.51, 1, 1, 1)
@@ -44,12 +50,6 @@ function timerFrame:Unlock()
 		GameTooltip:Show()
 	end)
 	self:SetScript("OnLeave", function(s) GameTooltip:Hide() end)
-	local function dragStop(self)
-		self:StopMovingOrSizing()
-		local _, _, _, posX, posY = self:GetPoint()
-		CS.db.posX = posX
-		CS.db.posY = posY
-	end
 	self:SetScript("OnMouseDown", function(self, button)
 		if button == "RightButton" then
 			dragStop(self)  -- in case user right clicks while dragging the frame
