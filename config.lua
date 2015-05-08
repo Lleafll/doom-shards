@@ -18,6 +18,11 @@ CS.optionsTable = {
 	name = "Conspicuous Spirits",
 	childGroups = "tab",
 	args = {
+		header2 = {
+			order = 0,
+			type = "header",
+			name = "Version".." @project-version@"
+		},
 		general = {
 			order = 1,
 			type = "group",
