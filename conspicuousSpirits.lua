@@ -32,41 +32,60 @@ function timerFrame:HideChildren() end
 
 function timerFrame:Unlock()
 	print(L["Conspicuous Spirits unlocked!"])
-	timerFrame.lock = false
+	self.lock = false
 	CS:PLAYER_REGEN_ENABLED()
-	timerFrame:Show()
-	timerFrame:ShowChildren()
-	timerFrame.texture:Show()
-	timerFrame:SetScript("OnEnter", function(self) 
+	self:Show()
+	self:ShowChildren()
+	self.texture:Show()
+	self:SetScript("OnEnter", function(self) 
 		GameTooltip:SetOwner(self, "ANCHOR_TOP")
 		GameTooltip:AddLine("Conspicuous Spirits", 0.38, 0.23, 0.51, 1, 1, 1)
-		GameTooltip:AddLine(L["Left mouse button to drag."], 1, 1, 1, 1, 1, 1)
+		GameTooltip:AddLine(L["dragFrameTooltip"], 1, 1, 1, 1, 1, 1)
 		GameTooltip:Show()
 	end)
-	timerFrame:SetScript("OnLeave", function(s) GameTooltip:Hide() end)
-	timerFrame:SetScript("OnMouseDown", timerFrame.StartMoving)
-	timerFrame:SetScript("OnMouseUp", function(self, button)
-			self:StopMovingOrSizing()
-			local _, _, _, posX, posY = self:GetPoint()
-			CS.db.posX = posX
-			CS.db.posY = posY
+	self:SetScript("OnLeave", function(s) GameTooltip:Hide() end)
+	local function dragStop(self)
+		self:StopMovingOrSizing()
+		local _, _, _, posX, posY = self:GetPoint()
+		CS.db.posX = posX
+		CS.db.posY = posY
+	end
+	self:SetScript("OnMouseDown", function(self, button)
+		if button == "RightButton" then
+			dragStop(self)  -- in case user right clicks while dragging the frame
+			self:Lock()
+			CS:Initialize()
+		else
+			self:StartMoving()
 		end
-	)
-	if not UnitAffectingCombat("player") then RegisterStateDriver(timerFrame, "visibility", "") end
+	end)
+	self:SetScript("OnMouseUp", function(self, button)
+		dragStop(self)
+	end)
+	self:SetScript("OnMouseWheel", function(self, delta)
+		if IsShiftKeyDown() then
+			CS.db.posX = CS.db.posX + delta
+		else
+			CS.db.posY = CS.db.posY + delta
+		end
+		self:SetPoint("CENTER", CS.db.posX, CS.db.posY)
+	end)
+	if not UnitAffectingCombat("player") then RegisterStateDriver(self, "visibility", "") end
 end
 
 function timerFrame:Lock()
-	if not timerFrame.lock then print(L["Conspicuous Spirits locked!"]) end
-	timerFrame.lock = true
+	if not self.lock then print(L["Conspicuous Spirits locked!"]) end
+	self.lock = true
 	if CS.db.calculateOutOfCombat then CS:PLAYER_REGEN_DISABLED() end
-	timerFrame.texture:Hide()
-	timerFrame:EnableMouse(false)
-	timerFrame:SetScript("OnEnter", nil)
-	timerFrame:SetScript("OnLeave", nil)
-	timerFrame:SetScript("OnMouseDown", nil)
-	timerFrame:SetScript("OnMouseUp", nil)
+	self.texture:Hide()
+	self:EnableMouse(false)
+	self:SetScript("OnEnter", nil)
+	self:SetScript("OnLeave", nil)
+	self:SetScript("OnMouseDown", nil)
+	self:SetScript("OnMouseUp", nil)
+	self:SetScript("OnMouseWheel", nil)
 	CS:applySettings()
-	if CS.db.display == "Complex" and not UnitAffectingCombat("player") then RegisterStateDriver(timerFrame, CS.db.complex.visibilityConditionals) end
+	if CS.db.display == "Complex" and not UnitAffectingCombat("player") then RegisterStateDriver(self, CS.db.complex.visibilityConditionals) end
 end
 
 function CS:SetUpdateInterval(interval)
