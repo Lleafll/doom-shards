@@ -79,7 +79,7 @@ function CS:applySettings()
 	timerFrame:SetPoint("CENTER", self.db.posX, self.db.posY)
 	timerFrame:SetScale(self.db.scale)
 	
-	CS.UpdateInterval = nil
+	self.UpdateInterval = nil
 	
 	if self.displayBuilders[self.db.display] then self.displayBuilders[self.db.display](self) end  -- display builder functions
 	if self.db.sound then self:initializeSound() end

@@ -170,7 +170,7 @@ function CS:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 		self.encounterFix = gorefiendFix
 		
 		
-	elseif encounterID == 1786 then  -- Kil'rogg
+	elseif encounterID == 1786 then  -- Kilrogg
 		self.encounterFix = kilroggFix
 		
 		

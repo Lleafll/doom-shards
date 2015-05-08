@@ -247,5 +247,5 @@ CS.displayBuilders["Complex"] = function(self)
 	timerFrame.HideChildren = HideChildren
 	
 	if db.textEnable then self:SetUpdateInterval(0.1) end
-	if db.statusbarEnable then self:SetUpdateInterval(statusbarMaxTime / db.width) end
+	if db.statusbarEnable then self:SetUpdateInterval(statusbarMaxTime / db.width / self.sb.scale) end
 end
