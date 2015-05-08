@@ -85,6 +85,8 @@ local function createFrames()
 	local flags = db.fontFlags
 	local stringXOffset = db.stringXOffset
 	local stringYOffset = db.stringYOffset
+	local statusbarXOffset = db.statusbarXOffset
+	local statusbarYOffset = db.statusbarYOffset 
 	
 	if growthDirection == "Reversed" then
 		stringXOffset = -1 * stringXOffset
@@ -173,7 +175,14 @@ local function createFrames()
 				statusbar = CreateFrame("StatusBar", nil, frame)
 				frame.statusbar = statusbar
 			end
-			frame:SetAllPoints(referenceFrame)
+			fontString:ClearAllPoints()
+			if orientation == "Vertical" then
+				fontString:SetPoint("BOTTOMRIGHT", -statusbarYOffset - 1, statusbarXOffset)
+				fontString:SetPoint("TOPLEFT", -statusbarYOffset - 1, statusbarXOffset)
+			else
+				fontString:SetPoint("BOTTOMRIGHT", statusbarXOffset, statusbarYOffset + 1)
+				fontString:SetPoint("TOPLEFT", statusbarXOffset, statusbarYOffset + 1)
+			end
 			frame:SetBackdrop(backdrop)
 			frame:SetBackdropColor(db.statusbarColorBackground.r, db.statusbarColorBackground.b, db.statusbarColorBackground.g, db.statusbarColorBackground.a)
 			frame:SetBackdropBorderColor(db.borderColor.r, db.borderColor.b, db.borderColor.g, db.borderColor.a)

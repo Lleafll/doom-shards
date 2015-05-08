@@ -125,8 +125,10 @@ New property AceTimer object:
 L["Width"] = true
 L["Will show Shadow Orbs frame even when not in combat."] = true
 L["X Offset"] = true
+L["X offset for the Shadowy Apparition indicator bars"] = true
 L["X offset for the Shadowy Apparition time text"] = true
 L["Y Offset"] = true
 L["Y offset for the Shadowy Apparition time text"] = true
+L["Y offset for the Shadowy Apparition indicator bars"] = true
 
 --@end-do-not-package@

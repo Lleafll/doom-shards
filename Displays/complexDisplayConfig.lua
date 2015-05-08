@@ -451,6 +451,57 @@ CS.optionsTable.args.complex = {
 						CS.db.complex.statusbarColorOverflow.r, CS.db.complex.statusbarColorOverflow.b, CS.db.complex.statusbarColorOverflow.g, CS.db.complex.statusbarColorOverflow.a = r, b, g, a
 						CS:Initialize()
 					end
+				},
+				spacer2 = {
+					order = 6.5,
+					type="description",
+					name=""
+				},
+				xOffset = {
+					order = 7,
+					type = "range",
+					name = L["X Offset"],
+					desc = L["X offset for the Shadowy Apparition indicator bars"],
+					min = -1000,
+					max = 1000,
+					step = 1,
+					get = function()
+						local offset = CS.db.complex.orientation == "Vertical" and -CS.db.complex.statusbarYOffset or CS.db.complex.statusbarXOffset
+						if (CS.db.complex.growthDirection == "Reversed") and (CS.db.complex.orientation ~= "Vertical") then offset = -offset end
+						return offset
+					end,
+					set = function(info, val)
+						if CS.db.complex.orientation == "Vertical" then
+							CS.db.complex.statusbarYOffset = -val
+						else
+							if CS.db.complex.growthDirection == "Reversed" then val = -val end
+							CS.db.complex.statusbarXOffset = val
+						end
+						CS:Initialize()
+					end
+				},
+				yOffset = {
+					order = 8,
+					type = "range",
+					name = L["Y Offset"],
+					desc = L["Y offset for the Shadowy Apparition time text"],
+					min = -1000,
+					max = 1000,
+					step = 1,
+					get = function()
+						local offset = CS.db.complex.orientation == "Vertical" and CS.db.complex.statusbarXOffset or CS.db.complex.statusbarYOffset
+						if CS.db.complex.growthDirection == "Reversed" and CS.db.complex.orientation == "Vertical" then offset = -offset end
+						return offset
+					end,
+					set = function(info, val)
+						if CS.db.complex.orientation == "Vertical" then
+							if CS.db.complex.growthDirection == "Reversed" and CS.db.complex.orientation == "Vertical" then val = -val end
+							CS.db.complex.statusbarXOffset = val
+						else
+							CS.db.complex.statusbarYOffset = val
+						end
+						CS:Initialize()
+					end
 				}
 			}
 		}
@@ -481,4 +532,6 @@ CS.defaultSettings.global.complex = {
 	statusbarColorOverflow = {r=0.51, b=0.00, g=0.24, a=1},
 	statusbarReverse = false,
 	maxTime = 5,
+	statusbarXOffset = 0,
+	statusbarYOffset = 0
 }
