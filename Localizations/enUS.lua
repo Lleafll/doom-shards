@@ -22,6 +22,7 @@ L["Aggressive Caching Interval"] = true
 L["Anticipated Orbs"] = true
 L["Background Color"] = true
 L["Border Color"] = true
+L["Can not change visibility options in combat."] = true
 L["Color"] = true
 L["Color 1"] = true
 L["Color 2"] = true

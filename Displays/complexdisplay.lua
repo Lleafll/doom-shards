@@ -16,6 +16,7 @@ local stringformat = string.format
 -- Frames
 local timerFrame = CS.frame
 local orbFrames = {}
+local fontStringParent
 local SATimers = {}
 local statusbars = {}
 
@@ -134,8 +135,12 @@ local function createFrames()
 	orbFrames[6]:SetBackdropColor(0, 0, 0, 0)  -- dummy frame to anchor overflow fontstring to
 	
 	if textEnable then
+		fontStringParent = fontStringParent or CreateFrame("frame", nil, timerFrame)
+		fontStringParent:SetAllPoints()
+		fontStringParent:SetFrameStrata("MEDIUM")
+		fontStringParent:Show()
 		local function createTimerFontString(referenceFrame, numeration)
-			local fontString = SATimers[numeration] or timerFrame:CreateFontString(nil, "OVERLAY")
+			local fontString = SATimers[numeration] or fontStringParent:CreateFontString(nil, "OVERLAY")
 			fontString:ClearAllPoints()
 			if orientation == "Vertical" then
 				fontString:SetPoint("RIGHT", referenceFrame, "LEFT", -stringYOffset - 1, stringXOffset)
@@ -212,7 +217,7 @@ local function HideChildren()
 		SATimers[i]:Hide()
 		statusbars[i]:Hide()
 	end
-	RegisterStateDriver(timerFrame, "visibility", "")
+	if not UnitAffectingCombat("player") then RegisterStateDriver(timerFrame, "visibility", "") end
 end
 
 CS.displayBuilders["Complex"] = function(self)
@@ -234,7 +239,7 @@ CS.displayBuilders["Complex"] = function(self)
 	statusbarBackdrop.bgFile = bgFile
 	
 	createFrames()
-	if timerFrame.lock then
+	if timerFrame.lock and not UnitAffectingCombat("player") then
 		RegisterStateDriver(timerFrame, "visibility", db.visibilityConditionals)
 	end
 	self.refreshDisplay = refreshDisplay

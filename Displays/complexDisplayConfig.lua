@@ -208,6 +208,10 @@ CS.optionsTable.args.complex = {
 						return CS.db.complex.visibilityConditionals
 					end,
 					set = function(info, val)
+						if UnitAffectingCombat("player") then 
+							print(L["Can not change visibility options in combat."])
+							return
+						end
 						CS.db.complex.visibilityConditionals = val
 						CS:Initialize()
 					end

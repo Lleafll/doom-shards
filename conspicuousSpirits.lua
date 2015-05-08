@@ -17,10 +17,10 @@ CS.displayBuilders = {}
 -- Frames
 CS.frame = CreateFrame("frame", "CSFrame", UIParent)
 local timerFrame = CS.frame
-timerFrame:SetFrameStrata("MEDIUM")
+timerFrame:SetFrameStrata("LOW")
 timerFrame:SetMovable(true)
 timerFrame.lock = true
-timerFrame.texture = timerFrame:CreateTexture(nil, "LOW")
+timerFrame.texture = timerFrame:CreateTexture(nil, "BACKGROUND")
 timerFrame.texture:SetAllPoints(timerFrame)
 timerFrame.texture:SetTexture(0.38, 0.23, 0.51, 0.7)
 timerFrame.texture:Hide()
@@ -52,7 +52,7 @@ function timerFrame:Unlock()
 			CS.db.posY = posY
 		end
 	)
-	RegisterStateDriver(timerFrame, "visibility", "")
+	if not UnitAffectingCombat("player") then RegisterStateDriver(timerFrame, "visibility", "") end
 end
 
 function timerFrame:Lock()
@@ -66,7 +66,7 @@ function timerFrame:Lock()
 	timerFrame:SetScript("OnMouseDown", nil)
 	timerFrame:SetScript("OnMouseUp", nil)
 	CS:applySettings()
-	if CS.db.display == "Complex" then RegisterStateDriver(timerFrame, CS.db.complex.visibilityConditionals) end
+	if CS.db.display == "Complex" and not UnitAffectingCombat("player") then RegisterStateDriver(timerFrame, CS.db.complex.visibilityConditionals) end
 end
 
 function CS:SetUpdateInterval(interval)
