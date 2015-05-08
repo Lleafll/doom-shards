@@ -175,13 +175,13 @@ local function createFrames()
 				statusbar = CreateFrame("StatusBar", nil, frame)
 				frame.statusbar = statusbar
 			end
-			fontString:ClearAllPoints()
+			frame:ClearAllPoints()
 			if orientation == "Vertical" then
-				fontString:SetPoint("BOTTOMRIGHT", -statusbarYOffset - 1, statusbarXOffset)
-				fontString:SetPoint("TOPLEFT", -statusbarYOffset - 1, statusbarXOffset)
+				frame:SetPoint("BOTTOMRIGHT", referenceFrame, -statusbarYOffset, statusbarXOffset)
+				frame:SetPoint("TOPLEFT", referenceFrame, -statusbarYOffset, statusbarXOffset)
 			else
-				fontString:SetPoint("BOTTOMRIGHT", statusbarXOffset, statusbarYOffset + 1)
-				fontString:SetPoint("TOPLEFT", statusbarXOffset, statusbarYOffset + 1)
+				frame:SetPoint("BOTTOMRIGHT", referenceFrame, statusbarXOffset, statusbarYOffset)
+				frame:SetPoint("TOPLEFT", referenceFrame, statusbarXOffset, statusbarYOffset)
 			end
 			frame:SetBackdrop(backdrop)
 			frame:SetBackdropColor(db.statusbarColorBackground.r, db.statusbarColorBackground.b, db.statusbarColorBackground.g, db.statusbarColorBackground.a)
@@ -213,18 +213,26 @@ local function createFrames()
 end
 
 local function ShowChildren()
-	for i = 1, 5 do
+	for i = 1, 6 do
+		if textEnable then
+			SATimers[i]:Show()
+		end
+		if statusbarEnable and (db.statusbarXOffset ~= 0 or db.statusbarYOffset ~= 0) then
+			statusbars[i].statusbar:SetValue(statusbarMaxTime / 2)
+			statusbars[i]:Show()
+		end
+		
+		if i == 6 then break end
+		
 		orbFrames[i]:Show()
-		if textEnable then SATimers[i]:Show() end
 	end
-	if textEnable then SATimers[6]:Show() end
 end
 
 local function HideChildren()
 	for i = 1, 6 do
 		orbFrames[i]:Hide()
-		SATimers[i]:Hide()
-		statusbars[i]:Hide()
+		if SATimers[i] then SATimers[i]:Hide() end
+		if statusbars[i] then statusbars[i]:Hide() end
 	end
 	if not UnitAffectingCombat("player") then RegisterStateDriver(timerFrame, "visibility", "") end
 end
@@ -255,6 +263,6 @@ CS.displayBuilders["Complex"] = function(self)
 	timerFrame.ShowChildren = ShowChildren
 	timerFrame.HideChildren = HideChildren
 	
-	if db.textEnable then self:SetUpdateInterval(0.1) end
-	if db.statusbarEnable then self:SetUpdateInterval(statusbarMaxTime / db.width / self.sb.scale) end
+	if textEnable then self:SetUpdateInterval(0.1) end
+	if statusbarEnable then self:SetUpdateInterval(statusbarMaxTime / db.width / self.db.scale) end
 end
