@@ -28,9 +28,9 @@ L["Color 2"] = "Color 2"
 L["Color 3"] = "Color 3"
 L["Color of the sixth indicator when overcapping with Shadowy Apparitions"] = "Color of the sixth indicator when overcapping with Shadowy Apparitions"
 L["Complex Display"] = "Complex Display"
-L["Conspicuous Spirits locked!"] = "Conspicuous Spirits locked!"
-L["Conspicuous Spirits reset!"] = "Conspicuous Spirits reset!"
-L["Conspicuous Spirits unlocked!"] = "Conspicuous Spirits unlocked!"
+L["Conspicuous Spirits locked!"] = "|cFF613B82Conspicuous Spirits|r locked!"
+L["Conspicuous Spirits reset!"] = "|cFF613B82Conspicuous Spirits|r reset!"
+L["Conspicuous Spirits unlocked!"] = "|cFF613B82Conspicuous Spirits|r unlocked!"
 L["Documentation"] = "Documentation"
 L["dragFrameTooltip"] = [=[Left mouse button to drag.
 Right mouse button to lock.
