@@ -28,6 +28,12 @@ local function getNPCID(GUID)
 	return GUID:sub(-16, -12)
 end
 
+local function removeAfter(seconds, GUID)
+	C_TimerAfter(seconds, function()
+		CS:removeGUID(GUID)
+	end)
+end
+
 function CS:encounterFix(...) end
 
 function CS:hellfireAssaultFix(_, unitID)
@@ -50,6 +56,19 @@ function CS:hellfireAssaultFix(_, unitID)
 	end
 end
 
+-- Missing: Shadowy Construct leaving stomach
+function gorefiendFix(self, event, sourceGUID, destGUID, spellID)
+	-- entering/leaving stomach
+	if spellID == 181295 and destGUID == UnitGUID("player") and (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") then  -- Digest
+		self:removeAllGUIDs()
+		
+		-- Enraged Spirit
+	elseif spellID == 182557 and event == "SPELL_CAST_SUCCESS" then  -- Slam
+		removeAfter(3, sourceGUID)
+		
+	end
+end
+
 function CS:beastlordFix()
 	if not UnitExists("boss1") then
 		self:removeGUID(boss1GUID)
@@ -57,7 +76,7 @@ function CS:beastlordFix()
 end
 
 local function blastFurnaceFix(self, event, sourceGUID, destGUID, spellID)
-	if spellID == 605 and event == "SPELL_CAST_SUCCESS" then
+	if spellID == 605 and event == "SPELL_CAST_SUCCESS" then  -- Dominate Mind
 		self:removeGUID(destGUID)
 	end
 end
@@ -73,27 +92,21 @@ function CS:hansgarAndFranzokFix()
 end
 
 local function flamebenderFix(self, event, sourceGUID, destGUID, spellID)
-	if spellID == 181089 then
+	if spellID == 181089 then  -- "Encounter Event" (when wolves vanish)
 		self:removeGUID(sourceGUID)
 	end
-end
-
-local function ironMaidensTimer(GUID)
-	C_TimerAfter(3, function()
-		CS:removeGUID(GUID)
-	end)
 end
 
 function CS:ironMaidensFix(_, message, sender)
 	if message:find(L["IronMaidensShipMessage"]) then
 		if sender == boss1Name then
-			ironMaidensTimer(boss1GUID)
+			removeAfter(3, boss1GUID)
 			
 		elseif sender == boss2Name then
-			ironMaidensTimer(boss2GUID)
+			removeAfter(3, boss2GUID)
 			
 		elseif sender == boss3Name then
-			ironMaidensTimer(boss3GUID)
+			removeAfter(3, boss3GUID)
 			
 		end
 	end
@@ -145,6 +158,10 @@ function CS:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 				end
 			end
 		end)
+		
+		
+	elseif encounterID == 1783 then  -- Gorefiend
+		self.encounterFix = gorefiendFix
 		
 		
 	elseif encounterID == 1689 then  -- Flamebender

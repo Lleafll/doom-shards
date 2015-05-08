@@ -275,6 +275,12 @@ function CS:removeGUID(GUID)
 	self:update()
 end
 
+function CS:removeAllGUIDs()  -- used by some encounter fixes
+	for GUID, _ in pairs(targets[GUID]) do
+		self:removeGUID(GUID)
+	end
+end
+
 local function popGUID(GUID)
 	if targets[GUID] then
 		return tableremove(targets[GUID], 1)
