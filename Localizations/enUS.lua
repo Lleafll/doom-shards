@@ -116,7 +116,7 @@ L["WeakAurasDocumentation"] = [=[WA_AUSPICIOUS_SPIRITS(event, count, orbs)
   count - Shadowy Apparition currently in flight (number)
   orbs - player's Shadow Orbs (number) 
 
-Properties wa_as:
+Properties conspicuous_spirits_wa:
   count - Shadowy Apparitions currently in flight (number)
   orbs - player's Shadow Orbs (number)
   timers - chronologically ordered table of AceTimer timer objects corresponding to the Shadowy Apparitions (table)
