@@ -36,110 +36,6 @@ end
 
 function CS:encounterFix(...) end
 
-function CS:hellfireAssaultFix(_, unitID)
-	if boss1GUID and unitID == "boss1" then
-		self:removeGUID(boss1GUID)
-		self:UnregisterEvent("UNIT_TARGETABLE_CHANGED")
-		
-	elseif boss2GUID and unitID == "boss2" then
-		self:removeGUID(boss2GUID)
-		self:UnregisterEvent("UNIT_TARGETABLE_CHANGED")
-		
-	elseif boss3GUID and unitID == "boss3" then
-		self:removeGUID(boss3GUID)
-		self:UnregisterEvent("UNIT_TARGETABLE_CHANGED")
-		
-	elseif boss4GUID and unitID == "boss4" then
-		self:removeGUID(boss4GUID)
-		self:UnregisterEvent("UNIT_TARGETABLE_CHANGED")
-		
-	end
-end
-
--- Missing: Shadowy Construct leaving stomach after SA spawn won't generate orbs
--- https://www.warcraftlogs.com/reports/LhmF1T3xjdcPA9XJ#pins=0%24Separate%24%23244F4B%24any%24-1%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24true%24155521%7C147193%7C148859%5E0%24Separate%24%23909049%24any%24-1%240.0.0.Any%240.0.0.Any%24true%2410446771.0.0.Priest%24true%24179864%5E0%24Separate%24%23a04D8A%24any%24-1%240.0.0.Any%240.0.0.Any%24true%2410446771.0.0.Priest%24true%24181295&view=events&type=resources&fight=22
-function gorefiendFix(self, event, sourceGUID, destGUID, spellID)
-	-- entering/leaving stomach
-	if spellID == 181295 and destGUID == UnitGUID("player") and (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") then  -- Digest
-		self:removeAllGUIDs()
-		
-		-- Enraged Spirit
-	elseif spellID == 182557 and event == "SPELL_CAST_SUCCESS" then  -- Slam
-		removeAfter(3, sourceGUID)
-		
-	end
-end
-
-function kilroggFix(self, event, sourceGUID, destGUID, spellID)
-	if spellID == 181488 and destGUID == UnitGUID("player") and (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") then  -- Vision of Death
-		self:removeAllGUIDs()
-	end
-end
-
-function CS:beastlordFix()
-	if not UnitExists("boss1") then
-		self:removeGUID(boss1GUID)
-	end
-end
-
-local function blastFurnaceFix(self, event, sourceGUID, destGUID, spellID)
-	if spellID == 605 and event == "SPELL_CAST_SUCCESS" then  -- Dominate Mind
-		self:removeGUID(destGUID)
-	end
-end
-
-function CS:hansgarAndFranzokFix()
-	if not UnitExists("boss1") then
-		self:removeGUID(boss1GUID)
-	
-	elseif not UnitExists("boss2") then
-		self:removeGUID(boss2GUID)
-	
-	end
-end
-
-local function flamebenderFix(self, event, sourceGUID, destGUID, spellID)
-	if spellID == 181089 then  -- "Encounter Event" (when wolves vanish)
-		self:removeGUID(sourceGUID)
-	end
-end
-
-function CS:ironMaidensFix(_, message, sender)
-	if message:find(L["IronMaidensShipMessage"]) then
-		if sender == boss1Name then
-			removeAfter(3, boss1GUID)
-			
-		elseif sender == boss2Name then
-			removeAfter(3, boss2GUID)
-			
-		elseif sender == boss3Name then
-			removeAfter(3, boss3GUID)
-			
-		end
-	end
-end
-
---@debug@
-function CS:alysrazorFix(_, message, sender)
-
-	-- debug
-	print(sender, message)
-	
-	if message:find("begins casting") then
-		if sender == boss1Name then
-		
-			-- debug
-			print(boss1Name.." auf's Schiff")
-			print(boss1GUID)
-			
-			C_TimerAfter(3, function()
-				print("removed")
-			end)
-		end
-	end
-end
---@end-debug@
-
 function CS:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSize)
 	
 	if encounterID == 1778 then  -- Hellfire Assault
@@ -160,26 +56,68 @@ function CS:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 						boss4GUID = GUID
 					end
 					self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
-					self:RegisterEvent("UNIT_TARGETABLE_CHANGED", "hellfireAssaultFix")
+					self:RegisterEvent("UNIT_TARGETABLE_CHANGED", function(_, unitID)
+						if boss1GUID and unitID == "boss1" then
+							self:removeGUID(boss1GUID)
+							self:UnregisterEvent("UNIT_TARGETABLE_CHANGED")
+							
+						elseif boss2GUID and unitID == "boss2" then
+							self:removeGUID(boss2GUID)
+							self:UnregisterEvent("UNIT_TARGETABLE_CHANGED")
+							
+						elseif boss3GUID and unitID == "boss3" then
+							self:removeGUID(boss3GUID)
+							self:UnregisterEvent("UNIT_TARGETABLE_CHANGED")
+							
+						elseif boss4GUID and unitID == "boss4" then
+							self:removeGUID(boss4GUID)
+							self:UnregisterEvent("UNIT_TARGETABLE_CHANGED")
+							
+						end
+					end)
 				end
 			end
 		end)
 		
 		
 	elseif encounterID == 1783 then  -- Gorefiend
-		self.encounterFix = gorefiendFix
+		-- Missing: Shadowy Construct leaving stomach after SA spawn won't generate orbs
+		-- https://www.warcraftlogs.com/reports/LhmF1T3xjdcPA9XJ#pins=0%24Separate%24%23244F4B%24any%24-1%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24true%24155521%7C147193%7C148859%5E0%24Separate%24%23909049%24any%24-1%240.0.0.Any%240.0.0.Any%24true%2410446771.0.0.Priest%24true%24179864%5E0%24Separate%24%23a04D8A%24any%24-1%240.0.0.Any%240.0.0.Any%24true%2410446771.0.0.Priest%24true%24181295&view=events&type=resources&fight=22
+		self.encounterFix = function(self, event, sourceGUID, destGUID, spellID)
+			-- entering/leaving stomach
+			if spellID == 181295 and destGUID == UnitGUID("player") and (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") then  -- Digest
+				self:removeAllGUIDs()
+				
+				-- Enraged Spirit
+			elseif spellID == 182557 and event == "SPELL_CAST_SUCCESS" then  -- Slam
+				removeAfter(3, sourceGUID)
+				
+			end
+		end
 		
 		
 	elseif encounterID == 1786 then  -- Kilrogg
-		self.encounterFix = kilroggFix
+		self.encounterFix = function(self, event, sourceGUID, destGUID, spellID)
+			if spellID == 181488 and destGUID == UnitGUID("player") and (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") then  -- Vision of Death
+				self:removeAllGUIDs()
+			end
+		end
 		
 		
 	elseif encounterID == 1689 then  -- Flamebender
-		self.encounterFix = flamebenderFix
+		self.encounterFix = function(self, event, sourceGUID, destGUID, spellID)
+			if spellID == 181089 then  -- "Encounter Event" (when wolves vanish)
+				self:removeGUID(sourceGUID)
+			end
+		end
 		
 		
 	elseif encounterID == 1690 then  -- Blast Furnace
-		self.encounterFix = blastFurnaceFix
+		self.encounterFix = function(self, event, sourceGUID, destGUID, spellID)
+			if spellID == 605 and event == "SPELL_CAST_SUCCESS" then  -- Dominate Mind
+				self:removeGUID(destGUID)
+			end
+		end
 		
 		
 	elseif encounterID == 1693 then  -- Hans'gar and Franzok
@@ -188,9 +126,17 @@ function CS:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 			boss2GUID = UnitGUID("boss2")
 			if boss2GUID and boss1GUID then
 				self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
+				self:RegisterEvent("UNIT_TARGETABLE_CHANGED", function()
+					if not UnitExists("boss1") then
+						self:removeGUID(boss1GUID)
+					
+					elseif not UnitExists("boss2") then
+						self:removeGUID(boss2GUID)
+					
+					end
+				end)
 			end
 		end)
-		self:RegisterEvent("UNIT_TARGETABLE_CHANGED", "hansgarAndFranzokFix")
 		
 		
 	elseif encounterID == 1694 then  -- Beastlord Darmac
@@ -198,12 +144,19 @@ function CS:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 			boss1GUID = UnitGUID("boss1")
 			if boss1GUID then
 				self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
-				self:RegisterEvent("UNIT_TARGETABLE_CHANGED", "beastlordFix")
+				self:RegisterEvent("UNIT_TARGETABLE_CHANGED", function()
+					if not UnitExists("boss1") then
+						self:removeGUID(boss1GUID)
+					end
+				end)
 			end
 		end)
 		
 		
 	elseif encounterID == 1695 then  -- Iron Maidens
+		boss1Name = EJ_GetSectionInfo(10033)  -- Marak
+		boss2Name = EJ_GetSectionInfo(10030)  -- Sorka
+		boss3Name = EJ_GetSectionInfo(10025)  -- Ga'ran
 		self:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
 			for i = 1, 3 do
 				local unitID = "boss"..tostring(i)
@@ -220,12 +173,22 @@ function CS:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 			end
 			if boss3GUID and boss2GUID and boss1GUID then
 				self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
+				self:RegisterEvent("CHAT_MSG_RAID_BOSS_EMOTE", function(_, message, sender)
+					if message:find(L["IronMaidensShipMessage"]) then
+						if sender == boss1Name then
+							removeAfter(3, boss1GUID)
+							
+						elseif sender == boss2Name then
+							removeAfter(3, boss2GUID)
+							
+						elseif sender == boss3Name then
+							removeAfter(3, boss3GUID)
+							
+						end
+					end
+				end)
 			end
 		end)
-		boss1Name = EJ_GetSectionInfo(10033)  -- Marak
-		boss2Name = EJ_GetSectionInfo(10030)  -- Sorka
-		boss3Name = EJ_GetSectionInfo(10025)  -- Ga'ran
-		self:RegisterEvent("CHAT_MSG_RAID_BOSS_EMOTE", "ironMaidensFix")
 		
 		
 		--@debug@
@@ -257,7 +220,24 @@ function CS:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 			end
 		end)
 		boss1Name = "Herald of the Burning End"
-		self:RegisterEvent("CHAT_MSG_RAID_BOSS_EMOTE", "alysrazorFix")
+		self:RegisterEvent("CHAT_MSG_RAID_BOSS_EMOTE", function(_, message, sender)
+
+			-- debug
+			print(sender, message)
+			
+			if message:find("begins casting") then
+				if sender == boss1Name then
+				
+					-- debug
+					print(boss1Name.." auf's Schiff")
+					print(boss1GUID)
+					
+					C_TimerAfter(3, function()
+						print("removed")
+					end)
+				end
+			end
+		end)
 		--@end-debug@
 		
 	end

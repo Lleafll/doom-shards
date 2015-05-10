@@ -306,7 +306,7 @@ end
 function CS:COMBAT_LOG_EVENT_UNFILTERED(_, ...)
 	local timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID, _, _, _, _, _, _, _, _, _, _, _, _, multistrike = ...
         
-	if event == "UNIT_DIED" or event == "UNIT_DESTROYED" or event == "SPELL_INSTAKILL" then
+	if event == "UNIT_DIED" or event == "UNIT_DESTROYED" or event == "PARTY_KILL" or event == "SPELL_INSTAKILL" then
 	
 		self:removeGUID(destGUID)
 		
@@ -327,7 +327,7 @@ function CS:COMBAT_LOG_EVENT_UNFILTERED(_, ...)
 				SATimeCorrection[destGUID] = SATimeCorrection[destGUID] - additionalTime / 2
 				removeTimer(timerID)
 				-- correct other timers
-				if targets[GUID] and additionalTime > 0.5 then
+				if targets[GUID] and additionalTime > 0.2 then
 					for _, timerID in pairs(targets[GUID]) do
 						timerID.impactTime = timerID.impactTime - additionalTime
 					end
