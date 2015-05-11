@@ -64,232 +64,10 @@ local cacheMaxTime = 1  -- seconds in which the cache does not get refreshed
 
 
 -- Functions
-local function calculateTravelTime(unitID)
-	local minDistance
-	local maxDistance
-
-	for i = 0, 80 do
-		local distanceItem = distanceTable[i]
-		if ItemHasRange(distanceItem) then
-			if IsItemInRange(distanceItem, unitID) then
-				maxDistance = i
-				if maxDistance <= 5 then
-					minDistance = 0
-					maxDistance = 5
-				end
-			else
-				minDistance = i
-			end
-		end
-		if maxDistance and minDistance then break end
-		
-	end
-	
-	if (not maxDistance) or (not maxDistance) or (minDistance >= 60) then
-		return -1
-	else
-		return (minDistance + maxDistance) / 2 / SAVelocity
-	end			
-end
-
-local function iterateUnitIDs(tbl, GUID)
-	for i = 1, #tbl do
-		local unitID = tbl[i]
-		if UnitGUID(unitID) == GUID then
-			return calculateTravelTime(unitID)
-		end
-	end
-end
-
-local function cacheTravelTime(travelTime, GUID)
-	-- target too far away
-	if travelTime == -1 then
-		distanceCache[GUID] = nil
-		return nil
-	end
-	
-	-- cache travel time
-	if travelTime then
-		distanceCache[GUID] = distanceCache[GUID] or {}
-		distanceCache[GUID].travelTime = travelTime
-		distanceCache[GUID].timeStamp = GetTime()
-	end
-
-	return travelTime
-end
-
-local function getTravelTimeByGUID(GUID)
-	local travelTime
-
-	if UnitGUID("target") == GUID then
-		travelTime = calculateTravelTime("target")
-		
-	elseif UnitGUID("mouseover") == GUID then
-		travelTime = calculateTravelTime("mouseover")
-		
-	elseif UnitGUID("focus") == GUID then
-		travelTime = calculateTravelTime("focus")
-		
-	elseif UnitGUID("pettarget") == GUID then
-		travelTime = calculateTravelTime("pettarget")
-		
-	else
-		if UnitExists("boss1") then
-			travelTime = iterateUnitIDs(bossTable, GUID)
-		end
-		
-		if not travelTime then
-			if IsInRaid() then
-				travelTime = iterateUnitIDs(raidTable, GUID)
-				if not travelTime then
-					travelTime = iterateUnitIDs(raidPetTable, GUID)
-				end
-			elseif IsInGroup() then
-				travelTime = iterateUnitIDs(partyTable, GUID)
-				if not travelTime then
-					travelTime = iterateUnitIDs(partyPetTable, GUID)
-				end
-			end
-		end
-	end
-	
-	return cacheTravelTime(travelTime, GUID)
-end
-
-local function getTravelTime(GUID, forced)
-	local travelTime
-	distanceCache_GUID = distanceCache[GUID]
-	
-	if not distanceCache_GUID then
-		travelTime = getTravelTimeByGUID(GUID)
-	else
-		local delta = GetTime() - distanceCache_GUID.timeStamp
-		if forced or (delta > cacheMaxTime) then
-			travelTime = getTravelTimeByGUID(GUID) or distanceCache_GUID.travelTime
-		else
-			travelTime = distanceCache_GUID.travelTime
-		end
-	end
-	
-	if not travelTime then
-		return nil
-	else
-		SATimeCorrection[GUID] = SATimeCorrection[GUID] or 1  -- initially accounting for extra travel time due to hitbox size (estimated)
-		return travelTime + SATimeCorrection[GUID] or 1
-	end
-end
-
-do
-	local function aggressiveCachingByUnitID(unitID, timeStamp)
-		if not UnitCanAttack("player", unitID) then return end
-		
-		local GUID = UnitGUID(unitID)
-		
-		if distanceCache[GUID] and timeStamp - distanceCache[GUID].timeStamp < aggressiveCachingInterval then return end
-		cacheTravelTime(calculateTravelTime(unitID), GUID)
-	end
-
-	local function aggressiveCachingIteration(tbl, timeStamp)
-		for i = 1, #tbl do
-			aggressiveCachingByUnitID(tbl[i], timeStamp)
-		end
-	end
-
-	function CS:AggressiveCaching()
-		local timeStamp = GetTime()  -- sadly no milliseconds :/
-
-		aggressiveCachingByUnitID("target", timeStamp)
-		aggressiveCachingByUnitID("mouseover", timeStamp)
-		aggressiveCachingByUnitID("focus", timeStamp)
-		aggressiveCachingByUnitID("pettarget", timeStamp)
-		if UnitExists("boss1") then
-			aggressiveCachingIteration(bossTable, timeStamp)
-		end
-		if IsInRaid() then
-			aggressiveCachingIteration(raidTable, timeStamp)
-			aggressiveCachingIteration(raidPetTable, timeStamp)
-		elseif IsInGroup() then
-			aggressiveCachingIteration(partyTable, timeStamp)
-			aggressiveCachingIteration(partyPetTable, timeStamp)
-		end
-		
-		cacheTravelTime(travelTime)
-	end
-end
-
-local function addGUID(GUID)
-	local cancelTime
-	local travelTime = getTravelTime(GUID, true)
-	if not travelTime then return end  -- target too far away, abort timer creation
-
-	targets[GUID] = targets[GUID] or {}
-	timerID = CS:ScheduleTimer("removeTimer_timed", travelTime + SAGraceTime, GUID)
-	timerID.impactTime = GetTime() + travelTime  -- can't use timeStamp instead of GetTime() because of different time reference
-	targets[GUID][#targets[GUID]+1] = timerID
-	
-	local timersCount = #timers
-	if timersCount == 0 then
-		timers[1] = timerID
-		return
-	end
-	for i = 1, timersCount do
-		if timerID.impactTime < timers[i].impactTime then
-			tableinsert(timers, i, timerID)
-			return
-		end
-	end
-	timers[timersCount+1] = timerID
-end
-
-local function popTimer(timerID)
-	for k, v in pairs(timers) do
-		if v == timerID then
-			tableremove(timers, k)
-			break
-		end
-	end
-end
-
-local function removeTimer(timerID)
-	popTimer(timerID)
-	CS:CancelTimer(timerID)
-end
-
 function CS:Update()
 	self:SendMessage("CONSPICUOUS_SPIRITS_UPDATE", orbs, timers)
 	-- self:refreshDisplay(orbs, timers)
 	-- if soundEnabled then SO:WarningSound(orbs, timers) end
-end
-	
-function CS:RemoveGUID(GUID)
-	if not targets[GUID] then return end
-	for _, timerID in pairs(targets[GUID]) do
-		removeTimer(timerID)
-	end
-	targets[GUID] = nil
-	distanceCache[GUID] = nil
-	SATimeCorrection[GUID] = nil
-	self:Update()
-end
-
-function CS:RemoveAllGUIDs()  -- used by some encounter fixes
-	for GUID, _ in pairs(targets[GUID]) do
-		self:RemoveGUID(GUID)
-	end
-end
-
-local function popGUID(GUID)
-	if targets[GUID] then
-		return tableremove(targets[GUID], 1)
-	else
-		return false
-	end
-end
-
-function CS:RemoveTimer_timed(GUID)
-	timerID = popGUID(GUID)
-	popTimer(timerID)
-	self:Update()
 end
 
 local function resetCount(self)
@@ -301,53 +79,280 @@ local function resetCount(self)
 	self:Update()
 end
 
-function CS:COMBAT_LOG_EVENT_UNFILTERED(_, ...)
-	local timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID, _, _, _, _, _, _, _, _, _, _, _, _, multistrike = ...
-        
-	if event == "UNIT_DIED" or event == "UNIT_DESTROYED" or event == "PARTY_KILL" or event == "SPELL_INSTAKILL" then
-	
-		self:RemoveGUID(destGUID)
-		
-		
-	elseif sourceGUID == playerGUID then
-	
-		-- Shadowy Apparition cast
-		if spellID == 147193 and destName ~= nil then  -- SAs without a target won't generate orbs
-			addGUID(destGUID)
-			self:Update()
-		
-		-- catch all Auspicious Spirits and Shadowy Apparition hit events
-		elseif spellID == 155271 or spellID == 148859 and not multistrike then
-			timerID = popGUID(destGUID)
-			local currentTime = GetTime()
-			if timerID then
-				local additionalTime = timerID.impactTime - currentTime
-				SATimeCorrection[destGUID] = SATimeCorrection[destGUID] - additionalTime / 2
-				removeTimer(timerID)
-				-- correct other timers
-				if targets[GUID] and additionalTime > 0.2 then
-					for _, timerID in pairs(targets[GUID]) do
-						timerID.impactTime = timerID.impactTime - additionalTime
+do
+	local function calculateTravelTime(unitID)
+		local minDistance
+		local maxDistance
+
+		for i = 0, 80 do
+			local distanceItem = distanceTable[i]
+			if ItemHasRange(distanceItem) then
+				if IsItemInRange(distanceItem, unitID) then
+					maxDistance = i
+					if maxDistance <= 5 then
+						minDistance = 0
+						maxDistance = 5
 					end
-				end
-				-- to avoid jittery counter
-				if (spellID == 155271 and (event == "SPELL_CAST_SUCCESS" or event == "SPELL_ENERGIZE") or spellID == 148859 and event == "SPELL_DAMAGE") and orbs < 5 then
-					-- the assumption is that any of these events fire before the respective UNIT_POWER
-					orbs = orbs + 1
+				else
+					minDistance = i
 				end
 			end
-			if distanceCache[GUID] and currentTime > distanceCache[GUID].timeStamp + cacheMaxTime then  -- update cached distances if over cacheMaxTime
-				distanceCache[GUID] = distanceCache[GUID] or {}
-				distanceCache[GUID].travelTime = timerID.impactTime - GetTime() - SATimeCorrection[destGUID]
-				distanceCache[GUID].timeStamp = currentTime
-			end
-			self:Update()
-			
-		-- Shadowy Word: Pain tick
-		elseif spellID == 589 and not multistrike and (event == "SPELL_PERIODIC_DAMAGE" or event == "SPELL_DAMAGE") then
-			getTravelTime(destGUID)  -- adds GUID to distance table
+			if maxDistance and minDistance then break end
 			
 		end
+		
+		if (not maxDistance) or (not maxDistance) or (minDistance >= 60) then
+			return -1
+		else
+			return (minDistance + maxDistance) / 2 / SAVelocity
+		end			
+	end
+
+	local function iterateUnitIDs(tbl, GUID)
+		for i = 1, #tbl do
+			local unitID = tbl[i]
+			if UnitGUID(unitID) == GUID then
+				return calculateTravelTime(unitID)
+			end
+		end
+	end
+
+	local function cacheTravelTime(travelTime, GUID)
+		-- target too far away
+		if travelTime == -1 then
+			distanceCache[GUID] = nil
+			return nil
+		end
+		
+		-- cache travel time
+		if travelTime then
+			distanceCache[GUID] = distanceCache[GUID] or {}
+			distanceCache[GUID].travelTime = travelTime
+			distanceCache[GUID].timeStamp = GetTime()
+		end
+
+		return travelTime
+	end
+
+	local function getTravelTimeByGUID(GUID)
+		local travelTime
+
+		if UnitGUID("target") == GUID then
+			travelTime = calculateTravelTime("target")
+			
+		elseif UnitGUID("mouseover") == GUID then
+			travelTime = calculateTravelTime("mouseover")
+			
+		elseif UnitGUID("focus") == GUID then
+			travelTime = calculateTravelTime("focus")
+			
+		elseif UnitGUID("pettarget") == GUID then
+			travelTime = calculateTravelTime("pettarget")
+			
+		else
+			if UnitExists("boss1") then
+				travelTime = iterateUnitIDs(bossTable, GUID)
+			end
+			
+			if not travelTime then
+				if IsInRaid() then
+					travelTime = iterateUnitIDs(raidTable, GUID)
+					if not travelTime then
+						travelTime = iterateUnitIDs(raidPetTable, GUID)
+					end
+				elseif IsInGroup() then
+					travelTime = iterateUnitIDs(partyTable, GUID)
+					if not travelTime then
+						travelTime = iterateUnitIDs(partyPetTable, GUID)
+					end
+				end
+			end
+		end
+		
+		return cacheTravelTime(travelTime, GUID)
+	end
+
+	local function getTravelTime(GUID, forced)
+		local travelTime
+		distanceCache_GUID = distanceCache[GUID]
+		
+		if not distanceCache_GUID then
+			travelTime = getTravelTimeByGUID(GUID)
+		else
+			local delta = GetTime() - distanceCache_GUID.timeStamp
+			if forced or (delta > cacheMaxTime) then
+				travelTime = getTravelTimeByGUID(GUID) or distanceCache_GUID.travelTime
+			else
+				travelTime = distanceCache_GUID.travelTime
+			end
+		end
+		
+		if not travelTime then
+			return nil
+		else
+			SATimeCorrection[GUID] = SATimeCorrection[GUID] or 1  -- initially accounting for extra travel time due to hitbox size (estimated)
+			return travelTime + SATimeCorrection[GUID] or 1
+		end
+	end
+
+	do
+		local function aggressiveCachingByUnitID(unitID, timeStamp)
+			if not UnitCanAttack("player", unitID) then return end
+			
+			local GUID = UnitGUID(unitID)
+			
+			if distanceCache[GUID] and timeStamp - distanceCache[GUID].timeStamp < aggressiveCachingInterval then return end
+			cacheTravelTime(calculateTravelTime(unitID), GUID)
+		end
+
+		local function aggressiveCachingIteration(tbl, timeStamp)
+			for i = 1, #tbl do
+				aggressiveCachingByUnitID(tbl[i], timeStamp)
+			end
+		end
+
+		function CS:AggressiveCaching()
+			local timeStamp = GetTime()  -- sadly no milliseconds :/
+
+			aggressiveCachingByUnitID("target", timeStamp)
+			aggressiveCachingByUnitID("mouseover", timeStamp)
+			aggressiveCachingByUnitID("focus", timeStamp)
+			aggressiveCachingByUnitID("pettarget", timeStamp)
+			if UnitExists("boss1") then
+				aggressiveCachingIteration(bossTable, timeStamp)
+			end
+			if IsInRaid() then
+				aggressiveCachingIteration(raidTable, timeStamp)
+				aggressiveCachingIteration(raidPetTable, timeStamp)
+			elseif IsInGroup() then
+				aggressiveCachingIteration(partyTable, timeStamp)
+				aggressiveCachingIteration(partyPetTable, timeStamp)
+			end
+			
+			cacheTravelTime(travelTime)
+		end
+	end
+
+	do
+		function CS:RemoveTimer_timed(GUID)
+			timerID = popGUID(GUID)
+			popTimer(timerID)
+			self:Update()
+		end
+		
+		local function addGUID(GUID)
+			local cancelTime
+			local travelTime = getTravelTime(GUID, true)
+			if not travelTime then return end  -- target too far away, abort timer creation
+
+			targets[GUID] = targets[GUID] or {}
+			timerID = CS:ScheduleTimer("removeTimer_timed", travelTime + SAGraceTime, GUID)
+			timerID.impactTime = GetTime() + travelTime  -- can't use timeStamp instead of GetTime() because of different time reference
+			targets[GUID][#targets[GUID]+1] = timerID
+			
+			local timersCount = #timers
+			if timersCount == 0 then
+				timers[1] = timerID
+				return
+			end
+			for i = 1, timersCount do
+				if timerID.impactTime < timers[i].impactTime then
+					tableinsert(timers, i, timerID)
+					return
+				end
+			end
+			timers[timersCount+1] = timerID
+		end
+	end
+
+	local function popTimer(timerID)
+		for k, v in pairs(timers) do
+			if v == timerID then
+				tableremove(timers, k)
+				break
+			end
+		end
+	end
+
+	local function removeTimer(timerID)
+		popTimer(timerID)
+		CS:CancelTimer(timerID)
+	end
+		
+	function CS:RemoveGUID(GUID)
+		if not targets[GUID] then return end
+		for _, timerID in pairs(targets[GUID]) do
+			removeTimer(timerID)
+		end
+		targets[GUID] = nil
+		distanceCache[GUID] = nil
+		SATimeCorrection[GUID] = nil
+		self:Update()
+	end
+
+	function CS:RemoveAllGUIDs()  -- used by some encounter fixes
+		for GUID, _ in pairs(targets[GUID]) do
+			self:RemoveGUID(GUID)
+		end
+	end
+
+	local function popGUID(GUID)
+		if targets[GUID] then
+			return tableremove(targets[GUID], 1)
+		else
+			return false
+		end
+	end
+
+	function CS:COMBAT_LOG_EVENT_UNFILTERED(_, ...)
+		local timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID, _, _, _, _, _, _, _, _, _, _, _, _, multistrike = ...
+			
+		if event == "UNIT_DIED" or event == "UNIT_DESTROYED" or event == "PARTY_KILL" or event == "SPELL_INSTAKILL" then
+		
+			self:RemoveGUID(destGUID)
+			
+			
+		elseif sourceGUID == playerGUID then
+		
+			-- Shadowy Apparition cast
+			if spellID == 147193 and destName ~= nil then  -- SAs without a target won't generate orbs
+				addGUID(destGUID)
+				self:Update()
+			
+			-- catch all Auspicious Spirits and Shadowy Apparition hit events
+			elseif spellID == 155271 or spellID == 148859 and not multistrike then
+				timerID = popGUID(destGUID)
+				local currentTime = GetTime()
+				if timerID then
+					local additionalTime = timerID.impactTime - currentTime
+					SATimeCorrection[destGUID] = SATimeCorrection[destGUID] - additionalTime / 2
+					removeTimer(timerID)
+					-- correct other timers
+					if targets[GUID] and additionalTime > 0.2 then
+						for _, timerID in pairs(targets[GUID]) do
+							timerID.impactTime = timerID.impactTime - additionalTime
+						end
+					end
+					-- to avoid jittery counter
+					if (spellID == 155271 and (event == "SPELL_CAST_SUCCESS" or event == "SPELL_ENERGIZE") or spellID == 148859 and event == "SPELL_DAMAGE") and orbs < 5 then
+						-- the assumption is that any of these events fire before the respective UNIT_POWER
+						orbs = orbs + 1
+					end
+				end
+				if distanceCache[GUID] and currentTime > distanceCache[GUID].timeStamp + cacheMaxTime then  -- update cached distances if over cacheMaxTime
+					distanceCache[GUID] = distanceCache[GUID] or {}
+					distanceCache[GUID].travelTime = timerID.impactTime - GetTime() - SATimeCorrection[destGUID]
+					distanceCache[GUID].timeStamp = currentTime
+				end
+				self:Update()
+				
+			-- Shadowy Word: Pain tick
+			elseif spellID == 589 and not multistrike and (event == "SPELL_PERIODIC_DAMAGE" or event == "SPELL_DAMAGE") then
+				getTravelTime(destGUID)  -- adds GUID to distance table
+				
+			end
+		end
+	end
 end
 
 function CS:PLAYER_DEAD()
@@ -355,20 +360,34 @@ function CS:PLAYER_DEAD()
 	resetCount(self)
 end
 
-function CS:PLAYER_REGEN_DISABLED()
-	self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-	orbs = UnitPower("player", 13)
-	
-	if self.UpdateInterval then
-		self:ScheduleRepeatingTimer("update", self.UpdateInterval)
+do
+	local updateInterval
+	-- sets the minimum needed update interval reported by all displays
+	function CS:SetUpdateInterval(interval)
+		if interval and (not updateInterval or interval < updateInterval) then
+			updateInterval = interval
+		end
 	end
 	
-	if self.db.aggressiveCaching then
-		self:ScheduleRepeatingTimer("aggressiveCaching", aggressiveCachingInterval)
+	function CS:ResetUpdateInterval()
+		updateInterval = nil
 	end
+	
+	function CS:PLAYER_REGEN_DISABLED()
+		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+		orbs = UnitPower("player", 13)
 		
-	if not self.locked then
-		self:Lock()
+		if updateInterval then
+			self:ScheduleRepeatingTimer("update", updateInterval)
+		end
+		
+		if self.db.aggressiveCaching then
+			self:ScheduleRepeatingTimer("aggressiveCaching", aggressiveCachingInterval)
+		end
+			
+		if not self.locked then
+			self:Lock()
+		end
 	end
 end
 
@@ -384,6 +403,7 @@ do
 		orbs = UnitPower("player", 13)
 		CS:Update()
 	end
+	
 	function CS:UNIT_POWER(_, unitID, power)
 		if not (unitID == "player" and power == "SHADOW_ORBS") then return end
 		C_TimerAfter(0.01, delayOrbs)  -- needs to be delayed so it fires after the SA events, otherwise everything will assume the SA is still in flight
@@ -419,12 +439,14 @@ do
 			self:Enable()
 			if isASSpecced() then
 				self:RegisterEvent("PLAYER_REGEN_DISABLED")
+				self:RegisterEvent("PLAYER_REGEN_ENABLED")
 				--self:RegisterEvent("PLAYER_STARTED_MOVING")  -- make a better implementation later
 				--self:Build()  -- not necessary with self:Enable() from above
 				self:EnableModule("EncounterFixes")
 				--self:Update()  -- necessary?
 			else
 				self:UnregisterEvent("PLAYER_REGEN_DISABLED")
+				self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 				--self:UnregisterEvent("PLAYER_STARTED_MOVING")  -- make a better implementation later
 				resetCount()
 				self:DisableModule("EncounterFixes")
@@ -462,17 +484,13 @@ end
 
 function CS:OnEnable()
 	orbs = UnitPower("player", 13)
-
 	self:Build()
-	
-	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	self:RegisterEvent("UNIT_POWER")
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
 	self:RegisterEvent("PLAYER_DEAD")
 end
 
 function CS:OnDisable()
-	self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 	self:UnregisterEvent("UNIT_POWER")
 	self:UnregisterEvent("PLAYER_ENTERING_WORLD")
 	self:UnregisterEvent("PLAYER_DEAD")

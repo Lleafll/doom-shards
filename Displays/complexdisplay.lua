@@ -89,6 +89,34 @@ function CD:CONSPICUOUS_SPIRITS_UPDATE(self, orbs, timers)
 	end
 end
 
+function CD:Unlock()
+	if not UnitAffectingCombat("player") then RegisterStateDriver(CDFrame, "visibility", "") end
+	
+	for i = 1, 6 do
+		if textEnable then
+			SATimers[i]:Show()
+		end
+		if statusbarEnable and (db.statusbarXOffset ~= 0 or db.statusbarYOffset ~= 0) then
+			statusbars[i].statusbar:SetValue(statusbarMaxTime / 2)
+			statusbars[i]:Show()
+		end
+		
+		if i == 6 then break end
+		
+		orbFrames[i]:Show()
+	end
+end
+
+function CD:Lock()
+	for i = 1, 6 do
+		orbFrames[i]:Hide()
+		if SATimers[i] then SATimers[i]:Hide() end
+		if statusbars[i] then statusbars[i]:Hide() end
+	end
+	
+	if not UnitAffectingCombat("player") then RegisterStateDriver(CDFrame, db.visibilityConditionals) end
+end
+
 local function createFrames()
 	local orientation = db.orientation
 	local growthDirection = db.growthDirection
@@ -104,63 +132,65 @@ local function createFrames()
 		stringXOffset = -1 * stringXOffset
 	end
 	
-	local function createOrbFrame(numeration)
-		local frame = orbFrames[numeration] or CreateFrame("frame", nil, CDFrame)
-		frame:ClearAllPoints()
-		local displacement = (width + db.spacing) * (numeration - 1)
-		if orientation == "Vertical" then
-			frame:SetHeight(width)
-			frame:SetWidth(height)
-			if growthDirection == "Reversed" then
-				frame:SetPoint("TOPRIGHT", 0, -displacement)
+	do
+		local function createOrbFrame(numeration)
+			local frame = orbFrames[numeration] or CreateFrame("frame", nil, CDFrame)
+			frame:ClearAllPoints()
+			local displacement = (width + db.spacing) * (numeration - 1)
+			if orientation == "Vertical" then
+				frame:SetHeight(width)
+				frame:SetWidth(height)
+				if growthDirection == "Reversed" then
+					frame:SetPoint("TOPRIGHT", 0, -displacement)
+				else
+					frame:SetPoint("BOTTOMRIGHT", 0, displacement)
+				end
 			else
-				frame:SetPoint("BOTTOMRIGHT", 0, displacement)
+				frame:SetHeight(height)
+				frame:SetWidth(width)
+				if growthDirection == "Reversed" then
+					frame:SetPoint("BOTTOMRIGHT", -displacement, 0)
+				else
+					frame:SetPoint("BOTTOMLEFT", displacement, 0)
+				end
 			end
-		else
-			frame:SetHeight(height)
-			frame:SetWidth(width)
-			if growthDirection == "Reversed" then
-				frame:SetPoint("BOTTOMRIGHT", -displacement, 0)
+			
+			frame:SetBackdrop(backdrop)
+			frame:SetBackdropBorderColor(db.borderColor.r, db.borderColor.b, db.borderColor.g, db.borderColor.a)
+			
+			if numeration < 6 then
+				frame:Show()
 			else
-				frame:SetPoint("BOTTOMLEFT", displacement, 0)
+				frame:Hide()
 			end
-		end
-		
-		frame:SetBackdrop(backdrop)
-		frame:SetBackdropBorderColor(db.borderColor.r, db.borderColor.b, db.borderColor.g, db.borderColor.a)
-		
-		if numeration < 6 then
-			frame:Show()
-		else
-			frame:Hide()
-		end
-		
-		local c1r, c1b, c1g, c1a = db.color1.r, db.color1.b, db.color1.g, db.color1.a 
-		local c2r, c2b, c2g, c2a = db.color2.r, db.color2.b, db.color2.g, db.color2.a 
-		if numeration < 4 then
-			function frame:SetOriginalColor()
-				self:SetBackdropColor(c1r, c1b, c1g, c1a)
+			
+			local c1r, c1b, c1g, c1a = db.color1.r, db.color1.b, db.color1.g, db.color1.a 
+			local c2r, c2b, c2g, c2a = db.color2.r, db.color2.b, db.color2.g, db.color2.a 
+			if numeration < 4 then
+				function frame:SetOriginalColor()
+					self:SetBackdropColor(c1r, c1b, c1g, c1a)
+				end
+				frame:SetOriginalColor()
+			elseif numeration < 6 then
+				function frame:SetOriginalColor()
+					self:SetBackdropColor(c2r, c2b, c2g, c2a)
+					self.orbCapColored = false
+				end
+				frame:SetOriginalColor()
+			else
+				frame:SetBackdropColor(0, 0, 0, 0)  -- dummy frame to anchor overflow fontstring to
 			end
-			frame:SetOriginalColor()
-		elseif numeration < 6 then
-			function frame:SetOriginalColor()
-				self:SetBackdropColor(c2r, c2b, c2g, c2a)
-				self.orbCapColored = false
+			local c1r, c1b, c1, c1a = db.orbCappedColor.r, db.orbCappedColor.b, db.orbCappedColor.g, db.orbCappedColor.a
+			function frame:SetOrbCapColor()
+				self:SetBackdropColor(c1r, c1b, c1, c1a)
+				self.orbCapColored = true
 			end
-			frame:SetOriginalColor()
-		else
-			frame:SetBackdropColor(0, 0, 0, 0)  -- dummy frame to anchor overflow fontstring to
+			
+			return frame
 		end
-		local c1r, c1b, c1, c1a = db.orbCappedColor.r, db.orbCappedColor.b, db.orbCappedColor.g, db.orbCappedColor.a
-		function frame:SetOrbCapColor()
-			self:SetBackdropColor(c1r, c1b, c1, c1a)
-			self.orbCapColored = true
+		for i = 1, 6 do
+			orbFrames[i] = createOrbFrame(i)
 		end
-		
-		return frame
-	end
-	for i = 1, 6 do
-		orbFrames[i] = createOrbFrame(i)
 	end
 	
 	if textEnable then
@@ -239,33 +269,6 @@ local function createFrames()
 	end
 end
 
-function CD:Unlock()
-	if not UnitAffectingCombat("player") then RegisterStateDriver(CDFrame, "visibility", "") end
-	
-	for i = 1, 6 do
-		if textEnable then
-			SATimers[i]:Show()
-		end
-		if statusbarEnable and (db.statusbarXOffset ~= 0 or db.statusbarYOffset ~= 0) then
-			statusbars[i].statusbar:SetValue(statusbarMaxTime / 2)
-			statusbars[i]:Show()
-		end
-		
-		if i == 6 then break end
-		
-		orbFrames[i]:Show()
-	end
-end
-
-function CD:Lock()
-	for i = 1, 6 do
-		orbFrames[i]:Hide()
-		if SATimers[i] then SATimers[i]:Hide() end
-		if statusbars[i] then statusbars[i]:Hide() end
-	end
-	
-	if not UnitAffectingCombat("player") then RegisterStateDriver(CDFrame, db.visibilityConditionals) end
-end
 
 --[[
 CS.displayBuilders["Complex"] = function(self)

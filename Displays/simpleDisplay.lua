@@ -70,32 +70,6 @@ function SD:CONSPICUOUS_SPIRITS_UPDATE(self, orbs, timers)
 	end
 end
 
-local function createFrames()
-	local spacing = db.spacing / 2
-	
-	SDFrame:SetBackdrop(backdrop)
-	SDFrame:SetBackdropColor(db.color1.r, db.color1.b, db.color1.g, db.color1.a)
-	SDFrame:SetBackdropBorderColor(db.borderColor.r, db.borderColor.b, db.borderColor.g, db.borderColor.a)
-	
-	local function setTimerText(fontstring)
-		local flags = db.fontFlags
-		fontstring:Show()
-		fontstring:SetFont(fontPath, db.fontSize, (flags == "MONOCHROMEOUTLINE" or flags == "OUTLINE" or flags == "THICKOUTLINE") and flags or nil)
-		fontstring:SetTextColor(db.fontColor.r, db.fontColor.b, db.fontColor.g, db.fontColor.a)
-		fontstring:SetShadowOffset(1, -1)
-		fontstring:SetShadowColor(0, 0, 0, flags == "Shadow" and 1 or 0)
-		fontstring:SetText("0")
-	end
-	
-	if not timerTextShort then timerTextShort = SDFrame:CreateFontString(nil, "OVERLAY") end
-	timerTextShort:SetPoint("CENTER", -spacing, 0)
-	setTimerText(timerTextShort)
-	
-	if not timerTextLong then timerTextLong = SDFrame:CreateFontString(nil, "OVERLAY") end
-	timerTextLong:SetPoint("CENTER", spacing, 0)
-	setTimerText(timerTextLong)
-end
-
 function SD:Unlock()
 	SDFrame:Show()
 end
@@ -122,6 +96,32 @@ CS.displayBuilders["Simple"] = function(self)
 	self:SetUpdateInterval(0.1)
 end
 --]]
+
+local function createFrames()
+	local spacing = db.spacing / 2
+	
+	SDFrame:SetBackdrop(backdrop)
+	SDFrame:SetBackdropColor(db.color1.r, db.color1.b, db.color1.g, db.color1.a)
+	SDFrame:SetBackdropBorderColor(db.borderColor.r, db.borderColor.b, db.borderColor.g, db.borderColor.a)
+	
+	local function setTimerText(fontstring)
+		local flags = db.fontFlags
+		fontstring:Show()
+		fontstring:SetFont(fontPath, db.fontSize, (flags == "MONOCHROMEOUTLINE" or flags == "OUTLINE" or flags == "THICKOUTLINE") and flags or nil)
+		fontstring:SetTextColor(db.fontColor.r, db.fontColor.b, db.fontColor.g, db.fontColor.a)
+		fontstring:SetShadowOffset(1, -1)
+		fontstring:SetShadowColor(0, 0, 0, flags == "Shadow" and 1 or 0)
+		fontstring:SetText("0")
+	end
+	
+	if not timerTextShort then timerTextShort = SDFrame:CreateFontString(nil, "OVERLAY") end
+	timerTextShort:SetPoint("CENTER", -spacing, 0)
+	setTimerText(timerTextShort)
+	
+	if not timerTextLong then timerTextLong = SDFrame:CreateFontString(nil, "OVERLAY") end
+	timerTextLong:SetPoint("CENTER", spacing, 0)
+	setTimerText(timerTextLong)
+end
 
 function SD:OnEnable()
 	db = self.db.simple

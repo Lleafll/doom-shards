@@ -3,10 +3,7 @@ if class ~= "PRIEST" then return end
 
 
 -- Embedding and libraries and stuff
-local CS = LibStub("AceAddon-3.0"):NewAddon("Conspicuous Spirits")
-LibStub("AceEvent-3.0"):Embed(CS)
-LibStub("AceTimer-3.0"):Embed(CS)
-LibStub("AceConsole-3.0"):Embed(CS)
+local CS = LibStub("AceAddon-3.0"):NewAddon("Conspicuous Spirits", "AceEvent-3.0", "AceTimer-3.0", "AceConsole-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("ConspicuousSpirits")
 
 
@@ -42,7 +39,7 @@ function CS:CreateParentFrame(name)
 				dragStop(self)  -- in case user right clicks while dragging the frame
 				self:Lock()
 				CS:Build()
-			else
+			elseif button == "LeftButton" then
 				self:StartMoving()
 			end
 		end)
@@ -100,15 +97,8 @@ function CS:Lock()
 	end
 end
 
--- sets the minimum needed update interval reported by all displays
-function CS:SetupdateInterval(interval)
-	if interval and (not self.updateInterval or interval < self.updateInterval) then
-		self.updateInterval = interval
-	end
-end
-
 function CS:ApplySettings()
-	self.updateInterval = nil
+	self:ResetUpdateInterval()
 	
 	for name, module in self:IterateModules() do
 		if self.db[name] and self.db[name].enable then

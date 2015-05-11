@@ -167,7 +167,7 @@ do
 	function CS:HandleChatCommand(command)
 		local subcmd = string.match(cmd, "(%w+)")
 
-		if subcmd and (subcmd == "toggle" or subcmd == "lock" or subcmd == "unlock") then
+		if subcmd and (subcmd == "toggle" or (subcmd == "lock" and not self.locked) or (subcmd == "unlock" and self.locked)) then
 			if self.locked then
 				self:Unlock()
 			else

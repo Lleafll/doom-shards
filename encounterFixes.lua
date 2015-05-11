@@ -260,7 +260,7 @@ end
 
 function EF:OnEnable()
 	--@debug@
-	print("Encounter Fixes enabled")
+	print("Encounter Fixes enabled!")
 	--@end-debug@
 	self:RegisterEvent("ENCOUNTER_START")
 end
