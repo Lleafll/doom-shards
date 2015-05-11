@@ -19,10 +19,6 @@ local UnitGUID = UnitGUID
 local UnitPower = UnitPower
 
 
--- Frames
-local timerFrame = CS.frame
-
-
 -- Variables
 local orbs = 0
 local targets = {}  -- used to attribute timer IDs to mobs
@@ -33,6 +29,7 @@ local distanceCache_GUID
 local timerID
 local playerGUID
 local aggressiveCachingInterval
+local soundEnabled
 
 local distanceTable = {}  -- from HaloPro (ultimately from LibRangeCheck it seems)
 distanceTable[5] = 37727 -- Ruby Acorn 5 yards
@@ -256,12 +253,10 @@ local function removeTimer(timerID)
 	CS:CancelTimer(timerID)
 end
 
-local function warningSound()
-end
-
 function CS:Update()
-	self:refreshDisplay(orbs, timers)
-	if self.db.sound then warningSound(orbs, timers) end
+	self:SendMessage("CONSPICUOUS_SPIRITS_UPDATE", orbs, timers)
+	-- self:refreshDisplay(orbs, timers)
+	-- if soundEnabled then SO:WarningSound(orbs, timers) end
 end
 	
 function CS:RemoveGUID(GUID)
@@ -295,12 +290,13 @@ function CS:RemoveTimer_timed(GUID)
 	self:Update()
 end
         
-local function resetCount()
+local function resetCount(self)
 	targets = {}
 	SATimeCorrection = {}
 	timers = {}
 	distanceCache = {}
-	CS:CancelAllTimers()
+	self:CancelAllTimers()
+	self:Update()
 end
 
 function CS:COMBAT_LOG_EVENT_UNFILTERED(_, ...)
@@ -350,17 +346,11 @@ function CS:COMBAT_LOG_EVENT_UNFILTERED(_, ...)
 			getTravelTime(destGUID)  -- adds GUID to distance table
 			
 		end
-		
-	else
-		self:EncounterFix(event, sourceGUID, destGUID, spellID)
-		
-	end
 end
 
 function CS:PLAYER_DEAD()
-	resetCount()
 	orbs = UnitPower("player", 13)
-	self:Update()
+	resetCount(self)
 end
 
 function CS:PLAYER_REGEN_DISABLED()
@@ -369,27 +359,22 @@ function CS:PLAYER_REGEN_DISABLED()
 	
 	if self.UpdateInterval then
 		self:ScheduleRepeatingTimer("update", self.UpdateInterval)
-		if UnitAffectingCombat("player") then
-			function warningSound(orbs, timers) self:WarningSound(orbs, timers) end
-		end
 	end
 	
 	if self.db.aggressiveCaching then
 		self:ScheduleRepeatingTimer("aggressiveCaching", aggressiveCachingInterval)
 	end
 		
-	if not timerFrame.lock then
-		timerFrame:Lock()
+	if not self.locked then
+		self:Lock()
 	end
 end
 
 function CS:PLAYER_REGEN_ENABLED()
-	if not timerFrame.lock or not self.db.calculateOutOfCombat then
+	if not self.db.calculateOutOfCombat then
 		self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		resetCount()
+		resetCount(self)
 	end
-	warningSound = function(orbs, timers) end
-	self:Update()
 end
 
 local function delayOrbs()
@@ -405,8 +390,7 @@ end
 function CS:PLAYER_ENTERING_WORLD()
 	playerGUID = UnitGUID("player")
 	orbs = UnitPower("player", 13)
-	resetCount()
-	self:Update()
+	resetCount(self)
 end
 
 -- make a better implementation later
@@ -414,63 +398,77 @@ end
 --	SATimeCorrection = {}  -- maybe recycle table?
 --end
 
+local function isShadow()
+	return GetSpecialization() == 3
+end
+
 local function isASSpecced()
-	local specialization = GetSpecialization()
 	local _, _, _, ASSpecced = GetTalentInfo(7, 3, GetActiveSpecGroup())
-	return specialization and specialization == 3 and ASSpecced
+	return ASSpecced
 end
 
 function CS:TalentsCheck()
 	self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	warningSound = function() end
 	
-	if isASSpecced() then
-		self:RegisterEvent("PLAYER_REGEN_DISABLED")
-		--self:RegisterEvent("PLAYER_STARTED_MOVING")  -- make a better implementation later
-		self:Build()
+	if isShadow() then
+		self:Enable()
+		if isASSpecced() then
+			self:RegisterEvent("PLAYER_REGEN_DISABLED")
+			--self:RegisterEvent("PLAYER_STARTED_MOVING")  -- make a better implementation later
+			--self:Build()  -- not necessary with self:Enable() from above
+			self:EnableModule("EncounterFixes")
+			--self:Update()  -- necessary?
+		else
+			self:UnregisterEvent("PLAYER_REGEN_DISABLED")
+			--self:UnregisterEvent("PLAYER_STARTED_MOVING")  -- make a better implementation later
+			resetCount()
+			self:DisableModule("EncounterFixes")
+		end
 	else
-		self:UnregisterEvent("PLAYER_REGEN_DISABLED")
-		--self:UnregisterEvent("PLAYER_STARTED_MOVING")  -- make a better implementation later
-		resetCount()
+		self:Disable()
 	end
-	self:Update()
-end
-
-function CS:GetDB()
-	local CSDB = LibStub("AceDB-3.0"):New("ConspicuousSpiritsDB", self.defaultSettings, true)
-	self.db = CSDB.global
-	function self:ResetDB() CSDB:ResetDB() end
 end
 
 function CS:Build()
-	--self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-	timerFrame:HideChildren()
-	
 	self:ApplySettings()
+	soundEnabled = self.db.sound
 	
 	if UnitAffectingCombat("player") then
-		if isASSpecced() then self:PLAYER_REGEN_DISABLED() end
-	elseif timerFrame.lock then
+		if isShadow() and isASSpecced() then self:PLAYER_REGEN_DISABLED() end
+	elseif self.locked then
 		self:PLAYER_REGEN_ENABLED()
 	else
-		timerFrame:ShowChildren()
+		--timerFrame:ShowChildren()
 	end
 	
 	aggressiveCachingInterval = self.db.aggressiveCachingInterval
-	
-	-- TODO: Add encounter fixes when logging in and already in-combat
 end
 
 function CS:OnInitialize()
-	self:GetDB()
+	self.locked = true
+	
+	local CSDB = LibStub("AceDB-3.0"):New("ConspicuousSpiritsDB", self.defaultSettings, true)
+	self.db = CSDB.global
+	function self:ResetDB() CSDB:ResetDB() end
+	
+	self:RegisterEvent("PLAYER_TALENT_UPDATE", "TalentsCheck")
+end
+
+function CS:OnEnable()
+	orbs = UnitPower("player", 13)
+
 	self:Build()
 	
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	self:RegisterEvent("UNIT_POWER")
-	self:RegisterEvent("PLAYER_TALENT_UPDATE", "talentsCheck")
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
-	--self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "PLAYER_ENTERING_WORLD")
-	self:RegisterEvent("ENCOUNTER_START")
-	self:RegisterEvent("ENCOUNTER_END")
 	self:RegisterEvent("PLAYER_DEAD")
+end
+
+function CS:OnDisable()
+	self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+	self:UnregisterEvent("UNIT_POWER")
+	self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+	self:UnregisterEvent("PLAYER_DEAD")
 end

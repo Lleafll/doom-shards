@@ -3,6 +3,10 @@ local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
 if not CS then return end
 
 
+-- Create module
+local CD = CS:NewModule("complex")
+
+
 -- Libraries
 local LSM = LibStub("LibSharedMedia-3.0")
 
@@ -14,7 +18,8 @@ local stringformat = string.format
 
 
 -- Frames
-local timerFrame = CS.frame
+local CDFrame = CS:CreateParentFrame("CS Complex Display")
+CD.frame = CDFrame
 local orbFrames = {}
 local fontStringParent
 local SATimers = {}
@@ -45,7 +50,7 @@ local statusbarBackdrop = {
 
 
 -- Functions
-local function refreshDisplay(self, orbs, timers)
+function CD:CONSPICUOUS_SPIRITS_UPDATE(self, orbs, timers)
 	local k = 1
 	for i = 1, 6 do
 		if orbs >= i then
@@ -100,7 +105,7 @@ local function createFrames()
 	end
 	
 	local function createOrbFrame(numeration)
-		local frame = orbFrames[numeration] or CreateFrame("frame", nil, timerFrame)
+		local frame = orbFrames[numeration] or CreateFrame("frame", nil, CDFrame)
 		frame:ClearAllPoints()
 		local displacement = (width + db.spacing) * (numeration - 1)
 		if orientation == "Vertical" then
@@ -159,7 +164,7 @@ local function createFrames()
 	end
 	
 	if textEnable then
-		fontStringParent = fontStringParent or CreateFrame("frame", nil, timerFrame)
+		fontStringParent = fontStringParent or CreateFrame("frame", nil, CDFrame)
 		fontStringParent:SetAllPoints()
 		fontStringParent:SetFrameStrata("MEDIUM")
 		fontStringParent:Show()
@@ -193,7 +198,7 @@ local function createFrames()
 				frame = statusbars[numeration]
 				statusbar = frame.statusbar
 			else
-				frame = CreateFrame("Frame", nil, timerFrame)
+				frame = CreateFrame("Frame", nil, CDFrame)
 				statusbar = CreateFrame("StatusBar", nil, frame)
 				frame.statusbar = statusbar
 			end
@@ -234,7 +239,9 @@ local function createFrames()
 	end
 end
 
-local function ShowChildren()
+function CD:Unlock()
+	if not UnitAffectingCombat("player") then RegisterStateDriver(CDFrame, "visibility", "") end
+	
 	for i = 1, 6 do
 		if textEnable then
 			SATimers[i]:Show()
@@ -250,15 +257,17 @@ local function ShowChildren()
 	end
 end
 
-local function HideChildren()
+function CD:Lock()
 	for i = 1, 6 do
 		orbFrames[i]:Hide()
 		if SATimers[i] then SATimers[i]:Hide() end
 		if statusbars[i] then statusbars[i]:Hide() end
 	end
-	if not UnitAffectingCombat("player") then RegisterStateDriver(timerFrame, "visibility", "") end
+	
+	if not UnitAffectingCombat("player") then RegisterStateDriver(CDFrame, db.visibilityConditionals) end
 end
 
+--[[
 CS.displayBuilders["Complex"] = function(self)
 	db = self.db.complex
 	
@@ -270,8 +279,8 @@ CS.displayBuilders["Complex"] = function(self)
 	local height = db.height + 25
 	local width = 5 * db.width + 4 * db.spacing
 
-	timerFrame:SetHeight(db.orientation == "Vertical" and width or height)
-	timerFrame:SetWidth(db.orientation == "Vertical" and height or width)
+	CDFrame:SetHeight(db.orientation == "Vertical" and width or height)
+	CDFrame:SetWidth(db.orientation == "Vertical" and height or width)
 	
 	fontPath = LSM:Fetch("font", db.fontName)
 	local bgFile = (db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
@@ -279,13 +288,53 @@ CS.displayBuilders["Complex"] = function(self)
 	statusbarBackdrop.bgFile = bgFile
 	
 	createFrames()
-	if timerFrame.lock and not UnitAffectingCombat("player") then
-		RegisterStateDriver(timerFrame, "visibility", db.visibilityConditionals)
+	if CDFrame.locked and not UnitAffectingCombat("player") then
+		RegisterStateDriver(CDFrame, "visibility", db.visibilityConditionals)
 	end
 	self.refreshDisplay = refreshDisplay
-	timerFrame.ShowChildren = ShowChildren
-	timerFrame.HideChildren = HideChildren
+	CDFrame.ShowChildren = ShowChildren
+	CDFrame.HideChildren = HideChildren
 	
 	if textEnable then self:SetUpdateInterval(0.1) end
 	if statusbarEnable then self:SetUpdateInterval(statusbarMaxTime / db.width / self.db.scale) end
+end
+--]]
+
+function CD:OnEnable()
+	db = CS.db.complex
+	
+	statusbarMaxTime = db.maxTime
+	textEnable = db.textEnable
+	statusbarEnable = db.statusbarEnable
+	orbCappedEnable = db.orbCappedEnable
+	
+	local height = db.height + 25
+	local width = 5 * db.width + 4 * db.spacing
+	
+	CDFrame:SetPoint("CENTER", CS.db.posX, CS.db.posY)
+	CDFrame:SetScale(CS.db.scale)
+	CDFrame:SetHeight(db.orientation == "Vertical" and width or height)
+	CDFrame:SetWidth(db.orientation == "Vertical" and height or width)
+	
+	fontPath = LSM:Fetch("font", db.fontName)
+	local bgFile = (db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
+	backdrop.bgFile = bgFile
+	statusbarBackdrop.bgFile = bgFile
+	
+	createFrames()
+	if CS.locked and not UnitAffectingCombat("player") then
+		RegisterStateDriver(CDFrame, "visibility", db.visibilityConditionals)
+	end
+	CDFrame.ShowChildren = ShowChildren
+	CDFrame.HideChildren = HideChildren
+	
+	if textEnable then CS:SetUpdateInterval(0.1) end
+	if statusbarEnable then CS:SetUpdateInterval(statusbarMaxTime / db.width / CS.db.scale) end
+	
+	self:RegisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
+end
+
+function CD:OnDisable()
+	self:UnregisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
+	CDFrame:Hide()
 end

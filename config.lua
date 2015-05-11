@@ -8,12 +8,8 @@ local L = LibStub("AceLocale-3.0"):GetLocale("ConspicuousSpirits")
 local ACD = LibStub("AceConfigDialog-3.0")
 
 
--- Frames
-local timerFrame = CS.frame
-
-
 -- Options
-CS.optionsTable = {
+local optionsTable = {
 	type = "group",
 	name = "Conspicuous Spirits",
 	childGroups = "tab",
@@ -39,11 +35,11 @@ CS.optionsTable = {
 					max = 3,
 					step = 0.01,
 					get = function()
-						return timerFrame:GetScale()
+						return CS.db.scale
 					end,
 					set = function(info, val)
 						CS.db.scale = val
-						timerFrame:SetScale(val)
+						CS:Build()
 					end
 				},
 				reset = {
@@ -54,7 +50,7 @@ CS.optionsTable = {
 					func = function()
 						CS:ResetDB()
 						print(L["Conspicuous Spirits reset!"])
-						CS:getDB()
+						--CS:getDB()
 						CS:Build()
 					end
 				},
@@ -126,11 +122,11 @@ CS.optionsTable = {
 							print(L["Not possible to unlock in WeakAuras mode!"])
 							return
 						end
-						if not timerFrame.lock then
-							timerFrame:Lock()
+						if not CS.locked then
+							CS:Lock()
 							CS:Build()
 						else
-							timerFrame:Unlock()
+							CS:Unlock()
 						end
 					end
 				},
@@ -143,14 +139,14 @@ CS.optionsTable = {
 					func = function()
 						CS.db.posX = 0
 						CS.db.posY = 0
-						timerFrame:SetPoint("CENTER", 0, 0)
+						CS:Build()
 					end
 				}
 			}
 		}
 	}
 }
-LibStub("AceConfig-3.0"):RegisterOptionsTable("Conspicuous Spirits", CS.optionsTable)
+LibStub("AceConfig-3.0"):RegisterOptionsTable("Conspicuous Spirits", optionsTable)
 ACD:AddToBlizOptions("Conspicuous Spirits")
 ACD:SetDefaultSize("Conspicuous Spirits", 700, 750)
 function CS:openOptions()
@@ -160,7 +156,7 @@ CS:RegisterChatCommand("cs", "openOptions")
 CS:RegisterChatCommand("csp", "openOptions")
 CS:RegisterChatCommand("conspicuousspirits", "openOptions")
 
-CS.defaultSettings = {
+local CS.defaultSettings = {
 	global = {
 		posX = 0,
 		posY = 0,
@@ -171,3 +167,12 @@ CS.defaultSettings = {
 		calculateOutOfCombat = false
 	}
 }
+
+local orderIterator = 2
+function CS:AddDisplayOptions(displayName, displayOptions, displayDefaults)
+	optionsTable.args[displayName] = displayOptions
+	optionsTable.args[displayName].order = orderIterator
+	orderIterator = orderIterator + 1
+	
+	CS.defaultSettings.global.[displayName] = displayDefaults
+end

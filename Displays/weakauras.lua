@@ -1,17 +1,17 @@
 if not IsAddOnLoaded("WeakAuras") then return end
 
 
--- Get Addon object
+-- Get addon object
 local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
 if not CS then return end
 
 
+-- Create module
+local WA = CS:NewModule("weakauras")
+
+
 -- Upvalues
 WeakAurasScanEvents = WeakAuras.ScanEvents
-
-
--- Frames
-local timerFrame = CS.frame
 
 
 -- Variables
@@ -19,7 +19,7 @@ local conspicuous_spirits_wa
 
 
 -- Functions
-local function refreshDisplay(self, orbs, timers)
+function WA:CONSPICUOUS_SPIRITS_UPDATE(self, orbs, timers)
 	local count = #timers
 	conspicuous_spirits_wa.count = count
 	conspicuous_spirits_wa.orbs = orbs
@@ -27,7 +27,8 @@ local function refreshDisplay(self, orbs, timers)
 	WeakAurasScanEvents("WA_AUSPICIOUS_SPIRITS", count, orbs)
 end
 
-CS.displayBuilders["WeakAuras"] = function(self)
+--[[
+CS.displayBuilders["WeakAurasInterface"] = function(self)
 	timerFrame:SetWidth(0)
 	timerFrame:SetHeight(0)
 	
@@ -37,7 +38,21 @@ CS.displayBuilders["WeakAuras"] = function(self)
 	conspicuous_spirits_wa.orbs = UnitPower("player", 13)
 	conspicuous_spirits_wa.timers = {}
 	conspicuous_spirits_wa.TimeLeft = self.TimeLeft
-	self.refreshDisplay = refreshDisplay
 	timerFrame.ShowChildren = function() end
 	timerFrame.HideChildren = function() end
+end
+--]]
+
+function WA:OnEnable()
+	if not _G.conspicuous_spirits_wa then _G.conspicuous_spirits_wa = {} end
+	conspicuous_spirits_wa = _G.conspicuous_spirits_wa
+	conspicuous_spirits_wa.count = 0
+	conspicuous_spirits_wa.orbs = UnitPower("player", 13)
+	conspicuous_spirits_wa.timers = {}
+	
+	self:RegisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
+end
+
+function WA:OnDisable()
+	self:UnregisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
 end
