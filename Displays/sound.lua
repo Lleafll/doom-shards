@@ -19,7 +19,7 @@ local soundInterval
 
 
 -- Functions
-function CS:warningSound(orbs, timers)
+function CS:WarningSound(orbs, timers)
 	if GetTime() - lastTime >= soundInterval then
 		if orbs >= 3 and orbs + (#timers or 0) >= 5 then
 			PlaySoundFile(soundFile, "Master")
@@ -28,7 +28,7 @@ function CS:warningSound(orbs, timers)
 	end
 end
 
-function CS:initializeSound()
+function CS:BuildSound()
 	soundFile = LSM:Fetch("sound", self.db.soundHandle)
 	soundInterval = self.db.soundInterval
 	

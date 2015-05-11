@@ -197,7 +197,7 @@ local function aggressiveCachingIteration(tbl, timeStamp)
 	end
 end
 
-function CS:aggressiveCaching()
+function CS:AggressiveCaching()
 	local timeStamp = GetTime()  -- sadly no milliseconds :/
 
 	aggressiveCachingByUnitID("target", timeStamp)
@@ -259,12 +259,12 @@ end
 local function warningSound()
 end
 
-function CS:update()
+function CS:Update()
 	self:refreshDisplay(orbs, timers)
 	if self.db.sound then warningSound(orbs, timers) end
 end
 	
-function CS:removeGUID(GUID)
+function CS:RemoveGUID(GUID)
 	if not targets[GUID] then return end
 	for _, timerID in pairs(targets[GUID]) do
 		removeTimer(timerID)
@@ -272,12 +272,12 @@ function CS:removeGUID(GUID)
 	targets[GUID] = nil
 	distanceCache[GUID] = nil
 	SATimeCorrection[GUID] = nil
-	self:update()
+	self:Update()
 end
 
-function CS:removeAllGUIDs()  -- used by some encounter fixes
+function CS:RemoveAllGUIDs()  -- used by some encounter fixes
 	for GUID, _ in pairs(targets[GUID]) do
-		self:removeGUID(GUID)
+		self:RemoveGUID(GUID)
 	end
 end
 
@@ -289,10 +289,10 @@ local function popGUID(GUID)
 	end
 end
 
-function CS:removeTimer_timed(GUID)
+function CS:RemoveTimer_timed(GUID)
 	timerID = popGUID(GUID)
 	popTimer(timerID)
-	self:update()
+	self:Update()
 end
         
 local function resetCount()
@@ -308,7 +308,7 @@ function CS:COMBAT_LOG_EVENT_UNFILTERED(_, ...)
         
 	if event == "UNIT_DIED" or event == "UNIT_DESTROYED" or event == "PARTY_KILL" or event == "SPELL_INSTAKILL" then
 	
-		self:removeGUID(destGUID)
+		self:RemoveGUID(destGUID)
 		
 		
 	elseif sourceGUID == playerGUID then
@@ -316,7 +316,7 @@ function CS:COMBAT_LOG_EVENT_UNFILTERED(_, ...)
 		-- Shadowy Apparition cast
 		if spellID == 147193 and destName ~= nil then  -- SAs without a target won't generate orbs
 			addGUID(destGUID)
-			self:update()
+			self:Update()
 		
 		-- catch all Auspicious Spirits and Shadowy Apparition hit events
 		elseif spellID == 155271 or spellID == 148859 and not multistrike then
@@ -343,7 +343,7 @@ function CS:COMBAT_LOG_EVENT_UNFILTERED(_, ...)
 				distanceCache[GUID].travelTime = timerID.impactTime - GetTime() - SATimeCorrection[destGUID]
 				distanceCache[GUID].timeStamp = currentTime
 			end
-			self:update()
+			self:Update()
 			
 		-- Shadowy Word: Pain tick
 		elseif spellID == 589 and not multistrike and (event == "SPELL_PERIODIC_DAMAGE" or event == "SPELL_DAMAGE") then
@@ -352,7 +352,7 @@ function CS:COMBAT_LOG_EVENT_UNFILTERED(_, ...)
 		end
 		
 	else
-		self:encounterFix(event, sourceGUID, destGUID, spellID)
+		self:EncounterFix(event, sourceGUID, destGUID, spellID)
 		
 	end
 end
@@ -360,7 +360,7 @@ end
 function CS:PLAYER_DEAD()
 	resetCount()
 	orbs = UnitPower("player", 13)
-	self:update()
+	self:Update()
 end
 
 function CS:PLAYER_REGEN_DISABLED()
@@ -370,7 +370,7 @@ function CS:PLAYER_REGEN_DISABLED()
 	if self.UpdateInterval then
 		self:ScheduleRepeatingTimer("update", self.UpdateInterval)
 		if UnitAffectingCombat("player") then
-			function warningSound(orbs, timers) self:warningSound(orbs, timers) end
+			function warningSound(orbs, timers) self:WarningSound(orbs, timers) end
 		end
 	end
 	
@@ -389,12 +389,12 @@ function CS:PLAYER_REGEN_ENABLED()
 		resetCount()
 	end
 	warningSound = function(orbs, timers) end
-	self:update()
+	self:Update()
 end
 
 local function delayOrbs()
 	orbs = UnitPower("player", 13)
-	CS:update()
+	CS:Update()
 end
 
 function CS:UNIT_POWER(_, unitID, power)
@@ -406,7 +406,7 @@ function CS:PLAYER_ENTERING_WORLD()
 	playerGUID = UnitGUID("player")
 	orbs = UnitPower("player", 13)
 	resetCount()
-	self:update()
+	self:Update()
 end
 
 -- make a better implementation later
@@ -420,33 +420,33 @@ local function isASSpecced()
 	return specialization and specialization == 3 and ASSpecced
 end
 
-function CS:talentsCheck()
+function CS:TalentsCheck()
 	self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	warningSound = function() end
 	
 	if isASSpecced() then
 		self:RegisterEvent("PLAYER_REGEN_DISABLED")
 		--self:RegisterEvent("PLAYER_STARTED_MOVING")  -- make a better implementation later
-		self:Initialize()
+		self:Build()
 	else
 		self:UnregisterEvent("PLAYER_REGEN_DISABLED")
 		--self:UnregisterEvent("PLAYER_STARTED_MOVING")  -- make a better implementation later
 		resetCount()
 	end
-	self:update()
+	self:Update()
 end
 
-function CS:getDB()
+function CS:GetDB()
 	local CSDB = LibStub("AceDB-3.0"):New("ConspicuousSpiritsDB", self.defaultSettings, true)
 	self.db = CSDB.global
 	function self:ResetDB() CSDB:ResetDB() end
 end
 
-function CS:Initialize()
+function CS:Build()
 	--self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	timerFrame:HideChildren()
 	
-	self:applySettings()
+	self:ApplySettings()
 	
 	if UnitAffectingCombat("player") then
 		if isASSpecced() then self:PLAYER_REGEN_DISABLED() end
@@ -462,8 +462,8 @@ function CS:Initialize()
 end
 
 function CS:OnInitialize()
-	self:getDB()
-	self:Initialize()
+	self:GetDB()
+	self:Build()
 	
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	self:RegisterEvent("UNIT_POWER")

@@ -55,7 +55,7 @@ CS.optionsTable = {
 						CS:ResetDB()
 						print(L["Conspicuous Spirits reset!"])
 						CS:getDB()
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				spacer = {
@@ -100,7 +100,7 @@ CS.optionsTable = {
 					end,
 					set = function(_, val)
 						if CS.db.calculateOutOfCombat then
-							CS:Initialize()
+							CS:Build()
 						elseif not UnitAffectingCombat("player") then
 							CS:PLAYER_REGEN_ENABLED()
 						end
@@ -128,7 +128,7 @@ CS.optionsTable = {
 						end
 						if not timerFrame.lock then
 							timerFrame:Lock()
-							CS:Initialize()
+							CS:Build()
 						else
 							timerFrame:Unlock()
 						end

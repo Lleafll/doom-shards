@@ -54,7 +54,7 @@ function timerFrame:Unlock()
 		if button == "RightButton" then
 			dragStop(self)  -- in case user right clicks while dragging the frame
 			self:Lock()
-			CS:Initialize()
+			CS:Build()
 		else
 			self:StartMoving()
 		end
@@ -84,7 +84,7 @@ function timerFrame:Lock()
 	self:SetScript("OnMouseDown", nil)
 	self:SetScript("OnMouseUp", nil)
 	self:SetScript("OnMouseWheel", nil)
-	CS:applySettings()
+	CS:ApplySettings()
 	if CS.db.display == "Complex" and not UnitAffectingCombat("player") then RegisterStateDriver(self, CS.db.complex.visibilityConditionals) end
 end
 
@@ -94,12 +94,12 @@ function CS:SetUpdateInterval(interval)
 	end
 end
 
-function CS:applySettings()
+function CS:ApplySettings()
 	timerFrame:SetPoint("CENTER", self.db.posX, self.db.posY)
 	timerFrame:SetScale(self.db.scale)
 	
 	self.UpdateInterval = nil
 	
 	if self.displayBuilders[self.db.display] then self.displayBuilders[self.db.display](self) end  -- display builder functions
-	if self.db.sound then self:initializeSound() end
+	if self.db.sound then self:BuildSound() end
 end

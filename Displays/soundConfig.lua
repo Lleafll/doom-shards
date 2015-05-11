@@ -55,7 +55,7 @@ CS.optionsTable.args.sound = {
 			end,
 			set = function(info, val)
 				CS.db.soundInterval = val
-				CS:Initialize()
+				CS:Build()
 			end
 		}
 	}

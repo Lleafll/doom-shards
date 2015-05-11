@@ -24,7 +24,7 @@ CS.optionsTable.args.complex = {
 			end,
 			set = function(info, val)
 				if val then CS.db.display = "Complex" end
-				CS:Initialize()
+				CS:Build()
 			end
 		},
 		layout = {
@@ -48,7 +48,7 @@ CS.optionsTable.args.complex = {
 					end,
 					set = function(info, val)
 						CS.db.complex.orientation = val
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				direction = {
@@ -65,7 +65,7 @@ CS.optionsTable.args.complex = {
 					end,
 					set = function(info, val)
 						CS.db.complex.growthDirection = val
-						CS:Initialize()
+						CS:Build()
 					end
 				}
 			}
@@ -89,7 +89,7 @@ CS.optionsTable.args.complex = {
 					end,
 					set = function(info, val)
 						CS.db.complex.height = val
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				width = {
@@ -105,7 +105,7 @@ CS.optionsTable.args.complex = {
 					end,
 					set = function(info, val)
 						CS.db.complex.width = val
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				spacing = {
@@ -121,7 +121,7 @@ CS.optionsTable.args.complex = {
 					end,
 					set = function(info, val)
 						CS.db.complex.spacing = val
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				spacer = {
@@ -141,7 +141,7 @@ CS.optionsTable.args.complex = {
 					end,
 					set = function(info, r, b, g, a)
 						CS.db.complex.color1.r, CS.db.complex.color1.b, CS.db.complex.color1.g, CS.db.complex.color1.a = r, b, g, a
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				color2 = {
@@ -156,7 +156,7 @@ CS.optionsTable.args.complex = {
 					end,
 					set = function(info, r, b, g, a)
 						CS.db.complex.color2.r, CS.db.complex.color2.b, CS.db.complex.color2.g, CS.db.complex.color2.a = r, b, g, a
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				spacer2 = {
@@ -174,7 +174,7 @@ CS.optionsTable.args.complex = {
 					end,
 					set = function(info, val)
 						CS.db.complex.orbCappedEnable = val
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				orbCappedColor = {
@@ -187,7 +187,7 @@ CS.optionsTable.args.complex = {
 					end,
 					set = function(info, r, b, g, a)
 						CS.db.complex.orbCappedColor.r, CS.db.complex.orbCappedColor.b, CS.db.complex.orbCappedColor.g, CS.db.complex.orbCappedColor.a = r, b, g, a
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				spacer3 = {
@@ -207,7 +207,7 @@ CS.optionsTable.args.complex = {
 					end,
 					set = function(_, key)
 						CS.db.complex.textureHandle = key
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				borderColor = {
@@ -221,7 +221,7 @@ CS.optionsTable.args.complex = {
 					end,
 					set = function(info, r, b, g, a)
 						CS.db.complex.borderColor.r, CS.db.complex.borderColor.b, CS.db.complex.borderColor.g, CS.db.complex.borderColor.a = r, b, g, a
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				spacer4 = {
@@ -244,7 +244,7 @@ CS.optionsTable.args.complex = {
 							return
 						end
 						CS.db.complex.visibilityConditionals = val
-						CS:Initialize()
+						CS:Build()
 					end
 				}
 			}
@@ -264,7 +264,7 @@ CS.optionsTable.args.complex = {
 					end,
 					set = function(info, val)
 						CS.db.complex.textEnable = val
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				fontName = {
@@ -279,7 +279,7 @@ CS.optionsTable.args.complex = {
 					end,
 					set = function(_,key)
 						CS.db.complex.fontName = key
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				spacer0 = {
@@ -300,7 +300,7 @@ CS.optionsTable.args.complex = {
 					end,
 					set = function(info, val)
 						CS.db.complex.fontSize = val
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				fontFlags = {
@@ -321,7 +321,7 @@ CS.optionsTable.args.complex = {
 					end,
 					set = function(info, val)
 						CS.db.complex.fontFlags = val
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				color = {
@@ -334,7 +334,7 @@ CS.optionsTable.args.complex = {
 					end,
 					set = function(info, r, b, g, a)
 						CS.db.complex.fontColor.r, CS.db.complex.fontColor.b, CS.db.complex.fontColor.g, CS.db.complex.fontColor.a = r, b, g, a
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				spacer = {
@@ -362,7 +362,7 @@ CS.optionsTable.args.complex = {
 							if CS.db.complex.growthDirection == "Reversed" then val = -val end
 							CS.db.complex.stringXOffset = val
 						end
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				stringYOffset = {
@@ -385,7 +385,7 @@ CS.optionsTable.args.complex = {
 						else
 							CS.db.complex.stringYOffset = val
 						end
-						CS:Initialize()
+						CS:Build()
 					end
 				}
 			}
@@ -406,7 +406,7 @@ CS.optionsTable.args.complex = {
 					end,
 					set = function(info, val)
 						CS.db.complex.statusbarEnable = val
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				reverse = {
@@ -419,7 +419,7 @@ CS.optionsTable.args.complex = {
 					end,
 					set = function(info, val)
 						CS.db.complex.statusbarReverse = val
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				maxTime = {
@@ -435,7 +435,7 @@ CS.optionsTable.args.complex = {
 					end,
 					set = function(info, val)
 						CS.db.complex.maxTime = val
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				spacer = {
@@ -453,7 +453,7 @@ CS.optionsTable.args.complex = {
 					end,
 					set = function(info, r, b, g, a)
 						CS.db.complex.statusbarColor.r, CS.db.complex.statusbarColor.b, CS.db.complex.statusbarColor.g, CS.db.complex.statusbarColor.a = r, b, g, a
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				colorBackground = {
@@ -466,7 +466,7 @@ CS.optionsTable.args.complex = {
 					end,
 					set = function(info, r, b, g, a)
 						CS.db.complex.statusbarColorBackground.r, CS.db.complex.statusbarColorBackground.b, CS.db.complex.statusbarColorBackground.g, CS.db.complex.statusbarColorBackground.a = r, b, g, a
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				colorOverflow = {
@@ -480,7 +480,7 @@ CS.optionsTable.args.complex = {
 					end,
 					set = function(info, r, b, g, a)
 						CS.db.complex.statusbarColorOverflow.r, CS.db.complex.statusbarColorOverflow.b, CS.db.complex.statusbarColorOverflow.g, CS.db.complex.statusbarColorOverflow.a = r, b, g, a
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				spacer2 = {
@@ -508,7 +508,7 @@ CS.optionsTable.args.complex = {
 							if CS.db.complex.growthDirection == "Reversed" then val = -val end
 							CS.db.complex.statusbarXOffset = val
 						end
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				yOffset = {
@@ -531,7 +531,7 @@ CS.optionsTable.args.complex = {
 						else
 							CS.db.complex.statusbarYOffset = val
 						end
-						CS:Initialize()
+						CS:Build()
 					end
 				}
 			}

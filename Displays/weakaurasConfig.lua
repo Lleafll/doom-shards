@@ -36,7 +36,7 @@ CS.optionsTable.args.weakauras = {
 					timerFrame:HideChildren()
 					timerFrame:Lock()
 				end
-				CS:Initialize()
+				CS:Build()
 			end
 		},
 		weakaurasStrings = {

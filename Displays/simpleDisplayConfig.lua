@@ -24,7 +24,7 @@ CS.optionsTable.args.simple = {
 			end,
 			set = function(info, val)
 				if val then CS.db.display = "Simple" end
-				CS:Initialize()
+				CS:Build()
 			end
 		},
 		frame = {
@@ -46,7 +46,7 @@ CS.optionsTable.args.simple = {
 					end,
 					set = function(info, val)
 						CS.db.simple.height = val
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				width = {
@@ -62,7 +62,7 @@ CS.optionsTable.args.simple = {
 					end,
 					set = function(info, val)
 						CS.db.simple.width = val
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				spacing = {
@@ -78,7 +78,7 @@ CS.optionsTable.args.simple = {
 					end,
 					set = function(info, val)
 						CS.db.simple.spacing = val
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				spacer = {
@@ -97,7 +97,7 @@ CS.optionsTable.args.simple = {
 					end,
 					set = function(info, r, b, g, a)
 						CS.db.simple.color1.r, CS.db.simple.color1.b, CS.db.simple.color1.g, CS.db.simple.color1.a = r, b, g, a
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				color2 = {
@@ -111,7 +111,7 @@ CS.optionsTable.args.simple = {
 					end,
 					set = function(info, r, b, g, a)
 						CS.db.simple.color2.r, CS.db.simple.color2.b, CS.db.simple.color2.g, CS.db.simple.color2.a = r, b, g, a
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				color3 = {
@@ -125,7 +125,7 @@ CS.optionsTable.args.simple = {
 					end,
 					set = function(info, r, b, g, a)
 						CS.db.simple.color3.r, CS.db.simple.color3.b, CS.db.simple.color3.g, CS.db.simple.color3.a = r, b, g, a
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				spacer2 = {
@@ -145,7 +145,7 @@ CS.optionsTable.args.simple = {
 					end,
 					set = function(_, key)
 						CS.db.simple.textureHandle = key
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				borderColor = {
@@ -159,7 +159,7 @@ CS.optionsTable.args.simple = {
 					end,
 					set = function(info, r, b, g, a)
 						CS.db.simple.borderColor.r, CS.db.simple.borderColor.b, CS.db.simple.borderColor.g, CS.db.simple.borderColor.a = r, b, g, a
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				spacer3 = {
@@ -187,7 +187,7 @@ CS.optionsTable.args.simple = {
 					end,
 					set = function(_, val)
 						CS.db.simple.fontName = val
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				fontSize = {
@@ -203,7 +203,7 @@ CS.optionsTable.args.simple = {
 					end,
 					set = function(info, val)
 						CS.db.simple.fontSize = val
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				fontFlags = {
@@ -224,7 +224,7 @@ CS.optionsTable.args.simple = {
 					end,
 					set = function(info, val)
 						CS.db.simple.fontFlags = val
-						CS:Initialize()
+						CS:Build()
 					end
 				},
 				color = {
@@ -237,7 +237,7 @@ CS.optionsTable.args.simple = {
 					end,
 					set = function(info, r, b, g, a)
 						CS.db.simple.fontColor.r, CS.db.simple.fontColor.b, CS.db.simple.fontColor.g, CS.db.simple.fontColor.a = r, b, g, a
-						CS:Initialize()
+						CS:Build()
 					end
 				}
 			}

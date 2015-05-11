@@ -30,11 +30,11 @@ end
 
 local function removeAfter(seconds, GUID)
 	C_TimerAfter(seconds, function()
-		CS:removeGUID(GUID)
+		CS:RemoveGUID(GUID)
 	end)
 end
 
-function CS:encounterFix(...) end
+function CS:EncounterFix(...) end
 
 function CS:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSize)
 	
@@ -58,19 +58,19 @@ function CS:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 					self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
 					self:RegisterEvent("UNIT_TARGETABLE_CHANGED", function(_, unitID)
 						if boss1GUID and unitID == "boss1" then
-							self:removeGUID(boss1GUID)
+							self:RemoveGUID(boss1GUID)
 							self:UnregisterEvent("UNIT_TARGETABLE_CHANGED")
 							
 						elseif boss2GUID and unitID == "boss2" then
-							self:removeGUID(boss2GUID)
+							self:RemoveGUID(boss2GUID)
 							self:UnregisterEvent("UNIT_TARGETABLE_CHANGED")
 							
 						elseif boss3GUID and unitID == "boss3" then
-							self:removeGUID(boss3GUID)
+							self:RemoveGUID(boss3GUID)
 							self:UnregisterEvent("UNIT_TARGETABLE_CHANGED")
 							
 						elseif boss4GUID and unitID == "boss4" then
-							self:removeGUID(boss4GUID)
+							self:RemoveGUID(boss4GUID)
 							self:UnregisterEvent("UNIT_TARGETABLE_CHANGED")
 							
 						end
@@ -86,7 +86,7 @@ function CS:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 		self.encounterFix = function(self, event, sourceGUID, destGUID, spellID)
 			-- entering/leaving stomach
 			if spellID == 181295 and destGUID == UnitGUID("player") and (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") then  -- Digest
-				self:removeAllGUIDs()
+				self:RemoveAllGUIDs()
 				
 				-- Enraged Spirit
 			elseif spellID == 182557 and event == "SPELL_CAST_SUCCESS" then  -- Slam
@@ -99,7 +99,7 @@ function CS:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 	elseif encounterID == 1786 then  -- Kilrogg
 		self.encounterFix = function(self, event, sourceGUID, destGUID, spellID)
 			if spellID == 181488 and destGUID == UnitGUID("player") and (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") then  -- Vision of Death
-				self:removeAllGUIDs()
+				self:RemoveAllGUIDs()
 			end
 		end
 		
@@ -107,7 +107,7 @@ function CS:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 	elseif encounterID == 1689 then  -- Flamebender
 		self.encounterFix = function(self, event, sourceGUID, destGUID, spellID)
 			if spellID == 181089 then  -- "Encounter Event" (when wolves vanish)
-				self:removeGUID(sourceGUID)
+				self:RemoveGUID(sourceGUID)
 			end
 		end
 		
@@ -115,7 +115,7 @@ function CS:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 	elseif encounterID == 1690 then  -- Blast Furnace
 		self.encounterFix = function(self, event, sourceGUID, destGUID, spellID)
 			if spellID == 605 and event == "SPELL_CAST_SUCCESS" then  -- Dominate Mind
-				self:removeGUID(destGUID)
+				self:RemoveGUID(destGUID)
 			end
 		end
 		
@@ -128,10 +128,10 @@ function CS:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 				self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
 				self:RegisterEvent("UNIT_TARGETABLE_CHANGED", function()
 					if not UnitExists("boss1") then
-						self:removeGUID(boss1GUID)
+						self:RemoveGUID(boss1GUID)
 					
 					elseif not UnitExists("boss2") then
-						self:removeGUID(boss2GUID)
+						self:RemoveGUID(boss2GUID)
 					
 					end
 				end)
@@ -146,7 +146,7 @@ function CS:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 				self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
 				self:RegisterEvent("UNIT_TARGETABLE_CHANGED", function()
 					if not UnitExists("boss1") then
-						self:removeGUID(boss1GUID)
+						self:RemoveGUID(boss1GUID)
 					end
 				end)
 			end
