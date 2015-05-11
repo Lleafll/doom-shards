@@ -15,18 +15,13 @@ CS:AddDisplayOptions("complex",
 		type = "group",
 		name = L["Complex Display"],
 		cmdHidden  = true,
+		get = function(info) return CS.db.complex[info[#info]] end,
+		set = function(info, value) CS.db.complex[info[#info]] = value; CS:Build() end,
 		args = {
 			enable = {
 				order = 1,
 				type = "toggle",
-				name = L["Enable"],
-				get = function()
-					return CS.db.display == "Complex"
-				end,
-				set = function(info, val)
-					if val then CS.db.display = "Complex" end
-					CS:Build()
-				end
+				name = L["Enable"]
 			},
 			layout = {
 				order = 2,
@@ -43,14 +38,7 @@ CS:AddDisplayOptions("complex",
 						values = {
 							["Horizontal"] = L["Horizontal"],
 							["Vertical"] = L["Vertical"]
-						},
-						get = function()
-							return CS.db.complex.orientation
-						end,
-						set = function(info, val)
-							CS.db.complex.orientation = val
-							CS:Build()
-						end
+						}
 					},
 					direction = {
 						order = 2,
@@ -60,14 +48,7 @@ CS:AddDisplayOptions("complex",
 						values = {
 							["Regular"] = L["Regular"],
 							["Reversed"] = L["Reversed"]
-						},
-						get = function()
-							return CS.db.complex.growthDirection
-						end,
-						set = function(info, val)
-							CS.db.complex.growthDirection = val
-							CS:Build()
-						end
+						}
 					}
 				}
 			},
@@ -84,14 +65,7 @@ CS:AddDisplayOptions("complex",
 						desc = function() if CS.db.complex.orientation == "Vertical" then return L["Set Shadow Orb Width"] else return L["Set Shadow Orb Height"] end end,
 						min = 1,
 						max = 100,
-						step = 1,
-						get = function()
-							return CS.db.complex.height
-						end,
-						set = function(info, val)
-							CS.db.complex.height = val
-							CS:Build()
-						end
+						step = 1
 					},
 					width = {
 						order = 2,
@@ -100,14 +74,7 @@ CS:AddDisplayOptions("complex",
 						desc = function() if CS.db.complex.orientation == "Vertical" then return L["Set Shadow Orb Height"] else return L["Set Shadow Orb Width"] end end,
 						min = 1,
 						max = 100,
-						step = 1,
-						get = function()
-							return CS.db.complex.width
-						end,
-						set = function(info, val)
-							CS.db.complex.width = val
-							CS:Build()
-						end
+						step = 1
 					},
 					spacing = {
 						order = 3,
@@ -116,14 +83,7 @@ CS:AddDisplayOptions("complex",
 						desc = L["Set Shadow Orb Spacing"],
 						min = 0,
 						max = 100,
-						step = 1,
-						get = function()
-							return CS.db.complex.spacing
-						end,
-						set = function(info, val)
-							CS.db.complex.spacing = val
-							CS:Build()
-						end
+						step = 1
 					},
 					spacer = {
 						order = 3.5,
@@ -169,14 +129,7 @@ CS:AddDisplayOptions("complex",
 						order = 6,
 						type = "toggle",
 						name = L["Orb Cap Color Change"],
-						desc = L["Change color of all Shadow Orbs when reaching five Shadow Orbs"],
-						get = function()
-							return CS.db.complex.orbCappedEnable
-						end,
-						set = function(info, val)
-							CS.db.complex.orbCappedEnable = val
-							CS:Build()
-						end
+						desc = L["Change color of all Shadow Orbs when reaching five Shadow Orbs"]
 					},
 					orbCappedColor = {
 						order = 7,
@@ -202,14 +155,7 @@ CS:AddDisplayOptions("complex",
 						dialogControl = "LSM30_Statusbar",
 						name = L["Texture"],
 						desc = L["Set texture used for the Shadow Orbs"],
-						values = LSM:HashTable("statusbar"),
-						get = function()
-							return CS.db.complex.textureHandle
-						end,
-						set = function(_, key)
-							CS.db.complex.textureHandle = key
-							CS:Build()
-						end
+						values = LSM:HashTable("statusbar")
 					},
 					borderColor = {
 						order = 10,
@@ -230,15 +176,12 @@ CS:AddDisplayOptions("complex",
 						type="description",
 						name=""
 					},
-					visibility = {
+					visibilityConditionals = {
 						order = 12,
 						type = "input",
 						name = L["Visibility"],
 						desc = L["Regulate display visibility with macro conditionals"],
 						width = "full",
-						get = function()
-							return CS.db.complex.visibilityConditionals
-						end,
 						set = function(info, val)
 							if UnitAffectingCombat("player") then 
 								print(L["Can not change visibility options in combat."])
@@ -256,17 +199,10 @@ CS:AddDisplayOptions("complex",
 				name = L["Text"],
 				inline = true,
 				args = {
-					enable = {
+					textEnable = {
 						order = 6,
 						type = "toggle",
-						name = L["Enable"],
-						get = function()
-							return CS.db.complex.textEnable
-						end,
-						set = function(info, val)
-							CS.db.complex.textEnable = val
-							CS:Build()
-						end
+						name = L["Enable"]
 					},
 					fontName = {
 						order = 7,
@@ -274,14 +210,7 @@ CS:AddDisplayOptions("complex",
 						dialogControl = "LSM30_Font",
 						name = L["Font"],
 						desc = L["Select font for the Complex display"],
-						values = LSM:HashTable("font"),
-						get = function()
-							return CS.db.complex.fontName
-						end,
-						set = function(_,key)
-							CS.db.complex.fontName = key
-							CS:Build()
-						end
+						values = LSM:HashTable("font")
 					},
 					spacer0 = {
 						order = 7.5,
@@ -295,14 +224,7 @@ CS:AddDisplayOptions("complex",
 						desc = L["Set Font Size"],
 						min = 1,
 						max = 32,
-						step = 1,
-						get = function()
-							return CS.db.complex.fontSize
-						end,
-						set = function(info, val)
-							CS.db.complex.fontSize = val
-							CS:Build()
-						end
+						step = 1
 					},
 					fontFlags = {
 						order = 9,
@@ -316,14 +238,7 @@ CS:AddDisplayOptions("complex",
 							["OUTLINE"] = L["OUTLINE"],
 							["THICKOUTLINE"] = L["THICKOUTLINE"],
 							["MONOCHROMEOUTLINE"] = L["MONOCHROMEOUTLINE"]
-						},
-						get = function()
-							return CS.db.complex.fontFlags
-						end,
-						set = function(info, val)
-							CS.db.complex.fontFlags = val
-							CS:Build()
-						end
+						}
 					},
 					color = {
 						order = 10,
@@ -397,31 +312,17 @@ CS:AddDisplayOptions("complex",
 				name = L["Anticipated Orbs"],
 				inline = true,
 				args = {
-					enable = {
+					statusbarEnable = {
 						order = 1,
 						type = "toggle",
 						name = L["Enable"],
-						desc = L["Enable display of bars for anticipated Shadow Orbs in the Shadow Orbs' positions"],
-						get = function()
-							return CS.db.complex.statusbarEnable
-						end,
-						set = function(info, val)
-							CS.db.complex.statusbarEnable = val
-							CS:Build()
-						end
+						desc = L["Enable display of bars for anticipated Shadow Orbs in the Shadow Orbs' positions"]
 					},
-					reverse = {
+					statusbarReverse = {
 						order = 3,
 						type = "toggle",
 						name = L["Reverse Direction"],
-						desc = L["Fill indicator from right to left"],
-						get = function()
-							return CS.db.complex.statusbarReverse
-						end,
-						set = function(info, val)
-							CS.db.complex.statusbarReverse = val
-							CS:Build()
-						end
+						desc = L["Fill indicator from right to left"]
 					},
 					maxTime = {
 						order = 2,
@@ -430,14 +331,7 @@ CS:AddDisplayOptions("complex",
 						desc = L["Maximum remaining Shadowy Apparition flight time shown on the indicators"],
 						min = 0,
 						max = 10,
-						step = 0.1,
-						get = function()
-							return CS.db.complex.maxTime
-						end,
-						set = function(info, val)
-							CS.db.complex.maxTime = val
-							CS:Build()
-						end
+						step = 0.1
 					},
 					spacer = {
 						order = 3.5,
@@ -540,6 +434,7 @@ CS:AddDisplayOptions("complex",
 		}
 	},
 	{
+		enable = true,
 		height = 8,
 		width = 32,
 		spacing = 1,

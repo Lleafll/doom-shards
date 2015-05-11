@@ -13,6 +13,8 @@ do
 		type = "group",
 		name = "Conspicuous Spirits",
 		childGroups = "tab",
+		get = function(info) return CS.db[info[#info]] end,
+		set = function(info, value) CS.db[info[#info]] = value; CS:Build() end,
 		args = {
 			header2 = {
 				order = 0,
@@ -33,14 +35,7 @@ do
 						desc = L["Set Frame Scale"],
 						min = 0,
 						max = 3,
-						step = 0.01,
-						get = function()
-							return CS.db.scale
-						end,
-						set = function(info, val)
-							CS.db.scale = val
-							CS:Build()
-						end
+						step = 0.01
 					},
 					reset = {
 						order = 2,
@@ -63,13 +58,7 @@ do
 						order = 3,
 						type = "toggle",
 						name = L["Aggressive Caching"],
-						desc = L["Enables frequent distance scanning of all available targets. Will increase CPU usage slightly and is only going to increase accuracy in situations with many fast-moving mobs."],
-						get = function()
-							return CS.db.aggressiveCaching
-						end,
-						set = function(_, val)
-							CS.db.aggressiveCaching = val
-						end
+						desc = L["Enables frequent distance scanning of all available targets. Will increase CPU usage slightly and is only going to increase accuracy in situations with many fast-moving mobs."]
 					},
 					aggressiveCachingInterval = {
 						order = 4,
@@ -78,30 +67,13 @@ do
 						desc = L["Scanning interval when Aggressive Caching is enabled"],
 						min = 0.2,
 						max = 3,
-						step = 0.1,
-						get = function()
-							return CS.db.aggressiveCachingInterval
-						end,
-						set = function(_, val)
-							CS.db.aggressiveCachingInterval = val
-						end
+						step = 0.1
 					},
 					calculateOutOfCombat = {
 						order = 5,
 						type = "toggle",
 						name = L["Out-of-Combat Calculation"],
-						desc = L["Keep calculating distances and anticipated Orbs when leaving combat."],
-						get = function()
-							return CS.db.calculateOutOfCombat
-						end,
-						set = function(_, val)
-							if CS.db.calculateOutOfCombat then
-								CS:Build()
-							elseif not UnitAffectingCombat("player") then
-								CS:PLAYER_REGEN_ENABLED()
-							end
-							CS.db.calculateOutOfCombat = val
-						end
+						desc = L["Keep calculating distances and anticipated Orbs when leaving combat."]
 					}
 				}
 			},
@@ -124,7 +96,7 @@ do
 							end
 							if not CS.locked then
 								CS:Lock()
-								CS:Build()
+								--CS:Build()
 							else
 								CS:Unlock()
 							end
@@ -136,11 +108,7 @@ do
 						name = L["Reset Position"],
 						cmdHidden = true,
 						confirm  = true,
-						func = function()
-							CS.db.posX = 0
-							CS.db.posY = 0
-							CS:Build()
-						end
+						func = function() CS.db.posX = 0; CS.db.posY = 0; CS:Build() end
 					}
 				}
 			}
@@ -152,7 +120,6 @@ do
 			posX = 0,
 			posY = 0,
 			scale = 1,
-			display = "Complex",
 			aggressiveCaching = false,
 			aggressiveCachingInterval = 1,
 			calculateOutOfCombat = false

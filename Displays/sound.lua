@@ -32,13 +32,6 @@ function SO:CONSPICUOUS_SPIRITS_UPDATE(orbs, timers)
 	end
 end
 
-CS.displayBuilders["Sound"] = function(self)
-	soundFile = LSM:Fetch("sound", self.db.soundHandle)
-	soundInterval = self.db.soundInterval
-	
-	self:SetUpdateInterval(0.1)
-end
-
 function SO:PLAYER_REGEN_DISABLED()
 	self:RegisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
 end
@@ -48,6 +41,9 @@ function SO:PLAYER_REGEN_ENABLED()
 end
 
 function SO:OnEnable()
+	soundFile = LSM:Fetch("sound", self.db.sound.soundHandle)
+	soundInterval = self.db.sound.soundInterval
+	self:SetUpdateInterval(0.1)
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 end

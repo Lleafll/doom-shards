@@ -19,22 +19,13 @@ CS:AddDisplayOptions("weakauras",
 		type = "group",
 		name = L["WeakAuras Interface"],
 		cmdHidden  = true,
+		get = function(info) return CS.db.weakauras[info[#info]] end,
+		set = function(info, value) CS.db.weakauras[info[#info]] = value; CS:Build() end,
 		args = {
 			enable = {
 				order = 1,
 				type = "toggle",
-				name = L["Enable"],
-				get = function()
-					return CS.db.display == "WeakAuras"
-				end,
-				set = function(info, val)
-					if val then
-						CS.db.display = "WeakAuras"
-						--timerFrame:HideChildren()
-						--timerFrame:Lock()
-					end
-					CS:Build()
-				end
+				name = L["Enable"]
 			},
 			weakaurasStrings = {
 				order = 2,
@@ -80,5 +71,6 @@ CS:AddDisplayOptions("weakauras",
 		}
 	},
 	{
+		enable = false
 	}
 )

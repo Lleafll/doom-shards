@@ -15,18 +15,13 @@ CS:AddDisplayOptions("simple",
 		type = "group",
 		name = L["Simple Display"],
 		cmdHidden  = true,
+		get = function(info) return CS.db.simple[info[#info]] end,
+		set = function(info, value) CS.db.simple[info[#info]] = value; CS:Build() end,
 		args = {
 			enable = {
 				order = 1,
 				type = "toggle",
-				name = L["Enable"],
-				get = function()
-					return CS.db.display == "Simple"
-				end,
-				set = function(info, val)
-					if val then CS.db.display = "Simple" end
-					CS:Build()
-				end
+				name = L["Enable"]
 			},
 			frame = {
 				order = 2,
@@ -41,14 +36,7 @@ CS:AddDisplayOptions("simple",
 						desc = L["Set Frame Height"],
 						min = 1,
 						max = 300,
-						step = 1,
-						get = function()
-							return CS.db.simple.height
-						end,
-						set = function(info, val)
-							CS.db.simple.height = val
-							CS:Build()
-						end
+						step = 1
 					},
 					width = {
 						order = 3,
@@ -57,14 +45,7 @@ CS:AddDisplayOptions("simple",
 						desc = L["Set Frame Width"],
 						min = 1,
 						max = 300,
-						step = 1,
-						get = function()
-							return CS.db.simple.width
-						end,
-						set = function(info, val)
-							CS.db.simple.width = val
-							CS:Build()
-						end
+						step = 1
 					},
 					spacing = {
 						order = 4,
@@ -73,14 +54,7 @@ CS:AddDisplayOptions("simple",
 						desc = L["Set Number Spacing"],
 						min = 0,
 						max = 100,
-						step = 1,
-						get = function()
-							return CS.db.simple.spacing
-						end,
-						set = function(info, val)
-							CS.db.simple.spacing = val
-							CS:Build()
-						end
+						step = 1
 					},
 					spacer = {
 						order = 4.5,
@@ -140,14 +114,7 @@ CS:AddDisplayOptions("simple",
 						dialogControl = "LSM30_Statusbar",
 						name = L["Texture"],
 						desc = L["Set texture used for the background"],
-						values = LSM:HashTable("statusbar"),
-						get = function()
-							return CS.db.simple.textureHandle
-						end,
-						set = function(_, key)
-							CS.db.simple.textureHandle = key
-							CS:Build()
-						end
+						values = LSM:HashTable("statusbar")
 					},
 					borderColor = {
 						order = 9,
@@ -182,14 +149,7 @@ CS:AddDisplayOptions("simple",
 						dialogControl = "LSM30_Font",
 						name = L["Font"],
 						desc = L["Select font for the Simple display"],
-						values = LSM:HashTable("font"),
-						get = function()
-							return CS.db.simple.fontName
-						end,
-						set = function(_, val)
-							CS.db.simple.fontName = val
-							CS:Build()
-						end
+						values = LSM:HashTable("font")
 					},
 					fontSize = {
 						order = 11,
@@ -198,14 +158,7 @@ CS:AddDisplayOptions("simple",
 						desc = L["Set Font Size"],
 						min = 1,
 						max = 32,
-						step = 1,
-						get = function()
-							return CS.db.simple.fontSize
-						end,
-						set = function(info, val)
-							CS.db.simple.fontSize = val
-							CS:Build()
-						end
+						step = 1
 					},
 					fontFlags = {
 						order = 12,
@@ -219,14 +172,7 @@ CS:AddDisplayOptions("simple",
 							["OUTLINE"] = L["OUTLINE"],
 							["THICKOUTLINE"] = L["THICKOUTLINE"],
 							["MONOCHROMEOUTLINE"] = L["MONOCHROMEOUTLINE"]
-						},
-						get = function()
-							return CS.db.simple.fontFlags
-						end,
-						set = function(info, val)
-							CS.db.simple.fontFlags = val
-							CS:Build()
-						end
+						}
 					},
 					color = {
 						order = 13,
@@ -246,6 +192,7 @@ CS:AddDisplayOptions("simple",
 		}
 	},
 	{
+		enable = false,
 		height = 33,
 		width = 65,
 		spacing = 20,
