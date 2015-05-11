@@ -3,6 +3,10 @@ local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
 if not CS then return end
 
 
+-- Create Module
+local EF = CS:NewModule("EncounterFixes")
+
+
 -- Localization
 local L = LibStub("AceLocale-3.0"):GetLocale("ConspicuousSpirits")
 
@@ -36,7 +40,7 @@ end
 
 function CS:EncounterFix(...) end
 
-function CS:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSize)
+function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSize)
 	
 	if encounterID == 1778 then  -- Hellfire Assault
 		self:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
@@ -58,19 +62,19 @@ function CS:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 					self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
 					self:RegisterEvent("UNIT_TARGETABLE_CHANGED", function(_, unitID)
 						if boss1GUID and unitID == "boss1" then
-							self:RemoveGUID(boss1GUID)
+							CS:RemoveGUID(boss1GUID)
 							self:UnregisterEvent("UNIT_TARGETABLE_CHANGED")
 							
 						elseif boss2GUID and unitID == "boss2" then
-							self:RemoveGUID(boss2GUID)
+							CS:RemoveGUID(boss2GUID)
 							self:UnregisterEvent("UNIT_TARGETABLE_CHANGED")
 							
 						elseif boss3GUID and unitID == "boss3" then
-							self:RemoveGUID(boss3GUID)
+							CS:RemoveGUID(boss3GUID)
 							self:UnregisterEvent("UNIT_TARGETABLE_CHANGED")
 							
 						elseif boss4GUID and unitID == "boss4" then
-							self:RemoveGUID(boss4GUID)
+							CS:RemoveGUID(boss4GUID)
 							self:UnregisterEvent("UNIT_TARGETABLE_CHANGED")
 							
 						end
@@ -83,10 +87,10 @@ function CS:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 	elseif encounterID == 1783 then  -- Gorefiend
 		-- Missing: Shadowy Construct leaving stomach after SA spawn won't generate orbs
 		-- https://www.warcraftlogs.com/reports/LhmF1T3xjdcPA9XJ#pins=0%24Separate%24%23244F4B%24any%24-1%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24true%24155521%7C147193%7C148859%5E0%24Separate%24%23909049%24any%24-1%240.0.0.Any%240.0.0.Any%24true%2410446771.0.0.Priest%24true%24179864%5E0%24Separate%24%23a04D8A%24any%24-1%240.0.0.Any%240.0.0.Any%24true%2410446771.0.0.Priest%24true%24181295&view=events&type=resources&fight=22
-		self.encounterFix = function(self, event, sourceGUID, destGUID, spellID)
+		CS.encounterFix = function(self, event, sourceGUID, destGUID, spellID)
 			-- entering/leaving stomach
 			if spellID == 181295 and destGUID == UnitGUID("player") and (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") then  -- Digest
-				self:RemoveAllGUIDs()
+				CS:RemoveAllGUIDs()
 				
 				-- Enraged Spirit
 			elseif spellID == 182557 and event == "SPELL_CAST_SUCCESS" then  -- Slam
@@ -97,25 +101,25 @@ function CS:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 		
 		
 	elseif encounterID == 1786 then  -- Kilrogg
-		self.encounterFix = function(self, event, sourceGUID, destGUID, spellID)
+		CS.encounterFix = function(self, event, sourceGUID, destGUID, spellID)
 			if spellID == 181488 and destGUID == UnitGUID("player") and (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") then  -- Vision of Death
-				self:RemoveAllGUIDs()
+				CS:RemoveAllGUIDs()
 			end
 		end
 		
 		
 	elseif encounterID == 1689 then  -- Flamebender
-		self.encounterFix = function(self, event, sourceGUID, destGUID, spellID)
+		CS.encounterFix = function(self, event, sourceGUID, destGUID, spellID)
 			if spellID == 181089 then  -- "Encounter Event" (when wolves vanish)
-				self:RemoveGUID(sourceGUID)
+				CS:RemoveGUID(sourceGUID)
 			end
 		end
 		
 		
 	elseif encounterID == 1690 then  -- Blast Furnace
-		self.encounterFix = function(self, event, sourceGUID, destGUID, spellID)
+		CS.encounterFix = function(self, event, sourceGUID, destGUID, spellID)
 			if spellID == 605 and event == "SPELL_CAST_SUCCESS" then  -- Dominate Mind
-				self:RemoveGUID(destGUID)
+				CS:RemoveGUID(destGUID)
 			end
 		end
 		
@@ -128,10 +132,10 @@ function CS:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 				self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
 				self:RegisterEvent("UNIT_TARGETABLE_CHANGED", function()
 					if not UnitExists("boss1") then
-						self:RemoveGUID(boss1GUID)
+						CS:RemoveGUID(boss1GUID)
 					
 					elseif not UnitExists("boss2") then
-						self:RemoveGUID(boss2GUID)
+						CS:RemoveGUID(boss2GUID)
 					
 					end
 				end)
@@ -146,7 +150,7 @@ function CS:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 				self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
 				self:RegisterEvent("UNIT_TARGETABLE_CHANGED", function()
 					if not UnitExists("boss1") then
-						self:RemoveGUID(boss1GUID)
+						CS:RemoveGUID(boss1GUID)
 					end
 				end)
 			end
@@ -244,8 +248,8 @@ function CS:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 	
 end
 
-function CS:ENCOUNTER_END()
-	self.encounterFix = function() end
+function EF:ENCOUNTER_END()
+	CS.encounterFix = function() end
 	boss1GUID = nil
 	boss2GUID = nil
 	boss3GUID = nil
