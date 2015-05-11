@@ -1,4 +1,4 @@
--- Get Addon Object
+-- Get addon Object
 local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
 if not CS then return end
 

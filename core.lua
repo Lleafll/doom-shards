@@ -1,4 +1,4 @@
--- Get Addon object
+-- Get addon object
 local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
 if not CS then return end
 
@@ -179,40 +179,42 @@ local function getTravelTime(GUID, forced)
 	end
 end
 
-local function aggressiveCachingByUnitID(unitID, timeStamp)
-	if not UnitCanAttack("player", unitID) then return end
-	
-	local GUID = UnitGUID(unitID)
-	
-	if distanceCache[GUID] and timeStamp - distanceCache[GUID].timeStamp < aggressiveCachingInterval then return end
-	cacheTravelTime(calculateTravelTime(unitID), GUID)
-end
-
-local function aggressiveCachingIteration(tbl, timeStamp)
-	for i = 1, #tbl do
-		aggressiveCachingByUnitID(tbl[i], timeStamp)
+do
+	local function aggressiveCachingByUnitID(unitID, timeStamp)
+		if not UnitCanAttack("player", unitID) then return end
+		
+		local GUID = UnitGUID(unitID)
+		
+		if distanceCache[GUID] and timeStamp - distanceCache[GUID].timeStamp < aggressiveCachingInterval then return end
+		cacheTravelTime(calculateTravelTime(unitID), GUID)
 	end
-end
 
-function CS:AggressiveCaching()
-	local timeStamp = GetTime()  -- sadly no milliseconds :/
+	local function aggressiveCachingIteration(tbl, timeStamp)
+		for i = 1, #tbl do
+			aggressiveCachingByUnitID(tbl[i], timeStamp)
+		end
+	end
 
-	aggressiveCachingByUnitID("target", timeStamp)
-	aggressiveCachingByUnitID("mouseover", timeStamp)
-	aggressiveCachingByUnitID("focus", timeStamp)
-	aggressiveCachingByUnitID("pettarget", timeStamp)
-	if UnitExists("boss1") then
-		aggressiveCachingIteration(bossTable, timeStamp)
+	function CS:AggressiveCaching()
+		local timeStamp = GetTime()  -- sadly no milliseconds :/
+
+		aggressiveCachingByUnitID("target", timeStamp)
+		aggressiveCachingByUnitID("mouseover", timeStamp)
+		aggressiveCachingByUnitID("focus", timeStamp)
+		aggressiveCachingByUnitID("pettarget", timeStamp)
+		if UnitExists("boss1") then
+			aggressiveCachingIteration(bossTable, timeStamp)
+		end
+		if IsInRaid() then
+			aggressiveCachingIteration(raidTable, timeStamp)
+			aggressiveCachingIteration(raidPetTable, timeStamp)
+		elseif IsInGroup() then
+			aggressiveCachingIteration(partyTable, timeStamp)
+			aggressiveCachingIteration(partyPetTable, timeStamp)
+		end
+		
+		cacheTravelTime(travelTime)
 	end
-	if IsInRaid() then
-		aggressiveCachingIteration(raidTable, timeStamp)
-		aggressiveCachingIteration(raidPetTable, timeStamp)
-	elseif IsInGroup() then
-		aggressiveCachingIteration(partyTable, timeStamp)
-		aggressiveCachingIteration(partyPetTable, timeStamp)
-	end
-	
-	cacheTravelTime(travelTime)
 end
 
 local function addGUID(GUID)
@@ -289,7 +291,7 @@ function CS:RemoveTimer_timed(GUID)
 	popTimer(timerID)
 	self:Update()
 end
-        
+
 local function resetCount(self)
 	targets = {}
 	SATimeCorrection = {}
@@ -377,14 +379,15 @@ function CS:PLAYER_REGEN_ENABLED()
 	end
 end
 
-local function delayOrbs()
-	orbs = UnitPower("player", 13)
-	CS:Update()
-end
-
-function CS:UNIT_POWER(_, unitID, power)
-	if not (unitID == "player" and power == "SHADOW_ORBS") then return end
-	C_TimerAfter(0.01, delayOrbs)  -- needs to be delayed so it fires after the SA events, otherwise everything will assume the SA is still in flight
+do
+	local function delayOrbs()
+		orbs = UnitPower("player", 13)
+		CS:Update()
+	end
+	function CS:UNIT_POWER(_, unitID, power)
+		if not (unitID == "player" and power == "SHADOW_ORBS") then return end
+		C_TimerAfter(0.01, delayOrbs)  -- needs to be delayed so it fires after the SA events, otherwise everything will assume the SA is still in flight
+	end
 end
 
 function CS:PLAYER_ENTERING_WORLD()
@@ -398,51 +401,53 @@ end
 --	SATimeCorrection = {}  -- maybe recycle table?
 --end
 
-local function isShadow()
-	return GetSpecialization() == 3
-end
+do
+	local function isShadow()
+		return GetSpecialization() == 3
+	end
 
-local function isASSpecced()
-	local _, _, _, ASSpecced = GetTalentInfo(7, 3, GetActiveSpecGroup())
-	return ASSpecced
-end
+	local function isASSpecced()
+		local _, _, _, ASSpecced = GetTalentInfo(7, 3, GetActiveSpecGroup())
+		return ASSpecced
+	end
 
-function CS:TalentsCheck()
-	self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-	warningSound = function() end
-	
-	if isShadow() then
-		self:Enable()
-		if isASSpecced() then
-			self:RegisterEvent("PLAYER_REGEN_DISABLED")
-			--self:RegisterEvent("PLAYER_STARTED_MOVING")  -- make a better implementation later
-			--self:Build()  -- not necessary with self:Enable() from above
-			self:EnableModule("EncounterFixes")
-			--self:Update()  -- necessary?
+	function CS:TalentsCheck()
+		self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+		warningSound = function() end
+		
+		if isShadow() then
+			self:Enable()
+			if isASSpecced() then
+				self:RegisterEvent("PLAYER_REGEN_DISABLED")
+				--self:RegisterEvent("PLAYER_STARTED_MOVING")  -- make a better implementation later
+				--self:Build()  -- not necessary with self:Enable() from above
+				self:EnableModule("EncounterFixes")
+				--self:Update()  -- necessary?
+			else
+				self:UnregisterEvent("PLAYER_REGEN_DISABLED")
+				--self:UnregisterEvent("PLAYER_STARTED_MOVING")  -- make a better implementation later
+				resetCount()
+				self:DisableModule("EncounterFixes")
+			end
 		else
-			self:UnregisterEvent("PLAYER_REGEN_DISABLED")
-			--self:UnregisterEvent("PLAYER_STARTED_MOVING")  -- make a better implementation later
-			resetCount()
-			self:DisableModule("EncounterFixes")
+			self:Disable()
 		end
-	else
-		self:Disable()
 	end
-end
 
-function CS:Build()
-	self:ApplySettings()
-	soundEnabled = self.db.sound
-	
-	if UnitAffectingCombat("player") then
-		if isShadow() and isASSpecced() then self:PLAYER_REGEN_DISABLED() end
-	elseif self.locked then
-		self:PLAYER_REGEN_ENABLED()
-	else
-		--timerFrame:ShowChildren()
+	function CS:Build()
+		self:ApplySettings()
+		soundEnabled = self.db.sound
+		
+		if UnitAffectingCombat("player") then
+			if isShadow() and isASSpecced() then self:PLAYER_REGEN_DISABLED() end
+		elseif self.locked then
+			self:PLAYER_REGEN_ENABLED()
+		else
+			--timerFrame:ShowChildren()
+		end
+		
+		aggressiveCachingInterval = self.db.aggressiveCachingInterval
 	end
-	
-	aggressiveCachingInterval = self.db.aggressiveCachingInterval
 end
 
 function CS:OnInitialize()
