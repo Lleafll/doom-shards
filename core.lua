@@ -3,6 +3,10 @@ local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
 if not CS then return end
 
 
+-- Libraries
+local L = LibStub("AceLocale-3.0"):GetLocale("ConspicuousSpirits")
+
+
 -- Upvalues
 local C_TimerAfter = C_Timer.After
 local GetTime = GetTime
@@ -66,11 +70,9 @@ local cacheMaxTime = 1  -- seconds in which the cache does not get refreshed
 -- Functions
 function CS:Update()
 	self:SendMessage("CONSPICUOUS_SPIRITS_UPDATE", orbs, timers)
-	-- self:refreshDisplay(orbs, timers)
-	-- if soundEnabled then SO:WarningSound(orbs, timers) end
 end
 
-local function resetCount(self)
+function CS:ResetCount()
 	targets = {}
 	SATimeCorrection = {}
 	timers = {}
@@ -233,36 +235,34 @@ do
 		end
 	end
 
-	do
-		function CS:RemoveTimer_timed(GUID)
-			timerID = popGUID(GUID)
-			popTimer(timerID)
-			self:Update()
-		end
-		
-		local function addGUID(GUID)
-			local cancelTime
-			local travelTime = getTravelTime(GUID, true)
-			if not travelTime then return end  -- target too far away, abort timer creation
+	function CS:RemoveTimer_timed(GUID)
+		timerID = popGUID(GUID)
+		popTimer(timerID)
+		self:Update()
+	end
+	
+	function CS:addGUID(GUID)
+		local cancelTime
+		local travelTime = getTravelTime(GUID, true)
+		if not travelTime then return end  -- target too far away, abort timer creation
 
-			targets[GUID] = targets[GUID] or {}
-			timerID = CS:ScheduleTimer("removeTimer_timed", travelTime + SAGraceTime, GUID)
-			timerID.impactTime = GetTime() + travelTime  -- can't use timeStamp instead of GetTime() because of different time reference
-			targets[GUID][#targets[GUID]+1] = timerID
-			
-			local timersCount = #timers
-			if timersCount == 0 then
-				timers[1] = timerID
+		targets[GUID] = targets[GUID] or {}
+		timerID = self:ScheduleTimer("RemoveTimer_timed", travelTime + SAGraceTime, GUID)
+		timerID.impactTime = GetTime() + travelTime  -- can't use timeStamp instead of GetTime() because of different time reference
+		targets[GUID][#targets[GUID]+1] = timerID
+		
+		local timersCount = #timers
+		if timersCount == 0 then
+			timers[1] = timerID
+			return
+		end
+		for i = 1, timersCount do
+			if timerID.impactTime < timers[i].impactTime then
+				tableinsert(timers, i, timerID)
 				return
 			end
-			for i = 1, timersCount do
-				if timerID.impactTime < timers[i].impactTime then
-					tableinsert(timers, i, timerID)
-					return
-				end
-			end
-			timers[timersCount+1] = timerID
 		end
+		timers[timersCount+1] = timerID
 	end
 
 	local function popTimer(timerID)
@@ -316,7 +316,7 @@ do
 		
 			-- Shadowy Apparition cast
 			if spellID == 147193 and destName ~= nil then  -- SAs without a target won't generate orbs
-				addGUID(destGUID)
+				self:addGUID(destGUID)
 				self:Update()
 			
 			-- catch all Auspicious Spirits and Shadowy Apparition hit events
@@ -357,7 +357,7 @@ end
 
 function CS:PLAYER_DEAD()
 	orbs = UnitPower("player", 13)
-	resetCount(self)
+	self:ResetCount()
 end
 
 do
@@ -378,11 +378,11 @@ do
 		orbs = UnitPower("player", 13)
 		
 		if updateInterval then
-			self:ScheduleRepeatingTimer("update", updateInterval)
+			self:ScheduleRepeatingTimer("Update", updateInterval)
 		end
 		
 		if self.db.aggressiveCaching then
-			self:ScheduleRepeatingTimer("aggressiveCaching", aggressiveCachingInterval)
+			self:ScheduleRepeatingTimer("AggressiveCaching", aggressiveCachingInterval)
 		end
 			
 		if not self.locked then
@@ -394,7 +394,7 @@ end
 function CS:PLAYER_REGEN_ENABLED()
 	if not self.db.calculateOutOfCombat then
 		self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		resetCount(self)
+		self:ResetCount()
 	end
 end
 
@@ -413,7 +413,7 @@ end
 function CS:PLAYER_ENTERING_WORLD()
 	playerGUID = UnitGUID("player")
 	orbs = UnitPower("player", 13)
-	resetCount(self)
+	self:ResetCount()
 end
 
 -- make a better implementation later
@@ -436,23 +436,29 @@ do
 		warningSound = function() end
 		
 		if isShadow() then
-			self:Enable()
+			orbs = UnitPower("player", 13)
+			self:Build()
+			self:RegisterEvent("UNIT_POWER")
+			self:RegisterEvent("PLAYER_ENTERING_WORLD")
+			self:RegisterEvent("PLAYER_DEAD")
+			local EF = self:GetModule("EncounterFixes")
 			if isASSpecced() then
 				self:RegisterEvent("PLAYER_REGEN_DISABLED")
 				self:RegisterEvent("PLAYER_REGEN_ENABLED")
 				--self:RegisterEvent("PLAYER_STARTED_MOVING")  -- make a better implementation later
-				--self:Build()  -- not necessary with self:Enable() from above
-				self:EnableModule("EncounterFixes")
+				if not EF:IsEnabled() then EF:Enable() end
 				--self:Update()  -- necessary?
 			else
 				self:UnregisterEvent("PLAYER_REGEN_DISABLED")
 				self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 				--self:UnregisterEvent("PLAYER_STARTED_MOVING")  -- make a better implementation later
-				resetCount()
-				self:DisableModule("EncounterFixes")
+				self:ResetCount()
+				if EF:IsEnabled() then EF:Disable() end
 			end
 		else
-			self:Disable()
+			self:UnregisterEvent("UNIT_POWER")
+			self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+			self:UnregisterEvent("PLAYER_DEAD")
 		end
 	end
 
@@ -461,37 +467,31 @@ do
 		soundEnabled = self.db.sound
 		
 		if UnitAffectingCombat("player") then
-			if isShadow() and isASSpecced() then self:PLAYER_REGEN_DISABLED() end
-		elseif self.locked then
-			self:PLAYER_REGEN_ENABLED()
+			if isShadow() and isASSpecced() 
+				then self:PLAYER_REGEN_DISABLED() 
+			end
+			
 		else
-			--timerFrame:ShowChildren()
+			if self.locked then
+				self:PLAYER_REGEN_ENABLED()
+				for name, module in self:IterateModules() do
+					if self.db[name] and self.db[name].enable then
+						if module.Lock then module:Lock() end
+						if module.frame then module.frame:Lock() end
+					end
+				end
+				
+			else
+				for name, module in self:IterateModules() do
+					if self.db[name] and self.db[name].enable then
+						if module.Unlock then module:Unlock() end
+						if module.frame then module.frame:Unlock() end
+					end
+				end
+				
+			end
 		end
 		
 		aggressiveCachingInterval = self.db.aggressiveCachingInterval
 	end
-end
-
-function CS:OnInitialize()
-	self.locked = true
-	
-	local CSDB = LibStub("AceDB-3.0"):New("ConspicuousSpiritsDB", self.defaultSettings, true)
-	self.db = CSDB.global
-	function self:ResetDB() CSDB:ResetDB() end
-	
-	self:RegisterEvent("PLAYER_TALENT_UPDATE", "TalentsCheck")
-end
-
-function CS:OnEnable()
-	orbs = UnitPower("player", 13)
-	self:Build()
-	self:RegisterEvent("UNIT_POWER")
-	self:RegisterEvent("PLAYER_ENTERING_WORLD")
-	self:RegisterEvent("PLAYER_DEAD")
-end
-
-function CS:OnDisable()
-	self:UnregisterEvent("UNIT_POWER")
-	self:UnregisterEvent("PLAYER_ENTERING_WORLD")
-	self:UnregisterEvent("PLAYER_DEAD")
 end

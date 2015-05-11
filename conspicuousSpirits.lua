@@ -9,12 +9,12 @@ local L = LibStub("AceLocale-3.0"):GetLocale("ConspicuousSpirits")
 
 -- Functions
 -- frame factory for all display modules' parent frames
-function CS:CreateParentFrame(name)
+function CS:CreateParentFrame(name, moduleName)
 	local frame = CreateFrame("frame", name, UIParent)
 	frame:SetFrameStrata("LOW")
 	frame:SetMovable(true)
-	frame.texture = timerFrame:CreateTexture(nil, "BACKGROUND")
-	frame.texture:SetAllPoints(timerFrame)
+	frame.texture = frame:CreateTexture(nil, "BACKGROUND")
+	frame.texture:SetAllPoints(frame)
 	frame.texture:SetTexture(0.38, 0.23, 0.51, 0.7)
 	frame.texture:Hide()
 	
@@ -24,8 +24,8 @@ function CS:CreateParentFrame(name)
 		local function dragStop(self)
 			self:StopMovingOrSizing()
 			local _, _, _, posX, posY = self:GetPoint()
-			CS.db.posX = posX
-			CS.db.posY = posY
+			CS.db[moduleName].posX = posX
+			CS.db[moduleName].posY = posY
 		end
 		self:SetScript("OnEnter", function(self) 
 			GameTooltip:SetOwner(self, "ANCHOR_TOP")
@@ -37,7 +37,7 @@ function CS:CreateParentFrame(name)
 		self:SetScript("OnMouseDown", function(self, button)
 			if button == "RightButton" then
 				dragStop(self)  -- in case user right clicks while dragging the frame
-				self:Lock()
+				CS:Lock()
 				CS:Build()
 			elseif button == "LeftButton" then
 				self:StartMoving()
@@ -48,11 +48,11 @@ function CS:CreateParentFrame(name)
 		end)
 		self:SetScript("OnMouseWheel", function(self, delta)
 			if IsShiftKeyDown() then
-				CS.db.posX = CS.db.posX + delta
+				CS.db[moduleName].posX = CS.db[moduleName].posX + delta
 			else
-				CS.db.posY = CS.db.posY + delta
+				CS.db[moduleName].posY = CS.db[moduleName].posY + delta
 			end
-			self:SetPoint("CENTER", CS.db.posX, CS.db.posY)
+			self:SetPoint("CENTER", CS.db[moduleName].posX, CS.db[moduleName].posY)
 		end)
 	end
 
@@ -72,29 +72,14 @@ end
 function CS:Unlock()
 	print(L["Conspicuous Spirits unlocked!"])
 	self.locked = false
-	self:Disable()
-	
-	for name, module in self:IterateModules() do
-		if self.db[name] and self.db[name].enable then
-			if module.Unlock then module:Unlock() end
-			if module.frame then module.frame:Unlock() end
-		end
-	end
+	self:Build()
 end
 
 function CS:Lock()
 	if not self.locked then print(L["Conspicuous Spirits locked!"]) end
 	self.locked = true
-	--if CS.db.calculateOutOfCombat then CS:PLAYER_REGEN_DISABLED() end
-	--CS:ApplySettings()
-	self:TalentsCheck()  -- build displays if Shadow and AS specced  -- replaces two lines above
-	
-	for name, module in self:IterateModules() do
-		if self.db[name] and self.db[name].enable then
-			if module.Lock then module:Lock() end
-			if module.frame then module.frame:Lock() end
-		end
-	end
+	self:TalentsCheck()  -- build displays if Shadow and AS specced
+	self:Build()
 end
 
 function CS:ApplySettings()
@@ -103,8 +88,18 @@ function CS:ApplySettings()
 	for name, module in self:IterateModules() do
 		if self.db[name] and self.db[name].enable then
 			module:Enable()
-		elseif module:IsEnabled()
+		elseif module:IsEnabled() then
 			module:Disable()
 		end
 	end
+end
+
+function CS:OnInitialize()
+	self.locked = true
+	
+	local CSDB = LibStub("AceDB-3.0"):New("ConspicuousSpiritsDB", self.defaultSettings, true)
+	self.db = CSDB.global
+	function self:ResetDB() CSDB:ResetDB() end
+	
+	self:RegisterEvent("PLAYER_TALENT_UPDATE", "TalentsCheck")
 end

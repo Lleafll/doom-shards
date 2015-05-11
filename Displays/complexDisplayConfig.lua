@@ -40,7 +40,7 @@ CS:AddDisplayOptions("complex",
 							["Vertical"] = L["Vertical"]
 						}
 					},
-					direction = {
+					growthDirection = {
 						order = 2,
 						type = "select",
 						name = L["Growth direction"],
@@ -435,6 +435,8 @@ CS:AddDisplayOptions("complex",
 	},
 	{
 		enable = true,
+		posX = 0,
+		posY = 0,
 		height = 8,
 		width = 32,
 		spacing = 1,

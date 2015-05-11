@@ -193,6 +193,8 @@ CS:AddDisplayOptions("simple",
 	},
 	{
 		enable = false,
+		posX = 0,
+		posY = 0,
 		height = 33,
 		width = 65,
 		spacing = 20,

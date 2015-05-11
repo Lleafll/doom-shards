@@ -10,14 +10,14 @@ LSM:Register("sound", "Droplet", "Interface\\addons\\ConspicuousSpirits\\Media\\
 
 
 -- Options
-CS:AddDisplayOptions("sound",
+CS:AddDisplayOptions("warningSound",
 	{
 		order = 6,
 		type = "group",
 		name = L["Sound"],
 		cmdHidden = true,
-		get = function(info) return CS.db.weakauras[info[#info]] end,
-		set = function(info, value) CS.db.weakauras[info[#info]] = value; CS:Build() end,
+		get = function(info) return CS.db.warningSound[info[#info]] end,
+		set = function(info, value) CS.db.warningSound[info[#info]] = value; CS:Build() end,
 		args = {
 			enable = {
 				order = 1,

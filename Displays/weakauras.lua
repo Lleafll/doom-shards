@@ -7,7 +7,7 @@ if not CS then return end
 
 
 -- Create module
-local WA = CS:NewModule("weakauras")
+local WA = CS:NewModule("weakauras", "AceEvent-3.0")
 
 
 -- Upvalues
@@ -26,22 +26,6 @@ function WA:CONSPICUOUS_SPIRITS_UPDATE(self, orbs, timers)
 	conspicuous_spirits_wa.timers = timers
 	WeakAurasScanEvents("WA_AUSPICIOUS_SPIRITS", count, orbs)
 end
-
---[[
-CS.displayBuilders["WeakAurasInterface"] = function(self)
-	timerFrame:SetWidth(0)
-	timerFrame:SetHeight(0)
-	
-	if not _G.conspicuous_spirits_wa then _G.conspicuous_spirits_wa = {} end
-	conspicuous_spirits_wa = _G.conspicuous_spirits_wa
-	conspicuous_spirits_wa.count = 0
-	conspicuous_spirits_wa.orbs = UnitPower("player", 13)
-	conspicuous_spirits_wa.timers = {}
-	conspicuous_spirits_wa.TimeLeft = self.TimeLeft
-	timerFrame.ShowChildren = function() end
-	timerFrame.HideChildren = function() end
-end
---]]
 
 function WA:OnEnable()
 	if not _G.conspicuous_spirits_wa then _G.conspicuous_spirits_wa = {} end

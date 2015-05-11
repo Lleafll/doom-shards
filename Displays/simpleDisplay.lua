@@ -4,7 +4,7 @@ if not CS then return end
 
 
 -- Create Module
-local SD = CS:NewModule("simple")
+local SD = CS:NewModule("simple", "AceEvent-3.0")
 
 
 -- Libraries
@@ -16,7 +16,7 @@ local GetTime = GetTime
 
 
 -- Frames
-local SDFrame = CS:CreateParentFrame("CS Simple Display")
+local SDFrame = CS:CreateParentFrame("CS Simple Display", "simple")
 SD.frame = SDFrame
 local timerTextShort
 local timerTextLong
@@ -35,7 +35,7 @@ local backdrop = {  -- recycling table
 
 
 -- Functions
-function SD:CONSPICUOUS_SPIRITS_UPDATE(self, orbs, timers)
+function SD:CONSPICUOUS_SPIRITS_UPDATE(_, orbs, timers)
 	local currentTime
 	local short = 0
 	local long = 0
@@ -78,25 +78,6 @@ function SD:Lock()
 	SDFrame:Hide()
 end
 
---[[
-CS.displayBuilders["Simple"] = function(self)
-	db = self.db.simple
-
-	SDFrame:SetHeight(db.height)
-	SDFrame:SetWidth(db.width)
-	
-	fontPath = LSM:Fetch("font", db.fontName)
-	backdrop.bgFile = (db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
-	
-	createFrames()
-	self.refreshDisplay = refreshDisplay
-	SDFrame.ShowChildren = function() end
-	SDFrame.HideChildren = HideChildren
-	
-	self:SetUpdateInterval(0.1)
-end
---]]
-
 local function createFrames()
 	local spacing = db.spacing / 2
 	
@@ -124,22 +105,18 @@ local function createFrames()
 end
 
 function SD:OnEnable()
-	db = self.db.simple
+	db = CS.db.simple
 	
-	SDFrame:SetPoint("CENTER", CS.db.posX, CS.db.posY)
+	SDFrame:SetPoint("CENTER", db.posX, db.posY)
 	SDFrame:SetScale(CS.db.scale)
 	SDFrame:SetHeight(db.height)
 	SDFrame:SetWidth(db.width)
-	
 	fontPath = LSM:Fetch("font", db.fontName)
 	backdrop.bgFile = (db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
-	
 	createFrames()
-	self.refreshDisplay = refreshDisplay
-	
-	self:SetUpdateInterval(0.1)
 	
 	self:RegisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
+	CS:SetUpdateInterval(0.1)
 end
 
 function SD:OnDisable()

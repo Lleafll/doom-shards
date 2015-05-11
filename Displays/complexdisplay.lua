@@ -4,7 +4,7 @@ if not CS then return end
 
 
 -- Create module
-local CD = CS:NewModule("complex")
+local CD = CS:NewModule("complex", "AceEvent-3.0")
 
 
 -- Libraries
@@ -18,7 +18,7 @@ local stringformat = string.format
 
 
 -- Frames
-local CDFrame = CS:CreateParentFrame("CS Complex Display")
+local CDFrame = CS:CreateParentFrame("CS Complex Display", "complex")
 CD.frame = CDFrame
 local orbFrames = {}
 local fontStringParent
@@ -50,7 +50,7 @@ local statusbarBackdrop = {
 
 
 -- Functions
-function CD:CONSPICUOUS_SPIRITS_UPDATE(self, orbs, timers)
+function CD:CONSPICUOUS_SPIRITS_UPDATE(_, orbs, timers)
 	local k = 1
 	for i = 1, 6 do
 		if orbs >= i then
@@ -269,40 +269,6 @@ local function createFrames()
 	end
 end
 
-
---[[
-CS.displayBuilders["Complex"] = function(self)
-	db = self.db.complex
-	
-	statusbarMaxTime = db.maxTime
-	textEnable = db.textEnable
-	statusbarEnable = db.statusbarEnable
-	orbCappedEnable = db.orbCappedEnable
-	
-	local height = db.height + 25
-	local width = 5 * db.width + 4 * db.spacing
-
-	CDFrame:SetHeight(db.orientation == "Vertical" and width or height)
-	CDFrame:SetWidth(db.orientation == "Vertical" and height or width)
-	
-	fontPath = LSM:Fetch("font", db.fontName)
-	local bgFile = (db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
-	backdrop.bgFile = bgFile
-	statusbarBackdrop.bgFile = bgFile
-	
-	createFrames()
-	if CDFrame.locked and not UnitAffectingCombat("player") then
-		RegisterStateDriver(CDFrame, "visibility", db.visibilityConditionals)
-	end
-	self.refreshDisplay = refreshDisplay
-	CDFrame.ShowChildren = ShowChildren
-	CDFrame.HideChildren = HideChildren
-	
-	if textEnable then self:SetUpdateInterval(0.1) end
-	if statusbarEnable then self:SetUpdateInterval(statusbarMaxTime / db.width / self.db.scale) end
-end
---]]
-
 function CD:OnEnable()
 	db = CS.db.complex
 	
@@ -314,7 +280,7 @@ function CD:OnEnable()
 	local height = db.height + 25
 	local width = 5 * db.width + 4 * db.spacing
 	
-	CDFrame:SetPoint("CENTER", CS.db.posX, CS.db.posY)
+	CDFrame:SetPoint("CENTER", db.posX, db.posY)
 	CDFrame:SetScale(CS.db.scale)
 	CDFrame:SetHeight(db.orientation == "Vertical" and width or height)
 	CDFrame:SetWidth(db.orientation == "Vertical" and height or width)
@@ -328,13 +294,10 @@ function CD:OnEnable()
 	if CS.locked and not UnitAffectingCombat("player") then
 		RegisterStateDriver(CDFrame, "visibility", db.visibilityConditionals)
 	end
-	CDFrame.ShowChildren = ShowChildren
-	CDFrame.HideChildren = HideChildren
-	
-	if textEnable then CS:SetUpdateInterval(0.1) end
-	if statusbarEnable then CS:SetUpdateInterval(statusbarMaxTime / db.width / CS.db.scale) end
 	
 	self:RegisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
+	if textEnable then CS:SetUpdateInterval(0.1) end
+	if statusbarEnable then CS:SetUpdateInterval(statusbarMaxTime / db.width / CS.db.scale) end
 end
 
 function CD:OnDisable()

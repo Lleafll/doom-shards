@@ -4,7 +4,7 @@ if not CS then return end
 
 
 -- Create module
-local EF = CS:NewModule("EncounterFixes")
+local EF = CS:NewModule("EncounterFixes", "AceEvent-3.0")
 
 
 -- Localization
@@ -259,9 +259,6 @@ function EF:ENCOUNTER_END()
 end
 
 function EF:OnEnable()
-	--@debug@
-	print("Encounter Fixes enabled!")
-	--@end-debug@
 	self:RegisterEvent("ENCOUNTER_START")
 end
 
