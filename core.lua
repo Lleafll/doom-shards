@@ -33,7 +33,6 @@ local distanceCache_GUID
 local timerID
 local playerGUID
 local aggressiveCachingInterval
-local soundEnabled
 
 local distanceTable = {}  -- from HaloPro (ultimately from LibRangeCheck it seems)
 distanceTable[5] = 37727 -- Ruby Acorn 5 yards
@@ -441,55 +440,43 @@ do
 			self:RegisterEvent("UNIT_POWER")
 			self:RegisterEvent("PLAYER_ENTERING_WORLD")
 			self:RegisterEvent("PLAYER_DEAD")
+			
 			local EF = self:GetModule("EncounterFixes")
+			
 			if isASSpecced() then
 				self:RegisterEvent("PLAYER_REGEN_DISABLED")
 				self:RegisterEvent("PLAYER_REGEN_ENABLED")
 				--self:RegisterEvent("PLAYER_STARTED_MOVING")  -- make a better implementation later
 				if not EF:IsEnabled() then EF:Enable() end
 				--self:Update()  -- necessary?
+			
 			else
 				self:UnregisterEvent("PLAYER_REGEN_DISABLED")
 				self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 				--self:UnregisterEvent("PLAYER_STARTED_MOVING")  -- make a better implementation later
 				self:ResetCount()
 				if EF:IsEnabled() then EF:Disable() end
+			
 			end
 		else
 			self:UnregisterEvent("UNIT_POWER")
 			self:UnregisterEvent("PLAYER_ENTERING_WORLD")
 			self:UnregisterEvent("PLAYER_DEAD")
+			
 		end
 	end
 
 	function CS:Build()
 		self:ApplySettings()
-		soundEnabled = self.db.sound
 		
 		if UnitAffectingCombat("player") then
 			if isShadow() and isASSpecced() 
 				then self:PLAYER_REGEN_DISABLED() 
 			end
-			
-		else
-			if self.locked then
-				self:PLAYER_REGEN_ENABLED()
-				for name, module in self:IterateModules() do
-					if self.db[name] and self.db[name].enable then
-						if module.Lock then module:Lock() end
-						if module.frame then module.frame:Lock() end
-					end
-				end
-				
-			else
-				for name, module in self:IterateModules() do
-					if self.db[name] and self.db[name].enable then
-						if module.Unlock then module:Unlock() end
-						if module.frame then module.frame:Unlock() end
-					end
-				end
-				
-			end
+		
+		elseif self.locked then
+			self:PLAYER_REGEN_ENABLED()
+
 		end
 		
 		aggressiveCachingInterval = self.db.aggressiveCachingInterval

@@ -78,9 +78,14 @@ function SD:Lock()
 	SDFrame:Hide()
 end
 
-local function createFrames()
+local function buildFrames()
 	local spacing = db.spacing / 2
+	backdrop.bgFile = (db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
 	
+	SDFrame:SetPoint("CENTER", db.posX, db.posY)
+	SDFrame:SetScale(CS.db.scale)
+	SDFrame:SetHeight(db.height)
+	SDFrame:SetWidth(db.width)
 	SDFrame:SetBackdrop(backdrop)
 	SDFrame:SetBackdropColor(db.color1.r, db.color1.b, db.color1.g, db.color1.a)
 	SDFrame:SetBackdropBorderColor(db.borderColor.r, db.borderColor.b, db.borderColor.g, db.borderColor.a)
@@ -88,7 +93,7 @@ local function createFrames()
 	local function setTimerText(fontstring)
 		local flags = db.fontFlags
 		fontstring:Show()
-		fontstring:SetFont(fontPath, db.fontSize, (flags == "MONOCHROMEOUTLINE" or flags == "OUTLINE" or flags == "THICKOUTLINE") and flags or nil)
+		fontstring:SetFont(LSM:Fetch("font", db.fontName), db.fontSize, (flags == "MONOCHROMEOUTLINE" or flags == "OUTLINE" or flags == "THICKOUTLINE") and flags or nil)
 		fontstring:SetTextColor(db.fontColor.r, db.fontColor.b, db.fontColor.g, db.fontColor.a)
 		fontstring:SetShadowOffset(1, -1)
 		fontstring:SetShadowColor(0, 0, 0, flags == "Shadow" and 1 or 0)
@@ -104,19 +109,17 @@ local function createFrames()
 	setTimerText(timerTextLong)
 end
 
-function SD:OnEnable()
-	db = CS.db.simple
-	
-	SDFrame:SetPoint("CENTER", db.posX, db.posY)
-	SDFrame:SetScale(CS.db.scale)
-	SDFrame:SetHeight(db.height)
-	SDFrame:SetWidth(db.width)
-	fontPath = LSM:Fetch("font", db.fontName)
-	backdrop.bgFile = (db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
-	createFrames()
-	
-	self:RegisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
+function SD:Build()
+	buildFrames()
 	CS:SetUpdateInterval(0.1)
+end
+
+function SD:OnInitialize()
+	db = CS.db.simple
+end
+
+function SD:OnEnable()
+	self:RegisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
 end
 
 function SD:OnDisable()

@@ -4,7 +4,7 @@ if not CS then return end
 
 
 -- Create module
-local SO = CS:NewModule("warningSound", "AceEvent-3.0")  -- can't use sound since it's a legacy option :/
+local WS = CS:NewModule("warningSound", "AceEvent-3.0")  -- can't use sound since it's a legacy option :/
 
 
 -- Libraries
@@ -23,7 +23,7 @@ local soundInterval
 
 
 -- Functions
-function SO:CONSPICUOUS_SPIRITS_UPDATE(_, orbs, timers)
+function WS:CONSPICUOUS_SPIRITS_UPDATE(_, orbs, timers)
 	if GetTime() - lastTime >= soundInterval then
 		if orbs >= 3 and orbs + (#timers or 0) >= 5 then
 			PlaySoundFile(soundFile, "Master")
@@ -32,23 +32,26 @@ function SO:CONSPICUOUS_SPIRITS_UPDATE(_, orbs, timers)
 	end
 end
 
-function SO:PLAYER_REGEN_DISABLED()
+function WS:PLAYER_REGEN_DISABLED()
 	self:RegisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
 end
 
-function SO:PLAYER_REGEN_ENABLED()
+function WS:PLAYER_REGEN_ENABLED()
 	self:UnregisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
 end
 
-function SO:OnEnable()
+function WS:Build()
 	soundFile = LSM:Fetch("sound", CS.db.warningSound.soundHandle)
 	soundInterval = CS.db.warningSound.soundInterval
-	self:RegisterEvent("PLAYER_REGEN_DISABLED")
-	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	CS:SetUpdateInterval(0.1)
 end
 
-function SO:OnDisable()
+function WS:OnEnable()
+	self:RegisterEvent("PLAYER_REGEN_DISABLED")
+	self:RegisterEvent("PLAYER_REGEN_ENABLED")
+end
+
+function WS:OnDisable()
 	self:UnregisterEvent("PLAYER_REGEN_DISABLED")
 	self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 end

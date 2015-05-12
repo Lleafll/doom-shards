@@ -27,13 +27,15 @@ function WA:CONSPICUOUS_SPIRITS_UPDATE(self, orbs, timers)
 	WeakAurasScanEvents("WA_AUSPICIOUS_SPIRITS", count, orbs)
 end
 
-function WA:OnEnable()
+function WA:OnInitialize()
 	if not _G.conspicuous_spirits_wa then _G.conspicuous_spirits_wa = {} end
 	conspicuous_spirits_wa = _G.conspicuous_spirits_wa
 	conspicuous_spirits_wa.count = 0
 	conspicuous_spirits_wa.orbs = UnitPower("player", 13)
 	conspicuous_spirits_wa.timers = {}
-	
+end
+
+function WA:OnEnable()
 	self:RegisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
 end
 

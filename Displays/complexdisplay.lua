@@ -30,7 +30,6 @@ local statusbars = {}
 local db
 local textEnable
 local statusbarEnable
-local fontPath
 local remainingThreshold = 2 -- threshold between short and long Shadowy Apparitions
 local statusbarMaxTime
 local orbCappedEnable
@@ -39,13 +38,6 @@ local backdrop = {
 	edgeFile = "Interface\\ChatFrame\\ChatFrameBackground",
 	tile = false,
 	edgeSize = 1
-}
-local statusbarBackdrop = {
-	bgFile = nil,
-	edgeFile = "Interface\\ChatFrame\\ChatFrameBackground",
-	tile = false,
-	edgeSize = 1,
-	insets = { left = 1, right = 1, top = 1, bottom = 1}
 }
 
 
@@ -117,7 +109,7 @@ function CD:Lock()
 	if not UnitAffectingCombat("player") then RegisterStateDriver(CDFrame, db.visibilityConditionals) end
 end
 
-local function createFrames()
+local function buildFrames()
 	local orientation = db.orientation
 	local growthDirection = db.growthDirection
 	local height = db.height
@@ -126,7 +118,15 @@ local function createFrames()
 	local stringXOffset = db.stringXOffset
 	local stringYOffset = db.stringYOffset
 	local statusbarXOffset = db.statusbarXOffset
-	local statusbarYOffset = db.statusbarYOffset 
+	local statusbarYOffset = db.statusbarYOffset
+	backdrop.bgFile = (db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
+	
+	local CDFrameHeight = db.height + 25
+	local CDFrameWidth = 5 * db.width + 4 * db.spacing
+	CDFrame:SetPoint("CENTER", db.posX, db.posY)
+	CDFrame:SetScale(CS.db.scale)
+	CDFrame:SetHeight(db.orientation == "Vertical" and CDFrameWidth or CDFrameHeight)
+	CDFrame:SetWidth(db.orientation == "Vertical" and CDFrameHeight or CDFrameWidth)
 	
 	if growthDirection == "Reversed" then
 		stringXOffset = -1 * stringXOffset
@@ -206,7 +206,7 @@ local function createFrames()
 			else
 				fontString:SetPoint("BOTTOM", referenceFrame, "TOP", stringXOffset, stringYOffset + 1)
 			end
-			fontString:SetFont(fontPath, db.fontSize, (flags == "MONOCHROMEOUTLINE" or flags == "OUTLINE" or flags == "THICKOUTLINE") and flags or nil)
+			fontString:SetFont(LSM:Fetch("font", db.fontName), db.fontSize, (flags == "MONOCHROMEOUTLINE" or flags == "OUTLINE" or flags == "THICKOUTLINE") and flags or nil)
 			fontString:SetTextColor(db.fontColor.r, db.fontColor.b, db.fontColor.g, db.fontColor.a)
 			fontString:SetShadowOffset(1, -1)
 			fontString:SetShadowColor(0, 0, 0, db.fontFlags == "Shadow" and 1 or 0)
@@ -269,35 +269,27 @@ local function createFrames()
 	end
 end
 
-function CD:OnEnable()
-	db = CS.db.complex
-	
+function CD:Build()
 	statusbarMaxTime = db.maxTime
 	textEnable = db.textEnable
 	statusbarEnable = db.statusbarEnable
 	orbCappedEnable = db.orbCappedEnable
 	
-	local height = db.height + 25
-	local width = 5 * db.width + 4 * db.spacing
+	buildFrames()
 	
-	CDFrame:SetPoint("CENTER", db.posX, db.posY)
-	CDFrame:SetScale(CS.db.scale)
-	CDFrame:SetHeight(db.orientation == "Vertical" and width or height)
-	CDFrame:SetWidth(db.orientation == "Vertical" and height or width)
-	
-	fontPath = LSM:Fetch("font", db.fontName)
-	local bgFile = (db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
-	backdrop.bgFile = bgFile
-	statusbarBackdrop.bgFile = bgFile
-	
-	createFrames()
 	if CS.locked and not UnitAffectingCombat("player") then
 		RegisterStateDriver(CDFrame, "visibility", db.visibilityConditionals)
 	end
-	
-	self:RegisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
 	if textEnable then CS:SetUpdateInterval(0.1) end
 	if statusbarEnable then CS:SetUpdateInterval(statusbarMaxTime / db.width / CS.db.scale) end
+end
+
+function CD:OnInitialize()
+	db = CS.db.complex
+end
+
+function CD:OnEnable()
+	self:RegisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
 end
 
 function CD:OnDisable()

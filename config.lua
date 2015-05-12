@@ -142,7 +142,11 @@ function CS:HandleChatCommand(command)
 		end
 	end
 	
-	ACD:Open("Conspicuous Spirits")
+	if ACD.OpenFrames[addons] then
+		ACD:Close("Conspicuous Spirits")
+	else
+		ACD:Open("Conspicuous Spirits")
+	end
 end
 
 CS:RegisterChatCommand("cs", "HandleChatCommand")
