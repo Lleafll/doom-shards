@@ -194,31 +194,46 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 		
 		
 		--@debug@
-	elseif encounterID == 1206 then  -- Alysrazor
+	elseif encounterID == 1206 then
 		self:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
 			for i = 1,1 do
 				local unitID = "boss"..tostring(i)
 				local GUID = UnitGUID(unitID)
+				
+				-- debug
 				print("GUID: "..GUID)
+				
 				if not GUID then break end
 				local NPCID = GUID:sub(-16, -12)
+				
+				-- debug
 				print("NPCID: "..NPCID)
+				
 				if NPCID == "52530" then  -- Alysrazor
 					boss1GUID = GUID
 				end
 			end
 			if boss1GUID then
+			
+				-- debug
 				print(boss1GUID)
+				
 				self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
 			end
 		end)
 		boss1Name = "Herald of the Burning End"
 		self:RegisterEvent("CHAT_MSG_RAID_BOSS_EMOTE", function(_, message, sender)
+
+			-- debug
 			print(sender, message)
+			
 			if message:find("begins casting") then
 				if sender == boss1Name then
+				
+					-- debug
 					print(boss1Name.." auf's Schiff")
 					print(boss1GUID)
+					
 					C_TimerAfter(3, function()
 						print("removed")
 					end)

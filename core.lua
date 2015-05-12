@@ -119,7 +119,7 @@ do
 		end
 	end
 
-	local function cacheTravelTime(travelTime, GUID, timeStamp)
+	local function cacheTravelTime(travelTime, GUID)
 		-- target too far away
 		if travelTime == -1 then
 			distanceCache[GUID] = nil
@@ -130,13 +130,13 @@ do
 		if travelTime then
 			distanceCache[GUID] = distanceCache[GUID] or {}
 			distanceCache[GUID].travelTime = travelTime
-			distanceCache[GUID].timeStamp = timeStamp  -- can be nil when called from aggressiveCachingByUnitID
+			distanceCache[GUID].timeStamp = GetTime()
 		end
 
 		return travelTime
 	end
 
-	local function getTravelTimeByGUID(GUID, timeStamp)
+	local function getTravelTimeByGUID(GUID)
 		local travelTime
 
 		if UnitGUID("target") == GUID then
@@ -171,19 +171,19 @@ do
 			end
 		end
 		
-		return cacheTravelTime(travelTime, GUID, timeStamp)
+		return cacheTravelTime(travelTime, GUID)
 	end
 
-	local function getTravelTime(GUID, timeStamp, forced)
+	local function getTravelTime(GUID, forced)
 		local travelTime
 		distanceCache_GUID = distanceCache[GUID]
 		
-		if not distanceCache_GUID ot not distanceCache_GUID.timeStamp then
-			travelTime = getTravelTimeByGUID(GUID, timeStamp)
+		if not distanceCache_GUID then
+			travelTime = getTravelTimeByGUID(GUID)
 		else
-			local delta = timeStamp - distanceCache_GUID.timeStamp
+			local delta = GetTime() - distanceCache_GUID.timeStamp
 			if forced or (delta > cacheMaxTime) then
-				travelTime = getTravelTimeByGUID(GUID, timeStamp) or distanceCache_GUID.travelTime
+				travelTime = getTravelTimeByGUID(GUID) or distanceCache_GUID.travelTime
 			else
 				travelTime = distanceCache_GUID.travelTime
 			end
@@ -198,33 +198,37 @@ do
 	end
 
 	do
-		local function aggressiveCachingByUnitID(unitID)
+		local function aggressiveCachingByUnitID(unitID, timeStamp)
 			if not UnitCanAttack("player", unitID) then return end
+			
 			local GUID = UnitGUID(unitID)
-			local distanceCache_GUID = distanceCache[GUID]
+			
+			if distanceCache[GUID] and timeStamp - distanceCache[GUID].timeStamp < aggressiveCachingInterval then return end
 			cacheTravelTime(calculateTravelTime(unitID), GUID)
 		end
 
-		local function aggressiveCachingIteration(tbl)
+		local function aggressiveCachingIteration(tbl, timeStamp)
 			for i = 1, #tbl do
-				aggressiveCachingByUnitID(tbl[i])
+				aggressiveCachingByUnitID(tbl[i], timeStamp)
 			end
 		end
 
 		function CS:AggressiveCaching()
-			aggressiveCachingByUnitID("target")
-			aggressiveCachingByUnitID("mouseover")
-			aggressiveCachingByUnitID("focus")
-			aggressiveCachingByUnitID("pettarget")
+			local timeStamp = GetTime()  -- sadly no milliseconds :/
+
+			aggressiveCachingByUnitID("target", timeStamp)
+			aggressiveCachingByUnitID("mouseover", timeStamp)
+			aggressiveCachingByUnitID("focus", timeStamp)
+			aggressiveCachingByUnitID("pettarget", timeStamp)
 			if UnitExists("boss1") then
-				aggressiveCachingIteration(bossTable)
+				aggressiveCachingIteration(bossTable, timeStamp)
 			end
 			if IsInRaid() then
-				aggressiveCachingIteration(raidTable)
-				aggressiveCachingIteration(raidPetTable)
+				aggressiveCachingIteration(raidTable, timeStamp)
+				aggressiveCachingIteration(raidPetTable, timeStamp)
 			elseif IsInGroup() then
-				aggressiveCachingIteration(partyTable)
-				aggressiveCachingIteration(partyPetTable)
+				aggressiveCachingIteration(partyTable, timeStamp)
+				aggressiveCachingIteration(partyPetTable, timeStamp)
 			end
 			
 			cacheTravelTime(travelTime)
@@ -237,14 +241,14 @@ do
 		self:Update()
 	end
 	
-	function CS:addGUID(GUID, timeStamp)
+	function CS:addGUID(GUID)
 		local cancelTime
-		local travelTime = getTravelTime(GUID, timeStamp, true)
+		local travelTime = getTravelTime(GUID, true)
 		if not travelTime then return end  -- target too far away, abort timer creation
 
 		targets[GUID] = targets[GUID] or {}
 		timerID = self:ScheduleTimer("RemoveTimer_timed", travelTime + SAGraceTime, GUID)
-		timerID.impactTime = timeStamp + travelTime
+		timerID.impactTime = GetTime() + travelTime  -- can't use timeStamp instead of GetTime() because of different time reference
 		targets[GUID][#targets[GUID]+1] = timerID
 		
 		local timersCount = #timers
@@ -312,7 +316,7 @@ do
 		
 			-- Shadowy Apparition cast
 			if spellID == 147193 and destName ~= nil then  -- SAs without a target won't generate orbs
-				self:addGUID(destGUID, timeStamp)
+				self:addGUID(destGUID)
 				self:Update()
 			
 			-- catch all Auspicious Spirits and Shadowy Apparition hit events
@@ -324,7 +328,7 @@ do
 					SATimeCorrection[destGUID] = SATimeCorrection[destGUID] - additionalTime / 2
 					removeTimer(timerID)
 					-- correct other timers
-					if targets[GUID] and additionalTime > 0.1 then
+					if targets[GUID] and additionalTime > 0.2 then
 						for _, timerID in pairs(targets[GUID]) do
 							timerID.impactTime = timerID.impactTime - additionalTime
 						end
@@ -344,7 +348,7 @@ do
 				
 			-- Shadowy Word: Pain tick
 			elseif spellID == 589 and not multistrike and (event == "SPELL_PERIODIC_DAMAGE" or event == "SPELL_DAMAGE") then
-				getTravelTime(destGUID, timeStamp)  -- adds GUID to distance table
+				getTravelTime(destGUID)  -- adds GUID to distance table
 				
 			end
 		end
