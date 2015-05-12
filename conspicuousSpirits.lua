@@ -101,5 +101,5 @@ function CS:OnInitialize()
 	self.db = CSDB.global
 	function self:ResetDB() CSDB:ResetDB() end
 	
-	self:RegisterEvent("PLAYER_TALENT_UPDATE", "TalentsCheck")
+	self:RegisterEvent("PLAYER_TALENT_UPDATE", "TalentsCheck")  -- will fire once for every talent tier after player is in-game and ultimately initialize events and displays if player is Shadow
 end

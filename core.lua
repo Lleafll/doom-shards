@@ -328,7 +328,7 @@ do
 					SATimeCorrection[destGUID] = SATimeCorrection[destGUID] - additionalTime / 2
 					removeTimer(timerID)
 					-- correct other timers
-					if targets[GUID] and additionalTime > 0.2 then
+					if targets[GUID] and additionalTime > 0.1 then
 						for _, timerID in pairs(targets[GUID]) do
 							timerID.impactTime = timerID.impactTime - additionalTime
 						end
