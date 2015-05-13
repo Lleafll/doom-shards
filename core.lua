@@ -234,6 +234,28 @@ do
 		end
 	end
 
+	local function popGUID(GUID)
+		if targets[GUID] then
+			return tableremove(targets[GUID], 1)
+		else
+			return false
+		end
+	end
+
+	local function popTimer(timerID)
+		for k, v in pairs(timers) do
+			if v == timerID then
+				tableremove(timers, k)
+				break
+			end
+		end
+	end
+
+	local function removeTimer(timerID)
+		popTimer(timerID)
+		CS:CancelTimer(timerID)
+	end
+
 	function CS:RemoveTimer_timed(GUID)
 		timerID = popGUID(GUID)
 		popTimer(timerID)
@@ -263,21 +285,7 @@ do
 		end
 		timers[timersCount+1] = timerID
 	end
-
-	local function popTimer(timerID)
-		for k, v in pairs(timers) do
-			if v == timerID then
-				tableremove(timers, k)
-				break
-			end
-		end
-	end
-
-	local function removeTimer(timerID)
-		popTimer(timerID)
-		CS:CancelTimer(timerID)
-	end
-		
+	
 	function CS:RemoveGUID(GUID)
 		if not targets[GUID] then return end
 		for _, timerID in pairs(targets[GUID]) do
@@ -292,14 +300,6 @@ do
 	function CS:RemoveAllGUIDs()  -- used by some encounter fixes
 		for GUID, _ in pairs(targets[GUID]) do
 			self:RemoveGUID(GUID)
-		end
-	end
-
-	local function popGUID(GUID)
-		if targets[GUID] then
-			return tableremove(targets[GUID], 1)
-		else
-			return false
 		end
 	end
 
