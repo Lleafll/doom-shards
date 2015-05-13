@@ -1,11 +1,19 @@
 ## Interface: 60100
 ## Title: Conspicuous Spirits
-## Notes: Track your incoming Shadow Orbs from Auspicious Spirits!
-## Notes-deDE: Visualisiert deine zu erwartenden Schattenkugeln von Verheißungsvolle Geister!
 ## Author: Lleaf
 ## Version: @project-version@
 ## SavedVariables: ConspicuousSpiritsDB
 ## OptionalDeps: WeakAuras
+
+#@non-debug@
+## Notes: @localization(locale="enUS", key="Track your incoming Shadow Orbs from Auspicious Spirits!", namespace="ToC")@
+## Notes-deDE: @localization(locale="deDE", key="Track your incoming Shadow Orbs from Auspicious Spirits!", namespace="ToC")@
+## Notes-koKR: @localization(locale="koKR", key="Track your incoming Shadow Orbs from Auspicious Spirits!", namespace="ToC")@
+#@end-non-debug@
+
+#@debug@
+## Notes: "Track your incoming Shadow Orbs from Auspicious Spirits!"
+#@end-debug@
 
 Libs\LibStub\LibStub.lua
 Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
