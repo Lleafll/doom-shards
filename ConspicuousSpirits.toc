@@ -29,6 +29,9 @@ Localizations\koKR.lua
 
 ConspicuousSpirits.lua
 Config.lua
+Core.lua
+
+EncounterFixes.lua
 
 Displays\ComplexDisplayConfig.lua
 Displays\ComplexDisplay.lua
@@ -38,6 +41,3 @@ Displays\WeakaurasConfig.lua
 Displays\Weakauras.lua
 Displays\Sound.lua
 Displays\SoundConfig.lua
-
-EncounterFixes.lua
-Core.lua

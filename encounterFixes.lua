@@ -143,6 +143,7 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 		
 	elseif encounterID == 1694 then  -- Beastlord Darmac
 		self:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
+			-- check when Beastlord comes untargetable due to mounting up
 			boss1GUID = UnitGUID("boss1")
 			if boss1GUID then
 				self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
@@ -152,6 +153,22 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 					end
 				end)
 			end
+			-- search for overkill since there isn't always a death event for the spears
+			self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, _, event, _, _, _, _, _, destGUID, _, _, _, ...)
+				if event == "SWING_DAMAGE" then
+					_, overkill = ...
+					if overkill > 0 then
+						CS:RemoveGUID(destGUID)
+					end
+					
+				elseif event == "SPELL_DAMAGE" or event == "SPELL_PERIODIC_DAMAGE" or event == "RANGE_DAMAGE" then
+					_, _, _, _, overkill = ...
+					if overkill > 0 then
+						CS:RemoveGUID(destGUID)
+					end
+					
+				end
+			end)
 		end)
 		
 		

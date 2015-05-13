@@ -303,9 +303,8 @@ do
 		end
 	end
 
-	function CS:COMBAT_LOG_EVENT_UNFILTERED(_, ...)
-		local timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID, _, _, _, _, _, _, _, _, _, _, _, _, multistrike = ...
-			
+	function CS:COMBAT_LOG_EVENT_UNFILTERED(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID, _, _, _, _, _, _, _, _, _, _, _, _, multistrike)
+		
 		if event == "UNIT_DIED" or event == "UNIT_DESTROYED" or event == "PARTY_KILL" or event == "SPELL_INSTAKILL" then
 		
 			self:RemoveGUID(destGUID)
