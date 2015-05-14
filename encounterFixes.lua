@@ -154,16 +154,22 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 				end)
 			end
 			-- search for overkill since there isn't always a death event for the spears
-			self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, _, event, _, _, _, _, _, destGUID, _, _, _, ...)
+			self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, _, event, _, _, _, _, _, destGUID, destName, _, _, ...)
 				if event == "SWING_DAMAGE" then
 					_, overkill = ...
 					if overkill > 0 then
+						--@debug@
+						print(destName)
+						--@end-debug@
 						CS:RemoveGUID(destGUID)
 					end
 					
 				elseif event == "SPELL_DAMAGE" or event == "SPELL_PERIODIC_DAMAGE" or event == "RANGE_DAMAGE" then
 					_, _, _, _, overkill = ...
 					if overkill > 0 then
+						--@debug@
+						print(destName)
+						--@end-debug@
 						CS:RemoveGUID(destGUID)
 					end
 					
