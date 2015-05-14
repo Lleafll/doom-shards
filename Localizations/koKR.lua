@@ -4,7 +4,7 @@ if not L then return end
 
 
 -- Translations
---@localization(locale="koKR", format="lua_additive_table", same-key-is-true=true)@
+--@localization(locale="koKR", format="lua_additive_table", same-key-is-true=true, handle-subnamespaces="none")@
 
 --@do-not-package@
 

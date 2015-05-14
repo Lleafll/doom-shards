@@ -12,7 +12,7 @@ if not L then return end
 
 
 -- Translations
---@localization(locale="enUS", format="lua_additive_table", same-key-is-true=true)@
+--@localization(locale="enUS", format="lua_additive_table", same-key-is-true=true, handle-subnamespaces="none")@
 
 --@do-not-package@
 
@@ -30,13 +30,13 @@ L["Color 3"] = "Color 3"
 L["Color When Orb Capped"] = true
 L["Color of the sixth indicator when overcapping with Shadowy Apparitions"] = "Color of the sixth indicator when overcapping with Shadowy Apparitions"
 L["Complex Display"] = "Complex Display"
-L["Conspicuous Spirits locked!"] = "|cFF613B82Conspicuous Spirits|r locked!"
-L["Conspicuous Spirits reset!"] = "|cFF613B82Conspicuous Spirits|r reset!"
-L["Conspicuous Spirits unlocked!"] = "|cFF613B82Conspicuous Spirits|r unlocked!"
+L["Conspicuous Spirits locked!"] = "|cFF814eaaConspicuous Spirits|r locked!"
+L["Conspicuous Spirits reset!"] = "|cFF814eaaConspicuous Spirits|r reset!"
+L["Conspicuous Spirits unlocked!"] = "|cFF814eaaConspicuous Spirits|r unlocked!"
 L["Documentation"] = "Documentation"
-L["dragFrameTooltip"] = [=[Left mouse button to drag.
-Right mouse button to lock.
-Mouse wheel and shift + mouse wheel for fine adjustment.]=]
+L["dragFrameTooltip"] = [=[|cFFcc0060Left mouse button|r to drag.
+|cFFcc0060Right mouse button|r to lock.
+|cFFcc0060Mouse wheel|r and |cFFcc0060shift + mouse wheel|r for fine adjustment.]=]
 L["Enable"] = "Enable"
 L["Enable display of bars for anticipated Shadow Orbs in the Shadow Orbs' positions"] = "Enable display of bars for anticipated Shadow Orbs in the Shadow Orbs' positions"
 L["Enables frequent distance scanning of all available targets. Will increase CPU usage slightly and is only going to increase accuracy in situations with many fast-moving mobs."] = "Enables frequent distance scanning of all available targets. Will increase CPU usage slightly and is only going to increase accuracy in situations with many fast-moving mobs."

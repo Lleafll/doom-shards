@@ -79,6 +79,7 @@ function SD:Lock()
 end
 
 local function buildFrames()
+	local flags = db.fontFlags
 	local spacing = db.spacing / 2
 	backdrop.bgFile = (db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
 	
@@ -91,7 +92,6 @@ local function buildFrames()
 	SDFrame:SetBackdropBorderColor(db.borderColor.r, db.borderColor.b, db.borderColor.g, db.borderColor.a)
 	
 	local function setTimerText(fontstring)
-		local flags = db.fontFlags
 		fontstring:Show()
 		fontstring:SetFont(LSM:Fetch("font", db.fontName), db.fontSize, (flags == "MONOCHROMEOUTLINE" or flags == "OUTLINE" or flags == "THICKOUTLINE") and flags or nil)
 		fontstring:SetTextColor(db.fontColor.r, db.fontColor.b, db.fontColor.g, db.fontColor.a)
@@ -124,5 +124,4 @@ end
 
 function SD:OnDisable()
 	self:UnregisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
-	SDFrame:Hide()
 end

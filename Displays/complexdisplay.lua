@@ -122,7 +122,7 @@ local function buildFrames()
 	backdrop.bgFile = (db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
 	
 	local CDFrameHeight = db.height + 25
-	local CDFrameWidth = 5 * db.width + 4 * db.spacing
+	local CDFrameWidth = 6 * db.width + 5 * db.spacing
 	CDFrame:SetPoint("CENTER", db.posX, db.posY)
 	CDFrame:SetScale(CS.db.scale)
 	CDFrame:SetHeight(db.orientation == "Vertical" and CDFrameWidth or CDFrameHeight)
@@ -210,9 +210,9 @@ local function buildFrames()
 			fontString:SetTextColor(db.fontColor.r, db.fontColor.b, db.fontColor.g, db.fontColor.a)
 			fontString:SetShadowOffset(1, -1)
 			fontString:SetShadowColor(0, 0, 0, db.fontFlags == "Shadow" and 1 or 0)
-			fontString:Show()
 			fontString:SetText("0.0")
 			
+			fontString:Show()
 			return fontString
 		end
 		for i = 1, 6 do
@@ -252,7 +252,7 @@ local function buildFrames()
 			statusbar:SetOrientation(orientation == "Vertical" and "VERTICAL" or "HORIZONTAL")
 			statusbar:SetReverseFill(db.statusbarReverse)
 			
-			frame:Hide()		
+			frame:Show()		
 			return frame
 		end
 		for i = 1, 6 do
@@ -294,5 +294,4 @@ end
 
 function CD:OnDisable()
 	self:UnregisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
-	CDFrame:Hide()
 end
