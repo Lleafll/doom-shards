@@ -44,22 +44,27 @@ local backdrop = {
 -- Functions
 function CD:CONSPICUOUS_SPIRITS_UPDATE(_, orbs, timers)
 	local k = 1
+	
 	for i = 1, 6 do
 		if orbs >= i then
 			local orbFrame = orbFrames[i]
+			
 			if orbCappedEnable then
-				if orbs == 5 and not orbFrame.orbCapColored then
+				if (orbs == 5) and (not orbFrame.orbCapColored) then
 					orbFrame:SetOrbCapColor()
-				elseif orbs ~= 5 and not orbFrame.orbCapColored then
+				elseif (orbs ~= 5) and (orbFrame.orbCapColored) then
 					orbFrame:SetOriginalColor()
 				end
 			end
+			
 			orbFrame:Show()
 			SATimers[i]:Hide()
 			statusbars[i]:Hide()
+			
 		else
 			orbFrames[i]:Hide()
 			local timerID = timers[k]
+			
 			if timerID then
 				local SATimer = SATimers[i]
 				SATimer:Show()
@@ -71,6 +76,7 @@ function CD:CONSPICUOUS_SPIRITS_UPDATE(_, orbs, timers)
 					else
 						SATimer:SetText(stringformat("%.0f", remaining))
 					end
+					
 					if fontColorCacheEnable then
 						if timerID.isCached and not SATimer.cacheColored then
 							SATimer:SetCacheColor()
@@ -79,14 +85,24 @@ function CD:CONSPICUOUS_SPIRITS_UPDATE(_, orbs, timers)
 						end
 					end
 				end
+				
 				if statusbarEnable then
 					statusbars[i].statusbar:SetValue(statusbarMaxTime - remaining)
 				end
+				
 				k = k + 1
+				
 			else
-				SATimers[i]:Hide()
-				statusbars[i]:Hide()
+				for m = i, 6 do
+					orbFrames[m]:Hide()
+					SATimers[m]:Hide()
+					statusbars[m]:Hide()
+				end
+				
+				break
+				
 			end
+			
 		end
 	end
 end
@@ -179,6 +195,7 @@ local function buildFrames()
 			if numeration < 4 then
 				function frame:SetOriginalColor()
 					self:SetBackdropColor(c1r, c1b, c1g, c1a)
+					self.orbCapColored = false
 				end
 				frame:SetOriginalColor()
 			elseif numeration < 6 then

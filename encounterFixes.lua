@@ -158,18 +158,12 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 				if event == "SWING_DAMAGE" then
 					_, overkill = ...
 					if overkill > 0 then
-						--@debug@
-						print(destName)
-						--@end-debug@
 						CS:RemoveGUID(destGUID)
 					end
 					
 				elseif event == "SPELL_DAMAGE" or event == "SPELL_PERIODIC_DAMAGE" or event == "RANGE_DAMAGE" then
 					_, _, _, _, overkill = ...
 					if overkill > 0 then
-						--@debug@
-						print(destName)
-						--@end-debug@
 						CS:RemoveGUID(destGUID)
 					end
 					
