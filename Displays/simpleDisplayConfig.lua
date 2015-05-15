@@ -65,7 +65,6 @@ CS:AddDisplayOptions("simple",
 						order = 5,
 						type = "color",
 						name = L["Color 1"],
-						desc = L["Set Color 1"],
 						hasAlpha = true,
 						get = function()
 							return CS.db.simple.color1.r, CS.db.simple.color1.b, CS.db.simple.color1.g, CS.db.simple.color1.a
@@ -79,7 +78,6 @@ CS:AddDisplayOptions("simple",
 						order = 6,
 						type = "color",
 						name = L["Color 2"],
-						desc = L["Set Color 2"],
 						hasAlpha = true,
 						get = function()
 							return CS.db.simple.color2.r, CS.db.simple.color2.b, CS.db.simple.color2.g, CS.db.simple.color2.a
@@ -93,7 +91,6 @@ CS:AddDisplayOptions("simple",
 						order = 7,
 						type = "color",
 						name = L["Color 3"],
-						desc = L["Set Color 3"],
 						hasAlpha = true,
 						get = function()
 							return CS.db.simple.color3.r, CS.db.simple.color3.b, CS.db.simple.color3.g, CS.db.simple.color3.a

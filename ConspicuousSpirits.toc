@@ -1,5 +1,5 @@
 ## Interface: 60100
-## Title: |cFF613B82Conspicuous Spirits|r
+## Title: Conspicuous Spirits
 ## Author: Lleaf
 ## Version: @project-version@
 ## SavedVariables: ConspicuousSpiritsDB

@@ -21,14 +21,23 @@ L["Aggressive Caching Interval"] = "Aggressive Caching Interval"
 L["Anticipated Orbs"] = "Anticipated Orbs"
 L["Background Color"] = "Background Color"
 L["Border Color"] = "Border Color"
+
+L["Cached distances might be unreliable when you or the mobs move a lot"] = true
+
 L["Can not change visibility options in combat."] = "Can not change visibility options in combat."
 L["Change color of all Shadow Orbs when reaching five Shadow Orbs"] = true
 L["Color"] = "Color"
 L["Color 1"] = "Color 1"
 L["Color 2"] = "Color 2"
 L["Color 3"] = "Color 3"
+
+L["Color for Cache Value"] =  true
+
 L["Color When Orb Capped"] = true
 L["Color of the sixth indicator when overcapping with Shadowy Apparitions"] = "Color of the sixth indicator when overcapping with Shadowy Apparitions"
+
+L["Color Text On Using Cached Value"] = true
+
 L["Complex Display"] = "Complex Display"
 L["Conspicuous Spirits locked!"] = "|cFF814eaaConspicuous Spirits|r locked!"
 L["Conspicuous Spirits reset!"] = "|cFF814eaaConspicuous Spirits|r reset!"
@@ -79,9 +88,6 @@ L["Scale"] = "Scale"
 L["Scanning interval when Aggressive Caching is enabled"] = "Scanning interval when Aggressive Caching is enabled"
 L["Select font for the Complex display"] = "Select font for the Complex display"
 L["Select font for the Simple display"] = "Select font for the Simple display"
-L["Set Color 1"] = "Set Color 1"
-L["Set Color 2"] = "Set Color 2"
-L["Set Color 3"] = "Set Color 3"
 L["Set Display border color"] = "Set Display border color"
 L["Set Display orientation"] = "Set Display orientation"
 L["Set Font Color"] = "Set Font Color"
@@ -106,7 +112,13 @@ L["Spacing"] = "Spacing"
 L["Text"] = "Text"
 L["Texture"] = "Texture"
 L["THICKOUTLINE"] = "THICKOUTLINE"
+
+L["Threshold when text begins showing first decimal place"] = true
+
 L["Time between warning sounds"] = "Time between warning sounds"
+
+L["Time Threshold"] = true
+
 L["Toggle Lock"] = "Toggle Lock"
 L["Version"] = true
 L["Vertical"] = "Vertical"

@@ -30,7 +30,7 @@ local statusbars = {}
 local db
 local textEnable
 local statusbarEnable
-local remainingThreshold = 2 -- threshold between short and long Shadowy Apparitions
+local remainingTimeThreshold
 local statusbarMaxTime
 local orbCappedEnable
 local backdrop = {
@@ -47,10 +47,12 @@ function CD:CONSPICUOUS_SPIRITS_UPDATE(_, orbs, timers)
 	for i = 1, 6 do
 		if orbs >= i then
 			local orbFrame = orbFrames[i]
-			if orbCappedEnable and orbs == 5 then
-				orbFrame:SetOrbCapColor()
-			elseif orbFrame.orbCapColored then
-				orbFrame:SetOriginalColor()
+			if orbCappedEnable then
+				if orbs == 5 and not orbFrame.orbCapColored then
+					orbFrame:SetOrbCapColor()
+				elseif orbs ~= 5 and not orbFrame.orbCapColored then
+					orbFrame:SetOriginalColor()
+				end
 			end
 			orbFrame:Show()
 			SATimers[i]:Hide()
@@ -59,14 +61,22 @@ function CD:CONSPICUOUS_SPIRITS_UPDATE(_, orbs, timers)
 			orbFrames[i]:Hide()
 			local timerID = timers[k]
 			if timerID then
-				SATimers[i]:Show()
+				local SATimer = SATimers[i]
+				SATimer:Show()
 				statusbars[i]:Show()
 				local remaining = mathmax(0, timerID.impactTime - GetTime())
 				if textEnable then
-					if remaining < remainingThreshold then
-						SATimers[i]:SetText(stringformat("%.1f", remaining))
+					if remaining < remainingTimeThreshold then
+						SATimer:SetText(stringformat("%.1f", remaining))
 					else
-						SATimers[i]:SetText(stringformat("%.0f", remaining))
+						SATimer:SetText(stringformat("%.0f", remaining))
+					end
+					if fontColorCacheEnable then
+						if timerID.isCached and not SATimer.cacheColored then
+							SATimer:SetCacheColor()
+						elseif not timerID.isCached and SATimer.cacheColored then
+							SATimer:SetOriginalColor()
+						end
 					end
 				end
 				if statusbarEnable then
@@ -180,9 +190,10 @@ local function buildFrames()
 			else
 				frame:SetBackdropColor(0, 0, 0, 0)  -- dummy frame to anchor overflow fontstring to
 			end
-			local c1r, c1b, c1, c1a = db.orbCappedColor.r, db.orbCappedColor.b, db.orbCappedColor.g, db.orbCappedColor.a
+			
+			local c3r, c3b, c3g, c3a = db.orbCappedColor.r, db.orbCappedColor.b, db.orbCappedColor.g, db.orbCappedColor.a
 			function frame:SetOrbCapColor()
-				self:SetBackdropColor(c1r, c1b, c1, c1a)
+				self:SetBackdropColor(c3r, c3b, c3g, c3a)
 				self.orbCapColored = true
 			end
 			
@@ -207,10 +218,23 @@ local function buildFrames()
 				fontString:SetPoint("BOTTOM", referenceFrame, "TOP", stringXOffset, stringYOffset + 1)
 			end
 			fontString:SetFont(LSM:Fetch("font", db.fontName), db.fontSize, (flags == "MONOCHROMEOUTLINE" or flags == "OUTLINE" or flags == "THICKOUTLINE") and flags or nil)
-			fontString:SetTextColor(db.fontColor.r, db.fontColor.b, db.fontColor.g, db.fontColor.a)
 			fontString:SetShadowOffset(1, -1)
 			fontString:SetShadowColor(0, 0, 0, db.fontFlags == "Shadow" and 1 or 0)
 			fontString:SetText("0.0")
+			
+			local c1r, c1b, c1g, c1a = db.fontColor.r, db.fontColor.b, db.fontColor.g, db.fontColor.a
+			function fontString:SetOriginalColor()
+				self:SetTextColor(c1r, c1b, c1g, c1a)
+				self.cacheColored = false
+			end
+			
+			fontString:SetOriginalColor()
+			
+			local c2r, c2b, c2g, c2a = db.fontColorCache.r, db.fontColorCache.b, db.fontColorCache.g, db.fontColorCache.a
+			function fontString:SetCacheColor()
+				self:SetTextColor(c2r, c2b, c2g, c2a)
+				self.cacheColored = true
+			end
 			
 			fontString:Show()
 			return fontString
@@ -272,6 +296,9 @@ end
 function CD:Build()
 	statusbarMaxTime = db.maxTime
 	textEnable = db.textEnable
+	remainingTimeThreshold = db.remainingTimeThreshold
+	fontColorCacheEnable = db.fontColorCacheEnable
+	fontColorCache = db.fontColorCacheEnable
 	statusbarEnable = db.statusbarEnable
 	orbCappedEnable = db.orbCappedEnable
 	

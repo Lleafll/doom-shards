@@ -14,6 +14,7 @@ CS:AddDisplayOptions("complex",
 		order = 2,
 		type = "group",
 		name = L["Complex Display"],
+		childGroups = "select",
 		cmdHidden  = true,
 		get = function(info) return CS.db.complex[info[#info]] end,
 		set = function(info, value) CS.db.complex[info[#info]] = value; CS:Build() end,
@@ -23,40 +24,31 @@ CS:AddDisplayOptions("complex",
 				type = "toggle",
 				name = L["Enable"]
 			},
-			layout = {
+			orientation = {
+				order = 1,
+				type = "select",
+				style = "dropdown",
+				name = L["Orientation"],
+				desc = L["Set Display orientation"],
+				values = {
+					["Horizontal"] = L["Horizontal"],
+					["Vertical"] = L["Vertical"]
+				}
+			},
+			growthDirection = {
 				order = 2,
-				type = "group",
-				name = L["Layout"],
-				inline = true,
-				args = {
-					orientation = {
-						order = 1,
-						type = "select",
-						style = "dropdown",
-						name = L["Orientation"],
-						desc = L["Set Display orientation"],
-						values = {
-							["Horizontal"] = L["Horizontal"],
-							["Vertical"] = L["Vertical"]
-						}
-					},
-					growthDirection = {
-						order = 2,
-						type = "select",
-						name = L["Growth direction"],
-						desc = L["Order in which the Shadow Orbs get filled in"],
-						values = {
-							["Regular"] = L["Regular"],
-							["Reversed"] = L["Reversed"]
-						}
-					}
+				type = "select",
+				name = L["Growth direction"],
+				desc = L["Order in which the Shadow Orbs get filled in"],
+				values = {
+					["Regular"] = L["Regular"],
+					["Reversed"] = L["Reversed"]
 				}
 			},
 			orbs = {
 				order = 3,
 				type = "group",
 				name = L["Orbs"],
-				inline = true,
 				args = {
 					height = {
 						order = 1,
@@ -94,7 +86,6 @@ CS:AddDisplayOptions("complex",
 						order = 4,
 						type = "color",
 						name = L["Color 1"],
-						desc = L["Set Color 1"],
 						hasAlpha = true,
 						get = function()
 							local r, b, g, a = CS.db.complex.color1.r, CS.db.complex.color1.b, CS.db.complex.color1.g, CS.db.complex.color1.a
@@ -109,7 +100,6 @@ CS:AddDisplayOptions("complex",
 						order = 5,
 						type = "color",
 						name = L["Color 2"],
-						desc = L["Set Color 2"],
 						hasAlpha = true,
 						get = function()
 							local r, b, g, a = CS.db.complex.color2.r, CS.db.complex.color2.b, CS.db.complex.color2.g, CS.db.complex.color2.a
@@ -197,25 +187,24 @@ CS:AddDisplayOptions("complex",
 				order = 5,
 				type = "group",
 				name = L["Text"],
-				inline = true,
 				args = {
 					textEnable = {
-						order = 6,
+						order = 5,
 						type = "toggle",
 						name = L["Enable"]
 					},
+					spacer_1 = {
+						order = 5.5,
+						type="description",
+						name=""
+					},
 					fontName = {
-						order = 7,
+						order = 6,
 						type = "select",
 						dialogControl = "LSM30_Font",
 						name = L["Font"],
 						desc = L["Select font for the Complex display"],
 						values = LSM:HashTable("font")
-					},
-					spacer0 = {
-						order = 7.5,
-						type="description",
-						name=""
 					},
 					fontSize = {
 						order = 8,
@@ -240,7 +229,12 @@ CS:AddDisplayOptions("complex",
 							["MONOCHROMEOUTLINE"] = L["MONOCHROMEOUTLINE"]
 						}
 					},
-					color = {
+					spacer0 = {
+						order = 9.5,
+						type="description",
+						name=""
+					},
+					fontColor = {
 						order = 10,
 						type = "color",
 						name = L["Font Color"],
@@ -253,13 +247,45 @@ CS:AddDisplayOptions("complex",
 							CS:Build()
 						end
 					},
-					spacer = {
+					spacer1 = {
 						order = 10.5,
 						type="description",
 						name=""
 					},
-					stringXOffset = {
+					remainingTimeThreshold = {
 						order = 11,
+						type = "range",
+						name = L["Time Threshold"],
+						desc = L["Threshold when text begins showing first decimal place"],
+						min = 0,
+						max = 10,
+						step = 0.1
+					},
+					fontColorCacheEnable = {
+						order = 12,
+						type = "toggle",
+						name = L["Color Text On Using Cached Value"],
+						desc = L["Cached distances might be unreliable when you or the mobs move a lot"]
+					},
+					fontColorCache = {
+						order = 13,
+						type = "color",
+						name = L["Color for Cache Value"],
+						get = function()
+							return CS.db.complex.fontColorCache.r, CS.db.complex.fontColorCache.b, CS.db.complex.fontColorCache.g, CS.db.complex.fontColorCache.a
+						end,
+						set = function(info, r, b, g, a)
+							CS.db.complex.fontColorCache.r, CS.db.complex.fontColorCache.b, CS.db.complex.fontColorCache.g, CS.db.complex.fontColorCache.a = r, b, g, a
+							CS:Build()
+						end
+					},
+					spacer2 = {
+						order = 13.5,
+						type="description",
+						name=""
+					},
+					stringXOffset = {
+						order = 14,
 						type = "range",
 						name = L["X Offset"],
 						desc = L["X offset for the Shadowy Apparition time text"],
@@ -282,7 +308,7 @@ CS:AddDisplayOptions("complex",
 						end
 					},
 					stringYOffset = {
-						order = 12,
+						order = 15,
 						type = "range",
 						name = L["Y Offset"],
 						desc = L["Y offset for the Shadowy Apparition time text"],
@@ -310,13 +336,17 @@ CS:AddDisplayOptions("complex",
 				order = 4,
 				type = "group",
 				name = L["Anticipated Orbs"],
-				inline = true,
 				args = {
 					statusbarEnable = {
 						order = 1,
 						type = "toggle",
 						name = L["Enable"],
 						desc = L["Enable display of bars for anticipated Shadow Orbs in the Shadow Orbs' positions"]
+					},
+					spacer0 = {
+						order = 1.5,
+						type="description",
+						name=""
 					},
 					statusbarReverse = {
 						order = 3,
@@ -338,7 +368,7 @@ CS:AddDisplayOptions("complex",
 						type="description",
 						name=""
 					},
-					color = {
+					statusbarColor = {
 						order = 4,
 						type = "color",
 						name = L["Color"],
@@ -351,7 +381,7 @@ CS:AddDisplayOptions("complex",
 							CS:Build()
 						end
 					},
-					colorBackground = {
+					statusbarColorBackground = {
 						order = 5,
 						type = "color",
 						name = L["Background Color"],
@@ -364,7 +394,7 @@ CS:AddDisplayOptions("complex",
 							CS:Build()
 						end
 					},
-					colorOverflow = {
+					statusbarColorOverflow = {
 						order = 6,
 						type = "color",
 						name = L["\"Overcap Orb\" Color"],
@@ -383,7 +413,7 @@ CS:AddDisplayOptions("complex",
 						type="description",
 						name=""
 					},
-					xOffset = {
+					statusbarXOffset = {
 						order = 7,
 						type = "range",
 						name = L["X Offset"],
@@ -406,7 +436,7 @@ CS:AddDisplayOptions("complex",
 							CS:Build()
 						end
 					},
-					yOffset = {
+					statusbarYOffset = {
 						order = 8,
 						type = "range",
 						name = L["Y Offset"],
@@ -447,6 +477,9 @@ CS:AddDisplayOptions("complex",
 		fontName = "Friz Quadrata TT",
 		fontFlags = "Shadow",
 		fontColor = {r=1, b=1, g=1, a=1},
+		remainingTimeThreshold = 2,
+		fontColorCacheEnable = false,
+		fontColorCache = {r=0.80, b=0.00, g=0.38, a=1},
 		stringXOffset = 0,
 		stringYOffset = 0,
 		visibilityConditionals = "[harm] [combat] show; hide",

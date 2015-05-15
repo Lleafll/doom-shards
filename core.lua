@@ -62,7 +62,7 @@ local partyTable = buildUnitIDTable("party", 5, "target")
 local partyPetTable = buildUnitIDTable("party", 5, "pettarget")
 
 local SAVelocity = 6  -- estimated
-local SAGraceTime = 3  -- maximum additional wait time before SA timer gets purged if it should not have hit in the meantime
+local SAGraceTime = 2.5  -- maximum additional wait time before SA timer gets purged if it should not have hit in the meantime
 local cacheMaxTime = 1  -- seconds in which the cache does not get refreshed
 
 
@@ -175,6 +175,7 @@ do
 
 	local function getTravelTime(GUID, forced)
 		local travelTime
+		local isCached
 		distanceCache_GUID = distanceCache[GUID]
 		
 		if not distanceCache_GUID then
@@ -182,9 +183,14 @@ do
 		else
 			local delta = GetTime() - distanceCache_GUID.timeStamp
 			if forced or (delta > cacheMaxTime) then
-				travelTime = getTravelTimeByGUID(GUID) or distanceCache_GUID.travelTime
+				travelTime = getTravelTimeByGUID(GUID)
+				if not travelTime then
+					travelTime = distanceCache_GUID.travelTime
+					isCached = true
+				end
 			else
 				travelTime = distanceCache_GUID.travelTime
+				isCached = true
 			end
 		end
 		
@@ -192,7 +198,7 @@ do
 			return nil
 		else
 			SATimeCorrection[GUID] = SATimeCorrection[GUID] or 1  -- initially accounting for extra travel time due to hitbox size (estimated)
-			return travelTime + SATimeCorrection[GUID] or 1
+			return travelTime + SATimeCorrection[GUID] or 1, isCached
 		end
 	end
 
@@ -264,11 +270,12 @@ do
 	
 	function CS:addGUID(GUID)
 		local cancelTime
-		local travelTime = getTravelTime(GUID, true)
+		local travelTime, isCached = getTravelTime(GUID, true)
 		if not travelTime then return end  -- target too far away, abort timer creation
-
+		
 		targets[GUID] = targets[GUID] or {}
 		timerID = self:ScheduleTimer("RemoveTimer_timed", travelTime + SAGraceTime, GUID)
+		timerID.isCached = isCached
 		timerID.impactTime = GetTime() + travelTime  -- can't use timeStamp instead of GetTime() because of different time reference
 		targets[GUID][#targets[GUID]+1] = timerID
 		
