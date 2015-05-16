@@ -211,13 +211,13 @@ do
 			if distanceCache[GUID] and timeStamp - distanceCache[GUID].timeStamp < aggressiveCachingInterval then return end
 			cacheTravelTime(calculateTravelTime(unitID), GUID)
 		end
-
+		
 		local function aggressiveCachingIteration(tbl, timeStamp)
 			for i = 1, #tbl do
 				aggressiveCachingByUnitID(tbl[i], timeStamp)
 			end
 		end
-
+		
 		function CS:AggressiveCaching()
 			local timeStamp = GetTime()  -- sadly no milliseconds :/
 
@@ -238,7 +238,7 @@ do
 			
 			cacheTravelTime(travelTime)
 		end
-	
+		
 		function CS:UNIT_TARGET(_, unitID)
 			aggressiveCachingByUnitID(unitID.."target", GetTime())
 		end
@@ -247,7 +247,7 @@ do
 			aggressiveCachingByUnitID("mouseover", GetTime())
 		end
 	end
-
+	
 	local function popGUID(GUID)
 		if targets[GUID] then
 			return tableremove(targets[GUID], 1)
@@ -255,7 +255,7 @@ do
 			return false
 		end
 	end
-
+	
 	local function popTimer(timerID)
 		for k, v in pairs(timers) do
 			if v == timerID then
@@ -264,12 +264,12 @@ do
 			end
 		end
 	end
-
+	
 	local function removeTimer(timerID)
 		popTimer(timerID)
 		CS:CancelTimer(timerID)
 	end
-
+	
 	function CS:RemoveTimer_timed(GUID)
 		timerID = popGUID(GUID)
 		popTimer(timerID)
@@ -311,13 +311,13 @@ do
 		SATimeCorrection[GUID] = nil
 		self:Update()
 	end
-
+	
 	function CS:RemoveAllGUIDs()  -- used by some encounter fixes
 		for GUID, _ in pairs(targets[GUID]) do
 			self:RemoveGUID(GUID)
 		end
 	end
-
+	
 	function CS:COMBAT_LOG_EVENT_UNFILTERED(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID, _, _, _, _, _, _, _, _, _, _, _, _, multistrike)
 		
 		if event == "UNIT_DIED" or event == "UNIT_DESTROYED" or event == "PARTY_KILL" or event == "SPELL_INSTAKILL" then

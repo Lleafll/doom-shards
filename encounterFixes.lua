@@ -129,7 +129,8 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 		
 		
 	elseif encounterID == 1799 then  -- Archimonde
-		-- search for overkill since there isn't always a death event for the spirits
+		-- https://www.warcraftlogs.com/reports/KhxAwgMzc36JyP2W#type=auras&fight=13&spells=debuffs
+		-- search for overkill since there isn't always a death event for the Doomfire Spirits
 		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, _, event, _, _, _, _, _, destGUID, destName, _, _, ...)
 			if event == "SWING_DAMAGE" then
 				_, overkill = ...
@@ -143,6 +144,12 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 					CS:RemoveGUID(destGUID)
 				end
 				
+			end
+		end)
+		-- Entering/leaving Twisting Nether
+		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
+			if spellID == 186952 and destGUID == UnitGUID("player") and (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") then  -- Nether Banish when inside Nether (does it only affect tanks?)
+				CS:RemoveAllGUIDs()
 			end
 		end)
 		
