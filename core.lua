@@ -358,6 +358,14 @@ do
 			end
 		end
 	end
+	
+	function CS:UNIT_TARGET(unitID)
+		aggressiveCachingByUnitID(unitID)
+	end
+	
+	function CS:UPDATE_MOUSEOVER_UNIT()
+		aggressiveCachingByUnitID("mouseover")
+	end
 end
 
 function CS:PLAYER_DEAD()
@@ -367,6 +375,9 @@ end
 
 do
 	local updateInterval
+	local aggressiveCachingTimer
+	local updateTimer
+	
 	-- sets the minimum needed update interval reported by all displays
 	function CS:SetUpdateInterval(interval)
 		if interval and (not updateInterval or interval < updateInterval) then
@@ -383,11 +394,17 @@ do
 		orbs = UnitPower("player", 13)
 		
 		if updateInterval then
-			self:ScheduleRepeatingTimer("Update", updateInterval)
+			if not updateTimer or self:TimeLeft(updateTimer) == 0 then
+				updateTimer = self:ScheduleRepeatingTimer("Update", updateInterval)
+			end
 		end
 		
 		if self.db.aggressiveCaching then
-			self:ScheduleRepeatingTimer("AggressiveCaching", aggressiveCachingInterval)
+			if not aggressiveCachingTimer or self:TimeLeft(aggressiveCachingTimer) == 0 then
+				aggressiveCachingTimer = self:ScheduleRepeatingTimer("AggressiveCaching", aggressiveCachingInterval)
+			end
+			self:RegisterEvent("UNIT_TARGET")
+			self:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
 		end
 			
 		if not self.locked then
@@ -403,9 +420,13 @@ function CS:PLAYER_REGEN_ENABLED()
 	else
 		self:Update()
 	end
+	self:UnregisterEvent("UNIT_TARGET")
+	self:UnregisterEvent("UPDATE_MOUSEOVER_UNIT")
 end
 
 do
+	local delay = 0.01
+	
 	local function delayOrbs()
 		orbs = UnitPower("player", 13)
 		CS:Update()
@@ -413,7 +434,7 @@ do
 	
 	function CS:UNIT_POWER(_, unitID, power)
 		if not (unitID == "player" and power == "SHADOW_ORBS") then return end
-		C_TimerAfter(0.01, delayOrbs)  -- needs to be delayed so it fires after the SA events, otherwise everything will assume the SA is still in flight
+		C_TimerAfter(delay, delayOrbs)  -- needs to be delayed so it fires after the SA events, otherwise everything will assume the SA is still in flight
 	end
 end
 
