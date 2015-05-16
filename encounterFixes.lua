@@ -105,7 +105,7 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 			end
 		end)
 		
-	elseif encounterID = 1799 then  -- Archimonde
+	elseif encounterID == 1799 then  -- Archimonde
 		-- search for overkill since there isn't always a death event for the spirits
 		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, _, event, _, _, _, _, _, destGUID, destName, _, _, ...)
 			if event == "SWING_DAMAGE" then

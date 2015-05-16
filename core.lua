@@ -400,6 +400,8 @@ function CS:PLAYER_REGEN_ENABLED()
 	if not self.db.calculateOutOfCombat then
 		self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		self:ResetCount()
+	else
+		self:Update()
 	end
 end
 

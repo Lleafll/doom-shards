@@ -88,26 +88,26 @@ end
 function CS:Unlock()
 	print(L["Conspicuous Spirits unlocked!"])
 	self.locked = false
-	self:Build()
 	for name, module in self:IterateModules() do
 		if self.db[name] and self.db[name].enable then
 			if module.Unlock then module:Unlock() end
 			if module.frame then module.frame:Unlock() end
 		end
 	end
+	self:Build()
 end
 
 function CS:Lock()
 	if not self.locked then print(L["Conspicuous Spirits locked!"]) end
 	self.locked = true
 	self:TalentsCheck()  -- build displays if Shadow and AS specced
-	self:Build()
 	for name, module in self:IterateModules() do
 		if self.db[name] and self.db[name].enable then
 			if module.Lock then module:Lock() end
 			if module.frame then module.frame:Lock() end
 		end
 	end
+	self:Build()
 end
 
 function CS:ApplySettings()
