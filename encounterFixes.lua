@@ -105,6 +105,30 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 			end
 		end)
 		
+		
+	elseif encounterID == 1794 then  -- Socrethar
+		self:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
+			local GUID = UnitGUID("boss1")
+			if getNPCID(GUID) == 90296 then  -- Soulbound Construct
+			
+				--@debug@
+				print("Soulbound Construct engaged")
+				--@end-debug@
+				
+				self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
+				-- not sure if this event fires correctly
+				self:RegisterEvent("UNIT_ENTERED_VEHICLE", function()
+				
+					--@debug@
+					print("UNIT_ENTERED_VEHICLE fired")
+					--@end-debug@
+					
+					self:RemoveGUID(GUID)
+				end)
+			end
+		end)
+		
+		
 	elseif encounterID == 1799 then  -- Archimonde
 		-- search for overkill since there isn't always a death event for the spirits
 		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, _, event, _, _, _, _, _, destGUID, destName, _, _, ...)
@@ -276,6 +300,8 @@ function EF:ENCOUNTER_END()
 	self:UnregisterEvent("UNIT_TARGETABLE_CHANGED")
 	self:UnregisterEvent("CHAT_MSG_RAID_BOSS_EMOTE")
 	self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
+	self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	self:UnregisterEvent("UNIT_ENTERED_VEHICLE")
 end
 
 function EF:OnEnable()
