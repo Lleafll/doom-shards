@@ -116,8 +116,7 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 				--@end-debug@
 				
 				self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
-				-- not sure if this event fires correctly
-				self:RegisterEvent("UNIT_ENTERED_VEHICLE", function()
+				self:RegisterEvent("UNIT_ENTERED_VEHICLE", function()  -- not sure if this event fires correctly
 				
 					--@debug@
 					print("UNIT_ENTERED_VEHICLE fired")

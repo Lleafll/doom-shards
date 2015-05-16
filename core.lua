@@ -238,6 +238,14 @@ do
 			
 			cacheTravelTime(travelTime)
 		end
+	
+		function CS:UNIT_TARGET(_, unitID)
+			aggressiveCachingByUnitID(unitID.."target", GetTime())
+		end
+		
+		function CS:UPDATE_MOUSEOVER_UNIT()
+			aggressiveCachingByUnitID("mouseover", GetTime())
+		end
 	end
 
 	local function popGUID(GUID)
@@ -357,14 +365,6 @@ do
 				
 			end
 		end
-	end
-	
-	function CS:UNIT_TARGET(unitID)
-		aggressiveCachingByUnitID(unitID)
-	end
-	
-	function CS:UPDATE_MOUSEOVER_UNIT()
-		aggressiveCachingByUnitID("mouseover")
 	end
 end
 
