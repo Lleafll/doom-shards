@@ -176,6 +176,7 @@ CS:AddDisplayOptions("simple",
 						type = "color",
 						name = L["Font Color"],
 						desc = L["Set Font Color"],
+						hasAlpha = true,
 						get = function()
 							return CS.db.simple.fontColor.r, CS.db.simple.fontColor.b, CS.db.simple.fontColor.g, CS.db.simple.fontColor.a
 						end,

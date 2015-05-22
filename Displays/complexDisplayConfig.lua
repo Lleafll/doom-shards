@@ -239,6 +239,7 @@ CS:AddDisplayOptions("complex",
 						type = "color",
 						name = L["Font Color"],
 						desc = L["Set Font Color"],
+						hasAlpha = true,
 						get = function()
 							return CS.db.complex.fontColor.r, CS.db.complex.fontColor.b, CS.db.complex.fontColor.g, CS.db.complex.fontColor.a
 						end,
@@ -271,6 +272,7 @@ CS:AddDisplayOptions("complex",
 						order = 13,
 						type = "color",
 						name = L["Color for Cache Value"],
+						hasAlpha = true,
 						get = function()
 							return CS.db.complex.fontColorCache.r, CS.db.complex.fontColorCache.b, CS.db.complex.fontColorCache.g, CS.db.complex.fontColorCache.a
 						end,

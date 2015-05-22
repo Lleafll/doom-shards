@@ -348,8 +348,9 @@ do
 					end
 					-- to avoid jittery counter
 					if (spellID == 155271 and (event == "SPELL_CAST_SUCCESS" or event == "SPELL_ENERGIZE") or spellID == 148859 and event == "SPELL_DAMAGE") and orbs < 5 then
-						-- the assumption is that any of these events fire before the respective UNIT_POWER
+						-- the assumption is that any of these events fire before/at the moment of the respective UNIT_POWER
 						orbs = orbs + 1
+						self:UNIT_POWER("UNIT_POWER", "player", "SHADOW_ORBS")  -- fail safe in case the corresponding UNIT_POWER fires wonkily
 					end
 				end
 				if distanceCache[GUID] and currentTime > distanceCache[GUID].timeStamp + cacheMaxTime then  -- update cached distances if over cacheMaxTime
