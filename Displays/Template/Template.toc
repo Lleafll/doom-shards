@@ -1,0 +1,11 @@
+## Interface: 60100
+## Title: Conspicuous Spirits Plugin Template
+## Author: Author Name
+## Version: 1
+## Dependencies: ConspicuousSpirits
+## Notes: "Plugin Template for Conspicuous Spirits!"
+
+# Since the plugin depends on Conspicuous Spirits you shouldn't need to load libraries which are already loaded by CS
+
+Template.lua
+TemplateConfig.lua

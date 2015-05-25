@@ -70,14 +70,6 @@ function SD:CONSPICUOUS_SPIRITS_UPDATE(_, orbs, timers)
 	end
 end
 
-function SD:Unlock()
-	SDFrame:Show()
-end
-
-function SD:Lock()
-	SDFrame:Hide()
-end
-
 local function buildFrames()
 	local flags = db.fontFlags
 	local spacing = db.spacing / 2
