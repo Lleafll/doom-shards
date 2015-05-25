@@ -124,25 +124,35 @@ do
 			end
 		end
 	end
-
-	local function cacheTravelTime(travelTime, GUID)
+	
+	local function cacheTravelTime(self, travelTime, GUID)
 		-- target too far away
 		if travelTime == -1 then
-			distanceCache[GUID] = nil
+			if distanceCache[GUID] then
+				distanceCache[GUID] = nil
+				self:Update()
+			end
 			return nil
 		end
 		
 		-- cache travel time
 		if travelTime then
-			distanceCache[GUID] = distanceCache[GUID] or {}
-			distanceCache[GUID].travelTime = travelTime
-			distanceCache[GUID].timeStamp = GetTime()
+			if distanceCache[GUID] then
+				distanceCache[GUID].travelTime = travelTime
+				distanceCache[GUID].timeStamp = GetTime()
+			else
+				-- making the distinction so displays get immediately updated when target moves into range
+				distanceCache[GUID] = {}
+				distanceCache[GUID].travelTime = travelTime
+				distanceCache[GUID].timeStamp = GetTime()
+				self:Update()
+			end
 		end
 
 		return travelTime
 	end
 
-	local function getTravelTimeByGUID(GUID)
+	local function getTravelTimeByGUID(self, GUID)
 		local travelTime
 
 		if UnitGUID("target") == GUID then
@@ -177,20 +187,20 @@ do
 			end
 		end
 		
-		return cacheTravelTime(travelTime, GUID)
+		return cacheTravelTime(self, travelTime, GUID)
 	end
 
-	local function getTravelTime(GUID, forced)
+	local function getTravelTime(self, GUID, forced)
 		local travelTime
 		local isCached
 		local distanceCache_GUID = distanceCache[GUID]
 		
 		if not distanceCache_GUID then
-			travelTime = getTravelTimeByGUID(GUID)
+			travelTime = getTravelTimeByGUID(self, GUID)
 		else
 			local delta = GetTime() - distanceCache_GUID.timeStamp
 			if forced or (delta > cacheMaxTime) then
-				travelTime = getTravelTimeByGUID(GUID)
+				travelTime = getTravelTimeByGUID(self, GUID)
 				if not travelTime then
 					travelTime = distanceCache_GUID.travelTime
 					isCached = true
@@ -210,48 +220,46 @@ do
 	end
 
 	do
-		local function aggressiveCachingByUnitID(unitID, timeStamp)
+		local function aggressiveCachingByUnitID(self, unitID, timeStamp)
 			if not UnitCanAttack("player", unitID) then return end
 			
 			local GUID = UnitGUID(unitID)
 			
 			if distanceCache[GUID] and timeStamp - distanceCache[GUID].timeStamp < aggressiveCachingInterval then return end
-			cacheTravelTime(calculateTravelTime(unitID), GUID)
+			cacheTravelTime(self, calculateTravelTime(unitID), GUID)
 		end
 		
-		local function aggressiveCachingIteration(tbl, timeStamp)
+		local function aggressiveCachingIteration(self, tbl, timeStamp)
 			for i = 1, #tbl do
-				aggressiveCachingByUnitID(tbl[i], timeStamp)
+				aggressiveCachingByUnitID(self, tbl[i], timeStamp)
 			end
 		end
 		
 		function CS:AggressiveCaching()
-			local timeStamp = GetTime()  -- sadly no milliseconds :/
+			local timeStamp = GetTime()
 
-			aggressiveCachingByUnitID("target", timeStamp)
-			aggressiveCachingByUnitID("mouseover", timeStamp)
-			aggressiveCachingByUnitID("focus", timeStamp)
-			aggressiveCachingByUnitID("pettarget", timeStamp)
+			aggressiveCachingByUnitID(self, "target", timeStamp)
+			aggressiveCachingByUnitID(self, "mouseover", timeStamp)
+			aggressiveCachingByUnitID(self, "focus", timeStamp)
+			aggressiveCachingByUnitID(self, "pettarget", timeStamp)
 			if UnitExists("boss1") then
-				aggressiveCachingIteration(bossTable, timeStamp)
+				aggressiveCachingIteration(self, bossTable, timeStamp)
 			end
 			if IsInRaid() then
-				aggressiveCachingIteration(raidTable, timeStamp)
-				aggressiveCachingIteration(raidPetTable, timeStamp)
+				aggressiveCachingIteration(self, raidTable, timeStamp)
+				aggressiveCachingIteration(self, raidPetTable, timeStamp)
 			elseif IsInGroup() then
-				aggressiveCachingIteration(partyTable, timeStamp)
-				aggressiveCachingIteration(partyPetTable, timeStamp)
+				aggressiveCachingIteration(self, partyTable, timeStamp)
+				aggressiveCachingIteration(self, partyPetTable, timeStamp)
 			end
-			
-			cacheTravelTime(travelTime)
 		end
 		
 		function CS:UNIT_TARGET(_, unitID)
-			aggressiveCachingByUnitID(unitID.."target", GetTime())
+			aggressiveCachingByUnitID(self, unitID.."target", GetTime())
 		end
 		
 		function CS:UPDATE_MOUSEOVER_UNIT()
-			aggressiveCachingByUnitID("mouseover", GetTime())
+			aggressiveCachingByUnitID(self, "mouseover", GetTime())
 		end
 	end
 	
@@ -272,9 +280,9 @@ do
 		end
 	end
 	
-	local function removeTimer(timerID)
+	local function removeTimer(self, timerID)
 		popTimer(timerID)
-		CS:CancelTimer(timerID)
+		self:CancelTimer(timerID)
 	end
 	
 	function CS:RemoveTimer_timed(GUID)
@@ -285,7 +293,7 @@ do
 	
 	function CS:addGUID(GUID)
 		local cancelTime
-		local travelTime, isCached = getTravelTime(GUID, true)
+		local travelTime, isCached = getTravelTime(self, GUID, true)
 		if not travelTime then return end  -- target too far away, abort timer creation
 		
 		targets[GUID] = targets[GUID] or {}
@@ -315,7 +323,7 @@ do
 	function CS:RemoveGUID(GUID)
 		if not targets[GUID] then return end
 		for _, timerID in pairs(targets[GUID]) do
-			removeTimer(timerID)
+			removeTimer(self, timerID)
 		end
 		targets[GUID] = nil
 		distanceCache[GUID] = nil
@@ -350,7 +358,7 @@ do
 				if timerID then
 					local additionalTime = timerID.impactTime - currentTime
 					SATimeCorrection[destGUID] = SATimeCorrection[destGUID] - additionalTime / 2
-					removeTimer(timerID)
+					removeTimer(self, timerID)
 					-- correct other timers
 					if targets[GUID] and additionalTime > 0.1 then
 						for _, timerID in pairs(targets[GUID]) do
@@ -373,7 +381,7 @@ do
 				
 			-- Shadowy Word: Pain tick
 			elseif spellID == 589 and not multistrike and (event == "SPELL_PERIODIC_DAMAGE" or event == "SPELL_DAMAGE") then
-				getTravelTime(destGUID)  -- adds GUID to distance table
+				getTravelTime(self, destGUID)  -- adds GUID to distance table
 				
 			end
 		end
