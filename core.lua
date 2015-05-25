@@ -29,8 +29,6 @@ local targets = {}  -- used to attribute timer IDs to mobs
 local SATimeCorrection = {}  -- converging additional travel time due to hit box size
 local timers = {}  -- ordered table of all timer IDs
 local distanceCache = {}
-local distanceCache_GUID
-local timerID
 local playerGUID
 local aggressiveCachingInterval
 
@@ -46,7 +44,7 @@ distanceTable[30] = 34191 -- Handful of Snowflakes 30 yards
 distanceTable[35] = 18904 -- Zorbin's Ultra-Shrinker 35 yards
 distanceTable[40] = 28767 -- The Decapitator 40 yards
 distanceTable[45] = 23836 -- Goblin Rocket Launcher 45 yards
-distanceTable[50] = 116139 -- Haunting Memento 50 yards
+distanceTable[50] = 116139 -- Haunting Memento 50 yards, possible alternative with 6.2: Drained Blood Crystal
 -- no item with 55 yards range found
 distanceTable[60] = 37887 -- Seeds of Nature's Wrath 60 yards
 -- no item with 65 yards range found
@@ -95,14 +93,13 @@ do
 		local minDistance
 		local maxDistance
 
-		for i = 0, 80 do
+		for i = 0, 100 do
 			local distanceItem = distanceTable[i]
 			if ItemHasRange(distanceItem) then
 				if IsItemInRange(distanceItem, unitID) then
 					maxDistance = i
-					if maxDistance <= 5 then
+					if maxDistance <= 3 then
 						minDistance = 0
-						maxDistance = 5
 					end
 				else
 					minDistance = i
@@ -112,7 +109,7 @@ do
 			
 		end
 		
-		if (not maxDistance) or (not maxDistance) or (minDistance >= 60) then
+		if not maxDistance then
 			return -1
 		else
 			return (minDistance + maxDistance) / 2 / SAVelocity
@@ -186,7 +183,7 @@ do
 	local function getTravelTime(GUID, forced)
 		local travelTime
 		local isCached
-		distanceCache_GUID = distanceCache[GUID]
+		local distanceCache_GUID = distanceCache[GUID]
 		
 		if not distanceCache_GUID then
 			travelTime = getTravelTimeByGUID(GUID)
@@ -281,7 +278,7 @@ do
 	end
 	
 	function CS:RemoveTimer_timed(GUID)
-		timerID = popGUID(GUID)
+		local timerID = popGUID(GUID)
 		popTimer(timerID)
 		self:Update()
 	end
@@ -292,10 +289,14 @@ do
 		if not travelTime then return end  -- target too far away, abort timer creation
 		
 		targets[GUID] = targets[GUID] or {}
-		timerID = self:ScheduleTimer("RemoveTimer_timed", travelTime + SAGraceTime, GUID)
+		local timerID = self:ScheduleTimer("RemoveTimer_timed", travelTime + SAGraceTime, GUID)
 		timerID.isCached = isCached
 		timerID.impactTime = GetTime() + travelTime  -- can't use timeStamp instead of GetTime() because of different time reference
 		targets[GUID][#targets[GUID]+1] = timerID
+		
+		timerID.IsGUIDInRange = function()
+			return distanceCache[GUID]
+		end
 		
 		local timersCount = #timers
 		if timersCount == 0 then
@@ -344,7 +345,7 @@ do
 			
 			-- catch all Auspicious Spirits and Shadowy Apparition hit events
 			elseif spellID == 155271 or spellID == 148859 and not multistrike then
-				timerID = popGUID(destGUID)
+				local timerID = popGUID(destGUID)
 				local currentTime = GetTime()
 				if timerID then
 					local additionalTime = timerID.impactTime - currentTime

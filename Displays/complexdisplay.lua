@@ -66,28 +66,36 @@ function CD:CONSPICUOUS_SPIRITS_UPDATE(_, orbs, timers)
 			local timerID = timers[k]
 			
 			if timerID then
-				local SATimer = SATimers[i]
-				SATimer:Show()
-				statusbars[i]:Show()
-				local remaining = mathmax(0, timerID.impactTime - GetTime())
-				if textEnable then
-					if remaining < remainingTimeThreshold then
-						SATimer:SetText(stringformat("%.1f", remaining))
-					else
-						SATimer:SetText(stringformat("%.0f", remaining))
-					end
-					
-					if fontColorCacheEnable then
-						if timerID.isCached and not SATimer.cacheColored then
-							SATimer:SetCacheColor()
-						elseif not timerID.isCached and SATimer.cacheColored then
-							SATimer:SetOriginalColor()
+				if timerID.IsGUIDInRange() then
+					local SATimer = SATimers[i]
+					SATimer:Show()
+					statusbars[i]:Show()
+					local remaining = mathmax(0, timerID.impactTime - GetTime())
+					if textEnable then
+						if remaining < remainingTimeThreshold then
+							SATimer:SetText(stringformat("%.1f", remaining))
+						else
+							SATimer:SetText(stringformat("%.0f", remaining))
+						end
+						
+						if fontColorCacheEnable then
+							if timerID.isCached and not SATimer.cacheColored then
+								SATimer:SetCacheColor()
+							elseif not timerID.isCached and SATimer.cacheColored then
+								SATimer:SetOriginalColor()
+							end
 						end
 					end
-				end
-				
-				if statusbarEnable then
-					statusbars[i].statusbar:SetValue(statusbarMaxTime - remaining)
+					
+					if statusbarEnable then
+						statusbars[i].statusbar:SetValue(statusbarMaxTime - remaining)
+					end
+					
+				else
+					orbFrames[i]:Hide()
+					SATimers[i]:Hide()
+					statusbars[i]:Hide()
+					
 				end
 				
 				k = k + 1

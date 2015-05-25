@@ -120,8 +120,8 @@ local optionsTable = {
 CS.defaultSettings = {
 	global = {
 		scale = 1,
-		aggressiveCaching = false,
-		aggressiveCachingInterval = 1,
+		aggressiveCaching = true,
+		aggressiveCachingInterval = 0.5,
 		calculateOutOfCombat = false
 	}
 }

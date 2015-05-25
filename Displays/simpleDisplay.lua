@@ -41,7 +41,7 @@ function SD:CONSPICUOUS_SPIRITS_UPDATE(_, orbs, timers)
 	local long = 0
 	for i = 1, #timers do
 		local timerID = timers[i]
-		if timerID then
+		if timerID and timerID.IsGUIDInRange() then
 			currentTime = currentTime or GetTime()
 			local remaining = timerID.impactTime - currentTime
 			if remaining < remainingThreshold then
