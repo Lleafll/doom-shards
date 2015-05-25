@@ -34,8 +34,9 @@ local timerID
 local playerGUID
 local aggressiveCachingInterval
 
-local distanceTable = {}  -- from HaloPro (ultimately from LibRangeCheck it seems)
-distanceTable[5] = 37727 -- Ruby Acorn 5 yards
+local distanceTable = {}  -- from HaloPro (ultimately from LibRangeCheck it seems), with several own additions
+distanceTable[3] = 42732 -- Everfrost Razor 3 yards
+distanceTable[5] = 63427 -- Worgsaw 5 yards, possible alternative: Darkmender's Tincture
 distanceTable[8] = 34368 -- Attuned Crystal Cores 8 yards
 distanceTable[10] = 32321 -- Sparrowhawk Net 10 yards
 distanceTable[15] = 33069 -- Sturdy Rope 15 yards
@@ -45,8 +46,17 @@ distanceTable[30] = 34191 -- Handful of Snowflakes 30 yards
 distanceTable[35] = 18904 -- Zorbin's Ultra-Shrinker 35 yards
 distanceTable[40] = 28767 -- The Decapitator 40 yards
 distanceTable[45] = 23836 -- Goblin Rocket Launcher 45 yards
+distanceTable[50] = 116139 -- Haunting Memento 50 yards
+-- no item with 55 yards range found
 distanceTable[60] = 37887 -- Seeds of Nature's Wrath 60 yards
+-- no item with 65 yards range found
+distanceTable[70] = 41265 -- Eyesore Blaster 70 yards
+-- no item with 75 yards range found
 distanceTable[80] = 35278 -- Reinforced Net 80 yards
+-- no item with 85 yards range found
+-- no item with 90 yards range found
+-- no item with 95 yards range found
+distanceTable[100] = 33119 -- Malister's Frost Wand 100 yards
 
 local function buildUnitIDTable(str1, maxNum, str2)
 	local tbl = {}
