@@ -62,18 +62,30 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 						if boss1GUID and unitID == "boss1" then
 							CS:RemoveGUID(boss1GUID)
 							self:UnregisterEvent("UNIT_TARGETABLE_CHANGED")
+							--@alpha@
+							print("Conspicuous Spirits Debug: Siegemaster Mar'tak left combat")
+							--@end-alpha@
 							
 						elseif boss2GUID and unitID == "boss2" then
 							CS:RemoveGUID(boss2GUID)
 							self:UnregisterEvent("UNIT_TARGETABLE_CHANGED")
+							--@alpha@
+							print("Conspicuous Spirits Debug: Siegemaster Mar'tak left combat")
+							--@end-alpha@
 							
 						elseif boss3GUID and unitID == "boss3" then
 							CS:RemoveGUID(boss3GUID)
 							self:UnregisterEvent("UNIT_TARGETABLE_CHANGED")
+							--@alpha@
+							print("Conspicuous Spirits Debug: Siegemaster Mar'tak left combat")
+							--@end-alpha@
 							
 						elseif boss4GUID and unitID == "boss4" then
 							CS:RemoveGUID(boss4GUID)
 							self:UnregisterEvent("UNIT_TARGETABLE_CHANGED")
+							--@alpha@
+							print("Conspicuous Spirits Debug: Siegemaster Mar'tak left combat")
+							--@end-alpha@
 							
 						end
 					end)
@@ -89,10 +101,16 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 			-- entering/leaving stomach
 			if spellID == 181295 and destGUID == UnitGUID("player") and (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") then  -- Digest
 				CS:RemoveAllGUIDs()
+				--@alpha@
+				print("Conspicuous Spirits Debug: Entered/left stomach")
+				--@end-alpha@
 				
 				-- Enraged Spirit
 			elseif spellID == 182557 and event == "SPELL_CAST_SUCCESS" then  -- Slam
 				removeAfter(3, sourceGUID)
+				--@alpha@
+				print("Conspicuous Spirits Debug: Removing Enraged Spirit in three seconds")
+				--@end-alpha@
 				
 			end
 		end)
@@ -102,6 +120,9 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
 			if spellID == 181488 and destGUID == UnitGUID("player") and (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") then  -- Vision of Death
 				CS:RemoveAllGUIDs()
+				--@alpha@
+				print("Conspicuous Spirits Debug: Entered/left Vision of Death")
+				--@end-alpha@
 			end
 		end)
 		
@@ -111,16 +132,16 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 			local GUID = UnitGUID("boss1")
 			if getNPCID(GUID) == 90296 then  -- Soulbound Construct
 			
-				--@debug@
-				print("Soulbound Construct engaged")
-				--@end-debug@
+				--@alpha@
+				print("Conspicuous Spirits Debug: Soulbound Construct engaged")
+				--@end-alpha@
 				
 				self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
 				self:RegisterEvent("UNIT_ENTERED_VEHICLE", function()  -- not sure if this event fires correctly
 				
-					--@debug@
-					print("UNIT_ENTERED_VEHICLE fired")
-					--@end-debug@
+					--@alpha@
+					print("Conspicuous Spirits Debug: UNIT_ENTERED_VEHICLE fired")
+					--@end-alpha@
 					
 					self:RemoveGUID(GUID)
 				end)
@@ -150,6 +171,9 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
 			if spellID == 186952 and destGUID == UnitGUID("player") and (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") then  -- Nether Banish when inside Nether (does it only affect tanks?)
 				CS:RemoveAllGUIDs()
+				--@alpha@
+				print("Conspicuous Spirits Debug: Entered/left Twisting Nether")
+				--@end-alpha@
 			end
 		end)
 		
