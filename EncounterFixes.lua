@@ -38,6 +38,22 @@ local function removeAfter(seconds, GUID)
 	end)
 end
 
+local function checkForOverkill(_, _, event, _, _, _, _, _, destGUID, destName, _, _, ...)
+	if event == "SWING_DAMAGE" then
+		_, overkill = ...
+		if overkill > 0 then
+			CS:RemoveGUID(destGUID)
+		end
+		
+	elseif event == "SPELL_DAMAGE" or event == "SPELL_PERIODIC_DAMAGE" or event == "RANGE_DAMAGE" then
+		_, _, _, _, overkill = ...
+		if overkill > 0 then
+			CS:RemoveGUID(destGUID)
+		end
+		
+	end
+end
+
 function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSize)
 	
 	if encounterID == 1778 then  -- Hellfire Assault
@@ -152,21 +168,7 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 	elseif encounterID == 1799 then  -- Archimonde
 		-- https://www.warcraftlogs.com/reports/KhxAwgMzc36JyP2W#type=auras&fight=13&spells=debuffs
 		-- search for overkill since there isn't always a death event for the Doomfire Spirits
-		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, _, event, _, _, _, _, _, destGUID, destName, _, _, ...)
-			if event == "SWING_DAMAGE" then
-				_, overkill = ...
-				if overkill > 0 then
-					CS:RemoveGUID(destGUID)
-				end
-				
-			elseif event == "SPELL_DAMAGE" or event == "SPELL_PERIODIC_DAMAGE" or event == "RANGE_DAMAGE" then
-				_, _, _, _, overkill = ...
-				if overkill > 0 then
-					CS:RemoveGUID(destGUID)
-				end
-				
-			end
-		end)
+		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", checkForOverkill)
 		-- Entering/leaving Twisting Nether
 		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
 			if spellID == 186952 and destGUID == UnitGUID("player") and (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") then  -- Nether Banish when inside Nether (does it only affect tanks?)
@@ -215,7 +217,7 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 		
 	elseif encounterID == 1694 then  -- Beastlord Darmac
 		self:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
-			-- check when Beastlord comes untargetable due to mounting up
+			-- check when Beastlord becomes untargetable due to mounting up
 			boss1GUID = UnitGUID("boss1")
 			if boss1GUID then
 				self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
@@ -225,23 +227,9 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 					end
 				end)
 			end
-			-- search for overkill since there isn't always a death event for the spears
-			self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, _, event, _, _, _, _, _, destGUID, destName, _, _, ...)
-				if event == "SWING_DAMAGE" then
-					_, overkill = ...
-					if overkill > 0 then
-						CS:RemoveGUID(destGUID)
-					end
-					
-				elseif event == "SPELL_DAMAGE" or event == "SPELL_PERIODIC_DAMAGE" or event == "RANGE_DAMAGE" then
-					_, _, _, _, overkill = ...
-					if overkill > 0 then
-						CS:RemoveGUID(destGUID)
-					end
-					
-				end
-			end)
 		end)
+		-- search for overkill since there isn't always a death event for the spears
+		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", checkForOverkill)
 		
 		
 	elseif encounterID == 1695 then  -- Iron Maidens
