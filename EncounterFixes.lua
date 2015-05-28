@@ -144,6 +144,7 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 		
 		
 	elseif encounterID == 1794 then  -- Socrethar
+		-- player entering Soulbound Construct making it friendly
 		self:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
 			local GUID = UnitGUID("boss1")
 			if getNPCID(GUID) == 90296 then  -- Soulbound Construct
@@ -163,6 +164,8 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 				end)
 			end
 		end)
+		-- Crystalline Fel Prisons don't fire death events
+		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", checkForOverkill)
 		
 		
 	elseif encounterID == 1799 then  -- Archimonde
