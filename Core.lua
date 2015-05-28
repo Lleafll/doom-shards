@@ -24,7 +24,7 @@ local UnitPower = UnitPower
 
 
 -- Variables
-local SAVelocity = 6  -- estimated
+local SAVelocity = 6.07  -- extrapolated
 local SAGraceTime = 2.5  -- maximum additional wait time before SA timer gets purged if it should not have hit in the meantime
 local cacheMaxTime = 1  -- seconds in which the cache does not get refreshed
 
@@ -106,10 +106,9 @@ do
 				end
 			end
 			if maxDistance and minDistance then break end
-			
 		end
 		
-		if not maxDistance or not minDistance then  -- distance > 100 yd, first range check, or something went went wrong
+		if not maxDistance or not minDistance then  -- distance > 100 yd, first range check, or something went wrong
 			return -1
 		else
 			return (minDistance + maxDistance) / 2 / SAVelocity
@@ -237,7 +236,7 @@ do
 		
 		function CS:AggressiveCaching()
 			local timeStamp = GetTime()
-
+			
 			aggressiveCachingByUnitID(self, "target", timeStamp)
 			aggressiveCachingByUnitID(self, "mouseover", timeStamp)
 			aggressiveCachingByUnitID(self, "focus", timeStamp)
@@ -360,8 +359,8 @@ do
 					SATimeCorrection[destGUID] = SATimeCorrection[destGUID] - additionalTime / 2
 					removeTimer(self, timerID)
 					-- correct other timers
-					if targets[GUID] and additionalTime > 0.1 then
-						for _, timerID in pairs(targets[GUID]) do
+					if targets[destGUID] and additionalTime > 0.1 then
+						for _, timerID in pairs(targets[destGUID]) do
 							timerID.impactTime = timerID.impactTime - additionalTime
 						end
 					end
@@ -372,10 +371,10 @@ do
 						self:UNIT_POWER("UNIT_POWER", "player", "SHADOW_ORBS")  -- fail safe in case the corresponding UNIT_POWER fires wonkily
 					end
 				end
-				if distanceCache[GUID] and currentTime > distanceCache[GUID].timeStamp + cacheMaxTime then  -- update cached distances if over cacheMaxTime
-					distanceCache[GUID] = distanceCache[GUID] or {}
-					distanceCache[GUID].travelTime = timerID.impactTime - GetTime() - SATimeCorrection[destGUID]
-					distanceCache[GUID].timeStamp = currentTime
+				-- update cached distances if over cacheMaxTime (fallback for regular scanning)
+				if distanceCache[destGUID] and currentTime > distanceCache[destGUID].timeStamp + cacheMaxTime then
+					distanceCache[destGUID].travelTime = distanceCache[destGUID].travelTime - timerID.impactTime + currentTime
+					distanceCache[destGUID].timeStamp = currentTime
 				end
 				self:Update()
 				
@@ -426,7 +425,7 @@ do
 			self:RegisterEvent("UNIT_TARGET")
 			self:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
 		end
-			
+		
 		if not self.locked then
 			self:Lock()
 		end
@@ -465,6 +464,8 @@ function CS:PLAYER_ENTERING_WORLD()
 end
 
 -- another possible implementaion: track distance to GUIDs and reset if it changes too wildly
+-- would also need to stop averaging in SAs which spawned before moving
+--[[
 do
 	local timeStartedMoving = GetTime()
 	
@@ -482,6 +483,7 @@ do
 		if GetTime() - timeStartedMoving > 3 then resetSATimeCorrection() end
 	end
 end
+]]--
 
 do
 	local function isShadow()
@@ -494,7 +496,7 @@ do
 	end
 
 	function CS:TalentsCheck()
-		self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+		self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")  -- does this lead to issues when changing talents when SAs are in flight with out-of-combat-calculation?
 		warningSound = function() end
 		
 		if isShadow() then
@@ -509,16 +511,16 @@ do
 			if isASSpecced() then
 				self:RegisterEvent("PLAYER_REGEN_DISABLED")
 				self:RegisterEvent("PLAYER_REGEN_ENABLED")
-				self:RegisterEvent("PLAYER_STARTED_MOVING")
-				self:RegisterEvent("PLAYER_STOPPED_MOVING")
+				--self:RegisterEvent("PLAYER_STARTED_MOVING")
+				--self:RegisterEvent("PLAYER_STOPPED_MOVING")
 				if not EF:IsEnabled() then EF:Enable() end
 				self:Update()
 			
 			else
 				self:UnregisterEvent("PLAYER_REGEN_DISABLED")
 				self:UnregisterEvent("PLAYER_REGEN_ENABLED")
-				self:UnregisterEvent("PLAYER_STARTED_MOVING")
-				self:UnregisterEvent("PLAYER_STOPPED_MOVING")
+				--self:UnregisterEvent("PLAYER_STARTED_MOVING")
+				--self:UnregisterEvent("PLAYER_STOPPED_MOVING")
 				self:ResetCount()
 				if EF:IsEnabled() then EF:Disable() end
 			
