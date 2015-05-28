@@ -24,6 +24,10 @@ local UnitPower = UnitPower
 
 
 -- Variables
+local SAVelocity = 6  -- estimated
+local SAGraceTime = 2.5  -- maximum additional wait time before SA timer gets purged if it should not have hit in the meantime
+local cacheMaxTime = 1  -- seconds in which the cache does not get refreshed
+
 local orbs = 0
 local targets = {}  -- used to attribute timer IDs to mobs
 local SATimeCorrection = {}  -- converging additional travel time due to hit box size
@@ -45,15 +49,15 @@ distanceTable[35] = 18904 -- Zorbin's Ultra-Shrinker 35 yards
 distanceTable[40] = 28767 -- The Decapitator 40 yards
 distanceTable[45] = 23836 -- Goblin Rocket Launcher 45 yards
 distanceTable[50] = 116139 -- Haunting Memento 50 yards, possible alternative with 6.2: Drained Blood Crystal
--- no item with 55 yards range found
+-- 55 yards
 distanceTable[60] = 37887 -- Seeds of Nature's Wrath 60 yards
--- no item with 65 yards range found
+-- 65 yards
 distanceTable[70] = 41265 -- Eyesore Blaster 70 yards
--- no item with 75 yards range found
+-- 75 yards
 distanceTable[80] = 35278 -- Reinforced Net 80 yards
--- no item with 85 yards range found
--- no item with 90 yards range found
--- no item with 95 yards range found
+-- 85 yards
+-- 90 yards
+-- 95 yards
 distanceTable[100] = 33119 -- Malister's Frost Wand 100 yards
 
 local function buildUnitIDTable(str1, maxNum, str2)
@@ -68,10 +72,6 @@ local raidTable = buildUnitIDTable("raid", 40, "target")
 local raidPetTable = buildUnitIDTable("raid", 40, "pettarget")
 local partyTable = buildUnitIDTable("party", 5, "target")
 local partyPetTable = buildUnitIDTable("party", 5, "pettarget")
-
-local SAVelocity = 6  -- estimated
-local SAGraceTime = 2.5  -- maximum additional wait time before SA timer gets purged if it should not have hit in the meantime
-local cacheMaxTime = 1  -- seconds in which the cache does not get refreshed
 
 
 -- Functions
@@ -109,7 +109,7 @@ do
 			
 		end
 		
-		if not maxDistance then
+		if not maxDistance or not minDistance then  -- distance > 100 yd, first range check, or something went went wrong
 			return -1
 		else
 			return (minDistance + maxDistance) / 2 / SAVelocity
@@ -351,8 +351,8 @@ do
 				self:addGUID(destGUID)
 				self:Update()
 			
-			-- catch all Auspicious Spirits and Shadowy Apparition hit events
-			elseif spellID == 155271 or spellID == 148859 and not multistrike then
+			-- catch all Shadowy Apparition hit events
+			elseif spellID == 148859 and not multistrike then
 				local timerID = popGUID(destGUID)
 				local currentTime = GetTime()
 				if timerID then
@@ -366,7 +366,7 @@ do
 						end
 					end
 					-- to avoid jittery counter
-					if (spellID == 155271 and (event == "SPELL_CAST_SUCCESS" or event == "SPELL_ENERGIZE") or spellID == 148859 and event == "SPELL_DAMAGE") and orbs < 5 then
+					if event == "SPELL_DAMAGE" and orbs < 5 then
 						-- the assumption is that any of these events fire before/at the moment of the respective UNIT_POWER
 						orbs = orbs + 1
 						self:UNIT_POWER("UNIT_POWER", "player", "SHADOW_ORBS")  -- fail safe in case the corresponding UNIT_POWER fires wonkily
@@ -464,10 +464,24 @@ function CS:PLAYER_ENTERING_WORLD()
 	self:ResetCount()
 end
 
--- make a better implementation later
---function CS:PLAYER_STARTED_MOVING()  -- maybe also add PLAYER_STOPPED_MOVING?
---	SATimeCorrection = {}  -- maybe recycle table?
---end
+-- another possible implementaion: track distance to GUIDs and reset if it changes too wildly
+do
+	local timeStartedMoving = GetTime()
+	
+	local function resetSATimeCorrection()
+		for GUID, _ in pairs(SATimeCorrection) do
+			SATimeCorrection[GUID] = 1
+		end
+	end
+	
+	function CS:PLAYER_STARTED_MOVING()
+		timeStartedMoving = GetTime()
+	end
+	
+	function CS:PLAYER_STOPPED_MOVING()
+		if GetTime() - timeStartedMoving > 3 then resetSATimeCorrection() end
+	end
+end
 
 do
 	local function isShadow()
@@ -495,14 +509,16 @@ do
 			if isASSpecced() then
 				self:RegisterEvent("PLAYER_REGEN_DISABLED")
 				self:RegisterEvent("PLAYER_REGEN_ENABLED")
-				--self:RegisterEvent("PLAYER_STARTED_MOVING")  -- make a better implementation later
+				self:RegisterEvent("PLAYER_STARTED_MOVING")
+				self:RegisterEvent("PLAYER_STOPPED_MOVING")
 				if not EF:IsEnabled() then EF:Enable() end
-				--self:Update()  -- necessary?
+				self:Update()
 			
 			else
 				self:UnregisterEvent("PLAYER_REGEN_DISABLED")
 				self:UnregisterEvent("PLAYER_REGEN_ENABLED")
-				--self:UnregisterEvent("PLAYER_STARTED_MOVING")  -- make a better implementation later
+				self:UnregisterEvent("PLAYER_STARTED_MOVING")
+				self:UnregisterEvent("PLAYER_STOPPED_MOVING")
 				self:ResetCount()
 				if EF:IsEnabled() then EF:Disable() end
 			
