@@ -534,6 +534,8 @@ do
 	function CS:Build()
 		self:ApplySettings()
 		
+		aggressiveCachingInterval = self.db.aggressiveCachingInterval
+		
 		if UnitAffectingCombat("player") then
 			if isShadow() and isASSpecced() 
 				then self:PLAYER_REGEN_DISABLED() 
@@ -543,7 +545,5 @@ do
 			self:PLAYER_REGEN_ENABLED()
 
 		end
-		
-		aggressiveCachingInterval = self.db.aggressiveCachingInterval
 	end
 end
