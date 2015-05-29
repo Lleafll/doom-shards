@@ -75,10 +75,13 @@ local partyPetTable = buildUnitIDTable("party", 5, "pettarget")
 
 
 -- Functions
+
+-- forces an update of displays
 function CS:Update()
 	self:SendMessage("CONSPICUOUS_SPIRITS_UPDATE", orbs, timers)
 end
 
+-- resets all data
 function CS:ResetCount()
 	targets = {}
 	SATimeCorrection = {}
@@ -319,20 +322,53 @@ do
 		timers[timersCount+1] = timerID
 	end
 	
-	function CS:RemoveGUID(GUID)
-		if not targets[GUID] then return end
-		for _, timerID in pairs(targets[GUID]) do
-			removeTimer(self, timerID)
+	do
+		local function removeGUID(GUID)
+			if not targets[GUID] then return end
+			for _, timerID in pairs(targets[GUID]) do
+				removeTimer(self, timerID)
+			end
+			targets[GUID] = nil
+			distanceCache[GUID] = nil
+			SATimeCorrection[GUID] = nil
 		end
-		targets[GUID] = nil
-		distanceCache[GUID] = nil
-		SATimeCorrection[GUID] = nil
-		self:Update()
+		
+		-- resets SAs, etc. for specified GUID
+		-- originally designed for some encounter fixes
+		function CS:RemoveGUID(GUID)
+			removeGUID(GUID)
+			self:Update()
+		end
+		
+		-- resets all tracked SAs, etc.
+		-- originally designed for some encounter fixes
+		function CS:RemoveAllGUIDs()
+			for GUID, _ in pairs(targets[GUID]) do
+				removeGUID(GUID)
+			end
+			self:Update()
+		end
 	end
 	
-	function CS:RemoveAllGUIDs()  -- used by some encounter fixes
-		for GUID, _ in pairs(targets[GUID]) do
-			self:RemoveGUID(GUID)
+	do
+		local function hideGUID(GUID)
+			distanceCache[GUID] = nil
+		end
+		
+		-- hides SAs, etc. for specified GUID
+		-- originally designed for some encounter fixes
+		function CS:HideGUID(GUID)
+			hideGUID(GUID)
+			self:Update()
+		end
+		
+		-- hides SAs for specified GUID 
+		-- originally designed for some encounter fixes
+		function CS:HideAllGUIDs()
+			for GUID, _ in pairs(targets[GUID]) do
+				hideGUID(GUID)
+			end
+			self:Update()
 		end
 	end
 	
