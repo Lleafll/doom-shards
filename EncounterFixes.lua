@@ -22,9 +22,13 @@ local UnitGUID = UnitGUID
 local boss1GUID
 local boss2GUID
 local boss3GUID
+local boss4GUID
+local boss5GUID
 local boss1Name
 local boss2Name
 local boss3Name
+local boss4Name
+local boss5Name
 
 
 -- Functions
@@ -35,6 +39,12 @@ end
 local function removeAfter(seconds, GUID)
 	C_TimerAfter(seconds, function()
 		CS:RemoveGUID(GUID)
+	end)
+end
+
+local function hideAfter(seconds, GUID)
+	C_TimerAfter(seconds, function()
+		CS:HideGUID(GUID)
 	end)
 end
 
@@ -57,6 +67,7 @@ end
 function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSize)
 	
 	if encounterID == 1778 then  -- Hellfire Assault
+		-- untested
 		self:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
 			for i = 1, 4 do
 				local unitID = "boss"..tostring(i)
@@ -75,6 +86,7 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 					end
 					self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
 					self:RegisterEvent("UNIT_TARGETABLE_CHANGED", function(_, unitID)
+						-- we need to check for all initial boss unit IDs since order isn't fixed (seems do denpend on which mob gets pulled first)
 						if boss1GUID and unitID == "boss1" then
 							CS:RemoveGUID(boss1GUID)
 							self:UnregisterEvent("UNIT_TARGETABLE_CHANGED")
@@ -111,19 +123,20 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 		
 		
 	elseif encounterID == 1783 then  -- Gorefiend
-		-- Missing: Shadowy Construct leaving stomach after SA spawn won't generate orbs
+		-- untested
+		-- Missing: Shadowy Construct leaving stomach after SA spawn won't generate orbs (not critical since it should be weeded out by range check)
 		-- https://www.warcraftlogs.com/reports/LhmF1T3xjdcPA9XJ#pins=0%24Separate%24%23244F4B%24any%24-1%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24true%24155521%7C147193%7C148859%5E0%24Separate%24%23909049%24any%24-1%240.0.0.Any%240.0.0.Any%24true%2410446771.0.0.Priest%24true%24179864%5E0%24Separate%24%23a04D8A%24any%24-1%240.0.0.Any%240.0.0.Any%24true%2410446771.0.0.Priest%24true%24181295&view=events&type=resources&fight=22
 		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
 			-- entering/leaving stomach
 			if spellID == 181295 and destGUID == UnitGUID("player") and (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") then  -- Digest
-				CS:RemoveAllGUIDs()
+				CS:HideAllGUIDs()
 				--@alpha@
 				print("Conspicuous Spirits Alpha Debug: Entered/left stomach")
 				--@end-alpha@
 				
 				-- Enraged Spirit
 			elseif spellID == 182557 and event == "SPELL_CAST_SUCCESS" then  -- Slam
-				removeAfter(3, sourceGUID)
+				hideAfter(3, sourceGUID)
 				--@alpha@
 				print("Conspicuous Spirits Alpha Debug: Removing Enraged Spirit in three seconds")
 				--@end-alpha@
@@ -133,9 +146,11 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 		
 		
 	elseif encounterID == 1786 then  -- Kilrogg
+		-- untested
+		-- player entering/leaving Vision of Death
 		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
 			if spellID == 181488 and destGUID == UnitGUID("player") and (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") then  -- Vision of Death
-				CS:RemoveAllGUIDs()
+				CS:HideAllGUIDs()
 				--@alpha@
 				print("Conspicuous Spirits Alpha Debug: Entered/left Vision of Death")
 				--@end-alpha@
@@ -144,11 +159,12 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 		
 		
 	elseif encounterID == 1794 then  -- Socrethar
-		-- player entering Soulbound Construct making it friendly
+		-- untested
+		-- raid member entering Soulbound Construct making it friendly
 		self:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
-			local GUID = UnitGUID("boss1")
-			if getNPCID(GUID) == 90296 then  -- Soulbound Construct
-			
+			boss1GUID = UnitGUID("boss1")
+			if getNPCID(boss1GUID) == 90296 then  -- Soulbound Construct
+				
 				--@alpha@
 				print("Conspicuous Spirits Alpha Debug: Soulbound Construct engaged")
 				--@end-alpha@
@@ -160,22 +176,25 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 					print("Conspicuous Spirits Alpha Debug: UNIT_ENTERED_VEHICLE fired")
 					--@end-alpha@
 					
-					self:RemoveGUID(GUID)
+					self:HideGUID(boss1GUID)
 				end)
 			end
 		end)
+		-- untested
 		-- Crystalline Fel Prisons don't fire death events
 		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", checkForOverkill)
 		
 		
 	elseif encounterID == 1799 then  -- Archimonde
+		-- untested
 		-- https://www.warcraftlogs.com/reports/KhxAwgMzc36JyP2W#type=auras&fight=13&spells=debuffs
 		-- search for overkill since there isn't always a death event for the Doomfire Spirits
 		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", checkForOverkill)
+		-- untested
 		-- Entering/leaving Twisting Nether
 		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
 			if spellID == 186952 and destGUID == UnitGUID("player") and (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") then  -- Nether Banish when inside Nether (does it only affect tanks?)
-				CS:RemoveAllGUIDs()
+				CS:HideAllGUIDs()
 				--@alpha@
 				print("Conspicuous Spirits Alpha Debug: Entered/left Twisting Nether")
 				--@end-alpha@
@@ -194,7 +213,7 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 	elseif encounterID == 1690 then  -- Blast Furnace
 		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
 			if spellID == 605 and event == "SPELL_CAST_SUCCESS" then  -- Dominate Mind
-				CS:RemoveGUID(destGUID)
+				CS:RemoveGUID(destGUID)  -- possibly replace with HideGUID
 			end
 		end)
 		
@@ -226,7 +245,7 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 				self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
 				self:RegisterEvent("UNIT_TARGETABLE_CHANGED", function()
 					if not UnitExists("boss1") then
-						CS:RemoveGUID(boss1GUID)
+						CS:RemoveGUID(boss1GUID)  -- possibly replace with HideGUID
 					end
 				end)
 			end
@@ -236,6 +255,7 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 		
 		
 	elseif encounterID == 1695 then  -- Iron Maidens
+		-- might not be needed anymore with new range check
 		boss1Name = EJ_GetSectionInfo(10033)  -- Marak
 		boss2Name = EJ_GetSectionInfo(10030)  -- Sorka
 		boss3Name = EJ_GetSectionInfo(10025)  -- Ga'ran
@@ -258,55 +278,19 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 				self:RegisterEvent("CHAT_MSG_RAID_BOSS_EMOTE", function(_, message, sender)
 					if message:find(L["IronMaidensShipMessage"]) then
 						if sender == boss1Name then
-							removeAfter(3, boss1GUID)
+							removeAfter(3, boss1GUID)  -- possibly replace with hideAfter
 							
 						elseif sender == boss2Name then
-							removeAfter(3, boss2GUID)
+							removeAfter(3, boss2GUID)  -- possibly replace with hideAfter
 							
 						elseif sender == boss3Name then
-							removeAfter(3, boss3GUID)
+							removeAfter(3, boss3GUID)  -- possibly replace with hideAfter
 							
 						end
 					end
 				end)
 			end
 		end)
-		
-		
-		--@debug@
-	elseif encounterID == 1206 then  -- Alysrazor
-		self:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
-			for i = 1,1 do
-				local unitID = "boss"..tostring(i)
-				local GUID = UnitGUID(unitID)
-				print("GUID: "..GUID)
-				if not GUID then break end
-				local NPCID = GUID:sub(-16, -12)
-				print("NPCID: "..NPCID)
-				if NPCID == "52530" then  -- Alysrazor
-					boss1GUID = GUID
-				end
-			end
-			if boss1GUID then
-				print(boss1GUID)
-				self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
-			end
-		end)
-		boss1Name = "Herald of the Burning End"
-		self:RegisterEvent("CHAT_MSG_RAID_BOSS_EMOTE", function(_, message, sender)
-			print(sender, message)
-			if message:find("begins casting") then
-				if sender == boss1Name then
-					print(boss1Name.." auf's Schiff")
-					print(boss1GUID)
-					C_TimerAfter(3, function()
-						print("removed")
-					end)
-				end
-			end
-		end)
-		--@end-debug@
-		
 	end
 	
 end
@@ -315,9 +299,13 @@ function EF:ENCOUNTER_END()
 	boss1GUID = nil
 	boss2GUID = nil
 	boss3GUID = nil
+	boss4GUID = nil
+	boss5GUID = nil
 	boss1Name = nil
 	boss2Name = nil
 	boss3Name = nil
+	boss4Name = nil
+	boss5Name = nil
 	self:UnregisterEvent("UNIT_TARGETABLE_CHANGED")
 	self:UnregisterEvent("CHAT_MSG_RAID_BOSS_EMOTE")
 	self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
