@@ -25,7 +25,7 @@ local UnitPower = UnitPower
 
 -- Variables
 local SAVelocity = 6.07  -- extrapolated
-local SAGraceTime = 2.5  -- maximum additional wait time before SA timer gets purged if it should not have hit in the meantime
+local SAGraceTime = 3  -- maximum additional wait time before SA timer gets purged if it should not have hit in the meantime
 local cacheMaxTime = 1  -- seconds in which the cache does not get refreshed
 
 local orbs = 0
@@ -90,6 +90,11 @@ function CS:ResetCount()
 	distanceCache = {}
 	self:CancelAllTimers()
 	self:Update()
+end
+
+-- set specific SATimeCorrection for a GUID
+function CS:SetSATimeCorrection(GUID, seconds)
+	SATimeCorrection[GUID] = seconds
 end
 
 do

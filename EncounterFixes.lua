@@ -124,36 +124,36 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 		
 	elseif encounterID == 1783 then  -- Gorefiend
 		-- untested
+		-- fix for Gorefiend's massive hitbox
+		self:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
+			if UnitExists("boss1") then 
+				CS:SetSATimeCorrection(UnitGUID("boss1"), 4)
+				self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
+			end
+		end)
 		-- Missing: Shadowy Construct leaving stomach after SA spawn won't generate orbs (not critical since it should be weeded out by range check)
-		-- https://www.warcraftlogs.com/reports/LhmF1T3xjdcPA9XJ#pins=0%24Separate%24%23244F4B%24any%24-1%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24true%24155521%7C147193%7C148859%5E0%24Separate%24%23909049%24any%24-1%240.0.0.Any%240.0.0.Any%24true%2410446771.0.0.Priest%24true%24179864%5E0%24Separate%24%23a04D8A%24any%24-1%240.0.0.Any%240.0.0.Any%24true%2410446771.0.0.Priest%24true%24181295&view=events&type=resources&fight=22
 		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
 			-- entering/leaving stomach
 			if spellID == 181295 and destGUID == UnitGUID("player") and (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") then  -- Digest
 				CS:HideAllGUIDs()
-				--@alpha@
-				print("Conspicuous Spirits Alpha Debug: Entered/left stomach")
-				--@end-alpha@
 				
+				-- untested
 				-- Enraged Spirit
 			elseif spellID == 182557 and event == "SPELL_CAST_SUCCESS" then  -- Slam
-				hideAfter(3, sourceGUID)
 				--@alpha@
 				print("Conspicuous Spirits Alpha Debug: Removing Enraged Spirit in three seconds")
 				--@end-alpha@
+				hideAfter(3, sourceGUID)
 				
 			end
 		end)
 		
 		
 	elseif encounterID == 1786 then  -- Kilrogg
-		-- untested
 		-- player entering/leaving Vision of Death
 		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
 			if spellID == 181488 and destGUID == UnitGUID("player") and (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") then  -- Vision of Death
 				CS:HideAllGUIDs()
-				--@alpha@
-				print("Conspicuous Spirits Alpha Debug: Entered/left Vision of Death")
-				--@end-alpha@
 			end
 		end)
 		
@@ -187,17 +187,16 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 		
 	elseif encounterID == 1799 then  -- Archimonde
 		-- untested
-		-- https://www.warcraftlogs.com/reports/KhxAwgMzc36JyP2W#type=auras&fight=13&spells=debuffs
 		-- search for overkill since there isn't always a death event for the Doomfire Spirits
 		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", checkForOverkill)
 		-- untested
 		-- Entering/leaving Twisting Nether
 		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
 			if spellID == 186952 and destGUID == UnitGUID("player") and (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") then  -- Nether Banish when inside Nether (does it only affect tanks?)
-				CS:HideAllGUIDs()
 				--@alpha@
 				print("Conspicuous Spirits Alpha Debug: Entered/left Twisting Nether")
 				--@end-alpha@
+				CS:HideAllGUIDs()
 			end
 		end)
 		
@@ -315,8 +314,10 @@ end
 
 function EF:OnEnable()
 	self:RegisterEvent("ENCOUNTER_START")
+	self:RegisterEvent("ENCOUNTER_END")
 end
 
 function EF:OnDisable()
-	self:RegisterEvent("ENCOUNTER_END")
+	self:UnregisterEvent("ENCOUNTER_START")
+	self:UnregisterEvent("ENCOUNTER_END")
 end
