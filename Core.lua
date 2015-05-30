@@ -36,7 +36,8 @@ local distanceCache = {}
 local playerGUID
 local aggressiveCachingInterval
 
-local distanceTable = {}  -- from HaloPro (ultimately from LibRangeCheck it seems), with several own additions
+-- from HaloPro (ultimately from LibRangeCheck it seems), with several own additions
+local distanceTable = {}
 distanceTable[3] = 42732 -- Everfrost Razor 3 yards
 distanceTable[5] = 63427 -- Worgsaw 5 yards, possible alternative: Darkmender's Tincture
 distanceTable[8] = 34368 -- Attuned Crystal Cores 8 yards
@@ -323,7 +324,7 @@ do
 	end
 	
 	do
-		local function removeGUID(GUID)
+		local function removeGUID(self, GUID)
 			if not targets[GUID] then return end
 			for _, timerID in pairs(targets[GUID]) do
 				removeTimer(self, timerID)
@@ -334,17 +335,17 @@ do
 		end
 		
 		-- resets SAs, etc. for specified GUID
-		-- originally designed for some encounter fixes
+		-- originally designed for encounter fixes
 		function CS:RemoveGUID(GUID)
-			removeGUID(GUID)
+			removeGUID(self, GUID)
 			self:Update()
 		end
 		
 		-- resets all tracked SAs, etc.
-		-- originally designed for some encounter fixes
+		-- originally designed for encounter fixes
 		function CS:RemoveAllGUIDs()
-			for GUID, _ in pairs(targets[GUID]) do
-				removeGUID(GUID)
+			for GUID, _ in pairs(targets) do
+				removeGUID(self, GUID)
 			end
 			self:Update()
 		end
@@ -356,16 +357,16 @@ do
 		end
 		
 		-- hides SAs, etc. for specified GUID
-		-- originally designed for some encounter fixes
+		-- originally designed for encounter fixes
 		function CS:HideGUID(GUID)
 			hideGUID(GUID)
 			self:Update()
 		end
 		
 		-- hides SAs for specified GUID 
-		-- originally designed for some encounter fixes
+		-- originally designed for encounter fixes
 		function CS:HideAllGUIDs()
-			for GUID, _ in pairs(targets[GUID]) do
+			for GUID, _ in pairs(targets) do
 				hideGUID(GUID)
 			end
 			self:Update()
