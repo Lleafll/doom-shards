@@ -86,7 +86,7 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 					end
 					self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
 					self:RegisterEvent("UNIT_TARGETABLE_CHANGED", function(_, unitID)
-						-- we need to check for all initial boss unit IDs since order isn't fixed (seems do denpend on which mob gets pulled first)
+						-- we need to check for all initial boss unit IDs since order isn't fixed (seems do depend on which mob gets pulled first)
 						if boss1GUID and unitID == "boss1" then
 							CS:RemoveGUID(boss1GUID)
 							self:UnregisterEvent("UNIT_TARGETABLE_CHANGED")
@@ -140,12 +140,8 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 			if spellID == 181295 and destGUID == UnitGUID("player") and (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") then  -- Digest
 				CS:HideAllGUIDs()
 				
-				-- untested
 				-- Enraged Spirit
 			elseif spellID == 182557 and event == "SPELL_CAST_SUCCESS" then  -- Slam
-				--@alpha@
-				print("Conspicuous Spirits Alpha Debug: Removing Enraged Spirit in three seconds")
-				--@end-alpha@
 				hideAfter(3, sourceGUID)
 				
 			end
@@ -185,6 +181,12 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 		end)
 		-- untested
 		-- Crystalline Fel Prisons don't fire death events
+		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", checkForOverkill)
+		
+		
+	elseif encounterID == 1798 then  -- Hellfire High Council
+		-- untested
+		-- search for overkill since there isn't always a death event for Blademaster Jubei'thos' Mirror Images
 		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", checkForOverkill)
 		
 		
@@ -313,6 +315,7 @@ function EF:ENCOUNTER_END()
 	self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
 	self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	self:UnregisterEvent("UNIT_ENTERED_VEHICLE")
+	self:UnregisterEvent("PLAYER_ALIVE")
 end
 
 function EF:OnEnable()
