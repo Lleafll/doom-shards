@@ -123,12 +123,15 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 		
 		
 	elseif encounterID == 1783 then  -- Gorefiend
-		-- untested
 		-- fix for Gorefiend's massive hitbox
 		self:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
 			if UnitExists("boss1") then 
 				CS:SetSATimeCorrection(UnitGUID("boss1"), 4)
 				self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
+				-- in case player dies and gets resurrected
+				self:RegisterEvent("PLAYER_ALIVE", function()
+					CS:SetSATimeCorrection(UnitGUID("boss1"), 4)
+				end)
 			end
 		end)
 		-- Missing: Shadowy Construct leaving stomach after SA spawn won't generate orbs (not critical since it should be weeded out by range check)
