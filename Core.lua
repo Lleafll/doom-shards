@@ -25,6 +25,7 @@ local UnitPower = UnitPower
 
 -- Variables
 local SAVelocity = 6.07  -- extrapolated
+local initialSATimeCorrection = 1  -- seconds to add to initial travel time prediction
 local SAGraceTime = 3  -- maximum additional wait time before SA timer gets purged if it should not have hit in the meantime
 local cacheMaxTime = 1  -- seconds in which the cache does not get refreshed
 
@@ -222,8 +223,8 @@ do
 		if not travelTime then
 			return nil
 		else
-			SATimeCorrection[GUID] = SATimeCorrection[GUID] or 1  -- initially accounting for extra travel time due to hitbox size (estimated)
-			return travelTime + SATimeCorrection[GUID] or 1, isCached
+			SATimeCorrection[GUID] = SATimeCorrection[GUID] or initialSATimeCorrection  -- initially accounting for extra travel time due to hitbox size (estimated)
+			return travelTime + SATimeCorrection[GUID], isCached
 		end
 	end
 
@@ -299,33 +300,37 @@ do
 		self:Update()
 	end
 	
-	function CS:addGUID(GUID)
-		local cancelTime
-		local travelTime, isCached = getTravelTime(self, GUID, true)
-		if not travelTime then return end  -- target too far away, abort timer creation
-		
-		targets[GUID] = targets[GUID] or {}
-		local timerID = self:ScheduleTimer("RemoveTimer_timed", travelTime + SAGraceTime, GUID)
-		timerID.isCached = isCached
-		timerID.impactTime = GetTime() + travelTime  -- can't use timeStamp instead of GetTime() because of different time reference
-		targets[GUID][#targets[GUID]+1] = timerID
-		
-		timerID.IsGUIDInRange = function()
-			return distanceCache[GUID]
-		end
-		
-		local timersCount = #timers
-		if timersCount == 0 then
-			timers[1] = timerID
-			return
-		end
-		for i = 1, timersCount do
-			if timerID.impactTime < timers[i].impactTime then
-				tableinsert(timers, i, timerID)
+	do
+		local function insertTimerID(tbl, timerID)
+			local tblCount = #tbl
+			if tblCount == 0 then
+				tbl[1] = timerID
 				return
 			end
+			for i = 1, tblCount do
+				if timerID.impactTime < tbl[i].impactTime then
+					tableinsert(tbl, i, timerID)
+					return
+				end
+			end
+			tbl[tblCount+1] = timerID
 		end
-		timers[timersCount+1] = timerID
+	
+		function CS:addGUID(GUID)
+			local travelTime, isCached = getTravelTime(self, GUID, true)
+			if not travelTime then return end  -- target too far away, abort timer creation
+			targets[GUID] = targets[GUID] or {}
+			
+			local timerID = self:ScheduleTimer("RemoveTimer_timed", travelTime + SAGraceTime, GUID)
+			timerID.isCached = isCached
+			timerID.impactTime = GetTime() + travelTime  -- can't use timeStamp instead of GetTime() because of different time reference
+			timerID.IsGUIDInRange = function()
+				return distanceCache[GUID]
+			end
+			
+			insertTimerID(targets[GUID], timerID)
+			insertTimerID(timers, timerID)
+		end
 	end
 	
 	do
@@ -395,10 +400,15 @@ do
 			-- catch all Shadowy Apparition hit events
 			elseif spellID == 148859 and not multistrike then
 				local timerID = popGUID(destGUID)
-				local currentTime = GetTime()
 				if timerID then
+					local currentTime = GetTime()
 					local additionalTime = timerID.impactTime - currentTime
 					SATimeCorrection[destGUID] = SATimeCorrection[destGUID] - additionalTime / 2
+					
+					--@debug@
+					--print(SATimeCorrection[destGUID])
+					--@end-debug@
+					
 					removeTimer(self, timerID)
 					-- correct other timers
 					if targets[destGUID] and additionalTime > 0.1 then
@@ -504,28 +514,6 @@ function CS:PLAYER_ENTERING_WORLD()
 	orbs = UnitPower("player", 13)
 	self:ResetCount()
 end
-
--- another possible implementaion: track distance to GUIDs and reset if it changes too wildly
--- would also need to stop averaging in SAs which spawned before moving
---[[
-do
-	local timeStartedMoving = GetTime()
-	
-	local function resetSATimeCorrection()
-		for GUID, _ in pairs(SATimeCorrection) do
-			SATimeCorrection[GUID] = 1
-		end
-	end
-	
-	function CS:PLAYER_STARTED_MOVING()
-		timeStartedMoving = GetTime()
-	end
-	
-	function CS:PLAYER_STOPPED_MOVING()
-		if GetTime() - timeStartedMoving > 3 then resetSATimeCorrection() end
-	end
-end
-]]--
 
 do
 	local function isShadow()
