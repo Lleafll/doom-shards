@@ -412,11 +412,11 @@ do
 						orbs = orbs + 1
 						self:UNIT_POWER("UNIT_POWER", "player", "SHADOW_ORBS")  -- fail safe in case the corresponding UNIT_POWER fires wonkily
 					end
-				end
-				-- update cached distances if over cacheMaxTime (fallback for regular scanning)
-				if distanceCache[destGUID] and currentTime > distanceCache[destGUID].timeStamp + cacheMaxTime then
-					distanceCache[destGUID].travelTime = distanceCache[destGUID].travelTime - timerID.impactTime + currentTime
-					distanceCache[destGUID].timeStamp = currentTime
+					-- update cached distances if over cacheMaxTime (fallback for regular scanning)
+					if distanceCache[destGUID] and currentTime > distanceCache[destGUID].timeStamp + cacheMaxTime then
+						distanceCache[destGUID].travelTime = distanceCache[destGUID].travelTime - timerID.impactTime + currentTime
+						distanceCache[destGUID].timeStamp = currentTime
+					end
 				end
 				self:Update()
 				
@@ -427,11 +427,6 @@ do
 			end
 		end
 	end
-end
-
-function CS:PLAYER_DEAD()
-	orbs = UnitPower("player", 13)
-	self:ResetCount()
 end
 
 do
@@ -474,13 +469,18 @@ do
 	end
 end
 
-function CS:PLAYER_REGEN_ENABLED()
+function CS:PLAYER_REGEN_ENABLED()  -- player left combat or died
+	orbs = UnitPower("player", 13)
+	
 	if not self.db.calculateOutOfCombat then
 		self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+		self:ResetCount()
+	elseif UnitIsDead("player") then
 		self:ResetCount()
 	else
 		self:Update()
 	end
+	
 	self:UnregisterEvent("UNIT_TARGET")
 	self:UnregisterEvent("UPDATE_MOUSEOVER_UNIT")
 end
@@ -546,23 +546,18 @@ do
 			self:Build()
 			self:RegisterEvent("UNIT_POWER")
 			self:RegisterEvent("PLAYER_ENTERING_WORLD")
-			self:RegisterEvent("PLAYER_DEAD")
 			
 			local EF = self:GetModule("EncounterFixes")
 			
 			if isASSpecced() then
 				self:RegisterEvent("PLAYER_REGEN_DISABLED")
 				self:RegisterEvent("PLAYER_REGEN_ENABLED")
-				--self:RegisterEvent("PLAYER_STARTED_MOVING")
-				--self:RegisterEvent("PLAYER_STOPPED_MOVING")
 				if not EF:IsEnabled() then EF:Enable() end
 				self:Update()
 			
 			else
 				self:UnregisterEvent("PLAYER_REGEN_DISABLED")
 				self:UnregisterEvent("PLAYER_REGEN_ENABLED")
-				--self:UnregisterEvent("PLAYER_STARTED_MOVING")
-				--self:UnregisterEvent("PLAYER_STOPPED_MOVING")
 				self:ResetCount()
 				if EF:IsEnabled() then EF:Disable() end
 			
@@ -570,7 +565,6 @@ do
 		else
 			self:UnregisterEvent("UNIT_POWER")
 			self:UnregisterEvent("PLAYER_ENTERING_WORLD")
-			self:UnregisterEvent("PLAYER_DEAD")
 			
 		end
 	end
