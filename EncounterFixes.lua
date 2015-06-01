@@ -295,6 +295,44 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 				end)
 			end
 		end)
+		
+		
+	elseif encounterID == 1704 then  -- Blackhand
+		-- fix for disappearing siegemakers in P2 -> P3 transition
+		self:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
+			for i = 1, 5 do
+				local unitID = "boss"..tostring(i)
+				local GUID = UnitGUID(unitID)
+				-- we don't want to remove Blackhand later, so don't track his GUID
+				if GUID and getNPCID(GUID) == 77325 then  -- Blackhand
+					GUID = nil
+				end
+				if i == 1 then
+					boss1GUID = GUID
+				elseif i == 2 then
+					boss2GUID = GUID
+				elseif i == 3 then
+					boss3GUID = GUID
+				elseif i == 4 then
+					boss4GUID = GUID
+				elseif i == 5 then
+					boss5GUID = GUID
+				end
+			end
+		end)
+		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
+			if spellID == 177487 then  -- Shattered Floor
+				if boss1GUID then CS:RemoveGUID(boss1GUID) end
+				if boss2GUID then CS:RemoveGUID(boss2GUID) end
+				if boss3GUID then CS:RemoveGUID(boss3GUID) end
+				if boss4GUID then CS:RemoveGUID(boss4GUID) end
+				if boss5GUID then CS:RemoveGUID(boss5GUID) end
+				self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
+				self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+			end
+		end)
+		
+		
 	end
 	
 end
