@@ -10,6 +10,7 @@ local L = LibStub("AceLocale-3.0"):GetLocale("ConspicuousSpirits")
 -- Upvalues
 local C_TimerAfter = C_Timer.After
 local GetTime = GetTime
+local IsActiveBattlefieldArena = IsActiveBattlefieldArena
 local IsInGroup = IsInGroup
 local IsInRaid = IsInRaid
 local IsItemInRange = IsItemInRange
@@ -74,6 +75,8 @@ local raidTable = buildUnitIDTable("raid", 40, "target")
 local raidPetTable = buildUnitIDTable("raid", 40, "pettarget")
 local partyTable = buildUnitIDTable("party", 5, "target")
 local partyPetTable = buildUnitIDTable("party", 5, "pettarget")
+local arenaTable = buildUnitIDTable("arena", 5)
+local arenaPetTable = buildUnitIDTable("arena", 5, "pet")
 
 
 -- Functions
@@ -187,10 +190,18 @@ do
 					if not travelTime then
 						travelTime = iterateUnitIDs(raidPetTable, GUID)
 					end
-				elseif IsInGroup() then
-					travelTime = iterateUnitIDs(partyTable, GUID)
-					if not travelTime then
-						travelTime = iterateUnitIDs(partyPetTable, GUID)
+				else
+					if IsInGroup() then
+						travelTime = iterateUnitIDs(partyTable, GUID)
+						if not travelTime then
+							travelTime = iterateUnitIDs(partyPetTable, GUID)
+						end
+					end
+					if not travelTime and IsActiveBattlefieldArena() then
+						travelTime = iterateUnitIDs(arenaTable, GUID)
+						if not travelTime then
+							travelTime = iterateUnitIDs(arenaPetTable, GUID)
+						end
 					end
 				end
 			end
@@ -296,7 +307,7 @@ do
 	
 	function CS:RemoveTimer_timed(GUID)
 		local timerID = popGUID(GUID)
-		popTimer(timerID)
+		popTimer(timerID)  -- check this for false? (actually never throws an error)
 		self:Update()
 	end
 	
