@@ -166,7 +166,7 @@ do
 
 	local function getTravelTimeByGUID(self, GUID)
 		local travelTime
-
+		
 		if UnitGUID("target") == GUID then
 			travelTime = calculateTravelTime("target")
 			
@@ -415,6 +415,7 @@ do
 					local currentTime = GetTime()
 					local additionalTime = timerID.impactTime - currentTime
 					SATimeCorrection[destGUID] = SATimeCorrection[destGUID] - additionalTime / 2
+					if SATimeCorrection[destGUID] < 0 then SATimeCorrection[destGUID] = 0 end
 					
 					--@debug@
 					--print(SATimeCorrection[destGUID])
