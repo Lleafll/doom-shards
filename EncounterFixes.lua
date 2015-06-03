@@ -1,24 +1,34 @@
--- Get addon object
+----------------------
+-- Get addon object --
+----------------------
 local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
 if not CS then return end
 
 
--- Create module
+-------------------
+-- Create module --
+-------------------
 local EF = CS:NewModule("EncounterFixes", "AceEvent-3.0")
 
 
--- Localization
+------------------
+-- Localization --
+------------------
 local L = LibStub("AceLocale-3.0"):GetLocale("ConspicuousSpirits")
 
 
--- Upvalues
+--------------
+-- Upvalues --
+--------------
 local C_TimerAfter = C_Timer.After
 local tostring = tostring
 local UnitExists = UnitExists
 local UnitGUID = UnitGUID
 
 
--- Variables
+---------------
+-- Variables --
+---------------
 local boss1GUID
 local boss2GUID
 local boss3GUID
@@ -31,7 +41,9 @@ local boss4Name
 local boss5Name
 
 
--- Functions
+---------------
+-- Functions --
+---------------
 local function getNPCID(GUID)
 	return GUID:sub(-16, -12)
 end

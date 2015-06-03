@@ -2,16 +2,16 @@ local _, class = UnitClass("player")
 if class ~= "PRIEST" then return end
 
 
--- Embedding and libraries and stuff
+---------------------------------------
+-- Embedding and libraries and stuff --
+---------------------------------------
 local CS = LibStub("AceAddon-3.0"):NewAddon("Conspicuous Spirits", "AceEvent-3.0", "AceTimer-3.0", "AceConsole-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("ConspicuousSpirits")
 
 
--- Upvalues
--- none since nothing here is called outside of setting options
-
-
--- Functions
+---------------
+-- Functions --
+---------------
 do
 	local function dragStop(self, moduleName)
 		self:StopMovingOrSizing()
@@ -111,8 +111,6 @@ function CS:Lock()
 end
 
 function CS:ApplySettings()
-	self:ResetUpdateInterval()
-	
 	for name, module in self:IterateModules() do
 		if self.db[name] and self.db[name].enable then
 			module:Enable()

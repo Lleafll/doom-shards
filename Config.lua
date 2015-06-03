@@ -1,13 +1,19 @@
--- Get addon object
+----------------------
+-- Get addon object --
+----------------------
 local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
 if not CS then return end
 
 
--- Libraries
+---------------
+-- Libraries --
+---------------
 local L = LibStub("AceLocale-3.0"):GetLocale("ConspicuousSpirits")
 
 
--- Options
+-------------
+-- Options --
+-------------
 local optionsTable = {
 	type = "group",
 	name = "Conspicuous Spirits",

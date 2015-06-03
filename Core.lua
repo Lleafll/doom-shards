@@ -1,13 +1,19 @@
--- Get addon object
+----------------------
+-- Get addon object --
+----------------------
 local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
 if not CS then return end
 
 
--- Libraries
+---------------
+-- Libraries --
+---------------
 local L = LibStub("AceLocale-3.0"):GetLocale("ConspicuousSpirits")
 
 
--- Upvalues
+--------------
+-- Upvalues --
+--------------
 local C_TimerAfter = C_Timer.After
 local GetTime = GetTime
 local IsActiveBattlefieldArena = IsActiveBattlefieldArena
@@ -24,7 +30,9 @@ local UnitGUID = UnitGUID
 local UnitPower = UnitPower
 
 
--- Variables
+---------------
+-- Variables --
+---------------
 local SAVelocity = 6.07  -- extrapolated
 local initialSATimeCorrection = 1  -- seconds to add to initial travel time prediction
 local SAGraceTime = 3  -- maximum additional wait time before SA timer gets purged if it should not have hit in the meantime
@@ -79,7 +87,9 @@ local arenaTable = buildUnitIDTable("arena", 5)
 local arenaPetTable = buildUnitIDTable("arena", 5, "pet")
 
 
--- Functions
+---------------
+-- Functions --
+---------------
 
 -- forces an update of displays
 function CS:Update()
@@ -452,30 +462,12 @@ do
 end
 
 do
-	local updateInterval
 	local aggressiveCachingTimer
 	local updateTimer
-	
-	-- sets the minimum needed update interval reported by all displays
-	function CS:SetUpdateInterval(interval)
-		if interval and (not updateInterval or interval < updateInterval) then
-			updateInterval = interval
-		end
-	end
-	
-	function CS:ResetUpdateInterval()
-		updateInterval = nil
-	end
 	
 	function CS:PLAYER_REGEN_DISABLED()
 		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		orbs = UnitPower("player", 13)
-		
-		if updateInterval then
-			if not updateTimer or self:TimeLeft(updateTimer) == 0 then
-				updateTimer = self:ScheduleRepeatingTimer("Update", updateInterval)
-			end
-		end
 		
 		if self.db.aggressiveCaching then
 			if not aggressiveCachingTimer or self:TimeLeft(aggressiveCachingTimer) == 0 then

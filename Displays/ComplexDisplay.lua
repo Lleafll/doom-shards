@@ -1,23 +1,33 @@
--- Get addon object
+----------------------
+-- Get addon object --
+----------------------
 local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
 if not CS then return end
 
 
--- Create module
+-------------------
+-- Create module --
+-------------------
 local CD = CS:NewModule("complex", "AceEvent-3.0")
 
 
--- Libraries
+---------------
+-- Libraries --
+---------------
 local LSM = LibStub("LibSharedMedia-3.0")
 
 
--- Upvalues
+--------------
+-- Upvalues --
+--------------
 local GetTime = GetTime
 local mathmax = math.max
 local stringformat = string.format
 
 
--- Frames
+------------
+-- Frames --
+------------
 local CDFrame = CS:CreateParentFrame("CS Complex Display", "complex")
 CD.frame = CDFrame
 local orbFrames = {}
@@ -26,13 +36,18 @@ local SATimers = {}
 local statusbars = {}
 
 
--- Variables
+---------------
+-- Variables --
+---------------
 local db
-local textEnable
-local statusbarEnable
-local remainingTimeThreshold
-local statusbarMaxTime
 local orbCappedEnable
+local orbs
+local remainingTimeThreshold
+local statusbarRefresh
+local statusbarEnable
+local statusbarMaxTime
+local textEnable
+local timers
 local backdrop = {
 	bgFile = nil,
 	edgeFile = "Interface\\ChatFrame\\ChatFrameBackground",
@@ -41,14 +56,15 @@ local backdrop = {
 }
 
 
--- Functions
-function CD:CONSPICUOUS_SPIRITS_UPDATE(_, orbs, timers)
+---------------
+-- Functions --
+---------------
+local function update()
 	local k = 1
 	
 	for i = 1, 6 do
 		if orbs >= i then
 			local orbFrame = orbFrames[i]
-			
 			if orbCappedEnable then
 				if (orbs == 5) and (not orbFrame.orbCapColored) then
 					orbFrame:SetOrbCapColor()
@@ -56,7 +72,6 @@ function CD:CONSPICUOUS_SPIRITS_UPDATE(_, orbs, timers)
 					orbFrame:SetOriginalColor()
 				end
 			end
-			
 			orbFrame:Show()
 			SATimers[i]:Hide()
 			statusbars[i]:Hide()
@@ -67,37 +82,14 @@ function CD:CONSPICUOUS_SPIRITS_UPDATE(_, orbs, timers)
 			
 			if timerID then
 				if timerID.IsGUIDInRange() then
-					local SATimer = SATimers[i]
-					SATimer:Show()
-					statusbars[i]:Show()
-					local remaining = mathmax(0, timerID.impactTime - GetTime())
-					if textEnable then
-						if remaining < remainingTimeThreshold then
-							SATimer:SetText(stringformat("%.1f", remaining))
-						else
-							SATimer:SetText(stringformat("%.0f", remaining))
-						end
-						
-						if fontColorCacheEnable then
-							if timerID.isCached and not SATimer.cacheColored then
-								SATimer:SetCacheColor()
-							elseif not timerID.isCached and SATimer.cacheColored then
-								SATimer:SetOriginalColor()
-							end
-						end
-					end
-					
-					if statusbarEnable then
-						statusbars[i].statusbar:SetValue(statusbarMaxTime - remaining)
-					end
+					if textEnable then SATimers[i]:SetTimer(timerID) end
+					if statusbarEnable then statusbars[i]:SetTimer(timerID) end
 					
 				else
-					orbFrames[i]:Hide()
 					SATimers[i]:Hide()
 					statusbars[i]:Hide()
 					
 				end
-				
 				k = k + 1
 				
 			else
@@ -106,13 +98,18 @@ function CD:CONSPICUOUS_SPIRITS_UPDATE(_, orbs, timers)
 					SATimers[m]:Hide()
 					statusbars[m]:Hide()
 				end
-				
 				break
 				
 			end
 			
 		end
 	end
+end
+
+function CD:CONSPICUOUS_SPIRITS_UPDATE(_, updatedOrbs, updatedTimers)
+	orbs = updatedOrbs
+	timers = updatedTimers
+	update()
 end
 
 function CD:Unlock()
@@ -143,6 +140,29 @@ function CD:Lock()
 	if not UnitAffectingCombat("player") then RegisterStateDriver(CDFrame, db.visibilityConditionals) end
 end
 
+local function SATimerOnUpdate(SATimer, elapsed)
+	SATimer.elapsed = SATimer.elapsed + elapsed
+	SATimer.remaining = SATimer.remaining - elapsed
+	if SATimer.elapsed > 0.1 then
+		if SATimer.remaining < remainingTimeThreshold then
+			SATimer.fontString:SetText(stringformat("%.1f", SATimer.remaining < 0 and 0 or SATimer.remaining))
+		else
+			SATimer.fontString:SetText(stringformat("%.0f", SATimer.remaining))
+		end
+	end
+end
+
+local function statusbarOnUpdate(statusbar, elapsed)
+	statusbar.remaining = statusbar.remaining - elapsed
+	statusbar.elapsed = statusbar.elapsed + elapsed
+	if statusbar.elapsed > statusbarRefresh then
+		statusbar.statusbar:SetValue(statusbarMaxTime - (statusbar.remaining < 0 and 0 or statusbar.remaining))  -- check for < 0 necessary?
+	end
+end
+
+-------------
+-- Visuals --
+-------------
 local function buildFrames()
 	local orientation = db.orientation
 	local growthDirection = db.growthDirection
@@ -230,12 +250,20 @@ local function buildFrames()
 	end
 	
 	if textEnable then
-		fontStringParent = fontStringParent or CreateFrame("frame", nil, CDFrame)
-		fontStringParent:SetAllPoints()
-		fontStringParent:SetFrameStrata("MEDIUM")
-		fontStringParent:Show()
 		local function createTimerFontString(referenceFrame, numeration)
-			local fontString = SATimers[numeration] or fontStringParent:CreateFontString(nil, "OVERLAY")
+			local parentFrame
+			local fontString
+			if not SATimers[numeration] then
+				parentFrame = SATimers[numeration] or CreateFrame("frame", nil, CDFrame)
+				parentFrame:SetFrameStrata("MEDIUM")
+				parentFrame:Show()
+				fontString = parentFrame:CreateFontString(nil, "OVERLAY")
+				parentFrame.fontString = fontString
+			else
+				parentFrame = SATimers[numeration]
+				fontString = parentFrame.fontString
+			end
+			
 			fontString:ClearAllPoints()
 			if orientation == "Vertical" then
 				fontString:SetPoint("RIGHT", referenceFrame, "LEFT", -stringYOffset - 1, stringXOffset)
@@ -245,24 +273,37 @@ local function buildFrames()
 			fontString:SetFont(LSM:Fetch("font", db.fontName), db.fontSize, (flags == "MONOCHROMEOUTLINE" or flags == "OUTLINE" or flags == "THICKOUTLINE") and flags or nil)
 			fontString:SetShadowOffset(1, -1)
 			fontString:SetShadowColor(0, 0, 0, db.fontFlags == "Shadow" and 1 or 0)
-			fontString:SetText("0.0")
 			
 			local c1r, c1b, c1g, c1a = db.fontColor.r, db.fontColor.b, db.fontColor.g, db.fontColor.a
 			function fontString:SetOriginalColor()
 				self:SetTextColor(c1r, c1b, c1g, c1a)
-				self.cacheColored = false
 			end
-			
-			fontString:SetOriginalColor()
 			
 			local c2r, c2b, c2g, c2a = db.fontColorCache.r, db.fontColorCache.b, db.fontColorCache.g, db.fontColorCache.a
 			function fontString:SetCacheColor()
 				self:SetTextColor(c2r, c2b, c2g, c2a)
-				self.cacheColored = true
 			end
 			
+			parentFrame.elapsed = 0
+			parentFrame.remaining = 0
+			function parentFrame:SetTimer(timerID)
+				self.remaining = timerID.impactTime - GetTime()
+				self.elapsed = 1
+				if fontColorCacheEnable then
+					if timerID.isCached then
+						fontString:SetCacheColor()
+					elseif not timerID.isCached then
+						fontString:SetOriginalColor()
+					end
+				end
+				self:Show()
+			end
+			parentFrame:SetScript("OnUpdate", SATimerOnUpdate)  -- only triggers when frame is shown
+			
+			fontString:SetText("0.0")
+			fontString:SetOriginalColor()
 			fontString:Show()
-			return fontString
+			return parentFrame
 		end
 		for i = 1, 6 do
 			SATimers[i] = createTimerFontString(orbFrames[i], i)
@@ -301,6 +342,15 @@ local function buildFrames()
 			statusbar:SetOrientation(orientation == "Vertical" and "VERTICAL" or "HORIZONTAL")
 			statusbar:SetReverseFill(db.statusbarReverse)
 			
+			frame.remaining = 0
+			frame.elapsed = 0
+			function frame:SetTimer(timerID)
+				self.elapsed = 1
+				self.remaining = timerID.impactTime - GetTime()
+				self:Show()
+			end
+			frame:SetScript("OnUpdate", statusbarOnUpdate)  -- only triggers when frame is shown
+			
 			frame:Show()		
 			return frame
 		end
@@ -318,6 +368,10 @@ local function buildFrames()
 	end
 end
 
+
+--------------------
+-- Initialization --
+--------------------
 function CD:Build()
 	statusbarMaxTime = db.maxTime
 	textEnable = db.textEnable
@@ -327,13 +381,13 @@ function CD:Build()
 	statusbarEnable = db.statusbarEnable
 	orbCappedEnable = db.orbCappedEnable
 	
+	statusbarRefresh = statusbarMaxTime / db.width / CS.db.scale
+	
 	buildFrames()
 	
 	if CS.locked and not UnitAffectingCombat("player") then
 		RegisterStateDriver(CDFrame, "visibility", db.visibilityConditionals)
 	end
-	if textEnable then CS:SetUpdateInterval(0.1) end
-	if statusbarEnable then CS:SetUpdateInterval(statusbarMaxTime / db.width / CS.db.scale) end
 end
 
 function CD:OnInitialize()

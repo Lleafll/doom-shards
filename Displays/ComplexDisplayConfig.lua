@@ -1,14 +1,20 @@
--- Get addon object
+----------------------
+-- Get addon object --
+----------------------
 local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
 if not CS then return end
 
 
--- Libraries
+---------------
+-- Libraries --
+---------------
 local L = LibStub("AceLocale-3.0"):GetLocale("ConspicuousSpirits")
 local LSM = LibStub("LibSharedMedia-3.0")
 
 
--- Options
+-------------
+-- Options --
+-------------
 CS:AddDisplayOptions("complex",
 	{
 		order = 2,

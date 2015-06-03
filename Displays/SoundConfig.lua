@@ -1,15 +1,21 @@
--- Get addon Object
+----------------------
+-- Get addon object --
+----------------------
 local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
 if not CS then return end
 
 
--- Libraries
+---------------
+-- Libraries --
+---------------
 local L = LibStub("AceLocale-3.0"):GetLocale("ConspicuousSpirits")
 local LSM = LibStub("LibSharedMedia-3.0")
 LSM:Register("sound", "Droplet", "Interface\\addons\\ConspicuousSpirits\\Media\\CSDroplet.mp3")
 
 
--- Options
+-------------
+-- Options --
+-------------
 CS:AddDisplayOptions("warningSound",
 	{
 		order = 6,

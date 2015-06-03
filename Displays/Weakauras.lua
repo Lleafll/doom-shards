@@ -1,25 +1,38 @@
+--------------------------
+-- WeakAuras dependency --
+--------------------------
 if not IsAddOnLoaded("WeakAuras") then return end
 
 
--- Get addon object
+----------------------
+-- Get addon object --
+----------------------
 local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
 if not CS then return end
 
 
--- Create module
+-------------------
+-- Create module --
+-------------------
 local WA = CS:NewModule("weakauras", "AceEvent-3.0")
 
 
--- Upvalues
+--------------
+-- Upvalues --
+--------------
 WeakAurasScanEvents = WeakAuras.ScanEvents
 
 
--- Variables
+---------------
+-- Variables --
+---------------
 local conspicuous_spirits_wa
 
 
--- Functions
-function WA:CONSPICUOUS_SPIRITS_UPDATE(self, orbs, timers)
+---------------
+-- Functions --
+---------------
+function WA:CONSPICUOUS_SPIRITS_UPDATE(_, orbs, timers)
 	local count = #timers
 	conspicuous_spirits_wa.count = count
 	conspicuous_spirits_wa.orbs = orbs

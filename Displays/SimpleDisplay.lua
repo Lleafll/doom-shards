@@ -1,28 +1,40 @@
--- Get addon object
+----------------------
+-- Get addon object --
+----------------------
 local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
 if not CS then return end
 
 
--- Create Module
+-------------------
+-- Create module --
+-------------------
 local SD = CS:NewModule("simple", "AceEvent-3.0")
 
 
--- Libraries
+---------------
+-- Libraries --
+---------------
 local LSM = LibStub("LibSharedMedia-3.0")
 
 
--- Upvalues
+--------------
+-- Upvalues --
+--------------
 local GetTime = GetTime
 
 
--- Frames
+------------
+-- Frames --
+------------
 local SDFrame = CS:CreateParentFrame("CS Simple Display", "simple")
 SD.frame = SDFrame
 local timerTextShort
 local timerTextLong
 
 
--- Variables
+---------------
+-- Variables --
+---------------
 local db
 local fontPath
 local remainingThreshold = 2 -- threshold between short and long Shadowy Apparitions
@@ -34,7 +46,9 @@ local backdrop = {  -- recycling table
 }
 
 
--- Functions
+---------------
+-- Functions --
+---------------
 function SD:CONSPICUOUS_SPIRITS_UPDATE(_, orbs, timers)
 	local currentTime
 	local short = 0
@@ -103,7 +117,6 @@ end
 
 function SD:Build()
 	buildFrames()
-	CS:SetUpdateInterval(0.1)
 end
 
 function SD:OnInitialize()
