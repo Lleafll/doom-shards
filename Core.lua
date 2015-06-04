@@ -390,7 +390,7 @@ do
 				local isExcluded
 				-- using nested for loop to avoid table creation? not sure if it's worth it :/
 				for i = 1, argCount do
-					if GUID = select(i, ...) then
+					if GUID == select(i, ...) then
 						isExcluded = true
 						break
 					end
@@ -432,7 +432,7 @@ do
 				local isExcluded
 				-- using nested for loop to avoid table creation? not sure if it's worth it :/
 				for i = 1, argCount do
-					if GUID = select(i, ...) then
+					if GUID == select(i, ...) then
 						isExcluded = true
 						break
 					end

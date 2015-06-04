@@ -42,6 +42,7 @@ Core.lua
 EncounterFixes\EncounterFixes.lua
 EncounterFixes\BlackrockFoundry.lua
 EncounterFixes\HellfireCitadel.lua
+EncounterFixes\Dev.lua
 
 Displays\ComplexDisplayConfig.lua
 Displays\ComplexDisplay.lua

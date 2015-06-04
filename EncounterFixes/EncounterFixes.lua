@@ -21,7 +21,7 @@ local L = LibStub("AceLocale-3.0"):GetLocale("ConspicuousSpirits")
 -- Upvalues --
 --------------
 local C_TimerAfter = C_Timer.After
-local tostring = tostring
+local tonumber = tonumber
 local UnitExists = UnitExists
 local UnitGUID = UnitGUID
 
@@ -29,7 +29,7 @@ local UnitGUID = UnitGUID
 ---------------
 -- Variables --
 ---------------
-local encounterFixesTable
+local encounterFixesTable = {}
 
 
 ---------------
@@ -40,7 +40,7 @@ function EF:RegisterEncounter(encounterID, callback)
 end
 
 function EF:GetNPCID(GUID)
-	return GUID:sub(-16, -12)
+	return tonumber(GUID:sub(-16, -12))
 end
 
 function EF:RemoveAfter(seconds, GUID)
@@ -75,22 +75,21 @@ function EF:ENCOUNTER_START(_, encounterID, encounterName, difficultyID, raidSiz
 	if encounterFixesTable[encounterID] then encounterFixesTable[encounterID]() end
 end
 
+function EF:RegisterEvents()
+	self:RegisterEvent("ENCOUNTER_START")
+	self:RegisterEvent("ENCOUNTER_END", "UnregisterEvents")
+	self:RegisterEvent("PLAYER_ENTERING_WORLD", "UnregisterEvents")  -- fail safe if player hearths out or something…
+end
+
 function EF:UnregisterEvents()
-	self:UnregisterEvent("UNIT_TARGETABLE_CHANGED")
-	self:UnregisterEvent("CHAT_MSG_RAID_BOSS_EMOTE")
-	self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
-	self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-	self:UnregisterEvent("UNIT_ENTERED_VEHICLE")
-	self:UnregisterEvent("PLAYER_ALIVE")
+	self:UnregisterAllEvents()  -- is this hacky? it's convenient…
+	self:RegisterEvents()
 end
 
 function EF:OnEnable()
-	self:RegisterEvent("ENCOUNTER_START")
-	self:RegisterEvent("ENCOUNTER_END", "UnregisterEvents")
-	self:RegisterEvent("PLAYER_REGEN_ENABLED", "UnregisterEvents")  -- fail safe if player hearths out or something…
+	self:RegisterEvents()
 end
 
 function EF:OnDisable()
-	self:UnregisterEvent("ENCOUNTER_START")
-	self:UnregisterEvent("ENCOUNTER_END")
+	self:UnregisterAllEvents()
 end

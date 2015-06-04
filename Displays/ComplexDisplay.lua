@@ -112,34 +112,6 @@ function CD:CONSPICUOUS_SPIRITS_UPDATE(_, updatedOrbs, updatedTimers)
 	update()
 end
 
-function CD:Unlock()
-	if not UnitAffectingCombat("player") then RegisterStateDriver(CDFrame, "visibility", "") end
-	
-	for i = 1, 6 do
-		if textEnable then
-			SATimers[i]:Show()
-		end
-		if statusbarEnable and (db.statusbarXOffset ~= 0 or db.statusbarYOffset ~= 0) then
-			statusbars[i].statusbar:SetValue(statusbarMaxTime / 2)
-			statusbars[i]:Show()
-		end
-		
-		if i == 6 then break end
-		
-		orbFrames[i]:Show()
-	end
-end
-
-function CD:Lock()
-	for i = 1, 6 do
-		orbFrames[i]:Hide()
-		if SATimers[i] then SATimers[i]:Hide() end
-		if statusbars[i] then statusbars[i]:Hide() end
-	end
-	
-	if not UnitAffectingCombat("player") then RegisterStateDriver(CDFrame, db.visibilityConditionals) end
-end
-
 local function SATimerOnUpdate(SATimer, elapsed)
 	SATimer.elapsed = SATimer.elapsed + elapsed
 	SATimer.remaining = SATimer.remaining - elapsed
@@ -369,9 +341,37 @@ local function buildFrames()
 end
 
 
---------------------
--- Initialization --
---------------------
+------------------------------
+-- Initialization and stuff --
+------------------------------
+function CD:Unlock()
+	if not UnitAffectingCombat("player") then RegisterStateDriver(CDFrame, "visibility", "") end
+	
+	for i = 1, 6 do
+		if textEnable then
+			SATimers[i]:Show()
+		end
+		if statusbarEnable and (db.statusbarXOffset ~= 0 or db.statusbarYOffset ~= 0) then
+			statusbars[i].statusbar:SetValue(statusbarMaxTime / 2)
+			statusbars[i]:Show()
+		end
+		
+		if i == 6 then break end
+		
+		orbFrames[i]:Show()
+	end
+end
+
+function CD:Lock()
+	for i = 1, 6 do
+		orbFrames[i]:Hide()
+		if SATimers[i] then SATimers[i]:Hide() end
+		if statusbars[i] then statusbars[i]:Hide() end
+	end
+	
+	if not UnitAffectingCombat("player") then RegisterStateDriver(CDFrame, db.visibilityConditionals) end
+end
+
 function CD:Build()
 	statusbarMaxTime = db.maxTime
 	textEnable = db.textEnable
