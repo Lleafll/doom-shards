@@ -43,8 +43,16 @@ local soundInterval
 ---------------
 -- Functions --
 ---------------
+local function timersCount(timers)
+	local count = 0
+	for i = 1, #timers do
+		count = count + (timers[i].IsGUIDInRange() and 1 or 0)
+	end
+	return count
+end
+
 function WS:CONSPICUOUS_SPIRITS_UPDATE(_, orbs, timers)
-	isOverOrbThreshold = orbs >= 3 and orbs + (#timers or 0) >= 5
+	isOverOrbThreshold = (orbs >= 3) and (orbs + timersCount(timers)) >= 5
 end
 
 WSFrame:SetScript("OnUpdate", function(frame, elapsed)
