@@ -39,7 +39,9 @@ ConspicuousSpirits.lua
 Config.lua
 Core.lua
 
-EncounterFixes.lua
+EncounterFixes\EncounterFixes.lua
+EncounterFixes\BlackrockFoundry.lua
+EncounterFixes\HellfireCitadel.lua
 
 Displays\ComplexDisplayConfig.lua
 Displays\ComplexDisplay.lua

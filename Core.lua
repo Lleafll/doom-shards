@@ -34,7 +34,7 @@ local UnitPower = UnitPower
 -- Variables --
 ---------------
 local SAVelocity = 6.07  -- extrapolated
-local initialSATimeCorrection = 1  -- seconds to add to initial travel time prediction
+local initialSATimeCorrection = 1.5  -- seconds to add to initial travel time prediction
 local SAGraceTime = 3  -- maximum additional wait time before SA timer gets purged if it should not have hit in the meantime
 local cacheMaxTime = 1  -- seconds in which the cache does not get refreshed
 
