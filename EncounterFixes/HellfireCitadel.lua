@@ -13,24 +13,33 @@ local EF = CS:GetModule("EncounterFixes")
 -- Hellfire Assault
 EF:RegisterEncounter(1778, function()
 	-- untested
+	local MartakGUID
 	EF:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
 		-- we need to check for all initial boss unit IDs since order isn't fixed (seems do depend on which mob gets pulled first)
-		for i = 1, 4 do
-			local unitID = "boss"..tostring(i)
-			local GUID = UnitGUID(unitID)
-			if not GUID then return end
-			if EF:GetNPCID(GUID) == 94515 then  -- Siegemaster Mar'tak
-				EF:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
-				EF:RegisterEvent("UNIT_TARGETABLE_CHANGED", function(_, unitID)
-					if UnitGUID(unitID) == GUID then
-						CS:RemoveGUID(GUID)
-						EF:UnregisterEvent("UNIT_TARGETABLE_CHANGED")
-						--@alpha@
-						print("Conspicuous Spirits Alpha Debug: Siegemaster Mar'tak left combat")
-						--@end-alpha@
-					end
-				end)
+		if MartakGUID then
+			for i = 1, 4 do
+				local unitID = "boss"..tostring(i)
+				if UnitGUID(unitID) == MartakGUID then return end
 			end
+			--@alpha@
+			print("Conspicuous Spirits Alpha Debug: Siegemaster Mar'tak leaving combat")
+			--@end-alpha@
+			RemoveGUID(MartakGUID)
+			EF:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
+		
+		else
+			for i = 1, 4 do
+				local unitID = "boss"..tostring(i)
+				local GUID = UnitGUID(unitID)
+				if not GUID then return end
+				if EF:GetNPCID(GUID) == 94515 then  -- Siegemaster Mar'tak
+					--@alpha@
+					print("Conspicuous Spirits Alpha Debug: Setting Siegemaster Mar'tak's GUID")
+					--@end-alpha@
+					MartakGUID = GUID
+				end
+			end
+			
 		end
 	end)
 end)
