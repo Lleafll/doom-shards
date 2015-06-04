@@ -22,6 +22,7 @@ local IsInRaid = IsInRaid
 local IsItemInRange = IsItemInRange
 local ItemHasRange = ItemHasRange
 local pairs = pairs
+local select = select
 local tableinsert = table.insert  -- only used sparingly
 local tableremove = table.remove
 local UnitCanAttack = UnitCanAttack
@@ -380,6 +381,26 @@ do
 			end
 			self:Update()
 		end
+		
+		-- resets all tracked SAs except the ones specified
+		-- originally designed for encounter fixes
+		function CS:RemoveAllGUIDsExcept(...)
+			local argCount = select("#", ...)
+			for GUID, _ in pairs(targets) do
+				local isExcluded
+				-- using nested for loop to avoid table creation? not sure if it's worth it :/
+				for i = 1, argCount do
+					if GUID = select(i, ...) then
+						isExcluded = true
+						break
+					end
+				end
+				if not isExcluded then
+					removeGUID(self, GUID)
+				end
+			end
+			self:Update()
+		end
 	end
 	
 	do
@@ -399,6 +420,26 @@ do
 		function CS:HideAllGUIDs()
 			for GUID, _ in pairs(targets) do
 				hideGUID(GUID)
+			end
+			self:Update()
+		end
+		
+		-- hides all tracked SAs except the ones specified
+		-- originally designed for encounter fixes
+		function CS:HideAllGUIDsExcept(...)
+			local argCount = select("#", ...)
+			for GUID, _ in pairs(targets) do
+				local isExcluded
+				-- using nested for loop to avoid table creation? not sure if it's worth it :/
+				for i = 1, argCount do
+					if GUID = select(i, ...) then
+						isExcluded = true
+						break
+					end
+				end
+				if not isExcluded then
+					hideGUID(GUID)
+				end
 			end
 			self:Update()
 		end

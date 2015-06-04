@@ -75,7 +75,7 @@ EF:RegisterEncounter(1704, function()
 			local unitID = "boss"..tostring(i)
 			local GUID = UnitGUID(unitID)
 			-- don't overwrite with nil because INSTANCE_ENCOUNTER_ENGAGE_UNIT fires before COMBAT_LOG_EVENT_UNFILTERED
-			if GUID and not (self:GetNPCID(GUID) == "77325") then
+			if GUID then
 				bossGUID[i] = GUID
 			end
 		end
@@ -83,16 +83,28 @@ EF:RegisterEncounter(1704, function()
 	self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
 		if spellID == 177487 then  -- Shattered Floor
 			for i = 1, 5 do
-				if bossGUID[i] then CS:RemoveGUID(bossGUID[i]) end
+				if bossGUID[i] and not (self:GetNPCID(bossGUID[i]) == 77325) then
+					CS:RemoveGUID(bossGUID[i])
+				end
 				
 				--@alpha@
 				print("Conspicuous Spirits Alpha Debug: Shattered Floor!")
-				if bossGUID[i] then print(self:GetNPCID(bossGUID[i])) end
+				if bossGUID[i] and not (self:GetNPCID(bossGUID[i]) == 77325) then
+					print(self:GetNPCID(bossGUID[i]))
+				end
 				--@end-alpha@
 			
 			end
 			self:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
-			self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+			
+		elseif spellID == "Falling" and destGUID == UnitGUID("player") then  -- aimed at taking fall damage after jumping from balcony
+		
+			--@alpha@
+			print("Conspicuous Spirits Alpha Debug: Taking Falling Damage!")
+			--@end-alpha@
+		
+			CS:RemoveAllGUIDsExcept(bossGUID[1], bossGUID[2], bossGUID[3], bossGUID[4], bossGUID[5])
+			
 		end
 	end)
 end)
