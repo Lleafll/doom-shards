@@ -130,7 +130,7 @@ do
 		message = tostring(message)  -- in case message == nil and for contentation
 		if debugFrame then
 			debugFrame:AddMessage(message)
-		else
+		end
 		print("Conspicuous Spirits Alpha Debug: "..message)
 	end
 	
