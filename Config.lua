@@ -55,18 +55,18 @@ local optionsTable = {
 					end
 				},
 				spacer = {
-					order = 2.5,
+					order = 3.5,
 					type = "description",
 					name = ""
 				},
 				aggressiveCaching = {
-					order = 3,
+					order = 4,
 					type = "toggle",
 					name = L["Aggressive Caching"],
 					desc = L["Enables frequent distance scanning of all available targets. Will increase CPU usage slightly and is only going to increase accuracy in situations with many fast-moving mobs."]
 				},
 				aggressiveCachingInterval = {
-					order = 4,
+					order = 5,
 					type = "range",
 					name = L["Aggressive Caching Interval"],
 					desc = L["Scanning interval when Aggressive Caching is enabled"],
@@ -75,7 +75,7 @@ local optionsTable = {
 					step = 0.1
 				},
 				calculateOutOfCombat = {
-					order = 5,
+					order = 6,
 					type = "toggle",
 					name = L["Out-of-Combat Calculation"],
 					desc = L["Keep calculating distances and anticipated Orbs when leaving combat."]
@@ -128,7 +128,9 @@ CS.defaultSettings = {
 		scale = 1,
 		aggressiveCaching = true,
 		aggressiveCachingInterval = 0.5,
-		calculateOutOfCombat = false
+		calculateOutOfCombat = false,
+		debug = false,
+		debugSA = false
 	}
 }
 
@@ -140,11 +142,32 @@ ACD:SetDefaultSize("Conspicuous Spirits", 700, 750)
 function CS:HandleChatCommand(command)
 	local suffix = string.match(command, "(%w+)")
 
-	if suffix and (suffix == "toggle" or suffix == "lock" or (suffix == "unlock" and self.locked)) then
-		if self.locked then
-			self:Unlock()
-		else
-			self:Lock()
+	if suffix then
+		if suffix == "toggle" or suffix == "lock" or (suffix == "unlock" and self.locked) then
+			if self.locked then
+				self:Unlock()
+			else
+				self:Lock()
+			end
+			
+		elseif suffix == "debug" then
+			self.db.debug = not self.db.debug
+			if self.db.debug then
+				print("|cFF814eaaConspicuous Spirits|r: debugging enabled")
+			else
+				print("|cFF814eaaConspicuous Spirits|r: debugging disabled")
+			end
+			return
+			
+		elseif suffix == "debugSA" then
+			self.db.debugSA = not self.db.debugSA
+			if self.db.debugSA then
+				print("|cFF814eaaConspicuous Spirits|r: debugging SATimers enabled")
+			else
+				print("|cFF814eaaConspicuous Spirits|r: debugging SATimers disabled")
+			end
+			return
+			
 		end
 	end
 	

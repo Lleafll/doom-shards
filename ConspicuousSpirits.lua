@@ -10,8 +10,16 @@ local L = LibStub("AceLocale-3.0"):GetLocale("ConspicuousSpirits")
 
 
 ---------------
--- Functions --
+-- Variables --
 ---------------
+--@alpha@
+local isAlpha = true
+--@end-alpha@
+
+
+-----------------------
+-- Locking/unlocking --
+-----------------------
 do
 	local function dragStop(self, moduleName)
 		self:StopMovingOrSizing()
@@ -110,6 +118,37 @@ function CS:Lock()
 	self:Build()
 end
 
+
+---------------
+-- Debugging --
+---------------
+do
+	local debugFrame
+
+	function CS:Debug(message)
+		if not self.db.debug then return end
+		message = tostring(message)  -- in case message == nil and for contentation
+		if debugFrame then
+			debugFrame:AddMessage(message)
+		end
+		print("|cFF814eaaConspicuous Spirits|r Debug: "..message)
+	end
+	
+	-- client needs to get reloaded for this
+	function CS:DebugCheckChatWindows()
+		for i = 1, NUM_CHAT_WINDOWS do
+			if GetChatWindowInfo(i) == "CS Debug" then
+				debugFrame = _G["ChatFrame"..tostring(i)]
+				return
+			end
+		end
+	end
+end
+
+
+--------------------
+-- Initialization --
+--------------------
 function CS:ApplySettings()
 	for name, module in self:IterateModules() do
 		if self.db[name] and self.db[name].enable then
@@ -123,28 +162,6 @@ function CS:ApplySettings()
 	end
 end
 
-do
-	local debugFrame
-
-	function CS:Debug(message)
-		message = tostring(message)  -- in case message == nil and for contentation
-		if debugFrame then
-			debugFrame:AddMessage(message)
-		end
-		print("Conspicuous Spirits Alpha Debug: "..message)
-	end
-	
-	-- client needs to get reloaded for this
-	function CS:CheckChatWindows()
-		for i = 1, NUM_CHAT_WINDOWS do
-			if GetChatWindowInfo(i) == "CS Debug" then
-				debugFrame = _G["ChatFrame"..tostring(i)]
-				return
-			end
-		end
-	end
-end
-
 function CS:OnInitialize()
 	self.locked = true
 	
@@ -152,7 +169,11 @@ function CS:OnInitialize()
 	self.db = CSDB.global
 	function self:ResetDB() CSDB:ResetDB() end
 	
-	self:CheckChatWindows()
+	if not isAlpha then  -- automatically reset debug values if version isn't alpha
+		self.db.debug = false
+		self.db.debugSA = false
+	end
+	self:DebugCheckChatWindows()
 	
 	self:RegisterEvent("PLAYER_TALENT_UPDATE", "TalentsCheck")  -- will fire once for every talent tier after player is in-game and ultimately initialize events and displays if player is Shadow
 end

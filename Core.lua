@@ -468,9 +468,10 @@ do
 					SATimeCorrection[destGUID] = SATimeCorrection[destGUID] - additionalTime / 2
 					if SATimeCorrection[destGUID] < 0 then SATimeCorrection[destGUID] = 0 end
 					
-					--@debug@
-					--print(SATimeCorrection[destGUID])
-					--@end-debug@
+					-- debug
+					if self.db.debugSA then
+						self:Debug(destGUID.." "..tostring(SATimeCorrection[destGUID]))
+					end
 					
 					removeTimer(self, timerID)
 					-- correct other timers

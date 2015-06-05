@@ -21,9 +21,10 @@ EF:RegisterEncounter(1778, function()
 				local unitID = "boss"..tostring(i)
 				if UnitGUID(unitID) == MartakGUID then return end
 			end
-			--@alpha@
+			
+			-- debug
 			CS:Debug("Siegemaster Mar'tak leaving combat")
-			--@end-alpha@
+			
 			RemoveGUID(MartakGUID)
 			EF:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
 		
@@ -33,9 +34,10 @@ EF:RegisterEncounter(1778, function()
 				local GUID = UnitGUID(unitID)
 				if not GUID then return end
 				if EF:GetNPCID(GUID) == 94515 then  -- Siegemaster Mar'tak
-					--@alpha@
+				
+					-- debug
 					CS:Debug("Setting Siegemaster Mar'tak's GUID")
-					--@end-alpha@
+					
 					MartakGUID = GUID
 				end
 			end
@@ -89,16 +91,14 @@ EF:RegisterEncounter(1794, function()
 		local GUID = UnitGUID("boss1")
 		if EF:GetNPCID(GUID) == 90296 then  -- Soulbound Construct
 			
-			--@alpha@
+			-- debug
 			CS:Debug("Soulbound Construct engaged")
-			--@end-alpha@
 			
 			EF:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
 			EF:RegisterEvent("UNIT_ENTERED_VEHICLE", function()  -- not sure if this event fires correctly
 			
-				--@alpha@
+				-- debug
 				CS:Debug("UNIT_ENTERED_VEHICLE fired")
-				--@end-alpha@
 				
 				EF:HideGUID(GUID)
 			end)
@@ -125,9 +125,10 @@ EF:RegisterEncounter(1799, function()
 	-- Entering/leaving Twisting Nether
 	EF:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
 		if spellID == 186952 and destGUID == UnitGUID("player") and (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") then  -- Nether Banish when inside Nether (does it only affect tanks?)
-			--@alpha@
-			print("Conspicuous Spirits Alpha Debug: Entered/left Twisting Nether")
-			--@end-alpha@
+			
+			-- debug
+			CS:Debug("Conspicuous Spirits Alpha Debug: Entered/left Twisting Nether")
+			
 			CS:HideAllGUIDs()
 		end
 	end)
