@@ -173,6 +173,8 @@ function CS:OnInitialize()
 		self.db.debug = false
 		self.db.debugSA = false
 	end
+	if self.db.debug then print("|cFF814eaaConspicuous Spirits|r: debugging enabled") end
+	if self.db.debugSA then print("|cFF814eaaConspicuous Spirits|r: debugging SATimers enabled") end
 	self:DebugCheckChatWindows()
 	
 	self:RegisterEvent("PLAYER_TALENT_UPDATE", "TalentsCheck")  -- will fire once for every talent tier after player is in-game and ultimately initialize events and displays if player is Shadow

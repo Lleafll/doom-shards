@@ -33,7 +33,8 @@ EF:RegisterEncounter(1778, function()
 				local unitID = "boss"..tostring(i)
 				local GUID = UnitGUID(unitID)
 				if not GUID then return end
-				if EF:GetNPCID(GUID) == 94515 then  -- Siegemaster Mar'tak
+				local NPCID = EF:GetNPCID(GUID)
+				if NPCID == 95068 or NPCID == 94515 or NPCID == 93023 then  -- Siegemaster Mar'tak; 93023 on 2015-06-05
 				
 					-- debug
 					CS:Debug("Setting Siegemaster Mar'tak's GUID")

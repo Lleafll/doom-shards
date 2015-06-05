@@ -92,7 +92,8 @@ EF:RegisterEncounter(1704, function()
 			-- also Shattered Floor events get spammed
 			EF:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 			
-		elseif spellID == "Falling" and destGUID == UnitGUID("player") then  -- aimed at taking fall damage after jumping from balcony
+		elseif spellID == "Falling" and destGUID == UnitGUID("player") then
+			-- aimed at taking fall damage after jumping from balcony
 			-- for this to work you need to be bad and not use Levitate when jumping from the balcony
 			CS:RemoveAllGUIDsExcept(bossGUID[1], bossGUID[2], bossGUID[3], bossGUID[4], bossGUID[5])
 			
