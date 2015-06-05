@@ -22,7 +22,7 @@ EF:RegisterEncounter(1778, function()
 				if UnitGUID(unitID) == MartakGUID then return end
 			end
 			--@alpha@
-			print("Conspicuous Spirits Alpha Debug: Siegemaster Mar'tak leaving combat")
+			CS:Debug("Siegemaster Mar'tak leaving combat")
 			--@end-alpha@
 			RemoveGUID(MartakGUID)
 			EF:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
@@ -34,7 +34,7 @@ EF:RegisterEncounter(1778, function()
 				if not GUID then return end
 				if EF:GetNPCID(GUID) == 94515 then  -- Siegemaster Mar'tak
 					--@alpha@
-					print("Conspicuous Spirits Alpha Debug: Setting Siegemaster Mar'tak's GUID")
+					CS:Debug("Setting Siegemaster Mar'tak's GUID")
 					--@end-alpha@
 					MartakGUID = GUID
 				end
@@ -90,14 +90,14 @@ EF:RegisterEncounter(1794, function()
 		if EF:GetNPCID(GUID) == 90296 then  -- Soulbound Construct
 			
 			--@alpha@
-			print("Conspicuous Spirits Alpha Debug: Soulbound Construct engaged")
+			CS:Debug("Soulbound Construct engaged")
 			--@end-alpha@
 			
 			EF:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
 			EF:RegisterEvent("UNIT_ENTERED_VEHICLE", function()  -- not sure if this event fires correctly
 			
 				--@alpha@
-				print("Conspicuous Spirits Alpha Debug: UNIT_ENTERED_VEHICLE fired")
+				CS:Debug("UNIT_ENTERED_VEHICLE fired")
 				--@end-alpha@
 				
 				EF:HideGUID(GUID)

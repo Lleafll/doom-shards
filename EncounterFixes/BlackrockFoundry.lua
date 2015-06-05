@@ -81,28 +81,19 @@ EF:RegisterEncounter(1704, function()
 		end
 	end)
 	EF:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
-		if spellID == 177487 then  -- Shattered Floor
+		if spellID == 177487 and not isFloorShattered then  -- Shattered Floor
 			for i = 1, 5 do
 				if bossGUID[i] and not (EF:GetNPCID(bossGUID[i]) == 77325) then
 					CS:RemoveGUID(bossGUID[i])
-				end
-				
-				--@alpha@
-				print("Conspicuous Spirits Alpha Debug: Shattered Floor!")
-				if bossGUID[i] and not (EF:GetNPCID(bossGUID[i]) == 77325) then
-					print(EF:GetNPCID(bossGUID[i]))
-				end
-				--@end-alpha@
-			
+				end			
 			end
 			EF:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
+			-- no point in keeping event registered in case player is still on balcony in transition since Falling Damage won't trigger then
+			-- also Shattered Floor events get spammed
+			EF:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 			
 		elseif spellID == "Falling" and destGUID == UnitGUID("player") then  -- aimed at taking fall damage after jumping from balcony
-		
-			--@alpha@
-			print("Conspicuous Spirits Alpha Debug: Taking Falling Damage!")
-			--@end-alpha@
-		
+			-- for this to work you need to be bad and not use Levitate when jumping from the balcony
 			CS:RemoveAllGUIDsExcept(bossGUID[1], bossGUID[2], bossGUID[3], bossGUID[4], bossGUID[5])
 			
 		end

@@ -123,12 +123,36 @@ function CS:ApplySettings()
 	end
 end
 
+do
+	local debugFrame
+
+	function CS:Debug(message)
+		message = tostring(message)  -- in case message == nil and for contentation
+		if debugFrame then
+			debugFrame:AddMessage(message)
+		else
+		print("Conspicuous Spirits Alpha Debug: "..message)
+	end
+	
+	-- client needs to get reloaded for this
+	function CS:CheckChatWindows()
+		for i = 1, NUM_CHAT_WINDOWS do
+			if GetChatWindowInfo(i) == "CS Debug" then
+				debugFrame = _G["ChatFrame"..tostring(i)]
+				return
+			end
+		end
+	end
+end
+
 function CS:OnInitialize()
 	self.locked = true
 	
 	local CSDB = LibStub("AceDB-3.0"):New("ConspicuousSpiritsDB", self.defaultSettings, true)
 	self.db = CSDB.global
 	function self:ResetDB() CSDB:ResetDB() end
+	
+	self:CheckChatWindows()
 	
 	self:RegisterEvent("PLAYER_TALENT_UPDATE", "TalentsCheck")  -- will fire once for every talent tier after player is in-game and ultimately initialize events and displays if player is Shadow
 end
