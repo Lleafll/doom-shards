@@ -73,6 +73,22 @@ EF:RegisterEncounter(1783, function()
 	end)
 end)
 
+-- Iron Reaver
+EF:RegisterEncounter(1785, function()
+	-- fix for Iron Reaver's hitbox
+	EF:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
+		if UnitExists("boss1") then 
+			local GUID = UnitGUID("boss1")
+			CS:SetSATimeCorrection(GUID, 4)
+			EF:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
+			-- in case player dies and gets resurrected
+			EF:RegisterEvent("PLAYER_ALIVE", function()
+				CS:SetSATimeCorrection(GUID, 4)
+			end)
+		end
+	end)
+end)
+
 -- Kilrogg
 EF:RegisterEncounter(1786, function()
 	-- player entering/leaving Vision of Death
