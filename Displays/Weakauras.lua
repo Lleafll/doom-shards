@@ -1,19 +1,8 @@
---------------------------
--- WeakAuras dependency --
---------------------------
 if not IsAddOnLoaded("WeakAuras") then return end
 
-
-----------------------
--- Get addon object --
-----------------------
 local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
 if not CS then return end
 
-
--------------------
--- Create module --
--------------------
 local WA = CS:NewModule("weakauras", "AceEvent-3.0")
 
 

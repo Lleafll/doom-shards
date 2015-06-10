@@ -1,19 +1,7 @@
-----------------------
--- Get addon object --
-----------------------
 local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
 if not CS then return end
 
-
--------------------
--- Create module --
--------------------
 local CD = CS:NewModule("complex", "AceEvent-3.0")
-
-
----------------
--- Libraries --
----------------
 local LSM = LibStub("LibSharedMedia-3.0")
 
 

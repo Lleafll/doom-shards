@@ -1,10 +1,6 @@
 local _, class = UnitClass("player")
 if class ~= "PRIEST" then return end
 
-
----------------------------------------
--- Embedding and libraries and stuff --
----------------------------------------
 local CS = LibStub("AceAddon-3.0"):NewAddon("Conspicuous Spirits", "AceEvent-3.0", "AceTimer-3.0", "AceConsole-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("ConspicuousSpirits")
 
@@ -139,7 +135,7 @@ do
 		for i = 1, NUM_CHAT_WINDOWS do
 			if GetChatWindowInfo(i) == "CS Debug" then
 				debugFrame = _G["ChatFrame"..tostring(i)]
-				return
+				return true
 			end
 		end
 	end
@@ -165,17 +161,23 @@ end
 function CS:OnInitialize()
 	self.locked = true
 	
+	-- database
 	local CSDB = LibStub("AceDB-3.0"):New("ConspicuousSpiritsDB", self.defaultSettings, true)
 	self.db = CSDB.global
 	function self:ResetDB() CSDB:ResetDB() end
 	
+	-- debugging
 	if not isAlpha then  -- automatically reset debug values if version isn't alpha
 		self.db.debug = false
 		self.db.debugSA = false
 	end
-	if self.db.debug then print("|cFF814eaaConspicuous Spirits|r: debugging enabled") end
+	local debugFrameExists = self:DebugCheckChatWindows()
+	if self.db.debug then 
+		print("|cFF814eaaConspicuous Spirits|r: debugging enabled")
+		if not debugFrameExists then print("|cFF814eaaConspicuous Spirits|r: Create chat window named \"CS Debug\" for separate output.") end
+	end
 	if self.db.debugSA then print("|cFF814eaaConspicuous Spirits|r: debugging SATimers enabled") end
-	self:DebugCheckChatWindows()
 	
-	self:RegisterEvent("PLAYER_TALENT_UPDATE", "TalentsCheck")  -- will fire once for every talent tier after player is in-game and ultimately initialize events and displays if player is Shadow
+	-- will fire once for every talent tier after player is in-game and ultimately initialize events and displays if player is Shadow
+	self:RegisterEvent("PLAYER_TALENT_UPDATE", "TalentsCheck")
 end

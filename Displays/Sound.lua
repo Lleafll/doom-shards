@@ -1,19 +1,7 @@
-----------------------
--- Get addon object --
-----------------------
 local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
 if not CS then return end
 
-
--------------------
--- Create module --
--------------------
 local WS = CS:NewModule("warningSound", "AceEvent-3.0")  -- can't use sound since it's a legacy option :/
-
-
----------------
--- Libraries --
----------------
 local LSM = LibStub("LibSharedMedia-3.0")
 
 
