@@ -15,8 +15,8 @@ local LSM = LibStub("LibSharedMedia-3.0")
 -------------
 -- Options --
 -------------
-CS:AddDisplayOptions("complex",
-	{
+local function displayOptions()
+	return {
 		order = 2,
 		type = "group",
 		name = L["Complex Display"],
@@ -470,40 +470,43 @@ CS:AddDisplayOptions("complex",
 				}
 			}
 		}
-	},
-	{
-		enable = true,
-		posX = 0,
-		posY = 0,
-		height = 8,
-		width = 32,
-		spacing = 1,
-		color1 = {r=0.38, b=0.23, g=0.51, a=1},
-		color2 = {r=0.51, b=0.00, g=0.24, a=1},
-		textEnable = true,
-		fontSize = 15,
-		fontName = "Friz Quadrata TT",
-		fontFlags = "Shadow",
-		fontColor = {r=1, b=1, g=1, a=1},
-		remainingTimeThreshold = 2,
-		fontColorCacheEnable = false,
-		fontColorCache = {r=0.80, b=0.00, g=0.38, a=1},
-		stringXOffset = 0,
-		stringYOffset = 0,
-		visibilityConditionals = "[harm] [combat] show; hide",
-		orientation = "Horizontal",
-		growthDirection = "Regular",
-		textureHandle = "Empty",
-		borderColor = {r=0, b=0, g=0, a=1},
-		statusbarEnable = true,
-		statusbarColor = {r=0.33, b=0.33, g=0.33, a=0.5},
-		statusbarColorBackground = {r=0.06, b=0.06, g=0.06, a=1},
-		statusbarColorOverflow = {r=0.51, b=0.00, g=0.24, a=1},
-		statusbarReverse = false,
-		maxTime = 5,
-		statusbarXOffset = 0,
-		statusbarYOffset = 0,
-		orbCappedEnable = false,
-		orbCappedColor = {r=0.51, b=0.00, g=0.24, a=1},
 	}
-)
+end
+
+local defaultSettings = {
+	enable = true,
+	posX = 0,
+	posY = 0,
+	height = 8,
+	width = 32,
+	spacing = 1,
+	color1 = {r=0.38, b=0.23, g=0.51, a=1},
+	color2 = {r=0.51, b=0.00, g=0.24, a=1},
+	textEnable = true,
+	fontSize = 15,
+	fontName = "Friz Quadrata TT",
+	fontFlags = "Shadow",
+	fontColor = {r=1, b=1, g=1, a=1},
+	remainingTimeThreshold = 2,
+	fontColorCacheEnable = false,
+	fontColorCache = {r=0.80, b=0.00, g=0.38, a=1},
+	stringXOffset = 0,
+	stringYOffset = 0,
+	visibilityConditionals = "[harm] [combat] show; hide",
+	orientation = "Horizontal",
+	growthDirection = "Regular",
+	textureHandle = "Empty",
+	borderColor = {r=0, b=0, g=0, a=1},
+	statusbarEnable = true,
+	statusbarColor = {r=0.33, b=0.33, g=0.33, a=0.5},
+	statusbarColorBackground = {r=0.06, b=0.06, g=0.06, a=1},
+	statusbarColorOverflow = {r=0.51, b=0.00, g=0.24, a=1},
+	statusbarReverse = false,
+	maxTime = 5,
+	statusbarXOffset = 0,
+	statusbarYOffset = 0,
+	orbCappedEnable = false,
+	orbCappedColor = {r=0.51, b=0.00, g=0.24, a=1},
+}
+
+CS:AddDisplayOptions("complex", displayOptions, defaultSettings)

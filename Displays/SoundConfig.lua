@@ -16,8 +16,8 @@ LSM:Register("sound", "Droplet", "Interface\\addons\\ConspicuousSpirits\\Media\\
 -------------
 -- Options --
 -------------
-CS:AddDisplayOptions("warningSound",
-	{
+local function displayOptions()
+	return {
 		order = 6,
 		type = "group",
 		name = L["Sound"],
@@ -49,10 +49,13 @@ CS:AddDisplayOptions("warningSound",
 				step = 0.1
 			}
 		}
-	},
-	{
-		enable = false,
-		soundHandle = "Droplet",
-		soundInterval = 2
 	}
-)
+end
+
+local defaultSettings = {
+	enable = false,
+	soundHandle = "Droplet",
+	soundInterval = 2
+}
+
+CS:AddDisplayOptions("warningSound", displayOptions, defaultSettings)

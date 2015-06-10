@@ -15,8 +15,8 @@ local LSM = LibStub("LibSharedMedia-3.0")
 -------------
 -- Options --
 -------------
-CS:AddDisplayOptions("simple",
-	{
+local function displayOptions()
+	return {
 		order = 4,
 		type = "group",
 		name = L["Simple Display"],
@@ -194,22 +194,25 @@ CS:AddDisplayOptions("simple",
 				}
 			}
 		}
-	},
-	{
-		enable = false,
-		posX = 0,
-		posY = 0,
-		height = 33,
-		width = 65,
-		spacing = 20,
-		color1 = {r=0.53, b=0.53, g=0.53, a=1.00},  -- lowest threshold color
-		color2 = {r=0.38, b=0.23, g=0.51, a=1.00},  -- middle threshold color
-		color3 = {r=0.51, b=0.00, g=0.24, a=1.00},  -- highest threshold color
-		fontSize = 15,
-		fontName = "Friz Quadrata TT",
-		fontFlags = "Shadow",
-		fontColor = {r=1, b=1, g=1, a=1},
-		textureHandle = "Empty",
-		borderColor = {r=0, b=0, g=0, a=1}
 	}
-)
+end
+
+local defaultSettings = {
+	enable = false,
+	posX = 0,
+	posY = 0,
+	height = 33,
+	width = 65,
+	spacing = 20,
+	color1 = {r=0.53, b=0.53, g=0.53, a=1.00},  -- lowest threshold color
+	color2 = {r=0.38, b=0.23, g=0.51, a=1.00},  -- middle threshold color
+	color3 = {r=0.51, b=0.00, g=0.24, a=1.00},  -- highest threshold color
+	fontSize = 15,
+	fontName = "Friz Quadrata TT",
+	fontFlags = "Shadow",
+	fontColor = {r=1, b=1, g=1, a=1},
+	textureHandle = "Empty",
+	borderColor = {r=0, b=0, g=0, a=1}
+}
+
+CS:AddDisplayOptions("simple", displayOptions, defaultSettings)
