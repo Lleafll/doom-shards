@@ -1,8 +1,6 @@
-------------------------------------------------------
--- Get addon object and encounter fix module object --
-------------------------------------------------------
 local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
 if not CS then return end
+
 local EF = CS:GetModule("EncounterFixes")
 
 
@@ -37,10 +35,10 @@ EF:RegisterEncounter(1693, function()
 			EF:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
 			EF:RegisterEvent("UNIT_TARGETABLE_CHANGED", function()
 				if not UnitExists("boss1") then
-					CS:RemoveGUID(boss1GUID)
+					CS:RemoveGUID(boss1GUID)  -- possibly replace with HideGUID
 				
 				elseif not UnitExists("boss2") then
-					CS:RemoveGUID(boss2GUID)
+					CS:RemoveGUID(boss2GUID)  -- possibly replace with HideGUID
 				
 				end
 			end)
@@ -63,7 +61,7 @@ EF:RegisterEncounter(1694, function()
 		end
 	end)
 	-- search for overkill since there isn't always a death event for the spears
-	EF:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED",  "CheckForOverkill")
+	EF:CheckForOverkill()
 end)
 
 -- Blackhand
@@ -75,16 +73,24 @@ EF:RegisterEncounter(1704, function()
 			local unitID = "boss"..tostring(i)
 			local GUID = UnitGUID(unitID)
 			-- don't overwrite with nil because INSTANCE_ENCOUNTER_ENGAGE_UNIT fires before COMBAT_LOG_EVENT_UNFILTERED
-			if GUID then
-				bossGUID[i] = GUID
-			end
+			bossGUID[i] = GUID or bossGUID[i]
 		end
 	end)
 	EF:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
-		if spellID == 177487 and not isFloorShattered then  -- Shattered Floor
+		if spellID == 177487 then  -- Shattered Floor
+			-- also doable with 161348 (Jump To Third Floor) UNIT_SPELLCAST_SUCCEEDED
+			
+			-- debug
+			CS:Debug("Shattered Floor")
+			
 			for i = 1, 5 do
-				if bossGUID[i] and not (EF:GetNPCID(bossGUID[i]) == 77325) then
-					CS:RemoveGUID(bossGUID[i])
+				local GUID = bossGUID[i]
+				if GUID and (EF:GetNPCID(GUID) ~= 77325) then  -- Blackhand
+					
+					-- debug
+					CS:Debug("Removing "..tostring(GUID))
+					
+					CS:RemoveGUID(GUID)
 				end			
 			end
 			EF:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")

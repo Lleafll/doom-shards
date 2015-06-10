@@ -1,8 +1,6 @@
-------------------------------------------------------
--- Get addon object and encounter fix module object --
-------------------------------------------------------
 local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
 if not CS then return end
+
 local EF = CS:GetModule("EncounterFixes")
 
 
@@ -139,21 +137,21 @@ EF:RegisterEncounter(1794, function()
 	end)
 	-- untested
 	-- Crystalline Fel Prisons don't fire death events
-	EF:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED",  "CheckForOverkill")
+	EF:CheckForOverkill()
 end)
 
 -- Hellfire High Council
 EF:RegisterEncounter(1798, function()
 	-- untested
 	-- search for overkill since there isn't always a death event for Blademaster Jubei'thos' Mirror Images
-	EF:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED",  "CheckForOverkill")
+	EF:CheckForOverkill()
 end)
 
 -- Archimonde
 EF:RegisterEncounter(1799, function()
 	-- untested
 	-- search for overkill since there isn't always a death event for the Doomfire Spirits
-	EF:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED",  "CheckForOverkill")
+	EF:CheckForOverkill()
 	-- untested
 	-- Entering/leaving Twisting Nether
 	EF:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
