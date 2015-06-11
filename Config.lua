@@ -131,6 +131,7 @@ CS.defaultSettings = {
 
 do
 	local moduleOptions = {}
+	
 	function CS:AddDisplayOptions(displayName, displayOptions, displayDefaults)
 		moduleOptions[displayName] = displayOptions
 		self.defaultSettings.global[displayName] = displayDefaults

@@ -64,6 +64,12 @@ EF:RegisterEncounter(1694, function()
 	EF:CheckForOverkill()
 end)
 
+-- Oregorger
+EF:RegisterEncounter(1696, function()
+	-- missing death events on Ore Crates
+	EF:CheckForOverkill()
+end)
+
 -- Blackhand
 EF:RegisterEncounter(1704, function()
 	-- fix for disappearing Siegemakers in P2 -> P3 transition

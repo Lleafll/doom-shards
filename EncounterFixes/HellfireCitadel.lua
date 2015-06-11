@@ -13,7 +13,7 @@ EF:RegisterEncounter(1778, function()
 	-- untested
 	local MartakGUID
 	EF:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
-		-- we need to check for all initial boss unit IDs since order isn't fixed (seems do depend on which mob gets pulled first)
+		-- we need to check for all initial boss unit IDs since order isn't fixed (seems to depend on which mob gets pulled first)
 		if MartakGUID then
 			for i = 1, 4 do
 				local unitID = "boss"..tostring(i)
@@ -158,7 +158,7 @@ EF:RegisterEncounter(1799, function()
 		if spellID == 186952 and destGUID == UnitGUID("player") and (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") then  -- Nether Banish when inside Nether (does it only affect tanks?)
 			
 			-- debug
-			CS:Debug("Conspicuous Spirits Alpha Debug: Entered/left Twisting Nether")
+			CS:Debug("Entered/left Twisting Nether")
 			
 			CS:HideAllGUIDs()
 		end
