@@ -9,7 +9,7 @@ local WA = CS:NewModule("weakauras", "AceEvent-3.0")
 --------------
 -- Upvalues --
 --------------
-WeakAurasScanEvents = WeakAuras.ScanEvents
+local WeakAurasScanEvents = WeakAuras.ScanEvents
 
 
 ---------------
