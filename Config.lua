@@ -97,7 +97,7 @@ local function optionsTable()
 						end
 					},
 					reset = {
-						order = 2,
+						order = 3,
 						type = "execute",
 						name = L["Reset Position"],
 						cmdHidden = true,
@@ -110,6 +110,16 @@ local function optionsTable()
 								end
 							end
 							CS:Build()
+						end
+					},
+					testMode = {
+						order = 3,
+						type = "execute",
+						name = L["Test Mode"],
+						func = function()
+							if not UnitAffectingCombat("player") then
+								CS:TestMode() 
+							end
 						end
 					}
 				}

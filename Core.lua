@@ -1,5 +1,6 @@
 local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
 if not CS then return end
+local L = LibStub("AceLocale-3.0"):GetLocale("ConspicuousSpirits")
 
 
 --------------
@@ -285,7 +286,7 @@ do
 		end
 	end
 	
-	local function popGUID(GUID)
+	function CS:PopGUID(GUID)
 		if targets[GUID] then
 			return tableremove(targets[GUID], 1)
 		else
@@ -302,13 +303,13 @@ do
 		end
 	end
 	
-	local function removeTimer(self, timerID)
+	function CS:RemoveTimer(timerID)
 		popTimer(timerID)
 		self:CancelTimer(timerID)
 	end
 	
 	function CS:RemoveTimer_timed(GUID)
-		local timerID = popGUID(GUID)
+		local timerID = self:PopGUID(GUID)
 		popTimer(timerID)  -- check this for false? (actually never throws an error)
 		self:Update()
 	end
@@ -329,7 +330,7 @@ do
 			tbl[tblCount+1] = timerID
 		end
 	
-		function CS:addGUID(GUID)
+		function CS:AddGUID(GUID)
 			local travelTime, isCached = getTravelTime(self, GUID, true)
 			if not travelTime then return end  -- target too far away, abort timer creation
 			targets[GUID] = targets[GUID] or {}
@@ -350,7 +351,7 @@ do
 		local function removeGUID(self, GUID)
 			if not targets[GUID] then return end
 			for _, timerID in pairs(targets[GUID]) do
-				removeTimer(self, timerID)
+				self:RemoveTimer(timerID)
 			end
 			targets[GUID] = nil
 			distanceCache[GUID] = nil
@@ -447,12 +448,12 @@ do
 		
 			-- Shadowy Apparition cast
 			if spellID == 147193 and destName ~= nil then  -- SAs without a target won't generate orbs
-				self:addGUID(destGUID)
+				self:AddGUID(destGUID)
 				self:Update()
 			
 			-- catch all Shadowy Apparition hit events
 			elseif spellID == 148859 and not multistrike then
-				local timerID = popGUID(destGUID)
+				local timerID = self:PopGUID(destGUID)
 				if timerID then
 					local currentTime = GetTime()
 					local additionalTime = timerID.impactTime - currentTime
@@ -464,7 +465,7 @@ do
 						self:Debug(destGUID.." "..tostring(SATimeCorrection[destGUID]))
 					end
 					
-					removeTimer(self, timerID)
+					self:RemoveTimer(timerID)
 					-- correct other timers
 					if targets[destGUID] and additionalTime > 0.1 then
 						for _, timerID in pairs(targets[destGUID]) do
@@ -513,11 +514,15 @@ do
 		if not self.locked then
 			self:Lock()
 		end
+		if self.testMode then
+			self:EndTestMode()
+		end
 	end
 end
 
 function CS:PLAYER_REGEN_ENABLED()  -- player left combat or died
 	orbs = UnitPower("player", 13)
+	self:EndTestMode()
 	
 	if not self.db.calculateOutOfCombat then
 		self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
@@ -552,6 +557,10 @@ function CS:PLAYER_ENTERING_WORLD()
 	self:ResetCount()
 end
 
+
+-----------------------
+-- Handling Settings --
+-----------------------
 do
 	local function isShadow()
 		return GetSpecialization() == 3
@@ -595,6 +604,7 @@ do
 	end
 
 	function CS:Build()
+		self:EndTestMode()
 		self:ApplySettings()
 		
 		aggressiveCachingInterval = self.db.aggressiveCachingInterval
@@ -604,9 +614,93 @@ do
 				then self:PLAYER_REGEN_DISABLED() 
 			end
 		
-		elseif self.locked then
+		elseif self.locked and not self.testMode then
 			self:PLAYER_REGEN_ENABLED()
 
+		end
+	end
+end
+
+
+---------------
+-- Test Mode --
+---------------
+do
+	local orbTicker
+	local SATicker
+	
+	local function SATickerFunc()
+		distanceCache["Test Mode"].timeStamp = GetTime()
+		CS:AddGUID("Test Mode")
+		C_TimerAfter(8, function()
+			local timerID = CS:PopGUID("Test Mode")
+			if timerID then
+				CS:RemoveTimer(timerID)
+			end
+		end)
+	end
+	
+	function CS:TestMode()
+		if self.testMode then
+			self:EndTestMode()
+		else
+			if UnitAffectingCombat("player") then return end
+			self:PLAYER_REGEN_DISABLED()
+
+			for name, module in self:IterateModules() do
+				if self.db[name] and self.db[name].enable then
+					if module.frame then module.frame:Show() end
+					if module.Unlock then module:Unlock() end
+				end
+				self:Update()
+			end
+			
+			orbTicker = C_Timer.NewTicker(1.5, function()
+				CS:Debug(orbs)
+				if orbs > 4 then
+					orbs = 0
+				else
+					orbs = orbs + 1
+				end
+				CS:Update()
+			end)
+			
+			distanceCache["Test Mode"] = {}
+			distanceCache["Test Mode"].travelTime = 8
+			distanceCache["Test Mode"].timeStamp = GetTime()
+			
+			SATickerFunc()
+			SATicker = C_Timer.NewTicker(6, SATickerFunc)
+			
+			self.testMode = true
+			print(L["Starting Test Mode"])
+		end
+	end
+	
+	function CS:EndTestMode()
+		if self.testMode then
+			if orbTicker then
+				orbTicker:Cancel()
+				orbTicker = nil
+			end
+			if SATicker then
+				SATicker:Cancel()
+				SATicker = nil
+			end
+			CS:ResetCount()
+			orbs = UnitPower("player", 13)
+			self.testMode = false
+			for name, module in self:IterateModules() do
+				if self.db[name] and self.db[name].enable then
+					if module.Lock then module:Lock() end
+					if module.frame then module.frame:Hide() end
+				end
+				self:Update()
+			end
+			if not UnitAffectingCombat("player") then
+				self:PLAYER_REGEN_ENABLED()
+			end
+			print(L["Cancelled Test Mode"])
 		end
 	end
 end

@@ -25,6 +25,7 @@ L["Border Color"] = "Border Color"
 L["Cached distances might be unreliable when you or the mobs move a lot"] = true
 
 L["Can not change visibility options in combat."] = "Can not change visibility options in combat."
+L["Cancelled Test Mode"] = "|cFF814eaaConspicuous Spirits|r: Cancelled Test Mode!"
 L["Change color of all Shadow Orbs when reaching five Shadow Orbs"] = true
 L["Color"] = "Color"
 L["Color 1"] = "Color 1"
@@ -108,6 +109,7 @@ L["Shows the frame and toggles it for repositioning."] = "Shows the frame and to
 L["Simple Display"] = "Simple Display"
 L["Sound"] = "Sound"
 L["Spacing"] = "Spacing"
+L["Starting Test Mode"] = "|cFF814eaaConspicuous Spirits|r: Starting Test Mode"
 L["Test Mode"] = true
 L["Text"] = "Text"
 L["Texture"] = "Texture"
