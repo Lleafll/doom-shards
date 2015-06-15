@@ -1,9 +1,3 @@
---------------------------
--- WeakAuras dependency --
---------------------------
-if not IsAddOnLoaded("WeakAuras") then return end
-
-
 ----------------------
 -- Get addon object --
 ----------------------

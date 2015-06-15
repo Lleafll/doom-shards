@@ -1,5 +1,3 @@
-if not IsAddOnLoaded("WeakAuras") then return end
-
 local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
 if not CS then return end
 
@@ -9,7 +7,7 @@ local WA = CS:NewModule("weakauras", "AceEvent-3.0")
 --------------
 -- Upvalues --
 --------------
-local WeakAurasScanEvents = WeakAuras.ScanEvents
+local WeakAurasScanEvents
 
 
 ---------------
@@ -21,12 +19,28 @@ local conspicuous_spirits_wa
 ---------------
 -- Functions --
 ---------------
-function WA:CONSPICUOUS_SPIRITS_UPDATE(_, orbs, timers)
-	local count = #timers
-	conspicuous_spirits_wa.count = count
-	conspicuous_spirits_wa.orbs = orbs
-	conspicuous_spirits_wa.timers = timers
-	WeakAurasScanEvents("WA_AUSPICIOUS_SPIRITS", count, orbs)
+function WA:CONSPICUOUS_SPIRITS_UPDATE() end
+
+local function WeakAurasLoaded()
+	WeakAurasScanEvents = WeakAuras.ScanEvents
+	function WA:CONSPICUOUS_SPIRITS_UPDATE(_, orbs, timers)
+		local count = #timers
+		conspicuous_spirits_wa.count = count
+		conspicuous_spirits_wa.orbs = orbs
+		conspicuous_spirits_wa.timers = timers
+		WeakAurasScanEvents("WA_AUSPICIOUS_SPIRITS", count, orbs)
+	end
+end
+
+-- optionalDeps produces bugs with some addons
+if IsAddOnLoaded("WeakAuras") then
+	WeakAurasLoaded()
+else
+	WA:RegisterEvent("ADDON_LOADED", function(_, name)
+		if name == "WeakAuras" then
+			WeakAurasLoaded()
+		end
+	end)
 end
 
 function WA:OnInitialize()

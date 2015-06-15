@@ -3,7 +3,6 @@
 ## Author: Lleaf
 ## Version: @project-version@
 ## SavedVariables: ConspicuousSpiritsDB
-## OptionalDeps: WeakAuras
 
 #@non-debug@
 ## Notes: @localization(locale="enUS", key="Track your incoming Shadow Orbs from Auspicious Spirits!", namespace="ToC")@
