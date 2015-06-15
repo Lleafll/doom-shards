@@ -22,6 +22,7 @@ WSFrame:Hide()
 ---------------
 -- Variables --
 ---------------
+local db
 local counter = 0
 local isOverOrbThreshold  -- boolean to play sound
 local soundFile
@@ -52,7 +53,9 @@ WSFrame:SetScript("OnUpdate", function(frame, elapsed)
 end)
 
 function WS:PLAYER_REGEN_DISABLED()
-	WSFrame:Show()
+	local _, instanceType = GetInstanceInfo()
+	if instanceType == "party" and not IsInInstance() then instanceType = "none" end  -- fix for Garrisons
+	if db.instances[instanceType] then WSFrame:Show() end
 end
 
 function WS:PLAYER_REGEN_ENABLED()
@@ -62,6 +65,10 @@ end
 function WS:Build()
 	soundFile = LSM:Fetch("sound", CS.db.warningSound.soundHandle)
 	soundInterval = CS.db.warningSound.soundInterval
+end
+
+function WS:OnInitialize()
+	db = CS.db.warningSound
 end
 
 function WS:OnEnable()

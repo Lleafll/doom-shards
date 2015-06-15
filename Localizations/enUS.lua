@@ -55,6 +55,7 @@ L["General"] = "General"
 L["Growth direction"] = "Growth direction"
 L["Height"] = "Height"
 L["Horizontal"] = "Horizontal"
+L["Instance Type"] = true
 L["Interval"] = "Interval"
 L["Keep calculating distances and anticipated Orbs when leaving combat."] = "Keep calculating distances and anticipated Orbs when leaving combat."
 L["Layout"] = "Layout"
@@ -144,5 +145,11 @@ L["X offset for the Shadowy Apparition time text"] = "X offset for the Shadowy A
 L["Y Offset"] = "Y Offset"
 L["Y offset for the Shadowy Apparition indicator bars"] = "Y offset for the Shadowy Apparition indicator bars"
 L["Y offset for the Shadowy Apparition time text"] = "Y offset for the Shadowy Apparition time text"
+L["No Instance"] = true
+L["Scenario"] = true
+L["Dungeon"] = true
+L["Raid"] = true
+L["Arena"] = true
+L["Battleground"] = true
 
 --@end-do-not-package@

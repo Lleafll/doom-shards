@@ -47,6 +47,26 @@ local function displayOptions()
 				min = 0.1,
 				max = 10,
 				step = 0.1
+			},
+			spacer = {
+				order = 3.5,
+				type = "description",
+				name = ""
+			},
+			instances = {
+				order = 4,
+				type = "multiselect",
+				name = L["Instance Type"],
+				get = function(info, key) return CS.db.warningSound[info[#info]][key] end,
+				set = function(info, key, value) CS.db.warningSound[info[#info]][key] = value; CS:Build() end,
+				values = {
+					none = L["No Instance"],
+					scenario = L["Scenario"],
+					party = L["Dungeon"],
+					raid = L["Raid"],
+					arena = L["Arena"],
+					pvp = L["Battleground"]
+				}
 			}
 		}
 	}
@@ -55,7 +75,15 @@ end
 local defaultSettings = {
 	enable = false,
 	soundHandle = "Droplet",
-	soundInterval = 2
+	soundInterval = 2,
+	instances = {
+		arena = true,
+		none = true,
+		party = true,
+		pvp = true,
+		raid = true,
+		scenario = true
+	}
 }
 
 CS:AddDisplayOptions("warningSound", displayOptions, defaultSettings)
