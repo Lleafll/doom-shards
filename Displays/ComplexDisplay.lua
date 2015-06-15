@@ -388,4 +388,5 @@ end
 
 function CD:OnDisable()
 	self:UnregisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
+	RegisterStateDriver(CDFrame, "visibility", "")
 end
