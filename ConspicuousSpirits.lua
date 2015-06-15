@@ -91,6 +91,7 @@ end
 
 function CS:Unlock()
 	print(L["Conspicuous Spirits unlocked!"])
+	self:EndTestMode()
 	self.locked = false
 	for name, module in self:IterateModules() do
 		if self.db[name] and self.db[name].enable then

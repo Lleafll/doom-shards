@@ -565,12 +565,12 @@ do
 	local function isShadow()
 		return GetSpecialization() == 3
 	end
-
+	
 	local function isASSpecced()
 		local _, _, _, ASSpecced = GetTalentInfo(7, 3, GetActiveSpecGroup())
 		return ASSpecced
 	end
-
+	
 	function CS:TalentsCheck()
 		self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")  -- does this lead to issues when changing talents when SAs are in flight with out-of-combat-calculation?
 		warningSound = function() end
@@ -626,18 +626,14 @@ end
 -- Test Mode --
 ---------------
 do
+	local SAInterval = 6
+	local SATravelTime = 8
 	local orbTicker
-	local SATicker
+	local TestGUID = "Test Mode"
 	
 	local function SATickerFunc()
-		distanceCache["Test Mode"].timeStamp = GetTime()
-		CS:AddGUID("Test Mode")
-		C_TimerAfter(8, function()
-			local timerID = CS:PopGUID("Test Mode")
-			if timerID then
-				CS:RemoveTimer(timerID)
-			end
-		end)
+		distanceCache[TestGUID].timeStamp = GetTime()
+		CS:AddGUID(TestGUID)
 	end
 	
 	function CS:TestMode()
@@ -655,8 +651,7 @@ do
 				self:Update()
 			end
 			
-			orbTicker = C_Timer.NewTicker(1.5, function()
-				CS:Debug(orbs)
+			orbTicker = C_Timer.NewTicker(0.5, function()
 				if orbs > 4 then
 					orbs = 0
 				else
@@ -665,12 +660,15 @@ do
 				CS:Update()
 			end)
 			
-			distanceCache["Test Mode"] = {}
-			distanceCache["Test Mode"].travelTime = 8
-			distanceCache["Test Mode"].timeStamp = GetTime()
+			distanceCache[TestGUID] = {}
+			distanceCache[TestGUID].travelTime = SATravelTime
+			distanceCache[TestGUID].timeStamp = GetTime()
 			
 			SATickerFunc()
-			SATicker = C_Timer.NewTicker(6, SATickerFunc)
+			SATicker = C_Timer.NewTicker(SAInterval, SATickerFunc)
+			
+			-- to prevent bugging out when player enters combat with casting a spell
+			self:RegisterEvent("UNIT_SPELLCAST_SENT", function(_, unitID) if unitID == "player" then CS:EndTestMode() end end)
 			
 			self.testMode = true
 			print(L["Starting Test Mode"])
@@ -687,19 +685,14 @@ do
 				SATicker:Cancel()
 				SATicker = nil
 			end
-			CS:ResetCount()
+			self:ResetCount()
 			orbs = UnitPower("player", 13)
 			self.testMode = false
-			for name, module in self:IterateModules() do
-				if self.db[name] and self.db[name].enable then
-					if module.Lock then module:Lock() end
-					if module.frame then module.frame:Hide() end
-				end
-				self:Update()
-			end
+			self:Lock()
 			if not UnitAffectingCombat("player") then
 				self:PLAYER_REGEN_ENABLED()
 			end
+			self:UnregisterEvent("UNIT_SPELLCAST_SENT")
 			print(L["Cancelled Test Mode"])
 		end
 	end

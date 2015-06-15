@@ -21,24 +21,18 @@ L["Aggressive Caching Interval"] = "Aggressive Caching Interval"
 L["Anticipated Orbs"] = "Anticipated Orbs"
 L["Background Color"] = "Background Color"
 L["Border Color"] = "Border Color"
-
-L["Cached distances might be unreliable when you or the mobs move a lot"] = true
-
-L["Can not change visibility options in combat."] = "Can not change visibility options in combat."
+L["Cached distances might be unreliable when you or the mobs move a lot"] = "Cached distances might be unreliable when you or the mobs move a lot"
 L["Cancelled Test Mode"] = "|cFF814eaaConspicuous Spirits|r: Cancelled Test Mode!"
-L["Change color of all Shadow Orbs when reaching five Shadow Orbs"] = true
+L["Can not change visibility options in combat."] = "Can not change visibility options in combat."
+L["Change color of all Shadow Orbs when reaching five Shadow Orbs"] = "Change color of all Shadow Orbs when reaching five Shadow Orbs"
 L["Color"] = "Color"
 L["Color 1"] = "Color 1"
 L["Color 2"] = "Color 2"
 L["Color 3"] = "Color 3"
-
-L["Color for Cache Value"] =  true
-
-L["Color When Orb Capped"] = true
+L["Color for Cache Value"] = "Color for Cache Value"
 L["Color of the sixth indicator when overcapping with Shadowy Apparitions"] = "Color of the sixth indicator when overcapping with Shadowy Apparitions"
-
-L["Color Text On Using Cached Value"] = true
-
+L["Color Text On Using Cached Value"] = "Color Text On Using Cached Value"
+L["Color When Orb Capped"] = "Color When Orb Capped"
 L["Complex Display"] = "Complex Display"
 L["Conspicuous Spirits locked!"] = "|cFF814eaaConspicuous Spirits|r locked!"
 L["Conspicuous Spirits reset!"] = "|cFF814eaaConspicuous Spirits|r reset!"
@@ -69,7 +63,7 @@ L["Maximum Time"] = "Maximum Time"
 L["MONOCHROMEOUTLINE"] = "MONOCHROMEOUTLINE"
 L["None"] = "None"
 L["Not possible to unlock in WeakAuras mode!"] = "Not possible to unlock in WeakAuras mode!"
-L["Orb Cap Color Change"] = true
+L["Orb Cap Color Change"] = "Orb Cap Color Change"
 L["Orbs"] = "Orbs"
 L["Order in which the Shadow Orbs get filled in"] = "Order in which the Shadow Orbs get filled in"
 L["Orientation"] = "Orientation"
@@ -110,19 +104,15 @@ L["Simple Display"] = "Simple Display"
 L["Sound"] = "Sound"
 L["Spacing"] = "Spacing"
 L["Starting Test Mode"] = "|cFF814eaaConspicuous Spirits|r: Starting Test Mode"
-L["Test Mode"] = true
+L["Test Mode"] = "Test Mode"
 L["Text"] = "Text"
 L["Texture"] = "Texture"
 L["THICKOUTLINE"] = "THICKOUTLINE"
-
-L["Threshold when text begins showing first decimal place"] = true
-
+L["Threshold when text begins showing first decimal place"] = "Threshold when text begins showing first decimal place"
 L["Time between warning sounds"] = "Time between warning sounds"
-
-L["Time Threshold"] = true
-
+L["Time Threshold"] = "Time Threshold"
 L["Toggle Lock"] = "Toggle Lock"
-L["Version"] = true
+L["Version"] = "Version"
 L["Vertical"] = "Vertical"
 L["Visibility"] = "Visibility"
 L["WeakAurasDocumentation"] = [=[WA_AUSPICIOUS_SPIRITS(event, count, orbs)
@@ -133,10 +123,14 @@ L["WeakAurasDocumentation"] = [=[WA_AUSPICIOUS_SPIRITS(event, count, orbs)
 Properties conspicuous_spirits_wa:
   count - Shadowy Apparitions currently in flight (number)
   orbs - player's Shadow Orbs (number)
-  timers - chronologically ordered table of AceTimer timer objects corresponding to the Shadowy Apparitions (table)
+  timers - chronologically ordered table of AceTimer objects corresponding to the automatic cleanup of the Shadowy Apparitions (table)
 
-New property AceTimer object:
-  impactTime - estimated point in time for the Shadowy Apparition impact (timestamp)]=]
+New properties AceTimer object:
+  impactTime - estimated point in time for the Shadowy Apparition impact (timestamp)
+  isCached - whether timer is based on cached distance value (boolean)
+
+New method AceTimer object:
+  IsGUIDInRange - whether the target is within 100 yards of the player (boolean)]=]
 L["WeakAuras Example Strings"] = "WeakAuras Example Strings"
 L["WeakAuras Import String 1"] = "WeakAuras Import String 1"
 L["WeakAuras Import String 2"] = "WeakAuras Import String 2"
