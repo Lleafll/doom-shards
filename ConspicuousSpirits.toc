@@ -49,5 +49,7 @@ Displays\SimpleDisplayConfig.lua
 Displays\SimpleDisplay.lua
 Displays\WeakaurasConfig.lua
 Displays\Weakauras.lua
+Displays\TellmewhenConfig.lua
+Displays\Tellmewhen.lua
 Displays\Sound.lua
 Displays\SoundConfig.lua

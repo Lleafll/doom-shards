@@ -16,6 +16,8 @@ if not L then return end
 
 --@do-not-package@
 
+L["TellMeWhen Interface"] = true
+
 L["Aggressive Caching"] = "Aggressive Caching"
 L["Aggressive Caching Interval"] = "Aggressive Caching Interval"
 L["Anticipated Orbs"] = "Anticipated Orbs"

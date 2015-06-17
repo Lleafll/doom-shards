@@ -18,7 +18,6 @@ LSM:Register("sound", "Droplet", "Interface\\addons\\ConspicuousSpirits\\Media\\
 -------------
 local function displayOptions()
 	return {
-		order = 6,
 		type = "group",
 		name = L["Sound"],
 		cmdHidden = true,

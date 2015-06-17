@@ -17,7 +17,6 @@ local LSM = LibStub("LibSharedMedia-3.0")
 -------------
 local function displayOptions()
 	return {
-		order = 4,
 		type = "group",
 		name = L["Simple Display"],
 		cmdHidden  = true,

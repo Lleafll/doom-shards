@@ -17,7 +17,6 @@ local LSM = LibStub("LibSharedMedia-3.0")
 -------------
 local function displayOptions()
 	return {
-		order = 2,
 		type = "group",
 		name = L["Complex Display"],
 		childGroups = "select",

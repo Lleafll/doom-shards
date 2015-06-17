@@ -23,6 +23,16 @@ function WA:CONSPICUOUS_SPIRITS_UPDATE() end
 
 local function WeakAurasLoaded()
 	WeakAurasScanEvents = WeakAuras.ScanEvents
+	
+	-- old, going to be deprecated
+	if not _G.conspicuous_spirits_wa then _G.conspicuous_spirits_wa = {} end
+	conspicuous_spirits_wa = _G.conspicuous_spirits_wa
+	conspicuous_spirits_wa.count = 0
+	conspicuous_spirits_wa.orbs = UnitPower("player", 13)
+	conspicuous_spirits_wa.timers = {}
+	-- new & better to reduce littering of global namespace
+	CS.weakauras = conspicuous_spirits_wa
+	
 	function WA:CONSPICUOUS_SPIRITS_UPDATE(_, orbs, timers)
 		local count = #timers
 		conspicuous_spirits_wa.count = count
@@ -39,19 +49,6 @@ else
 	WA:RegisterEvent("ADDON_LOADED", function(_, name)
 		if name == "WeakAuras" then WeakAurasLoaded() end
 	end)
-end
-
-function WA:OnInitialize()
-	if not _G.conspicuous_spirits_wa then _G.conspicuous_spirits_wa = {} end
-	
-	-- old, going to be deprecated
-	conspicuous_spirits_wa = _G.conspicuous_spirits_wa
-	conspicuous_spirits_wa.count = 0
-	conspicuous_spirits_wa.orbs = UnitPower("player", 13)
-	conspicuous_spirits_wa.timers = {}
-	
-	-- new & better to reduce littering of global namespace
-	CS.weakauras = conspicuous_spirits_wa
 end
 
 function WA:OnEnable()
