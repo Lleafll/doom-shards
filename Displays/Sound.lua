@@ -32,6 +32,14 @@ local soundInterval
 ---------------
 -- Functions --
 ---------------
+function CS:SetSound(bool)
+	if bool then
+		if not UnitAffectingCombat("player") then WSFrame:Show() end
+	else
+		WSFrame:Hide()
+	end
+end
+
 local function timersCount(timers)
 	local count = 0
 	for i = 1, #timers do

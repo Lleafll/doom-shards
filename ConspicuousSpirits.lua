@@ -4,6 +4,8 @@ if class ~= "PRIEST" then return end
 local CS = LibStub("AceAddon-3.0"):NewAddon("Conspicuous Spirits", "AceEvent-3.0", "AceTimer-3.0", "AceConsole-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("ConspicuousSpirits")
 
+ConspicuousSpirits = CS
+
 
 ---------------
 -- Variables --
