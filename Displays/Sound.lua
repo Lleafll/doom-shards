@@ -34,7 +34,7 @@ local soundInterval
 --------------
 function ConspicuousSpirits:SetSound(bool)
 	if bool then
-		if UnitAffectingCombat("player") then CS:Debug("enabling") WSFrame:Show() end
+		if UnitAffectingCombat("player") then WSFrame:Show() end
 	else
 		WSFrame:Hide()
 	end

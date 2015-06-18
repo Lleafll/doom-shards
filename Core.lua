@@ -294,9 +294,9 @@ do
 		end
 	end
 	
-	local function popTimer(timerID)
+	local function popTimer(timer)
 		for k, v in pairs(timers) do
-			if v == timerID then
+			if v == timer then
 				tableremove(timers, k)
 				break
 			end
@@ -304,46 +304,56 @@ do
 	end
 	
 	function CS:RemoveTimer(timerID)
-		popTimer(timerID)
+		popTimer(timerID.timer)
 		self:CancelTimer(timerID)
 	end
 	
 	function CS:RemoveTimer_timed(GUID)
 		local timerID = self:PopGUID(GUID)
-		popTimer(timerID)  -- check this for false? (actually never throws an error)
+		popTimer(timerID.timer)
 		self:Update()
 	end
 	
-	do
-		local function insertTimerID(tbl, timerID)
+	do	
+		local function insertTimer(tbl, timer)
 			local tblCount = #tbl
 			if tblCount == 0 then
-				tbl[1] = timerID
+				tbl[1] = timer
 				return
 			end
 			for i = 1, tblCount do
-				if timerID.impactTime < tbl[i].impactTime then
-					tableinsert(tbl, i, timerID)
-					return
+				if timer.impactTime then
+					if timer.impactTime < tbl[i].impactTime then
+						tableinsert(tbl, i, timer)
+						return
+					end
+				else
+					if timer.timer.impactTime < tbl[i].timer.impactTime then
+						tableinsert(tbl, i, timer)
+						return
+					end
 				end
 			end
-			tbl[tblCount+1] = timerID
+			tbl[tblCount+1] = timer
 		end
-	
+		
 		function CS:AddGUID(GUID)
 			local travelTime, isCached = getTravelTime(self, GUID, true)
 			if not travelTime then return end  -- target too far away, abort timer creation
 			targets[GUID] = targets[GUID] or {}
 			
-			local timerID = self:ScheduleTimer("RemoveTimer_timed", travelTime + SAGraceTime, GUID)
-			timerID.isCached = isCached
-			timerID.impactTime = GetTime() + travelTime  -- can't use timeStamp instead of GetTime() because of different time reference
-			timerID.IsGUIDInRange = function()
+			local timer = {}
+			timer.isCached = isCached
+			timer.impactTime = GetTime() + travelTime  -- can't use timeStamp instead of GetTime() because of different time reference
+			timer.IsGUIDInRange = function()
 				return distanceCache[GUID]
 			end
 			
-			insertTimerID(targets[GUID], timerID)
-			insertTimerID(timers, timerID)
+			local timerID = self:ScheduleTimer("RemoveTimer_timed", travelTime + SAGraceTime, GUID)
+			timerID.timer = timer
+			
+			insertTimer(targets[GUID], timerID)
+			insertTimer(timers, timer)
 		end
 	end
 	
@@ -456,7 +466,7 @@ do
 				local timerID = self:PopGUID(destGUID)
 				if timerID then
 					local currentTime = GetTime()
-					local additionalTime = timerID.impactTime - currentTime
+					local additionalTime = timerID.timer.impactTime - currentTime
 					SATimeCorrection[destGUID] = SATimeCorrection[destGUID] - additionalTime / 2
 					if SATimeCorrection[destGUID] < 0 then SATimeCorrection[destGUID] = 0 end
 					
@@ -469,7 +479,7 @@ do
 					-- correct other timers
 					if targets[destGUID] and additionalTime > 0.1 then
 						for _, timerID in pairs(targets[destGUID]) do
-							timerID.impactTime = timerID.impactTime - additionalTime
+							timerID.timer.impactTime = timerID.timer.impactTime - additionalTime
 						end
 					end
 					-- to avoid jittery counter
@@ -480,7 +490,7 @@ do
 					end
 					-- update cached distances if over cacheMaxTime (fallback for regular scanning)
 					if distanceCache[destGUID] and currentTime > distanceCache[destGUID].timeStamp + cacheMaxTime then
-						distanceCache[destGUID].travelTime = distanceCache[destGUID].travelTime - timerID.impactTime + currentTime
+						distanceCache[destGUID].travelTime = distanceCache[destGUID].travelTime - timerID.timer.impactTime + currentTime
 						distanceCache[destGUID].timeStamp = currentTime
 					end
 				end
