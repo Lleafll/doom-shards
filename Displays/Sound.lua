@@ -29,17 +29,21 @@ local soundFile
 local soundInterval
 
 
----------------
--- Functions --
----------------
-function CS:SetSound(bool)
+--------------
+-- API Call --
+--------------
+function ConspicuousSpirits:SetSound(bool)
 	if bool then
-		if not UnitAffectingCombat("player") then WSFrame:Show() end
+		if UnitAffectingCombat("player") then CS:Debug("enabling") WSFrame:Show() end
 	else
 		WSFrame:Hide()
 	end
 end
 
+
+---------------
+-- Functions --
+---------------
 local function timersCount(timers)
 	local count = 0
 	for i = 1, #timers do
