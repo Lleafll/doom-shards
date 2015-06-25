@@ -23,7 +23,7 @@ EF:RegisterEncounter(1778, function()
 			-- debug
 			CS:Debug("Siegemaster Mar'tak leaving combat")
 			
-			RemoveGUID(MartakGUID)
+			CS:RemoveGUID(MartakGUID)
 			EF:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
 		
 		else
