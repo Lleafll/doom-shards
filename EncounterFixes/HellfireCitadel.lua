@@ -157,3 +157,19 @@ EF:RegisterEncounter(1799, function()
 		end
 	end)
 end)
+
+-- Xhul'horac
+EF:RegisterEncounter(1800, function()
+	-- hitbox fix
+	EF:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
+		if UnitExists("boss1") then 
+			local GUID = UnitGUID("boss1")
+			CS:SetSATimeCorrection(GUID, 2.5)
+			EF:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
+			-- in case player dies and gets resurrected
+			EF:RegisterEvent("PLAYER_ALIVE", function()
+				CS:SetSATimeCorrection(GUID, 2.5)
+			end)
+		end
+	end)
+end)
