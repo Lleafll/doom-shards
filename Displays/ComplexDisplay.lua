@@ -47,9 +47,7 @@ local backdrop = {
 ---------------
 -- Functions --
 ---------------
-local function update()
-	local k = 1
-	
+local function update()	
 	for i = 1, 6 do
 		if orbs >= i then
 			local orbFrame = orbFrames[i]
@@ -66,31 +64,25 @@ local function update()
 			
 		else
 			orbFrames[i]:Hide()
-			local timerID = timers[k]
-			
-			if timerID then
-				if timerID.IsGUIDInRange() then
-					if textEnable then SATimers[i]:SetTimer(timerID) end
-					if statusbarEnable then statusbars[i]:SetTimer(timerID) end
-					
-				else
-					SATimers[i]:Hide()
-					statusbars[i]:Hide()
-					
-				end
-				k = k + 1
-				
-			else
-				for m = i, 6 do
-					orbFrames[m]:Hide()
-					SATimers[m]:Hide()
-					statusbars[m]:Hide()
-				end
-				break
-				
-			end
-			
 		end
+	end
+	
+	local k = orbs + 1
+	local t = 1
+	local timerID = timers[t]
+	while timerID and k <= 6 do
+		if timerID.IsGUIDInRange() then
+			if textEnable then SATimers[k]:SetTimer(timerID) end
+			if statusbarEnable then statusbars[k]:SetTimer(timerID) end
+			k = k + 1
+		end
+		t = t + 1
+		timerID = timers[t]
+	end
+	
+	for m = k, 6 do
+		SATimers[m]:Hide()
+		statusbars[m]:Hide()
 	end
 end
 

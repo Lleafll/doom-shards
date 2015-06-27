@@ -358,10 +358,10 @@ do
 	end
 	
 	do
-		local function removeGUID(self, GUID)
+		local function removeGUID(GUID)
 			if not targets[GUID] then return end
 			for _, timerID in pairs(targets[GUID]) do
-				self:RemoveTimer(timerID)
+				CS:RemoveTimer(timerID)
 			end
 			targets[GUID] = nil
 			distanceCache[GUID] = nil
@@ -371,15 +371,18 @@ do
 		-- resets SAs, etc. for specified GUID
 		-- originally designed for encounter fixes
 		function CS:RemoveGUID(GUID)
-			removeGUID(self, GUID)
-			self:Update()
+			removeGUID(GUID)
+			CS:Update()
 		end
+		--@debug@
+		ConspicuousSpirits.RemoveGUID = CS.RemoveGUID
+		--@end-debug@
 		
 		-- resets all tracked SAs, etc.
 		-- originally designed for encounter fixes
 		function CS:RemoveAllGUIDs()
 			for GUID, _ in pairs(targets) do
-				removeGUID(self, GUID)
+				removeGUID(GUID)
 			end
 			self:Update()
 		end
@@ -398,7 +401,7 @@ do
 					end
 				end
 				if not isExcluded then
-					removeGUID(self, GUID)
+					removeGUID(GUID)
 				end
 			end
 			self:Update()
