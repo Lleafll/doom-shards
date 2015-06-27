@@ -116,26 +116,16 @@ end)
 
 -- Socrethar
 EF:RegisterEncounter(1794, function()
-	-- untested
 	-- raid member entering Soulbound Construct making it friendly
 	EF:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
 		local GUID = UnitGUID("boss1")
 		if EF:GetNPCID(GUID) == 90296 then  -- Soulbound Construct
-			
-			-- debug
-			CS:Debug("Soulbound Construct engaged")
-			
 			EF:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
 			EF:RegisterEvent("UNIT_ENTERED_VEHICLE", function()  -- not sure if this event fires correctly
-			
-				-- debug
-				CS:Debug("UNIT_ENTERED_VEHICLE fired")
-				
-				EF:HideGUID(GUID)
+				CS:HideGUID(GUID)
 			end)
 		end
 	end)
-	-- untested
 	-- Crystalline Fel Prisons don't fire death events
 	EF:CheckForOverkill()
 end)
