@@ -10,7 +10,6 @@ local EF = CS:GetModule("EncounterFixes")
 
 -- Hellfire Assault
 EF:RegisterEncounter(1778, function()
-	-- untested
 	local MartakGUID
 	EF:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
 		-- we need to check for all initial boss unit IDs since order isn't fixed (seems to depend on which mob gets pulled first)
@@ -132,25 +131,29 @@ end)
 
 -- Hellfire High Council
 EF:RegisterEncounter(1798, function()
-	-- untested
 	-- search for overkill since there isn't always a death event for Blademaster Jubei'thos' Mirror Images
 	EF:CheckForOverkill()
 end)
 
 -- Archimonde
 EF:RegisterEncounter(1799, function()
-	-- untested
 	-- search for overkill since there isn't always a death event for the Doomfire Spirits
 	EF:CheckForOverkill()
-	-- untested
-	-- Entering/leaving Twisting Nether
+	
 	EF:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
+		-- entering/leaving Twisting Nether
 		if spellID == 186952 and destGUID == UnitGUID("player") and (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") then  -- Nether Banish when inside Nether (does it only affect tanks?)
 			
 			-- debug
 			CS:Debug("Entered/left Twisting Nether")
 			
 			CS:HideAllGUIDs()
+			
+		-- untested
+		-- Void Stars despawn after knocking players away without triggering death event
+		elseif event == "SPELL_AURA_REMOVED" and (spellID == 189895 or spellID == 190806 or spellID == 190807 or spellID == 190808) then  -- Void Star Fixate, check if all spell IDs are actually used later
+			CS:RemoveGUID(sourceGUID)
+			
 		end
 	end)
 end)
