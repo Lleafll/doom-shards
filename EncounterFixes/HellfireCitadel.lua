@@ -138,10 +138,10 @@ end)
 
 -- Archimonde
 EF:RegisterEncounter(1799, function()
-	EF:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
+	EF:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, ...)
 		-- not properly tested
 		-- entering/leaving Twisting Nether
-		if spellID == 186952 and destGUID == UnitGUID("player") and (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") then  -- Nether Banish when inside Nether
+		if ... == 186952 and destGUID == UnitGUID("player") and (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") then  -- Nether Banish when inside Nether
 			
 			-- debug
 			CS:Debug("Entered/left Twisting Nether")
@@ -150,7 +150,7 @@ EF:RegisterEncounter(1799, function()
 			
 		-- untested
 		-- Void Stars despawn after knocking players away without triggering death event
-		elseif event == "SPELL_AURA_REMOVED" and (spellID == 189895 or spellID == 190806 or spellID == 190807 or spellID == 190808) then  -- Void Star Fixate, check if all spell IDs are actually used later
+		elseif event == "SPELL_AURA_REMOVED" and (... == 189895 or ... == 190806 or ... == 190807 or ... == 190808) then  -- Void Star Fixate, check if all spell IDs are actually used later
 			CS:RemoveGUID(sourceGUID)
 			
 			
