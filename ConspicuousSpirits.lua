@@ -19,13 +19,16 @@ local isAlpha = true
 --@end-alpha@
 
 
+
 -----------------------
 -- Locking/unlocking --
 -----------------------
 do
 	local function dragStop(self, moduleName)
 		self:StopMovingOrSizing()
-		local _, _, _, posX, posY = self:GetPoint()
+		self:SetUserPlaced(false)
+		local _, _, anchor, posX, posY = self:GetPoint()
+		CS.db[moduleName].anchor = anchor
 		CS.db[moduleName].posX = posX
 		CS.db[moduleName].posY = posY
 	end
@@ -35,6 +38,7 @@ do
 		local frame = CreateFrame("frame", name, UIParent)
 		frame:SetFrameStrata("LOW")
 		frame:SetMovable(true)
+		frame:SetUserPlaced(false)  -- necessary?
 		frame.texture = frame:CreateTexture(nil, "BACKGROUND")
 		frame.texture:SetPoint("BOTTOMLEFT", -1, -1)
 		frame.texture:SetPoint("TOPRIGHT", 1, 1)
@@ -60,7 +64,6 @@ do
 				if button == "RightButton" then
 					dragStop(self, moduleName)  -- in case user right clicks while dragging the frame
 					CS:Lock()
-					CS:Build()
 				elseif button == "LeftButton" then
 					self:StartMoving()
 				end
@@ -76,10 +79,10 @@ do
 				else
 					CS.db[moduleName].posY = CS.db[moduleName].posY + delta
 				end
-				self:SetPoint("CENTER", CS.db[moduleName].posX, CS.db[moduleName].posY)
+				self:SetPoint(CS.db[moduleName].anchor, CS.db[moduleName].posX, CS.db[moduleName].posY)
 			end)
 		end
-
+		
 		function frame:Lock()
 			self.texture:Hide()
 			self:EnableMouse(false)

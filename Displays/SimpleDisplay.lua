@@ -77,7 +77,7 @@ local function buildFrames()
 	local spacing = db.spacing / 2
 	backdrop.bgFile = (db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
 	
-	SDFrame:SetPoint("CENTER", db.posX, db.posY)
+	SDFrame:SetPoint(db.anchor, db.posX, db.posY)
 	SDFrame:SetScale(CS.db.scale)
 	SDFrame:SetHeight(db.height)
 	SDFrame:SetWidth(db.width)

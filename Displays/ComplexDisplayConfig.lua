@@ -475,6 +475,7 @@ end
 
 local defaultSettings = {
 	enable = true,
+	anchor = "CENTER",
 	posX = 0,
 	posY = 0,
 	height = 8,

@@ -24,7 +24,6 @@ WSFrame:Hide()
 ---------------
 local db
 local counter = 0
-local previousOrbs = 0
 local isOverOrbThreshold  -- boolean to play sound
 local soundFile
 local soundInterval
@@ -53,12 +52,16 @@ local function timersCount(timers)
 	return count
 end
 
-function WS:CONSPICUOUS_SPIRITS_UPDATE(_, orbs, timers)
-	-- reset sound timer when orbs were spent
-	if orbs < previousOrbs then counter = 0 end
-	previousOrbs = orbs
-	
-	isOverOrbThreshold = (orbs >= 3) and (orbs + timersCount(timers)) >= 5
+do
+	local previousOrbs = 0
+
+	function WS:CONSPICUOUS_SPIRITS_UPDATE(_, orbs, timers)
+		-- reset sound timer when orbs were spent
+		if orbs < previousOrbs then counter = 0 end
+		previousOrbs = orbs
+		
+		isOverOrbThreshold = (orbs >= 3) and (orbs + timersCount(timers)) >= 5
+	end
 end
 
 WSFrame:SetScript("OnUpdate", function(frame, elapsed)

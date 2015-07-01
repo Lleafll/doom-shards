@@ -129,7 +129,7 @@ local function buildFrames()
 	
 	local CDFrameHeight = db.height + 25
 	local CDFrameWidth = 6 * db.width + 5 * db.spacing
-	CDFrame:SetPoint("CENTER", db.posX, db.posY)
+	CDFrame:SetPoint(db.anchor, db.posX, db.posY)
 	CDFrame:SetScale(CS.db.scale)
 	CDFrame:SetHeight(db.orientation == "Vertical" and CDFrameWidth or CDFrameHeight)
 	CDFrame:SetWidth(db.orientation == "Vertical" and CDFrameHeight or CDFrameWidth)
@@ -357,7 +357,6 @@ function CD:Build()
 	textEnable = db.textEnable
 	remainingTimeThreshold = db.remainingTimeThreshold
 	fontColorCacheEnable = db.fontColorCacheEnable
-	fontColorCache = db.fontColorCacheEnable
 	statusbarEnable = db.statusbarEnable
 	orbCappedEnable = db.orbCappedEnable
 	
