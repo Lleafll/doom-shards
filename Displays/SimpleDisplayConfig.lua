@@ -39,7 +39,6 @@ local function displayOptions()
 						order = 2,
 						type = "range",
 						name = L["Height"],
-						desc = L["Set Frame Height"],
 						min = 1,
 						max = 300,
 						step = 1
@@ -48,7 +47,6 @@ local function displayOptions()
 						order = 3,
 						type = "range",
 						name = L["Width"],
-						desc = L["Set Frame Width"],
 						min = 1,
 						max = 300,
 						step = 1
@@ -123,7 +121,6 @@ local function displayOptions()
 						order = 9,
 						type = "color",
 						name = L["Border Color"],
-						desc = L["Set Display border color"],
 						hasAlpha = true,
 						get = function()
 							return CS.db.simple.borderColor.r, CS.db.simple.borderColor.b, CS.db.simple.borderColor.g, CS.db.simple.borderColor.a
@@ -151,14 +148,12 @@ local function displayOptions()
 						type = "select",
 						dialogControl = "LSM30_Font",
 						name = L["Font"],
-						desc = L["Select font for the Simple display"],
 						values = LSM:HashTable("font")
 					},
 					fontSize = {
 						order = 11,
 						type = "range",
 						name = L["Font Size"],
-						desc = L["Set Font Size"],
 						min = 1,
 						max = 32,
 						step = 1
@@ -168,7 +163,6 @@ local function displayOptions()
 						type = "select",
 						style = "dropdown",
 						name = L["Font Flags"],
-						desc = L["Font Flags"],
 						values = {
 							["None"] = L["None"],
 							["Shadow"] = L["Shadow"],
@@ -181,7 +175,6 @@ local function displayOptions()
 						order = 13,
 						type = "color",
 						name = L["Font Color"],
-						desc = L["Set Font Color"],
 						hasAlpha = true,
 						get = function()
 							return CS.db.simple.fontColor.r, CS.db.simple.fontColor.b, CS.db.simple.fontColor.g, CS.db.simple.fontColor.a

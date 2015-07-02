@@ -22,6 +22,8 @@ local orbFrames = {}
 local fontStringParent
 local SATimers = {}
 local statusbars = {}
+local CDOnUpdateFrame = CreateFrame("frame", nil, UIParent)
+CDOnUpdateFrame:Hide()
 
 
 ---------------
@@ -36,6 +38,7 @@ local statusbarEnable
 local statusbarMaxTime
 local textEnable
 local timers
+local visibilityConditionals
 local backdrop = {
 	bgFile = nil,
 	edgeFile = "Interface\\ChatFrame\\ChatFrameBackground",
@@ -111,6 +114,49 @@ local function statusbarOnUpdate(statusbar, elapsed)
 		statusbar.statusbar:SetValue(statusbarMaxTime - (statusbar.remaining < 0 and 0 or statusbar.remaining))  -- check for < 0 necessary?
 	end
 end
+
+
+----------------
+-- Visibility --
+----------------
+do
+	local currentState
+	
+	local function evaluateConditionals()
+		local state = SecureCmdOptionParse(visibilityConditionals)
+		if state ~= currentState then
+			if state == "show" then
+				CDFrame.fader:Stop()
+				CDFrame:Show()
+				currentState = "show"
+			elseif state == "hide" then
+				CDFrame.fader:Stop()
+				CDFrame:Hide()
+				currentState = "hide"
+			elseif state == "fade" and currentState ~= "hide" then
+				CDFrame.fader:Play()
+				currentState = "hide"
+			end
+		end
+	end
+	
+	local ticker = 0
+	CDOnUpdateFrame:SetScript("OnUpdate", function(self, elapsed)
+		ticker = ticker + elapsed
+		if ticker > 0.2 then
+			evaluateConditionals()
+			ticker = 0
+		end
+	end)
+	
+	CDOnUpdateFrame:SetScript("OnEvent", function()
+		evaluateConditionals()
+	end)
+	
+	CDOnUpdateFrame:RegisterEvent("MODIFIER_STATE_CHANGED")
+	CDOnUpdateFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
+end
+
 
 -------------
 -- Visuals --
@@ -325,8 +371,7 @@ end
 -- Initialization and stuff --
 ------------------------------
 function CD:Unlock()
-	if not UnitAffectingCombat("player") then RegisterStateDriver(CDFrame, "visibility", "") end
-	
+	CDOnUpdateFrame:Hide()
 	for i = 1, 6 do
 		if textEnable then
 			SATimers[i]:Show()
@@ -348,8 +393,7 @@ function CD:Lock()
 		if SATimers[i] then SATimers[i]:Hide() end
 		if statusbars[i] then statusbars[i]:Hide() end
 	end
-	
-	if not UnitAffectingCombat("player") then RegisterStateDriver(CDFrame, db.visibilityConditionals) end
+	CDOnUpdateFrame:Show()
 end
 
 function CD:Build()
@@ -359,25 +403,33 @@ function CD:Build()
 	fontColorCacheEnable = db.fontColorCacheEnable
 	statusbarEnable = db.statusbarEnable
 	orbCappedEnable = db.orbCappedEnable
+	visibilityConditionals = db.visibilityConditionals
 	
 	statusbarRefresh = statusbarMaxTime / db.width / CS.db.scale
 	
 	buildFrames()
-	
-	if CS.locked and not UnitAffectingCombat("player") then
-		RegisterStateDriver(CDFrame, "visibility", db.visibilityConditionals)
-	end
+	CDFrame.fader.fadeOut:SetDuration(db.fadeOutDuration)
 end
 
 function CD:OnInitialize()
 	db = CS.db.complex
+	
+	CDFrame.fader = CDFrame:CreateAnimationGroup()
+	CDFrame.fader:SetScript("OnFinished", function()
+		CDFrame:SetAlpha(1)
+		CDFrame:Hide()
+	end)
+	CDFrame.fader.fadeOut = CDFrame.fader:CreateAnimation("Alpha")
+	CDFrame.fader.fadeOut:SetChange(-1)
+	CDFrame.fader.fadeOut:SetSmoothing("IN")
 end
 
 function CD:OnEnable()
 	self:RegisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
+	CDOnUpdateFrame:Show()
 end
 
 function CD:OnDisable()
 	self:UnregisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
-	RegisterStateDriver(CDFrame, "visibility", "")
+	CDOnUpdateFrame:Hide()
 end

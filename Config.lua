@@ -31,7 +31,6 @@ local function optionsTable()
 						order = 1,
 						type = "range",
 						name = L["Scale"],
-						desc = L["Set Frame Scale"],
 						min = 0,
 						max = 3,
 						step = 0.01

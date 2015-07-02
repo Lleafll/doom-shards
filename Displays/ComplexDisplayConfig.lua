@@ -35,7 +35,6 @@ local function displayOptions()
 				type = "select",
 				style = "dropdown",
 				name = L["Orientation"],
-				desc = L["Set Display orientation"],
 				values = {
 					["Horizontal"] = L["Horizontal"],
 					["Vertical"] = L["Vertical"]
@@ -60,7 +59,6 @@ local function displayOptions()
 						order = 1,
 						type = "range",
 						name = function() if CS.db.complex.orientation == "Vertical" then return L["Width"] else return L["Height"] end end,
-						desc = function() if CS.db.complex.orientation == "Vertical" then return L["Set Shadow Orb Width"] else return L["Set Shadow Orb Height"] end end,
 						min = 1,
 						max = 100,
 						step = 1
@@ -69,7 +67,6 @@ local function displayOptions()
 						order = 2,
 						type = "range",
 						name = function() if CS.db.complex.orientation == "Vertical" then return L["Height"] else return L["Width"] end end,
-						desc = function() if CS.db.complex.orientation == "Vertical" then return L["Set Shadow Orb Height"] else return L["Set Shadow Orb Width"] end end,
 						min = 1,
 						max = 100,
 						step = 1
@@ -78,7 +75,6 @@ local function displayOptions()
 						order = 3,
 						type = "range",
 						name = L["Spacing"],
-						desc = L["Set Shadow Orb Spacing"],
 						min = 0,
 						max = 100,
 						step = 1
@@ -150,14 +146,12 @@ local function displayOptions()
 						type = "select",
 						dialogControl = "LSM30_Statusbar",
 						name = L["Texture"],
-						desc = L["Set texture used for the Shadow Orbs"],
 						values = LSM:HashTable("statusbar")
 					},
 					borderColor = {
 						order = 10,
 						type = "color",
 						name = L["Border Color"],
-						desc = L["Set Shadow Orb border color"],
 						hasAlpha = true,
 						get = function()
 							return CS.db.complex.borderColor.r, CS.db.complex.borderColor.b, CS.db.complex.borderColor.g, CS.db.complex.borderColor.a
@@ -177,7 +171,7 @@ local function displayOptions()
 						type = "input",
 						name = L["Visibility"],
 						desc = L["Regulate display visibility with macro conditionals"],
-						width = "full",
+						width = "double",
 						set = function(info, val)
 							if UnitAffectingCombat("player") then 
 								print(L["Can not change visibility options in combat."])
@@ -186,6 +180,14 @@ local function displayOptions()
 							CS.db.complex.visibilityConditionals = val
 							CS:Build()
 						end
+					},
+					fadeOutDuration = {
+						order = 13,
+						type = "range",
+						name = L["Fade Duration"],
+						min = 0.1,
+						max = 10,
+						step = 0.1
 					}
 				}
 			},
@@ -209,14 +211,12 @@ local function displayOptions()
 						type = "select",
 						dialogControl = "LSM30_Font",
 						name = L["Font"],
-						desc = L["Select font for the Complex display"],
 						values = LSM:HashTable("font")
 					},
 					fontSize = {
 						order = 8,
 						type = "range",
 						name = L["Font Size"],
-						desc = L["Set Font Size"],
 						min = 1,
 						max = 32,
 						step = 1
@@ -226,7 +226,6 @@ local function displayOptions()
 						type = "select",
 						style = "dropdown",
 						name = L["Font Flags"],
-						desc = L["Set Font Flags"],
 						values = {
 							["None"] = L["None"],
 							["Shadow"] = L["Shadow"],
@@ -244,7 +243,6 @@ local function displayOptions()
 						order = 10,
 						type = "color",
 						name = L["Font Color"],
-						desc = L["Set Font Color"],
 						hasAlpha = true,
 						get = function()
 							return CS.db.complex.fontColor.r, CS.db.complex.fontColor.b, CS.db.complex.fontColor.g, CS.db.complex.fontColor.a
@@ -493,7 +491,8 @@ local defaultSettings = {
 	fontColorCache = {r=0.80, b=0.00, g=0.38, a=1},
 	stringXOffset = 0,
 	stringYOffset = 0,
-	visibilityConditionals = "[harm] [combat] show; hide",
+	visibilityConditionals = "[mod:alt] [harm] [combat] show; fade",
+	fadeOutDuration = 1,
 	orientation = "Horizontal",
 	growthDirection = "Regular",
 	textureHandle = "Empty",

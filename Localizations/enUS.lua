@@ -74,30 +74,20 @@ L["\"Overcap Orb\" Color"] = "\"Overcap Orb\" Color"
 L["Play Warning Sound when about to cap Shadow Orbs."] = "Play Warning Sound when about to cap Shadow Orbs."
 L["Position"] = "Position"
 L["Regular"] = "Regular"
-L["Regulate display visibility with macro conditionals"] = "Regulate display visibility with macro conditionals"
+L["Regulate display visibility with macro conditionals"] = [=[
+Regulate display visibility with macro conditionals
+show - show display
+hide - hide display
+fade - fade out display
+]=]
 L["Reset Position"] = "Reset Position"
 L["Reset to Defaults"] = "Reset to Defaults"
 L["Reversed"] = "Reversed"
 L["Reverse Direction"] = "Reverse Direction"
 L["Scale"] = "Scale"
 L["Scanning interval when Aggressive Caching is enabled"] = "Scanning interval when Aggressive Caching is enabled"
-L["Select font for the Complex display"] = "Select font for the Complex display"
-L["Select font for the Simple display"] = "Select font for the Simple display"
-L["Set Display border color"] = "Set Display border color"
-L["Set Display orientation"] = "Set Display orientation"
-L["Set Font Color"] = "Set Font Color"
-L["Set Font Flags"] = "Set Font Flags"
-L["Set Font Size"] = "Set Font Size"
-L["Set Frame Height"] = "Set Frame Height"
-L["Set Frame Scale"] = "Set Frame Scale"
-L["Set Frame Width"] = "Set Frame Width"
 L["Set Number Spacing"] = "Set Number Spacing"
-L["Set Shadow Orb border color"] = "Set Shadow Orb border color"
-L["Set Shadow Orb Height"] = "Set Shadow Orb Height"
-L["Set Shadow Orb Spacing"] = "Set Shadow Orb Spacing"
-L["Set Shadow Orb Width"] = "Set Shadow Orb Width"
 L["Set texture used for the background"] = "Set texture used for the background"
-L["Set texture used for the Shadow Orbs"] = "Set texture used for the Shadow Orbs"
 L["Shadow"] = "Shadow"
 L["Show Orbs out of combat"] = "Show Orbs out of combat"
 L["Shows the frame and toggles it for repositioning."] = "Shows the frame and toggles it for repositioning."
@@ -151,5 +141,5 @@ L["Dungeon"] = true
 L["Raid"] = true
 L["Arena"] = true
 L["Battleground"] = true
-
+L["Fade Duration"] = true
 --@end-do-not-package@
