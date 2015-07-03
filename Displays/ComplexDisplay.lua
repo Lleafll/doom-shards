@@ -18,6 +18,7 @@ local stringformat = string.format
 ------------
 local CDFrame = CS:CreateParentFrame("CS Complex Display", "complex")
 CD.frame = CDFrame
+CDFrame:Hide()
 local orbFrames = {}
 local fontStringParent
 local SATimers = {}
@@ -120,9 +121,10 @@ end
 -- Visibility --
 ----------------
 do
-	local currentState
+	-- can't use RegisterStateDriver because Restricted Environment doesn't allow for animations
+	local currentState = "hide"
 	
-	local function evaluateConditionals()
+	function CDOnUpdateFrame:EvaluateConditionals()
 		local state = SecureCmdOptionParse(visibilityConditionals)
 		if state ~= currentState then
 			if state == "show" then
@@ -144,17 +146,31 @@ do
 	CDOnUpdateFrame:SetScript("OnUpdate", function(self, elapsed)
 		ticker = ticker + elapsed
 		if ticker > 0.2 then
-			evaluateConditionals()
+			self:EvaluateConditionals()
 			ticker = 0
 		end
 	end)
 	
-	CDOnUpdateFrame:SetScript("OnEvent", function()
-		evaluateConditionals()
+	CDOnUpdateFrame:SetScript("OnShow", function(self)
+		currentState = nil
+		self:EvaluateConditionals()
 	end)
 	
-	CDOnUpdateFrame:RegisterEvent("MODIFIER_STATE_CHANGED")
-	CDOnUpdateFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
+	CDOnUpdateFrame:SetScript("OnEvent", function(self)
+		self:EvaluateConditionals()
+	end)
+	
+	function CDOnUpdateFrame:RegisterEvents()
+		self:RegisterEvent("MODIFIER_STATE_CHANGED")
+		self:RegisterEvent("PLAYER_REGEN_DISABLED")
+	end
+	
+	function CDOnUpdateFrame:UnregisterEvents()
+		self:UnregisterEvent("MODIFIER_STATE_CHANGED")
+		self:UnregisterEvent("PLAYER_REGEN_DISABLED")
+	end
+	
+	CDOnUpdateFrame:RegisterEvents()
 end
 
 
@@ -175,7 +191,7 @@ local function buildFrames()
 	
 	local CDFrameHeight = db.height + 25
 	local CDFrameWidth = 6 * db.width + 5 * db.spacing
-	CDFrame:SetPoint(db.anchor, db.posX, db.posY)
+	CDFrame:SetPoint(db.anchor, _G[db.anchorFrame], db.posX, db.posY)
 	CDFrame:SetScale(CS.db.scale)
 	CDFrame:SetHeight(db.orientation == "Vertical" and CDFrameWidth or CDFrameHeight)
 	CDFrame:SetWidth(db.orientation == "Vertical" and CDFrameHeight or CDFrameWidth)
@@ -367,11 +383,28 @@ local function buildFrames()
 end
 
 
+----------------
+-- Animations --
+----------------
+local function buildAnimations()
+	CDFrame.fader = CDFrame:CreateAnimationGroup()
+	CDFrame.fader:SetScript("OnFinished", function()
+		CDFrame:SetAlpha(1)
+		CDFrame:Hide()
+	end)
+	CDFrame.fader.fadeOut = CDFrame.fader:CreateAnimation("Alpha")
+	CDFrame.fader.fadeOut:SetChange(-1)
+	CDFrame.fader.fadeOut:SetSmoothing("IN")
+end
+
+
 ------------------------------
 -- Initialization and stuff --
 ------------------------------
 function CD:Unlock()
+	CDFrame.fader:Stop()
 	CDOnUpdateFrame:Hide()
+	CDOnUpdateFrame:UnregisterEvents()
 	for i = 1, 6 do
 		if textEnable then
 			SATimers[i]:Show()
@@ -393,6 +426,9 @@ function CD:Lock()
 		if SATimers[i] then SATimers[i]:Hide() end
 		if statusbars[i] then statusbars[i]:Hide() end
 	end
+	CDFrame.fader:Stop()
+	CDFrame:Hide()
+	CDOnUpdateFrame:RegisterEvents()
 	CDOnUpdateFrame:Show()
 end
 
@@ -409,24 +445,16 @@ function CD:Build()
 	
 	buildFrames()
 	CDFrame.fader.fadeOut:SetDuration(db.fadeOutDuration)
+	if CS.locked then CDOnUpdateFrame:Show() end
 end
 
 function CD:OnInitialize()
 	db = CS.db.complex
-	
-	CDFrame.fader = CDFrame:CreateAnimationGroup()
-	CDFrame.fader:SetScript("OnFinished", function()
-		CDFrame:SetAlpha(1)
-		CDFrame:Hide()
-	end)
-	CDFrame.fader.fadeOut = CDFrame.fader:CreateAnimation("Alpha")
-	CDFrame.fader.fadeOut:SetChange(-1)
-	CDFrame.fader.fadeOut:SetSmoothing("IN")
+	buildAnimations()
 end
 
 function CD:OnEnable()
 	self:RegisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
-	CDOnUpdateFrame:Show()
 end
 
 function CD:OnDisable()

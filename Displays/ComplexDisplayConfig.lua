@@ -30,26 +30,6 @@ local function displayOptions()
 				type = "toggle",
 				name = L["Enable"]
 			},
-			orientation = {
-				order = 1,
-				type = "select",
-				style = "dropdown",
-				name = L["Orientation"],
-				values = {
-					["Horizontal"] = L["Horizontal"],
-					["Vertical"] = L["Vertical"]
-				}
-			},
-			growthDirection = {
-				order = 2,
-				type = "select",
-				name = L["Growth direction"],
-				desc = L["Order in which the Shadow Orbs get filled in"],
-				values = {
-					["Regular"] = L["Regular"],
-					["Reversed"] = L["Reversed"]
-				}
-			},
 			orbs = {
 				order = 3,
 				type = "group",
@@ -466,6 +446,82 @@ local function displayOptions()
 						end
 					}
 				}
+			},
+			positioning = {
+				order = 6,
+				type = "group",
+				name = L["Positioning"],
+				args = {
+					orientation = {
+						order = 1,
+						type = "select",
+						style = "dropdown",
+						name = L["Orientation"],
+						values = {
+							["Horizontal"] = L["Horizontal"],
+							["Vertical"] = L["Vertical"]
+						}
+					},
+					growthDirection = {
+						order = 2,
+						type = "select",
+						name = L["Growth direction"],
+						desc = L["Order in which the Shadow Orbs get filled in"],
+						values = {
+							["Regular"] = L["Regular"],
+							["Reversed"] = L["Reversed"]
+						}
+					},
+					spacer = {
+						order = 3.5,
+						type = "description",
+						name = ""
+					},
+					posX = {
+						order = 4,
+						type = "range",
+						name = L["X Position"],
+						min = -GetScreenWidth(),
+						max = GetScreenWidth(),
+						step = 1
+					},
+					posY = {
+						order = 5,
+						type = "range",
+						name = L["Y Position"],
+						min = -GetScreenHeight(),
+						max = GetScreenHeight(),
+						step = 1
+					},
+					spacer2 = {
+						order = 6.5,
+						type = "description",
+						name = ""
+					},
+					anchor = {
+						order = 7,
+						type = "select",
+						style = "dropdown",
+						name = L["Anchor Point"],
+						values = {
+							["CENTER"] = "CENTER",
+							["BOTTOM"] = "BOTTOM",
+							["TOP"] = "TOP",
+							["LEFT"] = "LEFT",
+							["RIGHT"] = "RIGHT",
+							["BOTTOMLEFT"] = "BOTTOMLEFT",
+							["BOTTOMRIGHT"] = "BOTTOMRIGHT",
+							["TOPLEFT"] = "TOPLEFT",
+							["TOPRIGHT"] = "TOPRIGHT"
+						}
+					},
+					anchorFrame = {
+						order = 8,
+						type = "input",
+						name = L["Anchor Frame"],
+						desc = L["Will change to UIParent when manually dragging frame."]
+					}
+				}
 			}
 		}
 	}
@@ -474,6 +530,7 @@ end
 local defaultSettings = {
 	enable = true,
 	anchor = "CENTER",
+	anchorFrame = "UIParent",
 	posX = 0,
 	posY = 0,
 	height = 8,
@@ -492,7 +549,7 @@ local defaultSettings = {
 	stringXOffset = 0,
 	stringYOffset = 0,
 	visibilityConditionals = "[mod:alt] [harm] [combat] show; fade",
-	fadeOutDuration = 1,
+	fadeOutDuration = 0.5,
 	orientation = "Horizontal",
 	growthDirection = "Regular",
 	textureHandle = "Empty",

@@ -3,6 +3,7 @@ if class ~= "PRIEST" then return end
 
 local CS = LibStub("AceAddon-3.0"):NewAddon("Conspicuous Spirits", "AceEvent-3.0", "AceTimer-3.0", "AceConsole-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("ConspicuousSpirits")
+local ACR = LibStub("AceConfigRegistry-3.0")
 
 
 ----------------
@@ -27,10 +28,14 @@ do
 	local function dragStop(self, moduleName)
 		self:StopMovingOrSizing()
 		self:SetUserPlaced(false)
-		local _, _, anchor, posX, posY = self:GetPoint()
+		
+		local _, anchorFrame, anchor, posX, posY = self:GetPoint()
 		CS.db[moduleName].anchor = anchor
+		CS.db[moduleName].anchorFrame = anchorFrame and anchorFrame:GetName() or "UIParent"
 		CS.db[moduleName].posX = posX
 		CS.db[moduleName].posY = posY
+		
+		ACR:NotifyChange("Conspicuous Spirits")
 	end
 	
 	-- frame factory for all display modules' parent frames

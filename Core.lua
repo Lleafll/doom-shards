@@ -654,6 +654,7 @@ do
 			self:EndTestMode()
 		else
 			if UnitAffectingCombat("player") then return end
+			if not self.locked then self:Lock() end
 			self:PLAYER_REGEN_DISABLED()
 
 			for name, module in self:IterateModules() do
