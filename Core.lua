@@ -647,6 +647,7 @@ do
 	local function SATickerFunc()
 		distanceCache[TestGUID].timeStamp = GetTime()
 		CS:AddGUID(TestGUID)
+		timers[#timers].impactTime = timers[#timers].impactTime + SAGraceTime  -- fixes "0.0"-issue
 	end
 	
 	function CS:TestMode()
