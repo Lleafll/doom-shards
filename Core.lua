@@ -682,9 +682,6 @@ do
 			SATickerFunc()
 			SATicker = C_Timer.NewTicker(SAInterval, SATickerFunc)
 			
-			-- to prevent bugging out when player enters combat with casting a spell
-			self:RegisterEvent("UNIT_SPELLCAST_SENT", function(_, unitID) if unitID == "player" then CS:EndTestMode() end end)
-			
 			self.testMode = true
 			print(L["Starting Test Mode"])
 		end
@@ -707,7 +704,6 @@ do
 			if not UnitAffectingCombat("player") then
 				self:PLAYER_REGEN_ENABLED()
 			end
-			self:UnregisterEvent("UNIT_SPELLCAST_SENT")
 			print(L["Cancelled Test Mode"])
 		end
 	end

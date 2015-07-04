@@ -147,7 +147,7 @@ do
 	CDOnUpdateFrame:SetScript("OnUpdate", function(self, elapsed)
 		ticker = ticker + elapsed
 		if ticker > 0.2 then
-			self:EvaluateConditionals()
+			self:EvaluateConditionals()			
 			ticker = 0
 		end
 	end)
@@ -229,7 +229,7 @@ local function buildFrames()
 			frame:SetBackdrop(backdrop)
 			frame:SetBackdropBorderColor(db.borderColor.r, db.borderColor.b, db.borderColor.g, db.borderColor.a)
 			
-			if numeration < 6 then
+			if numeration <= 5 then
 				frame:Show()
 			else
 				frame:Hide()
@@ -436,15 +436,17 @@ function CD:Unlock()
 end
 
 function CD:Lock()
+	--[[
 	for i = 1, statusbarCount do
 		orbFrames[i]:Hide()
 		if SATimers[i] then SATimers[i]:Hide() end
 		if statusbars[i] then statusbars[i]:Hide() end
 	end
-	CDFrame.fader:Stop()
-	CDFrame:Hide()
+	]]--
+	CDFrame.fader:Stop()  -- necessary?
+	--CDFrame:Hide()
 	CDOnUpdateFrame:RegisterEvents()
-	CDOnUpdateFrame:Show()
+	--CDOnUpdateFrame:Show()  -- already triggers in Build
 end
 
 function CD:Build()
