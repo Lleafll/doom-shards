@@ -380,20 +380,6 @@ local function displayOptions()
 							CS:Build()
 						end
 					},
-					statusbarColorOverflow = {
-						order = 6,
-						type = "color",
-						name = L["\"Overcap Orb\" Color"],
-						desc = L["Color of the sixth indicator when overcapping with Shadowy Apparitions"],
-						hasAlpha = true,
-						get = function()
-							return CS.db.complex.statusbarColorOverflow.r, CS.db.complex.statusbarColorOverflow.b, CS.db.complex.statusbarColorOverflow.g, CS.db.complex.statusbarColorOverflow.a
-						end,
-						set = function(info, r, b, g, a)
-							CS.db.complex.statusbarColorOverflow.r, CS.db.complex.statusbarColorOverflow.b, CS.db.complex.statusbarColorOverflow.g, CS.db.complex.statusbarColorOverflow.a = r, b, g, a
-							CS:Build()
-						end
-					},
 					spacer2 = {
 						order = 6.5,
 						type="description",
@@ -404,8 +390,8 @@ local function displayOptions()
 						type = "range",
 						name = L["X Offset"],
 						desc = L["X offset for the Shadowy Apparition indicator bars"],
-						min = -1000,
-						max = 1000,
+						min = -GetScreenWidth(),
+						max = GetScreenWidth(),
 						step = 1,
 						get = function()
 							local offset = CS.db.complex.orientation == "Vertical" and -CS.db.complex.statusbarYOffset or CS.db.complex.statusbarXOffset
@@ -427,8 +413,8 @@ local function displayOptions()
 						type = "range",
 						name = L["Y Offset"],
 						desc = L["Y offset for the Shadowy Apparition time text"],
-						min = -1000,
-						max = 1000,
+						min = -GetScreenHeight(),
+						max = GetScreenHeight(),
 						step = 1,
 						get = function()
 							local offset = CS.db.complex.orientation == "Vertical" and CS.db.complex.statusbarXOffset or CS.db.complex.statusbarYOffset
@@ -444,6 +430,33 @@ local function displayOptions()
 							end
 							CS:Build()
 						end
+					},
+					spacer3 = {
+						order = 9.5,
+						type="description",
+						name=""
+					},
+					statusbarColorOverflow = {
+						order = 10,
+						type = "color",
+						name = L["\"Overcap Orb\" Color"],
+						desc = L["Color of the sixth indicator when overcapping with Shadowy Apparitions"],
+						hasAlpha = true,
+						get = function()
+							return CS.db.complex.statusbarColorOverflow.r, CS.db.complex.statusbarColorOverflow.b, CS.db.complex.statusbarColorOverflow.g, CS.db.complex.statusbarColorOverflow.a
+						end,
+						set = function(info, r, b, g, a)
+							CS.db.complex.statusbarColorOverflow.r, CS.db.complex.statusbarColorOverflow.b, CS.db.complex.statusbarColorOverflow.g, CS.db.complex.statusbarColorOverflow.a = r, b, g, a
+							CS:Build()
+						end
+					},
+					statusbarCount = {
+						order = 11,
+						type = "range",
+						name = L["Number of Overcap Orbs"],
+						min = 0,
+						max = 20,
+						step = 1
 					}
 				}
 			},
@@ -562,6 +575,7 @@ local defaultSettings = {
 	maxTime = 5,
 	statusbarXOffset = 0,
 	statusbarYOffset = 0,
+	statusbarCount = 1,
 	orbCappedEnable = false,
 	orbCappedColor = {r=0.51, b=0.00, g=0.24, a=1},
 }

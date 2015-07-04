@@ -34,9 +34,10 @@ local db
 local orbCappedEnable
 local orbs
 local remainingTimeThreshold
-local statusbarRefresh
+local statusbarCount
 local statusbarEnable
 local statusbarMaxTime
+local statusbarRefresh
 local textEnable
 local timers
 local visibilityConditionals
@@ -52,7 +53,7 @@ local backdrop = {
 -- Functions --
 ---------------
 local function update()	
-	for i = 1, 6 do
+	for i = 1, statusbarCount do
 		if orbs >= i then
 			local orbFrame = orbFrames[i]
 			if orbCappedEnable then
@@ -74,7 +75,7 @@ local function update()
 	local k = orbs + 1
 	local t = 1
 	local timerID = timers[t]
-	while timerID and k <= 6 do
+	while timerID and k <= statusbarCount do
 		if timerID.IsGUIDInRange() then
 			if textEnable then SATimers[k]:SetTimer(timerID) end
 			if statusbarEnable then statusbars[k]:SetTimer(timerID) end
@@ -84,7 +85,7 @@ local function update()
 		timerID = timers[t]
 	end
 	
-	for m = k, 6 do
+	for m = k, statusbarCount do
 		SATimers[m]:Hide()
 		statusbars[m]:Hide()
 	end
@@ -163,11 +164,13 @@ do
 	function CDOnUpdateFrame:RegisterEvents()
 		self:RegisterEvent("MODIFIER_STATE_CHANGED")
 		self:RegisterEvent("PLAYER_REGEN_DISABLED")
+		self:RegisterEvent("PLAYER_TARGET_CHANGED")
 	end
 	
 	function CDOnUpdateFrame:UnregisterEvents()
 		self:UnregisterEvent("MODIFIER_STATE_CHANGED")
 		self:UnregisterEvent("PLAYER_REGEN_DISABLED")
+		self:UnregisterEvent("PLAYER_TARGET_CHANGED")
 	end
 	
 	CDOnUpdateFrame:RegisterEvents()
@@ -190,7 +193,7 @@ local function buildFrames()
 	backdrop.bgFile = (db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
 	
 	local CDFrameHeight = db.height + 25
-	local CDFrameWidth = 6 * db.width + 5 * db.spacing
+	local CDFrameWidth = statusbarCount * db.width + (statusbarCount - 1) * db.spacing
 	CDFrame:SetPoint(db.anchor, _G[db.anchorFrame], db.posX, db.posY)
 	CDFrame:SetScale(CS.db.scale)
 	CDFrame:SetHeight(db.orientation == "Vertical" and CDFrameWidth or CDFrameHeight)
@@ -234,13 +237,13 @@ local function buildFrames()
 			
 			local c1r, c1b, c1g, c1a = db.color1.r, db.color1.b, db.color1.g, db.color1.a 
 			local c2r, c2b, c2g, c2a = db.color2.r, db.color2.b, db.color2.g, db.color2.a 
-			if numeration < 4 then
+			if numeration <= 3 then
 				function frame:SetOriginalColor()
 					self:SetBackdropColor(c1r, c1b, c1g, c1a)
 					self.orbCapColored = false
 				end
 				frame:SetOriginalColor()
-			elseif numeration < 6 then
+			elseif numeration <= 5 then
 				function frame:SetOriginalColor()
 					self:SetBackdropColor(c2r, c2b, c2g, c2a)
 					self.orbCapColored = false
@@ -258,7 +261,7 @@ local function buildFrames()
 			
 			return frame
 		end
-		for i = 1, 6 do
+		for i = 1, statusbarCount do
 			orbFrames[i] = createOrbFrame(i)
 		end
 	end
@@ -319,8 +322,14 @@ local function buildFrames()
 			fontString:Show()
 			return parentFrame
 		end
-		for i = 1, 6 do
+		for i = 1, statusbarCount do
 			SATimers[i] = createTimerFontString(orbFrames[i], i)
+			SATimers[i]:Show()
+		end
+		if #SATimers > statusbarCount then
+			for i = statusbarCount + 1, #SATimers do
+				SATimers[i]:Hide()
+			end
 		end
 	end
 	
@@ -368,17 +377,23 @@ local function buildFrames()
 			frame:Show()		
 			return frame
 		end
-		for i = 1, 6 do
+		for i = 1, statusbarCount do
 			statusbars[i] = createStatusBars(orbFrames[i], i)
 		end
-		local c1r, c1b, c1g, c1a = db.statusbarColorBackground.r, db.statusbarColorBackground.b, db.statusbarColorBackground.g, db.statusbarColorBackground.a 
-		local c2r, c2b, c2g, c2a = db.statusbarColorOverflow.r, db.statusbarColorOverflow.b, db.statusbarColorOverflow.g, db.statusbarColorOverflow.a 
-		statusbars[1]:SetBackdropColor(c1r, c1b, c1g, c1a)
-		statusbars[2]:SetBackdropColor(c1r, c1b, c1g, c1a)
-		statusbars[3]:SetBackdropColor(c1r, c1b, c1g, c1a)
-		statusbars[4]:SetBackdropColor(c1r, c1b, c1g, c1a)
-		statusbars[5]:SetBackdropColor(c1r, c1b, c1g, c1a)
-		statusbars[6]:SetBackdropColor(c2r, c2b, c2g, c2a)
+		local c1r, c1b, c1g, c1a = db.statusbarColorBackground.r, db.statusbarColorBackground.b, db.statusbarColorBackground.g, db.statusbarColorBackground.a
+		local c2r, c2b, c2g, c2a = db.statusbarColorOverflow.r, db.statusbarColorOverflow.b, db.statusbarColorOverflow.g, db.statusbarColorOverflow.a
+		for i = 1, statusbarCount do
+			if i <= 5 then
+				statusbars[i]:SetBackdropColor(c1r, c1b, c1g, c1a)
+			else
+				statusbars[i]:SetBackdropColor(c2r, c2b, c2g, c2a)
+			end
+		end
+		if #statusbars > statusbarCount then
+			for i = statusbarCount + 1, #statusbars do
+				statusbars[i]:Hide()
+			end
+		end
 	end
 end
 
@@ -386,7 +401,7 @@ end
 ----------------
 -- Animations --
 ----------------
-local function buildAnimations()
+local function buildFader()
 	CDFrame.fader = CDFrame:CreateAnimationGroup()
 	CDFrame.fader:SetScript("OnFinished", function()
 		CDFrame:SetAlpha(1)
@@ -405,7 +420,7 @@ function CD:Unlock()
 	CDFrame.fader:Stop()
 	CDOnUpdateFrame:Hide()
 	CDOnUpdateFrame:UnregisterEvents()
-	for i = 1, 6 do
+	for i = 1, statusbarCount do
 		if textEnable then
 			SATimers[i]:Show()
 		end
@@ -414,14 +429,14 @@ function CD:Unlock()
 			statusbars[i]:Show()
 		end
 		
-		if i == 6 then break end
+		if i == statusbarCount then break end
 		
 		orbFrames[i]:Show()
 	end
 end
 
 function CD:Lock()
-	for i = 1, 6 do
+	for i = 1, statusbarCount do
 		orbFrames[i]:Hide()
 		if SATimers[i] then SATimers[i]:Hide() end
 		if statusbars[i] then statusbars[i]:Hide() end
@@ -441,16 +456,19 @@ function CD:Build()
 	orbCappedEnable = db.orbCappedEnable
 	visibilityConditionals = db.visibilityConditionals
 	
+	statusbarCount = 5 + db.statusbarCount
 	statusbarRefresh = statusbarMaxTime / db.width / CS.db.scale
 	
 	buildFrames()
+	if not CDFrame.fader and visibilityConditionals:find("fade") then
+		buildFader()
+	end
 	CDFrame.fader.fadeOut:SetDuration(db.fadeOutDuration)
 	if CS.locked then CDOnUpdateFrame:Show() end
 end
 
 function CD:OnInitialize()
 	db = CS.db.complex
-	buildAnimations()
 end
 
 function CD:OnEnable()
