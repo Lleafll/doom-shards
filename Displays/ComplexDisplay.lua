@@ -43,6 +43,18 @@ local timers
 local visibilityConditionals
 local backdrop = {
 	bgFile = nil,
+	edgeFile = nil,
+	tile = false,
+	edgeSize = 0
+}
+local statusbarBackdrop = {
+	bgFile = nil,
+	edgeFile = "Interface\\ChatFrame\\ChatFrameBackground",
+	tile = false,
+	edgeSize = 1
+}
+local borderBackdrop = {
+	bgFile = nil,
 	edgeFile = "Interface\\ChatFrame\\ChatFrameBackground",
 	tile = false,
 	edgeSize = 1
@@ -168,9 +180,7 @@ do
 	end
 	
 	function CDOnUpdateFrame:UnregisterEvents()
-		self:UnregisterEvent("MODIFIER_STATE_CHANGED")
-		self:UnregisterEvent("PLAYER_REGEN_DISABLED")
-		self:UnregisterEvent("PLAYER_TARGET_CHANGED")
+		self:UnregisterAllEvents()
 	end
 	
 	CDOnUpdateFrame:RegisterEvents()
@@ -191,6 +201,7 @@ local function buildFrames()
 	local statusbarXOffset = db.statusbarXOffset
 	local statusbarYOffset = db.statusbarYOffset
 	backdrop.bgFile = (db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
+	statusbarBackdrop.bgFile = (db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
 	
 	local CDFrameHeight = db.height + 25
 	local CDFrameWidth = statusbarCount * db.width + (statusbarCount - 1) * db.spacing
@@ -227,10 +238,21 @@ local function buildFrames()
 			end
 			
 			frame:SetBackdrop(backdrop)
-			frame:SetBackdropBorderColor(db.borderColor.r, db.borderColor.b, db.borderColor.g, db.borderColor.a)
 			
 			if numeration <= 5 then
 				frame:Show()
+				
+				if not frame.border then
+					frame.border = CreateFrame("frame")
+				end
+				if db.alwaysShowBorders then
+					frame.border:SetParent(CDFrame)
+				else
+					frame.border:SetParent(frame)
+				end
+				frame.border:SetAllPoints(frame)
+				frame.border:SetBackdrop(borderBackdrop)
+				frame.border:SetBackdropBorderColor(db.borderColor.r, db.borderColor.b, db.borderColor.g, db.borderColor.a)
 			else
 				frame:Hide()
 			end
@@ -353,7 +375,7 @@ local function buildFrames()
 				frame:SetPoint("BOTTOMRIGHT", referenceFrame, statusbarXOffset, statusbarYOffset)
 				frame:SetPoint("TOPLEFT", referenceFrame, statusbarXOffset, statusbarYOffset)
 			end
-			frame:SetBackdrop(backdrop)
+			frame:SetBackdrop(statusbarBackdrop)
 			frame:SetBackdropColor(db.statusbarColorBackground.r, db.statusbarColorBackground.b, db.statusbarColorBackground.g, db.statusbarColorBackground.a)
 			frame:SetBackdropBorderColor(db.borderColor.r, db.borderColor.b, db.borderColor.g, db.borderColor.a)
 			

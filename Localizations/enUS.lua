@@ -148,6 +148,8 @@ L["Y Position"] = true
 L["Anchor Point"] = true
 L["Anchor Frame"] = true
 L["Will change to UIParent when manually dragging frame."] = true
-
 L["Number of Overcap Orbs"] = true
+
+L["Always show borders"] = true
+L["Show borders even when orb isn't shown"] = true
 --@end-do-not-package@

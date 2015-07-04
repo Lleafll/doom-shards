@@ -141,6 +141,12 @@ local function displayOptions()
 							CS:Build()
 						end
 					},
+					alwaysShowBorders = {
+						order = 11,
+						type = "toggle",
+						name = L["Always show borders"],
+						desc = L["Show borders even when orb isn't shown"]
+					},
 					spacer4 = {
 						order = 11.5,
 						type="description",
@@ -567,6 +573,7 @@ local defaultSettings = {
 	growthDirection = "Regular",
 	textureHandle = "Empty",
 	borderColor = {r=0, b=0, g=0, a=1},
+	alwaysShowBorders = false,
 	statusbarEnable = true,
 	statusbarColor = {r=0.33, b=0.33, g=0.33, a=0.5},
 	statusbarColorBackground = {r=0.06, b=0.06, g=0.06, a=1},
