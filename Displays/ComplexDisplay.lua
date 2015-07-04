@@ -484,7 +484,7 @@ function CD:Build()
 	statusbarRefresh = statusbarMaxTime / db.width / CS.db.scale
 	
 	buildFrames()
-	if not CDFrame.fader and visibilityConditionals:find("fade") then
+	if not CDFrame.fader then
 		buildFader()
 	end
 	CDFrame.fader.fadeOut:SetDuration(db.fadeOutDuration)
