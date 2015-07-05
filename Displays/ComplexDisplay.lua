@@ -149,7 +149,7 @@ do
 				CDFrame.fader:Play()
 				currentState = "hide"
 				
-			else  -- show
+			elseif state ~= "fade" then  -- show
 				CDFrame.fader:Stop()
 				CDFrame:Show()
 				currentState = "show"
