@@ -140,17 +140,20 @@ do
 	function CDOnUpdateFrame:EvaluateConditionals()
 		local state = SecureCmdOptionParse(visibilityConditionals)
 		if state ~= currentState then
-			if state == "show" then
-				CDFrame.fader:Stop()
-				CDFrame:Show()
-				currentState = "show"
-			elseif state == "hide" then
+			if state == "hide" then
 				CDFrame.fader:Stop()
 				CDFrame:Hide()
 				currentState = "hide"
+				
 			elseif state == "fade" and currentState ~= "hide" then
 				CDFrame.fader:Play()
 				currentState = "hide"
+				
+			else  -- show
+				CDFrame.fader:Stop()
+				CDFrame:Show()
+				currentState = "show"
+				
 			end
 		end
 	end
