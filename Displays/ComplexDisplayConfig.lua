@@ -396,8 +396,8 @@ local function displayOptions()
 						type = "range",
 						name = L["X Offset"],
 						desc = L["X offset for the Shadowy Apparition indicator bars"],
-						min = -GetScreenWidth(),
-						max = GetScreenWidth(),
+						min = -math.ceil(GetScreenWidth()),
+						max = math.ceil(GetScreenWidth()),
 						step = 1,
 						get = function()
 							local offset = CS.db.complex.orientation == "Vertical" and -CS.db.complex.statusbarYOffset or CS.db.complex.statusbarXOffset
@@ -419,8 +419,8 @@ local function displayOptions()
 						type = "range",
 						name = L["Y Offset"],
 						desc = L["Y offset for the Shadowy Apparition time text"],
-						min = -GetScreenHeight(),
-						max = GetScreenHeight(),
+						min = -math.ceil(GetScreenHeight()),
+						max = math.ceil(GetScreenHeight()),
 						step = 1,
 						get = function()
 							local offset = CS.db.complex.orientation == "Vertical" and CS.db.complex.statusbarXOffset or CS.db.complex.statusbarYOffset
@@ -500,16 +500,16 @@ local function displayOptions()
 						order = 4,
 						type = "range",
 						name = L["X Position"],
-						min = -GetScreenWidth(),
-						max = GetScreenWidth(),
+						min = -math.ceil(GetScreenWidth()),
+						max = math.ceil(GetScreenWidth()),
 						step = 1
 					},
 					posY = {
 						order = 5,
 						type = "range",
 						name = L["Y Position"],
-						min = -GetScreenHeight(),
-						max = GetScreenHeight(),
+						min = -math.ceil(GetScreenHeight()),
+						max = math.ceil(GetScreenHeight()),
 						step = 1
 					},
 					spacer2 = {

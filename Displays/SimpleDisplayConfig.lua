@@ -196,16 +196,16 @@ local function displayOptions()
 						order = 4,
 						type = "range",
 						name = L["X Position"],
-						min = -GetScreenWidth(),
-						max = GetScreenWidth(),
+						min = -math.ceil(GetScreenWidth()),
+						max = math.ceil(GetScreenWidth()),
 						step = 1
 					},
 					posY = {
 						order = 5,
 						type = "range",
 						name = L["Y Position"],
-						min = -GetScreenHeight(),
-						max = GetScreenHeight(),
+						min = -math.ceil(GetScreenHeight()),
+						max = math.ceil(GetScreenHeight()),
 						step = 1
 					},
 					spacer2 = {
