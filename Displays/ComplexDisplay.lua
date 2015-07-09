@@ -208,6 +208,7 @@ local function buildFrames()
 	
 	local CDFrameHeight = db.height + 25
 	local CDFrameWidth = statusbarCount * db.width + (statusbarCount - 1) * db.spacing
+	CDFrame:ClearAllPoints()
 	CDFrame:SetPoint(db.anchor, _G[db.anchorFrame], db.posX, db.posY)
 	CDFrame:SetScale(CS.db.scale)
 	CDFrame:SetHeight(db.orientation == "Vertical" and CDFrameWidth or CDFrameHeight)
