@@ -159,10 +159,6 @@ local function displayOptions()
 						desc = L["Regulate display visibility with macro conditionals"],
 						width = "double",
 						set = function(info, val)
-							if UnitAffectingCombat("player") then 
-								print(L["Can not change visibility options in combat."])
-								return
-							end
 							CS.db.complex.visibilityConditionals = val
 							CS:Build()
 						end
