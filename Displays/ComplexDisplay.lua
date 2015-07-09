@@ -40,7 +40,7 @@ local statusbarMaxTime
 local statusbarRefresh
 local textEnable
 local timers
-local visibilityConditionals
+local visibilityConditionals = ""
 local backdrop = {
 	bgFile = nil,
 	edgeFile = nil,
@@ -462,17 +462,8 @@ function CD:Unlock()
 end
 
 function CD:Lock()
-	--[[
-	for i = 1, statusbarCount do
-		orbFrames[i]:Hide()
-		if SATimers[i] then SATimers[i]:Hide() end
-		if statusbars[i] then statusbars[i]:Hide() end
-	end
-	]]--
 	CDFrame.fader:Stop()  -- necessary?
-	--CDFrame:Hide()
 	CDOnUpdateFrame:RegisterEvents()
-	--CDOnUpdateFrame:Show()  -- already triggers in Build
 end
 
 function CD:Build()
@@ -482,7 +473,7 @@ function CD:Build()
 	fontColorCacheEnable = db.fontColorCacheEnable
 	statusbarEnable = db.statusbarEnable
 	orbCappedEnable = db.orbCappedEnable
-	visibilityConditionals = db.visibilityConditionals
+	visibilityConditionals = db.visibilityConditionals or ""
 	
 	statusbarCount = 5 + db.statusbarCount
 	statusbarRefresh = statusbarMaxTime / db.width / CS.db.scale
