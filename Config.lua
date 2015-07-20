@@ -150,11 +150,8 @@ do
 	local function createOptions()
 		local optionsTable = optionsTable()
 		
-		local iterator = 2
 		for displayName, displayOptions in pairs(moduleOptions) do
 			optionsTable.args[displayName] = displayOptions()
-			optionsTable.args[displayName].order = iterator
-			iterator = iterator + 1
 		end
 		
 		return optionsTable
