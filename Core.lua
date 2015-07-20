@@ -609,9 +609,12 @@ do
 				if EF:IsEnabled() then EF:Disable() end
 			
 			end
+			
+			self:SendMessage("CONSPICUOUS_SPIRITS_SPEC", true)
 		else
 			self:UnregisterEvent("UNIT_POWER")
 			self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+			self:SendMessage("CONSPICUOUS_SPIRITS_SPEC", false)
 			
 		end
 	end

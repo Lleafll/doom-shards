@@ -133,6 +133,14 @@ end
 ----------------
 -- Visibility --
 ----------------
+function CD:CONSPICUOUS_SPIRITS_SPEC(toggle)
+	if toggle then 
+		CDOnUpdateFrame:Show()
+	else
+		CDOnUpdateFrame:Hide()
+	end
+end
+
 do
 	-- can't use RegisterStateDriver because Restricted Environment doesn't allow for animations
 	local currentState = "hide"
@@ -492,9 +500,11 @@ end
 
 function CD:OnEnable()
 	self:RegisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
+	self:RegisterMessage("CONSPICUOUS_SPIRITS_SPEC")
 end
 
 function CD:OnDisable()
 	self:UnregisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
+	self:UnregisterMessage("CONSPICUOUS_SPIRITS_SPEC")
 	CDOnUpdateFrame:Hide()
 end
