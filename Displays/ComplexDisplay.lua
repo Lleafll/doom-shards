@@ -76,7 +76,7 @@ local function update()
 				end
 			end
 			orbFrame:Show()
-			SATimers[i]:Hide()
+			if textEnable then SATimers[i]:Hide() end
 			statusbars[i]:Hide()
 			
 		else
@@ -98,7 +98,7 @@ local function update()
 	end
 	
 	for m = k, statusbarCount do
-		SATimers[m]:Hide()
+		if textEnable then SATimers[m]:Hide() end
 		statusbars[m]:Hide()
 	end
 end
