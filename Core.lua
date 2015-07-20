@@ -510,13 +510,12 @@ end
 
 do
 	local aggressiveCachingTimer
-	local updateTimer
 	
 	function CS:PLAYER_REGEN_DISABLED()
 		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		orbs = UnitPower("player", 13)
 		
-		if self.db.aggressiveCaching then
+		if self.db.aggressiveCaching then		
 			if not aggressiveCachingTimer or self:TimeLeft(aggressiveCachingTimer) == 0 then
 				aggressiveCachingTimer = self:ScheduleRepeatingTimer("AggressiveCaching", aggressiveCachingInterval)
 			end
@@ -531,23 +530,26 @@ do
 			self:EndTestMode()
 		end
 	end
-end
 
-function CS:PLAYER_REGEN_ENABLED()  -- player left combat or died
-	orbs = UnitPower("player", 13)
-	self:EndTestMode()
-	
-	if not self.db.calculateOutOfCombat then
-		self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		self:ResetCount()
-	elseif UnitIsDead("player") then
-		self:ResetCount()
-	else
-		self:Update()
+	function CS:PLAYER_REGEN_ENABLED()  -- player left combat or died
+		orbs = UnitPower("player", 13)
+		self:EndTestMode()
+		
+		if not self.db.calculateOutOfCombat then
+			self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+			self:ResetCount()
+			if aggressiveCachingTimer then self:CancelTimer(aggressiveCachingTimer) end
+			self:UnregisterEvent("UNIT_TARGET")
+			self:UnregisterEvent("UPDATE_MOUSEOVER_UNIT")
+			
+		elseif UnitIsDead("player") then
+			self:ResetCount()
+			
+		else
+			self:Update()
+			
+		end
 	end
-	
-	self:UnregisterEvent("UNIT_TARGET")
-	self:UnregisterEvent("UPDATE_MOUSEOVER_UNIT")
 end
 
 do
@@ -585,6 +587,8 @@ do
 	end
 	
 	function CS:TalentsCheck()
+		local EF = self:GetModule("EncounterFixes")
+		
 		self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")  -- does this lead to issues when changing talents when SAs are in flight with out-of-combat-calculation?
 		warningSound = function() end
 		
@@ -594,26 +598,29 @@ do
 			self:RegisterEvent("UNIT_POWER")
 			self:RegisterEvent("PLAYER_ENTERING_WORLD")
 			
-			local EF = self:GetModule("EncounterFixes")
-			
 			if isASSpecced() then
 				self:RegisterEvent("PLAYER_REGEN_DISABLED")
 				self:RegisterEvent("PLAYER_REGEN_ENABLED")
-				if not EF:IsEnabled() then EF:Enable() end
+				EF:Enable()
 				self:Update()
 			
 			else
 				self:UnregisterEvent("PLAYER_REGEN_DISABLED")
 				self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 				self:ResetCount()
-				if EF:IsEnabled() then EF:Disable() end
+				EF:Disable()
 			
 			end
 			
 			self:SendMessage("CONSPICUOUS_SPIRITS_SPEC", true)
+			
 		else
 			self:UnregisterEvent("UNIT_POWER")
 			self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+			self:UnregisterEvent("PLAYER_REGEN_DISABLED")
+			self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+			self:ResetCount()
+			EF:Disable()
 			self:SendMessage("CONSPICUOUS_SPIRITS_SPEC", false)
 			
 		end
@@ -634,6 +641,7 @@ do
 			self:PLAYER_REGEN_ENABLED()
 
 		end
+		
 	end
 end
 

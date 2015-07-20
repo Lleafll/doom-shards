@@ -133,11 +133,13 @@ end
 ----------------
 -- Visibility --
 ----------------
-function CD:CONSPICUOUS_SPIRITS_SPEC(toggle)
-	if toggle then 
+function CD:CONSPICUOUS_SPIRITS_SPEC(isShadow)
+	if isShadow then 
 		CDOnUpdateFrame:Show()
+		CDOnUpdateFrame:RegisterEvents()
 	else
 		CDOnUpdateFrame:Hide()
+		CDOnUpdateFrame:UnregisterEvents()
 	end
 end
 
@@ -193,8 +195,6 @@ do
 	function CDOnUpdateFrame:UnregisterEvents()
 		self:UnregisterAllEvents()
 	end
-	
-	CDOnUpdateFrame:RegisterEvents()
 end
 
 
