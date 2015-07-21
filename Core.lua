@@ -451,7 +451,6 @@ do
 	end
 	
 	function CS:COMBAT_LOG_EVENT_UNFILTERED(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID, _, _, _, _, _, _, _, _, _, _, _, _, multistrike)
-		
 		if event == "UNIT_DIED" or event == "UNIT_DESTROYED" or event == "PARTY_KILL" or event == "SPELL_INSTAKILL" then
 		
 			self:RemoveGUID(destGUID)
@@ -594,15 +593,12 @@ do
 		
 		if isShadow() then
 			orbs = UnitPower("player", 13)
-			self:Build()
 			self:RegisterEvent("UNIT_POWER")
-			self:RegisterEvent("PLAYER_ENTERING_WORLD")
 			
 			if isASSpecced() then
 				self:RegisterEvent("PLAYER_REGEN_DISABLED")
 				self:RegisterEvent("PLAYER_REGEN_ENABLED")
 				EF:Enable()
-				self:Update()
 			
 			else
 				self:UnregisterEvent("PLAYER_REGEN_DISABLED")
@@ -616,7 +612,6 @@ do
 			
 		else
 			self:UnregisterEvent("UNIT_POWER")
-			self:UnregisterEvent("PLAYER_ENTERING_WORLD")
 			self:UnregisterEvent("PLAYER_REGEN_DISABLED")
 			self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 			self:ResetCount()
@@ -624,6 +619,9 @@ do
 			self:SendMessage("CONSPICUOUS_SPIRITS_SPEC", false)
 			
 		end
+		
+		self:Build()
+		self:Update()
 	end
 
 	function CS:Build()

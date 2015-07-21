@@ -192,6 +192,7 @@ function CS:OnInitialize()
 	end
 	if self.db.debugSA then print("|cFF814eaaConspicuous Spirits|r: debugging SATimers enabled") end
 	
+	self:RegisterEvent("PLAYER_ENTERING_WORLD")
 	-- will fire once for every talent tier after player is in-game and ultimately initialize events and displays if player is Shadow
 	self:RegisterEvent("PLAYER_TALENT_UPDATE", "TalentsCheck")
 end

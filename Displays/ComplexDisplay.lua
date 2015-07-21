@@ -64,7 +64,7 @@ local borderBackdrop = {
 ---------------
 -- Functions --
 ---------------
-local function update()	
+local function update()
 	for i = 1, statusbarCount do
 		if orbs >= i then
 			local orbFrame = orbFrames[i]
@@ -149,6 +149,7 @@ do
 	
 	function CDOnUpdateFrame:EvaluateConditionals()
 		local state = SecureCmdOptionParse(visibilityConditionals)
+		--if not CDFrame.fader then return end
 		if state ~= currentState then
 			if state == "hide" then
 				CDFrame.fader:Stop()
@@ -195,6 +196,8 @@ do
 	function CDOnUpdateFrame:UnregisterEvents()
 		self:UnregisterAllEvents()
 	end
+	
+	if GetSpecialization() == 3 then CDOnUpdateFrame:RegisterEvents() end
 end
 
 
@@ -338,6 +341,11 @@ local function buildFrames()
 			parentFrame.elapsed = 0
 			parentFrame.remaining = 0
 			function parentFrame:SetTimer(timerID)
+				
+				--@debug@
+				--print(timerID)
+				--@end-debug@
+			
 				self.remaining = timerID.impactTime - GetTime()
 				self.elapsed = 1
 				if fontColorCacheEnable then
@@ -491,7 +499,7 @@ function CD:Build()
 		buildFader()
 	end
 	CDFrame.fader.fadeOut:SetDuration(db.fadeOutDuration)
-	if CS.locked then CDOnUpdateFrame:Show() end
+	if CS.locked and GetSpecialization() == 3 then CDOnUpdateFrame:Show() end
 end
 
 function CD:OnInitialize()
