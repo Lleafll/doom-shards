@@ -196,8 +196,6 @@ do
 	function CDOnUpdateFrame:UnregisterEvents()
 		self:UnregisterAllEvents()
 	end
-	
-	if GetSpecialization() == 3 then CDOnUpdateFrame:RegisterEvents() end
 end
 
 
@@ -341,11 +339,6 @@ local function buildFrames()
 			parentFrame.elapsed = 0
 			parentFrame.remaining = 0
 			function parentFrame:SetTimer(timerID)
-				
-				--@debug@
-				--print(timerID)
-				--@end-debug@
-			
 				self.remaining = timerID.impactTime - GetTime()
 				self.elapsed = 1
 				if fontColorCacheEnable then
@@ -515,4 +508,17 @@ function CD:OnDisable()
 	self:UnregisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
 	self:UnregisterMessage("CONSPICUOUS_SPIRITS_SPEC")
 	CDOnUpdateFrame:Hide()
+end
+
+function CD:OnEnable()
+	self:RegisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
+	self:RegisterMessage("CONSPICUOUS_SPIRITS_SPEC")
+	if GetSpecialization() == 3 then CDOnUpdateFrame:RegisterEvents() end
+end
+
+function CD:OnDisable()
+	self:UnregisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
+	self:UnregisterMessage("CONSPICUOUS_SPIRITS_SPEC")
+	CDOnUpdateFrame:Hide()
+	CDOnUpdateFrame:UnregisterEvents()
 end
