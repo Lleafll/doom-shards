@@ -126,6 +126,20 @@ EF:RegisterEncounter(1794, function()
 			EF:RegisterEvent("UNIT_ENTERED_VEHICLE", function()  -- not sure if this event fires correctly
 				CS:HideGUID(GUID)
 			end)
+			
+			-- untested
+			-- Socrethar returning to construct
+			EF:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
+				local GUID = UnitGUID("boss2")
+				if EF:GetNPCID(GUID) == 92330 then  -- Soul of Socrethar
+					EF:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
+					EF:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function()
+						CS:Debug("Soul Returning to Construct")
+						CS:RemoveGUID(GUID)
+					end)
+				end
+			end)
+			
 		end
 	end)
 end)
