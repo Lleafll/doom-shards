@@ -138,8 +138,10 @@ end)
 
 -- Archimonde
 EF:RegisterEncounter(1799, function()
+	-- check for overkill since there isn't always a death event for the Doomfire Spirits 
+	EF:CheckForOverkill()
+
 	EF:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, ...)
-		-- not properly tested
 		-- entering/leaving Twisting Nether
 		if ... == 186952 and destGUID == UnitGUID("player") and (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") then  -- Nether Banish when inside Nether
 			
@@ -152,29 +154,13 @@ EF:RegisterEncounter(1799, function()
 		-- Void Stars despawn after knocking players away without triggering death event
 		elseif event == "SPELL_AURA_REMOVED" and (... == 189895 or ... == 190806 or ... == 190807 or ... == 190808) then  -- Void Star Fixate, check if all spell IDs are actually used later
 			CS:RemoveGUID(sourceGUID)
-			
-			
-		-- untested
-		-- check for overkill since there isn't always a death event for the Doomfire Spirits 
-		elseif event == "SWING_DAMAGE" then
-			_, overkill = ...
-			if overkill > 0 then
-				CS:RemoveGUID(destGUID)
-			end
-			
-		elseif event == "SPELL_DAMAGE" or event == "SPELL_PERIODIC_DAMAGE" or event == "RANGE_DAMAGE" then
-			_, _, _, _, overkill = ...
-			if overkill > 0 then
-				CS:RemoveGUID(destGUID)
-			end
-			
+		
 		end
 	end)
 end)
 
 -- Xhul'horac
 EF:RegisterEncounter(1800, function()
-	-- untested
 	-- hitbox fix
 	EF:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
 		if UnitExists("boss1") then 

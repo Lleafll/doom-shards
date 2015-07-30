@@ -33,8 +33,9 @@ function EF:HideAfter(seconds, GUID)
 	end)
 end
 
+local OverkillHandler = CreateFrame("frame")
 function EF:CheckForOverkill()
-	self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, _, event, _, _, _, _, _, destGUID, destName, _, _, ...)
+	OverkillHandler:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, _, event, _, _, _, _, _, destGUID, destName, _, _, ...)
 		if event == "SWING_DAMAGE" then
 			_, overkill = ...
 			if overkill > 0 then
@@ -72,6 +73,7 @@ end
 function EF:UnregisterEvents()
 	self:UnregisterAllEvents()  -- is this hacky? it's convenient…
 	self:RegisterEvents()
+	OverkillHandler:UnregisterAllEvents()
 end
 
 function EF:OnEnable()
