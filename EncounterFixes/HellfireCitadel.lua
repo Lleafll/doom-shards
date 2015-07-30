@@ -122,9 +122,14 @@ EF:RegisterEncounter(1794, function()
 	EF:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
 		local GUID = UnitGUID("boss1")
 		if EF:GetNPCID(GUID) == 90296 then  -- Soulbound Construct
-			EF:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
-			EF:RegisterEvent("UNIT_ENTERED_VEHICLE", function()  -- not sure if this event fires correctly
-				CS:HideGUID(GUID)
+			
+			-- untested
+			-- Socrethar gets ejected
+			EF:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED", function(_, _, _, _, spellID)
+				if spellID == 183023 then 
+					CS:Debug("Eject Soul")
+					CS:RemoveGUID(GUID)
+				end
 			end)
 			
 			-- untested
