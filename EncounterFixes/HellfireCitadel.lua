@@ -138,9 +138,11 @@ EF:RegisterEncounter(1794, function()
 				local GUID = UnitGUID("boss2")
 				if EF:GetNPCID(GUID) == 92330 then  -- Soul of Socrethar
 					EF:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
-					EF:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function()
-						CS:Debug("Soul Returning to Construct")
-						CS:RemoveGUID(GUID)
+					EF:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
+						if spellID == 190466 and  event == "SPELL_AURA_REMOVED" then  -- Incomplete Binding
+							CS:Debug("Soul Returning to Construct")
+							CS:RemoveGUID(GUID)
+						end
 					end)
 				end
 			end)
@@ -160,18 +162,14 @@ EF:RegisterEncounter(1799, function()
 	-- check for overkill since there isn't always a death event for the Doomfire Spirits 
 	EF:CheckForOverkill()
 
-	EF:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, ...)
+	EF:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
 		-- entering/leaving Twisting Nether
-		if ... == 186952 and destGUID == UnitGUID("player") and (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") then  -- Nether Banish when inside Nether
-			
-			-- debug
-			CS:Debug("Entered/left Twisting Nether")
-			
+		if spellID == 186952 and destGUID == UnitGUID("player") and (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") then  -- Nether Banish when inside Nether			
 			CS:HideAllGUIDs()
 			
 		-- untested
 		-- Void Stars despawn after knocking players away without triggering death event
-		elseif event == "SPELL_AURA_REMOVED" and (... == 189895 or ... == 190806 or ... == 190807 or ... == 190808) then  -- Void Star Fixate, check if all spell IDs are actually used later
+		elseif event == "SPELL_AURA_REMOVED" and (spellID == 189895 or spellID == 190806 or spellID == 190807 or spellID == 190808) then  -- Void Star Fixate, check if all spell IDs are actually used later
 			CS:RemoveGUID(sourceGUID)
 		
 		end
