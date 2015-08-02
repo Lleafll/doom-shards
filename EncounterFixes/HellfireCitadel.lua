@@ -89,6 +89,9 @@ end)
 
 -- Kilrogg
 EF:RegisterEncounter(1786, function()
+	-- Fel Blood Globules, Hellblaze Fiends, and Hellblaze Mistresses don't fire death events
+	EF:CheckForOverkill()
+	
 	-- player entering/leaving Vision of Death
 	EF:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
 		if spellID == 181488 and destGUID == UnitGUID("player") and (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") then  -- Vision of Death
