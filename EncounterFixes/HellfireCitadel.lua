@@ -46,17 +46,8 @@ end)
 
 -- Gorefiend
 EF:RegisterEncounter(1783, function()
-	-- fix for Gorefiend's massive hitbox
-	EF:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
-		if UnitExists("boss1") then 
-			CS:SetSATimeCorrection(UnitGUID("boss1"), 4)
-			EF:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
-			-- in case player dies and gets resurrected
-			EF:RegisterEvent("PLAYER_ALIVE", function()
-				CS:SetSATimeCorrection(UnitGUID("boss1"), 4)
-			end)
-		end
-	end)
+	EF:SetHitboxSize("boss1", 4)
+
 	-- Missing: Shadowy Construct leaving stomach after SA spawn won't generate orbs (not critical since it should be weeded out by range check)
 	EF:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
 		-- entering/leaving stomach
@@ -73,18 +64,7 @@ end)
 
 -- Iron Reaver
 EF:RegisterEncounter(1785, function()
-	-- fix for Iron Reaver's hitbox
-	EF:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
-		if UnitExists("boss1") then 
-			local GUID = UnitGUID("boss1")
-			CS:SetSATimeCorrection(GUID, 4)
-			EF:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
-			-- in case player dies and gets resurrected
-			EF:RegisterEvent("PLAYER_ALIVE", function()
-				CS:SetSATimeCorrection(GUID, 4)
-			end)
-		end
-	end)
+	EF:SetHitboxSize("boss1", 4)
 end)
 
 -- Kilrogg
@@ -99,18 +79,7 @@ end)
 
 -- Kormrok
 EF:RegisterEncounter(1787, function()
-	-- hitbox fix
-	EF:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
-		if UnitExists("boss1") then 
-			local GUID = UnitGUID("boss1")
-			CS:SetSATimeCorrection(GUID, 3.5)
-			EF:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
-			-- in case player dies and gets resurrected
-			EF:RegisterEvent("PLAYER_ALIVE", function()
-				CS:SetSATimeCorrection(GUID, 3.5)
-			end)
-		end
-	end)
+	EF:SetHitboxSize("boss1", 3.5)
 end)
 
 -- Socrethar
@@ -166,16 +135,5 @@ end)
 
 -- Xhul'horac
 EF:RegisterEncounter(1800, function()
-	-- hitbox fix
-	EF:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
-		if UnitExists("boss1") then 
-			local GUID = UnitGUID("boss1")
-			CS:SetSATimeCorrection(GUID, 2.5)
-			EF:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
-			-- in case player dies and gets resurrected
-			EF:RegisterEvent("PLAYER_ALIVE", function()
-				CS:SetSATimeCorrection(GUID, 2.5)
-			end)
-		end
-	end)
+	EF:SetHitboxSize("boss1", 2.5)
 end)

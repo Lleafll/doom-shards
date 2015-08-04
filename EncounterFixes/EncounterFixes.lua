@@ -53,10 +53,25 @@ do
 		end)
 	end
 end
+
+function EF:SetHitboxSize(mob, size)
+	if type(mob) == "string" then
+		EF:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
+			if UnitExists(mob) then 
+				local GUID = UnitGUID(mob)
+				CS:SetSATimeCorrection(GUID, size)
+				EF:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
+				-- in case player dies and gets resurrected
+				EF:RegisterEvent("PLAYER_ALIVE", function()
+					CS:SetSATimeCorrection(GUID, size)
+				end)
 			end
-			
-		end
-	end)
+		end)
+		
+	elseif type(mob) == "number" then
+		
+		
+	end
 end
 
 do
