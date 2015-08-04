@@ -89,9 +89,6 @@ end)
 
 -- Kilrogg
 EF:RegisterEncounter(1786, function()
-	-- Fel Blood Globules, Hellblaze Fiends, and Hellblaze Mistresses don't fire death events
-	EF:CheckForOverkill()
-	
 	-- player entering/leaving Vision of Death
 	EF:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
 		if spellID == 181488 and destGUID == UnitGUID("player") and (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") then  -- Vision of Death
@@ -118,9 +115,6 @@ end)
 
 -- Socrethar
 EF:RegisterEncounter(1794, function()
-	-- Crystalline Fel Prisons don't fire death events
-	EF:CheckForOverkill()
-	
 	-- raid member entering Soulbound Construct making it friendly
 	EF:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
 		local GUID = UnitGUID("boss1")
@@ -154,17 +148,8 @@ EF:RegisterEncounter(1794, function()
 	end)
 end)
 
--- Hellfire High Council
-EF:RegisterEncounter(1798, function()
-	-- search for overkill since there isn't always a death event for Blademaster Jubei'thos' Mirror Images
-	EF:CheckForOverkill()
-end)
-
 -- Archimonde
 EF:RegisterEncounter(1799, function()
-	-- check for overkill since there isn't always a death event for the Doomfire Spirits 
-	EF:CheckForOverkill()
-
 	EF:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
 		-- entering/leaving Twisting Nether
 		if spellID == 186952 and destGUID == UnitGUID("player") and (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") then  -- Nether Banish when inside Nether			

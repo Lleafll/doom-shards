@@ -60,14 +60,6 @@ EF:RegisterEncounter(1694, function()
 			end)
 		end
 	end)
-	-- search for overkill since there isn't always a death event for the spears
-	EF:CheckForOverkill()
-end)
-
--- Oregorger
-EF:RegisterEncounter(1696, function()
-	-- missing death events on Ore Crates
-	EF:CheckForOverkill()
 end)
 
 -- Blackhand
