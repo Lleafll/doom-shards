@@ -14,6 +14,6 @@ local EF = CS:GetModule("EncounterFixes")
 -- Alysrazor
 EF:RegisterEncounter(1206, function()
 	print("Alysrazor engaged")
-	EF:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED",  "CheckForOverkill")
+	--EF:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED",  "CheckForOverkill")
 end)
 --@end-debug@

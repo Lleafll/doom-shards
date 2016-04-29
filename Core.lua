@@ -450,14 +450,33 @@ do
 		end
 	end
 	
-	function CS:COMBAT_LOG_EVENT_UNFILTERED(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID, _, _, _, _, _, _, _, _, _, _, _, _, multistrike)
+	function CS:COMBAT_LOG_EVENT_UNFILTERED(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, ...)
 		if event == "UNIT_DIED" or event == "UNIT_DESTROYED" or event == "PARTY_KILL" or event == "SPELL_INSTAKILL" then
 		
 			self:RemoveGUID(destGUID)
-			
-			
-		elseif sourceGUID == playerGUID then
+			return
 		
+		end
+		
+		-- Check for overkill because in some cases events don't fire when mobs die
+		if event == "SWING_DAMAGE" then
+			
+			local _, overkill = ...
+			if overkill > 0 then
+				self:RemoveGUID(destGUID)
+			end
+			
+		elseif event == "SPELL_DAMAGE" or event == "SPELL_PERIODIC_DAMAGE" or event == "RANGE_DAMAGE" then
+			
+			local _, _, _, _, overkill = ...
+			if overkill > 0 then
+				self:RemoveGUID(destGUID)
+			end
+			
+		end
+			
+		if sourceGUID == playerGUID then
+			local spellID, _, _, _, _, _, _, _, _, _, _, _, _, multistrike = ...
 			-- Shadowy Apparition cast
 			if spellID == 147193 and destName ~= nil then  -- SAs without a target won't generate orbs
 				self:AddGUID(destGUID)
