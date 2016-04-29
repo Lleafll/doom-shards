@@ -56,7 +56,7 @@ EF:RegisterEncounter(1783, function()
 			
 			-- Enraged Spirit
 		elseif spellID == 182557 and event == "SPELL_CAST_SUCCESS" then  -- Slam
-			EF:HideAfter(5, sourceGUID)
+			EF:RemoveAfter(5, sourceGUID)
 			
 		end
 	end)
@@ -86,34 +86,32 @@ end)
 EF:RegisterEncounter(1794, function()
 	-- raid member entering Soulbound Construct making it friendly
 	EF:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
-		local GUID = UnitGUID("boss1")
-		if EF:GetNPCID(GUID) == 90296 then  -- Soulbound Construct
-			
-			-- untested
-			-- Socrethar gets ejected
+		local constructGUID = UnitGUID("boss1")
+		local socretharGUID = UnitGUID("boss2")
+		
+		-- untested
+		-- Socrethar returning to construct
+		if EF:GetNPCID(socretharGUID) == 92330 then  -- Soul of Socrethar
+			EF:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
+			EF:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
+				if spellID == 190466 and event == "SPELL_AURA_REMOVED" then  -- Incomplete Binding
+					CS:Debug("Soul Returning to Construct")
+					CS:RemoveGUID(socretharGUID)
+				end
+			end)
+		
+		-- untested
+		-- Socrethar gets ejected
+		elseif EF:GetNPCID(constructGUID) == 90296 then  -- Soulbound Construct
 			EF:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED", function(_, _, _, _, spellID)
 				if spellID == 183023 then 
 					CS:Debug("Eject Soul")
-					CS:RemoveGUID(GUID)
-				end
-			end)
-			
-			-- untested
-			-- Socrethar returning to construct
-			EF:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", function()
-				local GUID = UnitGUID("boss2")
-				if EF:GetNPCID(GUID) == 92330 then  -- Soul of Socrethar
-					EF:UnregisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
-					EF:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
-						if spellID == 190466 and  event == "SPELL_AURA_REMOVED" then  -- Incomplete Binding
-							CS:Debug("Soul Returning to Construct")
-							CS:RemoveGUID(GUID)
-						end
-					end)
+					CS:RemoveGUID(constructGUID)
 				end
 			end)
 			
 		end
+		
 	end)
 end)
 
@@ -124,7 +122,7 @@ EF:RegisterEncounter(1799, function()
 		if spellID == 186952 and destGUID == UnitGUID("player") and (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") then  -- Nether Banish when inside Nether			
 			CS:HideAllGUIDs()
 			
-		-- untested
+		-- untested (hope it stays that way)
 		-- Void Stars despawn after knocking players away without triggering death event
 		elseif event == "SPELL_AURA_REMOVED" and (spellID == 189895 or spellID == 190806 or spellID == 190807 or spellID == 190808) then  -- Void Star Fixate, check if all spell IDs are actually used later
 			CS:RemoveGUID(sourceGUID)
