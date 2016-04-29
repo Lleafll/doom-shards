@@ -505,9 +505,9 @@ do
 					end
 					-- to avoid jittery counter
 					if event == "SPELL_DAMAGE" and orbs < 5 then
-						-- the assumption is that any of these events fire before/at the moment of the respective UNIT_POWER
+						-- the assumption is that any of these events fire before/at the moment of the respective UNIT_POWER_FREQUENT
 						orbs = orbs + 1
-						self:UNIT_POWER("UNIT_POWER", "player", "SHADOW_ORBS")  -- fail safe in case the corresponding UNIT_POWER fires wonkily
+						self:UNIT_POWER_FREQUENT("UNIT_POWER_FREQUENT", "player", "SHADOW_ORBS")  -- fail safe in case the corresponding UNIT_POWER_FREQUENT fires wonkily
 					end
 					-- update cached distances if over cacheMaxTime (fallback for regular scanning)
 					if distanceCache[destGUID] and currentTime > distanceCache[destGUID].timeStamp + cacheMaxTime then
@@ -578,7 +578,7 @@ do
 		CS:Update()
 	end
 	
-	function CS:UNIT_POWER(_, unitID, power)
+	function CS:UNIT_POWER_FREQUENT(_, unitID, power)
 		if not (unitID == "player" and power == "SHADOW_ORBS") then return end
 		C_TimerAfter(delay, delayOrbs)  -- needs to be delayed so it fires after the SA events, otherwise everything will assume the SA is still in flight
 	end
@@ -612,7 +612,7 @@ do
 		
 		if isShadow() then
 			orbs = UnitPower("player", 13)
-			self:RegisterEvent("UNIT_POWER")
+			self:RegisterEvent("UNIT_POWER_FREQUENT")
 			
 			if isASSpecced() then
 				self:RegisterEvent("PLAYER_REGEN_DISABLED")
@@ -630,7 +630,7 @@ do
 			self:SendMessage("CONSPICUOUS_SPIRITS_SPEC", true)
 			
 		else
-			self:UnregisterEvent("UNIT_POWER")
+			self:UnregisterEvent("UNIT_POWER_FREQUENT")
 			self:UnregisterEvent("PLAYER_REGEN_DISABLED")
 			self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 			self:ResetCount()
