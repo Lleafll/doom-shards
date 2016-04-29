@@ -600,7 +600,7 @@ do
 	end
 	
 	local function isASSpecced()
-		local _, _, _, ASSpecced = GetTalentInfo(7, 3, GetActiveSpecGroup())
+		local _, _, _, ASSpecced = GetTalentInfo(5, 2, GetActiveSpecGroup())
 		return ASSpecced
 	end
 	
