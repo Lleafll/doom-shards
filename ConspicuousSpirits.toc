@@ -1,4 +1,4 @@
-## Interface: 60200
+## Interface: 70000
 ## Title: Conspicuous Spirits
 ## Author: Lleaf
 ## Version: @project-version@
@@ -45,8 +45,6 @@ EncounterFixes\Dev.lua
 
 Displays\ComplexDisplayConfig.lua
 Displays\ComplexDisplay.lua
-Displays\SimpleDisplayConfig.lua
-Displays\SimpleDisplay.lua
 Displays\WeakaurasConfig.lua
 Displays\Weakauras.lua
 Displays\Sound.lua
