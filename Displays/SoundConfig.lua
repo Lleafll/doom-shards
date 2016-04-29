@@ -1,16 +1,16 @@
 ----------------------
 -- Get addon object --
 ----------------------
-local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
-if not CS then return end
+local DS = LibStub("AceAddon-3.0"):GetAddon("Doom Shards", true)
+if not DS then return end
 
 
 ---------------
 -- Libraries --
 ---------------
-local L = LibStub("AceLocale-3.0"):GetLocale("ConspicuousSpirits")
+local L = LibStub("AceLocale-3.0"):GetLocale("DoomShards")
 local LSM = LibStub("LibSharedMedia-3.0")
-LSM:Register("sound", "Droplet", "Interface\\addons\\ConspicuousSpirits\\Media\\CSDroplet.mp3")
+LSM:Register("sound", "Droplet", "Interface\\addons\\DoomShards\\Media\\DSDroplet.mp3")
 
 
 -------------
@@ -22,8 +22,8 @@ local function displayOptions()
 		type = "group",
 		name = L["Sound"],
 		cmdHidden = true,
-		get = function(info) return CS.db.warningSound[info[#info]] end,
-		set = function(info, value) CS.db.warningSound[info[#info]] = value; CS:Build() end,
+		get = function(info) return DS.db.warningSound[info[#info]] end,
+		set = function(info, value) DS.db.warningSound[info[#info]] = value; DS:Build() end,
 		args = {
 			enable = {
 				order = 1,
@@ -57,8 +57,8 @@ local function displayOptions()
 				order = 4,
 				type = "multiselect",
 				name = L["Instance Type"],
-				get = function(info, key) return CS.db.warningSound[info[#info]][key] end,
-				set = function(info, key, value) CS.db.warningSound[info[#info]][key] = value; CS:Build() end,
+				get = function(info, key) return DS.db.warningSound[info[#info]][key] end,
+				set = function(info, key, value) DS.db.warningSound[info[#info]][key] = value; DS:Build() end,
 				values = {
 					none = L["No Instance"],
 					scenario = L["Scenario"],
@@ -86,4 +86,4 @@ local defaultSettings = {
 	}
 }
 
-CS:AddDisplayOptions("warningSound", displayOptions, defaultSettings)
+DS:AddDisplayOptions("warningSound", displayOptions, defaultSettings)

@@ -1,15 +1,15 @@
 local _, class = UnitClass("player")
-if class ~= "PRIEST" then return end
+if class ~= "WARLOCK" then return end
 
-local CS = LibStub("AceAddon-3.0"):NewAddon("Conspicuous Spirits", "AceEvent-3.0", "AceTimer-3.0", "AceConsole-3.0")
-local L = LibStub("AceLocale-3.0"):GetLocale("ConspicuousSpirits")
+local DS = LibStub("AceAddon-3.0"):NewAddon("Doom Shards", "AceEvent-3.0", "AceTimer-3.0", "AceConsole-3.0")
+local L = LibStub("AceLocale-3.0"):GetLocale("DoomShards")
 local ACR = LibStub("AceConfigRegistry-3.0")
 
 
 ----------------
 -- API Object --
 ----------------
-ConspicuousSpirits = {}
+DoomShards = {}
 
 
 ---------------
@@ -30,16 +30,16 @@ do
 		self:SetUserPlaced(false)
 		
 		local _, anchorFrame, anchor, posX, posY = self:GetPoint()
-		CS.db[moduleName].anchor = anchor
-		CS.db[moduleName].anchorFrame = anchorFrame and anchorFrame:GetName() or "UIParent"
-		CS.db[moduleName].posX = posX
-		CS.db[moduleName].posY = posY
+		DS.db[moduleName].anchor = anchor
+		DS.db[moduleName].anchorFrame = anchorFrame and anchorFrame:GetName() or "UIParent"
+		DS.db[moduleName].posX = posX
+		DS.db[moduleName].posY = posY
 		
-		ACR:NotifyChange("Conspicuous Spirits")
+		ACR:NotifyChange("Doom Shards")
 	end
 	
 	-- frame factory for all display modules' parent frames
-	function CS:CreateParentFrame(name, moduleName)
+	function DS:CreateParentFrame(name, moduleName)
 		local frame = CreateFrame("frame", name, UIParent)
 		frame:SetFrameStrata("LOW")
 		frame:SetMovable(true)
@@ -56,7 +56,7 @@ do
 			
 			self:SetScript("OnEnter", function(self)
 				GameTooltip:SetOwner(self, "ANCHOR_TOP")
-				GameTooltip:AddLine("Conspicuous Spirits", 0.51, 0.31, 0.67, 1, 1, 1)
+				GameTooltip:AddLine("Doom Shards", 0.51, 0.31, 0.67, 1, 1, 1)
 				GameTooltip:AddLine(L["dragFrameTooltip"], 1, 1, 1, 1, 1, 1)
 				GameTooltip:Show()
 			end)
@@ -68,7 +68,7 @@ do
 			self:SetScript("OnMouseDown", function(self, button)
 				if button == "RightButton" then
 					dragStop(self, moduleName)  -- in case user right clicks while dragging the frame
-					CS:Lock()
+					DS:Lock()
 				elseif button == "LeftButton" then
 					self:StartMoving()
 				end
@@ -80,11 +80,11 @@ do
 			
 			self:SetScript("OnMouseWheel", function(self, delta)
 				if IsShiftKeyDown() then
-					CS.db[moduleName].posX = CS.db[moduleName].posX + delta
+					DS.db[moduleName].posX = DS.db[moduleName].posX + delta
 				else
-					CS.db[moduleName].posY = CS.db[moduleName].posY + delta
+					DS.db[moduleName].posY = DS.db[moduleName].posY + delta
 				end
-				self:SetPoint(CS.db[moduleName].anchor, CS.db[moduleName].posX, CS.db[moduleName].posY)
+				self:SetPoint(DS.db[moduleName].anchor, DS.db[moduleName].posX, DS.db[moduleName].posY)
 			end)
 		end
 		
@@ -103,8 +103,8 @@ do
 	end
 end
 
-function CS:Unlock()
-	print(L["Conspicuous Spirits unlocked!"])
+function DS:Unlock()
+	print(L["Doom Shards unlocked!"])
 	self:EndTestMode()
 	self.locked = false
 	for name, module in self:IterateModules() do
@@ -116,8 +116,8 @@ function CS:Unlock()
 	self:Build()
 end
 
-function CS:Lock()
-	if not self.locked then print(L["Conspicuous Spirits locked!"]) end
+function DS:Lock()
+	if not self.locked then print(L["Doom Shards locked!"]) end
 	self.locked = true
 	for name, module in self:IterateModules() do
 		if self.db[name] and self.db[name].enable then
@@ -135,19 +135,19 @@ end
 do
 	local debugFrame
 
-	function CS:Debug(message)
+	function DS:Debug(message)
 		if not self.db.debug then return end
 		message = tostring(message)  -- in case message == nil and for contentation
 		if debugFrame then
 			debugFrame:AddMessage(message)
 		end
-		print("|cFF814eaaConspicuous Spirits|r Debug: "..message)
+		print("|cFF814eaaDoom Shards|r Debug: "..message)
 	end
 	
 	-- client needs to get reloaded for this
-	function CS:DebugCheckChatWindows()
+	function DS:DebugCheckChatWindows()
 		for i = 1, NUM_CHAT_WINDOWS do
-			if GetChatWindowInfo(i) == "CS Debug" then
+			if GetChatWindowInfo(i) == "DS Debug" then
 				debugFrame = _G["ChatFrame"..tostring(i)]
 				return true
 			end
@@ -159,11 +159,11 @@ end
 --------------------
 -- Initialization --
 --------------------
-function CS:ApplySettings()
+function DS:ApplySettings()
 	for name, module in self:IterateModules() do
 		if self.db[name] and self.db[name].enable then
 			module:Enable()
-			if not CS.locked and module.frame then module.frame:Unlock() end
+			if not DS.locked and module.frame then module.frame:Unlock() end
 			if module.Build then module:Build() end
 		else
 			module:Disable()
@@ -172,13 +172,13 @@ function CS:ApplySettings()
 	end
 end
 
-function CS:OnInitialize()
+function DS:OnInitialize()
 	self.locked = true
 	
 	-- database
-	local CSDB = LibStub("AceDB-3.0"):New("ConspicuousSpiritsDB", self.defaultSettings, true)
-	self.db = CSDB.global
-	function self:ResetDB() CSDB:ResetDB() end
+	local DSDB = LibStub("AceDB-3.0"):New("DoomShardsDB", self.defaultSettings, true)
+	self.db = DSDB.global
+	function self:ResetDB() DSDB:ResetDB() end
 	
 	-- debugging
 	if not isAlpha then  -- automatically reset debug values if version isn't alpha
@@ -187,10 +187,10 @@ function CS:OnInitialize()
 	end
 	local debugFrameExists = self:DebugCheckChatWindows()
 	if self.db.debug then 
-		print("|cFF814eaaConspicuous Spirits|r: debugging enabled")
-		if not debugFrameExists then print("|cFF814eaaConspicuous Spirits|r: Create chat window named \"CS Debug\" for separate output.") end
+		print("|cFF814eaaDoom Shards|r: debugging enabled")
+		if not debugFrameExists then print("|cFF814eaaDoom Shards|r: Create chat window named \"DS Debug\" for separate output.") end
 	end
-	if self.db.debugSA then print("|cFF814eaaConspicuous Spirits|r: debugging SATimers enabled") end
+	if self.db.debugSA then print("|cFF814eaaDoom Shards|r: debugging SATimers enabled") end
 	
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
 	-- will fire once for every talent tier after player is in-game and ultimately initialize events and displays if player is Shadow

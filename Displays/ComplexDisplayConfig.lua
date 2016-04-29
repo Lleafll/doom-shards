@@ -1,14 +1,14 @@
 ----------------------
 -- Get addon object --
 ----------------------
-local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
-if not CS then return end
+local DS = LibStub("AceAddon-3.0"):GetAddon("Doom Shards", true)
+if not DS then return end
 
 
 ---------------
 -- Libraries --
 ---------------
-local L = LibStub("AceLocale-3.0"):GetLocale("ConspicuousSpirits")
+local L = LibStub("AceLocale-3.0"):GetLocale("DoomShards")
 local LSM = LibStub("LibSharedMedia-3.0")
 
 
@@ -22,8 +22,8 @@ local function displayOptions()
 		name = L["Complex Display"],
 		childGroups = "select",
 		cmdHidden  = true,
-		get = function(info) return CS.db.complex[info[#info]] end,
-		set = function(info, value) CS.db.complex[info[#info]] = value; CS:Build() end,
+		get = function(info) return DS.db.complex[info[#info]] end,
+		set = function(info, value) DS.db.complex[info[#info]] = value; DS:Build() end,
 		args = {
 			enable = {
 				order = 1,
@@ -38,7 +38,7 @@ local function displayOptions()
 					height = {
 						order = 1,
 						type = "range",
-						name = function() if CS.db.complex.orientation == "Vertical" then return L["Width"] else return L["Height"] end end,
+						name = function() if DS.db.complex.orientation == "Vertical" then return L["Width"] else return L["Height"] end end,
 						min = 1,
 						max = 100,
 						step = 1
@@ -46,7 +46,7 @@ local function displayOptions()
 					width = {
 						order = 2,
 						type = "range",
-						name = function() if CS.db.complex.orientation == "Vertical" then return L["Height"] else return L["Width"] end end,
+						name = function() if DS.db.complex.orientation == "Vertical" then return L["Height"] else return L["Width"] end end,
 						min = 1,
 						max = 100,
 						step = 1
@@ -70,12 +70,12 @@ local function displayOptions()
 						name = L["Color 1"],
 						hasAlpha = true,
 						get = function()
-							local r, b, g, a = CS.db.complex.color1.r, CS.db.complex.color1.b, CS.db.complex.color1.g, CS.db.complex.color1.a
+							local r, b, g, a = DS.db.complex.color1.r, DS.db.complex.color1.b, DS.db.complex.color1.g, DS.db.complex.color1.a
 							return r, b, g, a
 						end,
 						set = function(info, r, b, g, a)
-							CS.db.complex.color1.r, CS.db.complex.color1.b, CS.db.complex.color1.g, CS.db.complex.color1.a = r, b, g, a
-							CS:Build()
+							DS.db.complex.color1.r, DS.db.complex.color1.b, DS.db.complex.color1.g, DS.db.complex.color1.a = r, b, g, a
+							DS:Build()
 						end
 					},
 					color2 = {
@@ -84,12 +84,12 @@ local function displayOptions()
 						name = L["Color 2"],
 						hasAlpha = true,
 						get = function()
-							local r, b, g, a = CS.db.complex.color2.r, CS.db.complex.color2.b, CS.db.complex.color2.g, CS.db.complex.color2.a
+							local r, b, g, a = DS.db.complex.color2.r, DS.db.complex.color2.b, DS.db.complex.color2.g, DS.db.complex.color2.a
 							return r, b, g, a
 						end,
 						set = function(info, r, b, g, a)
-							CS.db.complex.color2.r, CS.db.complex.color2.b, CS.db.complex.color2.g, CS.db.complex.color2.a = r, b, g, a
-							CS:Build()
+							DS.db.complex.color2.r, DS.db.complex.color2.b, DS.db.complex.color2.g, DS.db.complex.color2.a = r, b, g, a
+							DS:Build()
 						end
 					},
 					spacer2 = {
@@ -109,11 +109,11 @@ local function displayOptions()
 						name = L["Color When Orb Capped"],
 						hasAlpha = true,
 						get = function()
-							return CS.db.complex.orbCappedColor.r, CS.db.complex.orbCappedColor.b, CS.db.complex.orbCappedColor.g, CS.db.complex.orbCappedColor.a
+							return DS.db.complex.orbCappedColor.r, DS.db.complex.orbCappedColor.b, DS.db.complex.orbCappedColor.g, DS.db.complex.orbCappedColor.a
 						end,
 						set = function(info, r, b, g, a)
-							CS.db.complex.orbCappedColor.r, CS.db.complex.orbCappedColor.b, CS.db.complex.orbCappedColor.g, CS.db.complex.orbCappedColor.a = r, b, g, a
-							CS:Build()
+							DS.db.complex.orbCappedColor.r, DS.db.complex.orbCappedColor.b, DS.db.complex.orbCappedColor.g, DS.db.complex.orbCappedColor.a = r, b, g, a
+							DS:Build()
 						end
 					},
 					spacer3 = {
@@ -134,11 +134,11 @@ local function displayOptions()
 						name = L["Border Color"],
 						hasAlpha = true,
 						get = function()
-							return CS.db.complex.borderColor.r, CS.db.complex.borderColor.b, CS.db.complex.borderColor.g, CS.db.complex.borderColor.a
+							return DS.db.complex.borderColor.r, DS.db.complex.borderColor.b, DS.db.complex.borderColor.g, DS.db.complex.borderColor.a
 						end,
 						set = function(info, r, b, g, a)
-							CS.db.complex.borderColor.r, CS.db.complex.borderColor.b, CS.db.complex.borderColor.g, CS.db.complex.borderColor.a = r, b, g, a
-							CS:Build()
+							DS.db.complex.borderColor.r, DS.db.complex.borderColor.b, DS.db.complex.borderColor.g, DS.db.complex.borderColor.a = r, b, g, a
+							DS:Build()
 						end
 					},
 					alwaysShowBorders = {
@@ -159,8 +159,8 @@ local function displayOptions()
 						desc = L["Regulate display visibility with macro conditionals"],
 						width = "double",
 						set = function(info, val)
-							CS.db.complex.visibilityConditionals = val
-							CS:Build()
+							DS.db.complex.visibilityConditionals = val
+							DS:Build()
 						end
 					},
 					fadeOutDuration = {
@@ -227,11 +227,11 @@ local function displayOptions()
 						name = L["Font Color"],
 						hasAlpha = true,
 						get = function()
-							return CS.db.complex.fontColor.r, CS.db.complex.fontColor.b, CS.db.complex.fontColor.g, CS.db.complex.fontColor.a
+							return DS.db.complex.fontColor.r, DS.db.complex.fontColor.b, DS.db.complex.fontColor.g, DS.db.complex.fontColor.a
 						end,
 						set = function(info, r, b, g, a)
-							CS.db.complex.fontColor.r, CS.db.complex.fontColor.b, CS.db.complex.fontColor.g, CS.db.complex.fontColor.a = r, b, g, a
-							CS:Build()
+							DS.db.complex.fontColor.r, DS.db.complex.fontColor.b, DS.db.complex.fontColor.g, DS.db.complex.fontColor.a = r, b, g, a
+							DS:Build()
 						end
 					},
 					spacer1 = {
@@ -260,11 +260,11 @@ local function displayOptions()
 						name = L["Color for Cache Value"],
 						hasAlpha = true,
 						get = function()
-							return CS.db.complex.fontColorCache.r, CS.db.complex.fontColorCache.b, CS.db.complex.fontColorCache.g, CS.db.complex.fontColorCache.a
+							return DS.db.complex.fontColorCache.r, DS.db.complex.fontColorCache.b, DS.db.complex.fontColorCache.g, DS.db.complex.fontColorCache.a
 						end,
 						set = function(info, r, b, g, a)
-							CS.db.complex.fontColorCache.r, CS.db.complex.fontColorCache.b, CS.db.complex.fontColorCache.g, CS.db.complex.fontColorCache.a = r, b, g, a
-							CS:Build()
+							DS.db.complex.fontColorCache.r, DS.db.complex.fontColorCache.b, DS.db.complex.fontColorCache.g, DS.db.complex.fontColorCache.a = r, b, g, a
+							DS:Build()
 						end
 					},
 					spacer2 = {
@@ -281,18 +281,18 @@ local function displayOptions()
 						max = 1000,
 						step = 1,
 						get = function()
-							local offset = CS.db.complex.orientation == "Vertical" and -CS.db.complex.stringYOffset or CS.db.complex.stringXOffset
-							if (CS.db.complex.growthDirection == "Reversed") and (CS.db.complex.orientation ~= "Vertical") then offset = -offset end
+							local offset = DS.db.complex.orientation == "Vertical" and -DS.db.complex.stringYOffset or DS.db.complex.stringXOffset
+							if (DS.db.complex.growthDirection == "Reversed") and (DS.db.complex.orientation ~= "Vertical") then offset = -offset end
 							return offset
 						end,
 						set = function(info, val)
-							if CS.db.complex.orientation == "Vertical" then
-								CS.db.complex.stringYOffset = -val
+							if DS.db.complex.orientation == "Vertical" then
+								DS.db.complex.stringYOffset = -val
 							else
-								if CS.db.complex.growthDirection == "Reversed" then val = -val end
-								CS.db.complex.stringXOffset = val
+								if DS.db.complex.growthDirection == "Reversed" then val = -val end
+								DS.db.complex.stringXOffset = val
 							end
-							CS:Build()
+							DS:Build()
 						end
 					},
 					stringYOffset = {
@@ -304,18 +304,18 @@ local function displayOptions()
 						max = 1000,
 						step = 1,
 						get = function()
-							local offset = CS.db.complex.orientation == "Vertical" and CS.db.complex.stringXOffset or CS.db.complex.stringYOffset
-							if CS.db.complex.growthDirection == "Reversed" and CS.db.complex.orientation == "Vertical" then offset = -offset end
+							local offset = DS.db.complex.orientation == "Vertical" and DS.db.complex.stringXOffset or DS.db.complex.stringYOffset
+							if DS.db.complex.growthDirection == "Reversed" and DS.db.complex.orientation == "Vertical" then offset = -offset end
 							return offset
 						end,
 						set = function(info, val)
-							if CS.db.complex.orientation == "Vertical" then
-								if CS.db.complex.growthDirection == "Reversed" and CS.db.complex.orientation == "Vertical" then val = -val end
-								CS.db.complex.stringXOffset = val
+							if DS.db.complex.orientation == "Vertical" then
+								if DS.db.complex.growthDirection == "Reversed" and DS.db.complex.orientation == "Vertical" then val = -val end
+								DS.db.complex.stringXOffset = val
 							else
-								CS.db.complex.stringYOffset = val
+								DS.db.complex.stringYOffset = val
 							end
-							CS:Build()
+							DS:Build()
 						end
 					}
 				}
@@ -362,11 +362,11 @@ local function displayOptions()
 						name = L["Color"],
 						hasAlpha = true,
 						get = function()
-							return CS.db.complex.statusbarColor.r, CS.db.complex.statusbarColor.b, CS.db.complex.statusbarColor.g, CS.db.complex.statusbarColor.a
+							return DS.db.complex.statusbarColor.r, DS.db.complex.statusbarColor.b, DS.db.complex.statusbarColor.g, DS.db.complex.statusbarColor.a
 						end,
 						set = function(info, r, b, g, a)
-							CS.db.complex.statusbarColor.r, CS.db.complex.statusbarColor.b, CS.db.complex.statusbarColor.g, CS.db.complex.statusbarColor.a = r, b, g, a
-							CS:Build()
+							DS.db.complex.statusbarColor.r, DS.db.complex.statusbarColor.b, DS.db.complex.statusbarColor.g, DS.db.complex.statusbarColor.a = r, b, g, a
+							DS:Build()
 						end
 					},
 					statusbarColorBackground = {
@@ -375,11 +375,11 @@ local function displayOptions()
 						name = L["Background Color"],
 						hasAlpha = true,
 						get = function()
-							return CS.db.complex.statusbarColorBackground.r, CS.db.complex.statusbarColorBackground.b, CS.db.complex.statusbarColorBackground.g, CS.db.complex.statusbarColorBackground.a
+							return DS.db.complex.statusbarColorBackground.r, DS.db.complex.statusbarColorBackground.b, DS.db.complex.statusbarColorBackground.g, DS.db.complex.statusbarColorBackground.a
 						end,
 						set = function(info, r, b, g, a)
-							CS.db.complex.statusbarColorBackground.r, CS.db.complex.statusbarColorBackground.b, CS.db.complex.statusbarColorBackground.g, CS.db.complex.statusbarColorBackground.a = r, b, g, a
-							CS:Build()
+							DS.db.complex.statusbarColorBackground.r, DS.db.complex.statusbarColorBackground.b, DS.db.complex.statusbarColorBackground.g, DS.db.complex.statusbarColorBackground.a = r, b, g, a
+							DS:Build()
 						end
 					},
 					spacer2 = {
@@ -396,18 +396,18 @@ local function displayOptions()
 						max = math.ceil(GetScreenWidth()),
 						step = 1,
 						get = function()
-							local offset = CS.db.complex.orientation == "Vertical" and -CS.db.complex.statusbarYOffset or CS.db.complex.statusbarXOffset
-							if (CS.db.complex.growthDirection == "Reversed") and (CS.db.complex.orientation ~= "Vertical") then offset = -offset end
+							local offset = DS.db.complex.orientation == "Vertical" and -DS.db.complex.statusbarYOffset or DS.db.complex.statusbarXOffset
+							if (DS.db.complex.growthDirection == "Reversed") and (DS.db.complex.orientation ~= "Vertical") then offset = -offset end
 							return offset
 						end,
 						set = function(info, val)
-							if CS.db.complex.orientation == "Vertical" then
-								CS.db.complex.statusbarYOffset = -val
+							if DS.db.complex.orientation == "Vertical" then
+								DS.db.complex.statusbarYOffset = -val
 							else
-								if CS.db.complex.growthDirection == "Reversed" then val = -val end
-								CS.db.complex.statusbarXOffset = val
+								if DS.db.complex.growthDirection == "Reversed" then val = -val end
+								DS.db.complex.statusbarXOffset = val
 							end
-							CS:Build()
+							DS:Build()
 						end
 					},
 					statusbarYOffset = {
@@ -419,18 +419,18 @@ local function displayOptions()
 						max = math.ceil(GetScreenHeight()),
 						step = 1,
 						get = function()
-							local offset = CS.db.complex.orientation == "Vertical" and CS.db.complex.statusbarXOffset or CS.db.complex.statusbarYOffset
-							if CS.db.complex.growthDirection == "Reversed" and CS.db.complex.orientation == "Vertical" then offset = -offset end
+							local offset = DS.db.complex.orientation == "Vertical" and DS.db.complex.statusbarXOffset or DS.db.complex.statusbarYOffset
+							if DS.db.complex.growthDirection == "Reversed" and DS.db.complex.orientation == "Vertical" then offset = -offset end
 							return offset
 						end,
 						set = function(info, val)
-							if CS.db.complex.orientation == "Vertical" then
-								if CS.db.complex.growthDirection == "Reversed" and CS.db.complex.orientation == "Vertical" then val = -val end
-								CS.db.complex.statusbarXOffset = val
+							if DS.db.complex.orientation == "Vertical" then
+								if DS.db.complex.growthDirection == "Reversed" and DS.db.complex.orientation == "Vertical" then val = -val end
+								DS.db.complex.statusbarXOffset = val
 							else
-								CS.db.complex.statusbarYOffset = val
+								DS.db.complex.statusbarYOffset = val
 							end
-							CS:Build()
+							DS:Build()
 						end
 					},
 					spacer3 = {
@@ -445,11 +445,11 @@ local function displayOptions()
 						desc = L["Color of the sixth indicator when overcapping with Shadowy Apparitions"],
 						hasAlpha = true,
 						get = function()
-							return CS.db.complex.statusbarColorOverflow.r, CS.db.complex.statusbarColorOverflow.b, CS.db.complex.statusbarColorOverflow.g, CS.db.complex.statusbarColorOverflow.a
+							return DS.db.complex.statusbarColorOverflow.r, DS.db.complex.statusbarColorOverflow.b, DS.db.complex.statusbarColorOverflow.g, DS.db.complex.statusbarColorOverflow.a
 						end,
 						set = function(info, r, b, g, a)
-							CS.db.complex.statusbarColorOverflow.r, CS.db.complex.statusbarColorOverflow.b, CS.db.complex.statusbarColorOverflow.g, CS.db.complex.statusbarColorOverflow.a = r, b, g, a
-							CS:Build()
+							DS.db.complex.statusbarColorOverflow.r, DS.db.complex.statusbarColorOverflow.b, DS.db.complex.statusbarColorOverflow.g, DS.db.complex.statusbarColorOverflow.a = r, b, g, a
+							DS:Build()
 						end
 					},
 					statusbarCount = {
@@ -583,4 +583,4 @@ local defaultSettings = {
 	orbCappedColor = {r=0.51, b=0.00, g=0.24, a=1},
 }
 
-CS:AddDisplayOptions("complex", displayOptions, defaultSettings)
+DS:AddDisplayOptions("complex", displayOptions, defaultSettings)

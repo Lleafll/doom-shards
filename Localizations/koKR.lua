@@ -1,5 +1,5 @@
 -- Libraries
-local L = LibStub("AceLocale-3.0"):NewLocale("ConspicuousSpirits", "koKR", false)
+local L = LibStub("AceLocale-3.0"):NewLocale("DoomShards", "koKR", false)
 if not L then return end
 
 

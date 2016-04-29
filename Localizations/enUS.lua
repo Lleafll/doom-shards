@@ -7,7 +7,7 @@ local debug = false
 
 
 -- Libraries
-local L = LibStub("AceLocale-3.0"):NewLocale("ConspicuousSpirits", "enUS", true, debug)
+local L = LibStub("AceLocale-3.0"):NewLocale("DoomShards", "enUS", true, debug)
 if not L then return end
 
 

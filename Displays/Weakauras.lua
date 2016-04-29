@@ -1,7 +1,7 @@
-local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
-if not CS then return end
+local DS = LibStub("AceAddon-3.0"):GetAddon("Doom Shards", true)
+if not DS then return end
 
-local WA = CS:NewModule("weakauras", "AceEvent-3.0")
+local WA = DS:NewModule("weakauras", "AceEvent-3.0")
 
 
 --------------
@@ -51,7 +51,7 @@ function WA:OnInitialize()
 	conspicuous_spirits_wa.timers = {}
 	
 	-- new & better to reduce littering of global namespace
-	CS.weakauras = conspicuous_spirits_wa
+	DS.weakauras = conspicuous_spirits_wa
 end
 
 function WA:OnEnable()

@@ -1,7 +1,7 @@
-local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
-if not CS then return end
+local DS = LibStub("AceAddon-3.0"):GetAddon("Doom Shards", true)
+if not DS then return end
 
-local WS = CS:NewModule("warningSound", "AceEvent-3.0")  -- can't use sound since it's a legacy option :/
+local WS = DS:NewModule("warningSound", "AceEvent-3.0")  -- can't use sound since it's a legacy option :/
 local LSM = LibStub("LibSharedMedia-3.0")
 
 
@@ -15,7 +15,7 @@ local PlaySoundFile = PlaySoundFile
 ------------
 -- Frames --
 ------------
-local WSFrame = CS:CreateParentFrame("CS Sound Display", "sound")  -- only used for OnUpdate
+local WSFrame = DS:CreateParentFrame("DS Sound Display", "sound")  -- only used for OnUpdate
 WSFrame:Hide()
 
 
@@ -32,7 +32,7 @@ local soundInterval
 --------------
 -- API Call --
 --------------
-function ConspicuousSpirits:SetSound(bool)
+function DoomShards:SetSound(bool)
 	if bool then
 		if UnitAffectingCombat("player") then WSFrame:Show() end
 	else
@@ -83,12 +83,12 @@ function WS:PLAYER_REGEN_ENABLED()
 end
 
 function WS:Build()
-	soundFile = LSM:Fetch("sound", CS.db.warningSound.soundHandle)
-	soundInterval = CS.db.warningSound.soundInterval
+	soundFile = LSM:Fetch("sound", DS.db.warningSound.soundHandle)
+	soundInterval = DS.db.warningSound.soundInterval
 end
 
 function WS:OnInitialize()
-	db = CS.db.warningSound
+	db = DS.db.warningSound
 end
 
 function WS:OnEnable()

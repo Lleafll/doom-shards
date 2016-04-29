@@ -1,7 +1,7 @@
-local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
-if not CS then return end
+local DS = LibStub("AceAddon-3.0"):GetAddon("Doom Shards", true)
+if not DS then return end
 
-local CD = CS:NewModule("complex", "AceEvent-3.0")
+local CD = DS:NewModule("complex", "AceEvent-3.0")
 local LSM = LibStub("LibSharedMedia-3.0")
 
 
@@ -16,7 +16,7 @@ local stringformat = string.format
 ------------
 -- Frames --
 ------------
-local CDFrame = CS:CreateParentFrame("CS Complex Display", "complex")
+local CDFrame = DS:CreateParentFrame("DS Complex Display", "complex")
 CD.frame = CDFrame
 CDFrame:Hide()
 local orbFrames = {}
@@ -105,7 +105,7 @@ end
 
 function CD:CONSPICUOUS_SPIRITS_UPDATE(_, updatedOrbs, updatedTimers)
 	-- Debug
-	CS:Debug(updatedOrbs, updatedTimers)
+	DS:Debug(updatedOrbs, updatedTimers)
 	
 	orbs = updatedOrbs
 	timers = updatedTimers
@@ -222,7 +222,7 @@ local function buildFrames()
 	local CDFrameWidth = statusbarCount * db.width + (statusbarCount - 1) * db.spacing
 	CDFrame:ClearAllPoints()
 	CDFrame:SetPoint(db.anchor, _G[db.anchorFrame], db.posX, db.posY)
-	CDFrame:SetScale(CS.db.scale)
+	CDFrame:SetScale(DS.db.scale)
 	CDFrame:SetHeight(db.orientation == "Vertical" and CDFrameWidth or CDFrameHeight)
 	CDFrame:SetWidth(db.orientation == "Vertical" and CDFrameHeight or CDFrameWidth)
 	
@@ -490,18 +490,18 @@ function CD:Build()
 	visibilityConditionals = db.visibilityConditionals or ""
 	
 	statusbarCount = 5 + db.statusbarCount
-	statusbarRefresh = statusbarMaxTime / db.width / CS.db.scale
+	statusbarRefresh = statusbarMaxTime / db.width / DS.db.scale
 	
 	buildFrames()
 	if not CDFrame.fader then
 		buildFader()
 	end
 	CDFrame.fader.fadeOut:SetDuration(db.fadeOutDuration)
-	if CS.locked and GetSpecialization() == 3 then CDOnUpdateFrame:Show() end
+	if DS.locked and GetSpecialization() == 3 then CDOnUpdateFrame:Show() end
 end
 
 function CD:OnInitialize()
-	db = CS.db.complex
+	db = DS.db.complex
 end
 
 function CD:OnEnable()

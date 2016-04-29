@@ -1,17 +1,17 @@
 ## Interface: 70000
-## Title: Conspicuous Spirits
+## Title: Doom Shards
 ## Author: Lleaf
 ## Version: @project-version@
-## SavedVariables: ConspicuousSpiritsDB
+## SavedVariables: DoomShardsDB
 
 #@non-debug@
-## Notes: @localization(locale="enUS", key="Track your incoming Shadow Orbs from Auspicious Spirits!", namespace="ToC")@
-## Notes-deDE: @localization(locale="deDE", key="Track your incoming Shadow Orbs from Auspicious Spirits!", namespace="ToC")@
-## Notes-koKR: @localization(locale="koKR", key="Track your incoming Shadow Orbs from Auspicious Spirits!", namespace="ToC")@
+## Notes: @localization(locale="enUS", key="Track your incoming Soul Shards from Doom!", namespace="ToC")@
+## Notes-deDE: @localization(locale="deDE", key="Track your incoming Soul Shards from Doom!", namespace="ToC")@
+## Notes-koKR: @localization(locale="koKR", key="Track your incoming Soul Shards from Doom!", namespace="ToC")@
 #@end-non-debug@
 
 #@debug@
-## Notes: "Track your incoming Shadow Orbs from Auspicious Spirits!"
+## Notes: "Track your incoming Soul Shards from Doom!"
 #@end-debug@
 
 Libs\LibStub\LibStub.lua
@@ -34,14 +34,9 @@ Localizations\enUS.lua
 Localizations\deDE.lua
 Localizations\koKR.lua
 
-ConspicuousSpirits.lua
+DoomShards.lua
 Config.lua
 Core.lua
-
-EncounterFixes\EncounterFixes.lua
-EncounterFixes\BlackrockFoundry.lua
-EncounterFixes\HellfireCitadel.lua
-EncounterFixes\Dev.lua
 
 Displays\ComplexDisplayConfig.lua
 Displays\ComplexDisplay.lua

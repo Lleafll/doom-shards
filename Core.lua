@@ -1,6 +1,6 @@
-local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
-if not CS then return end
-local L = LibStub("AceLocale-3.0"):GetLocale("ConspicuousSpirits")
+local DS = LibStub("AceAddon-3.0"):GetAddon("Doom Shards", true)
+if not DS then return end
+local L = LibStub("AceLocale-3.0"):GetLocale("DoomShards")
 
 
 --------------
@@ -21,6 +21,7 @@ local UnitCanAttack = UnitCanAttack
 local UnitExists = UnitExists
 local UnitGUID = UnitGUID
 local UnitPower = UnitPower
+local SPELL_POWER_SOUL_SHARDS = SPELL_POWER_SOUL_SHARDS
 
 
 ---------------
@@ -30,6 +31,7 @@ local SAVelocity = 6.07  -- extrapolated
 local initialSATimeCorrection = 1.5  -- seconds to add to initial travel time prediction
 local SAGraceTime = 3  -- maximum additional wait time before SA timer gets purged if it should not have hit in the meantime
 local cacheMaxTime = 1  -- seconds in which the cache does not get refreshed
+local unitPowerType = "SOUL_SHARDS"
 
 local orbs = 0
 local targets = {}  -- used to attribute timer IDs to mobs
@@ -85,12 +87,12 @@ local arenaPetTable = buildUnitIDTable("arena", 5, "pet")
 ---------------
 
 -- forces an update of displays
-function CS:Update()
+function DS:Update()
 	self:SendMessage("CONSPICUOUS_SPIRITS_UPDATE", orbs, timers)
 end
 
 -- resets all data
-function CS:ResetCount()
+function DS:ResetCount()
 	targets = {}
 	SATimeCorrection = {}
 	timers = {}
@@ -100,7 +102,7 @@ function CS:ResetCount()
 end
 
 -- set specific SATimeCorrection for a GUID
-function CS:SetSATimeCorrection(GUID, seconds)
+function DS:SetSATimeCorrection(GUID, seconds)
 	SATimeCorrection[GUID] = seconds
 end
 
@@ -258,7 +260,7 @@ do
 			end
 		end
 		
-		function CS:AggressiveCaching()
+		function DS:AggressiveCaching()
 			local timeStamp = GetTime()
 			
 			aggressiveCachingByUnitID(self, "target", timeStamp)
@@ -277,16 +279,16 @@ do
 			end
 		end
 		
-		function CS:UNIT_TARGET(_, unitID)
+		function DS:UNIT_TARGET(_, unitID)
 			aggressiveCachingByUnitID(self, unitID.."target", GetTime())
 		end
 		
-		function CS:UPDATE_MOUSEOVER_UNIT()
+		function DS:UPDATE_MOUSEOVER_UNIT()
 			aggressiveCachingByUnitID(self, "mouseover", GetTime())
 		end
 	end
 	
-	function CS:PopGUID(GUID)
+	function DS:PopGUID(GUID)
 		if targets[GUID] then
 			return tableremove(targets[GUID], 1)
 		else
@@ -303,12 +305,12 @@ do
 		end
 	end
 	
-	function CS:RemoveTimer(timerID)
+	function DS:RemoveTimer(timerID)
 		popTimer(timerID.timer)
 		self:CancelTimer(timerID)
 	end
 	
-	function CS:RemoveTimer_timed(GUID)
+	function DS:RemoveTimer_timed(GUID)
 		local timerID = self:PopGUID(GUID)
 		popTimer(timerID.timer)
 		self:Update()
@@ -337,7 +339,7 @@ do
 			tbl[tblCount+1] = timer
 		end
 		
-		function CS:AddGUID(GUID)
+		function DS:AddGUID(GUID)
 			local travelTime, isCached = getTravelTime(self, GUID, true)
 			if not travelTime then return end  -- target too far away, abort timer creation
 			targets[GUID] = targets[GUID] or {}
@@ -361,7 +363,7 @@ do
 		local function removeGUID(GUID)
 			if not targets[GUID] then return end
 			for _, timerID in pairs(targets[GUID]) do
-				CS:RemoveTimer(timerID)
+				DS:RemoveTimer(timerID)
 			end
 			targets[GUID] = nil
 			distanceCache[GUID] = nil
@@ -370,17 +372,17 @@ do
 		
 		-- resets SAs, etc. for specified GUID
 		-- originally designed for encounter fixes
-		function CS:RemoveGUID(GUID)
+		function DS:RemoveGUID(GUID)
 			removeGUID(GUID)
-			CS:Update()
+			DS:Update()
 		end
 		--@debug@
-		ConspicuousSpirits.RemoveGUID = CS.RemoveGUID
+		DoomShards.RemoveGUID = DS.RemoveGUID
 		--@end-debug@
 		
 		-- resets all tracked SAs, etc.
 		-- originally designed for encounter fixes
-		function CS:RemoveAllGUIDs()
+		function DS:RemoveAllGUIDs()
 			for GUID, _ in pairs(targets) do
 				removeGUID(GUID)
 			end
@@ -389,7 +391,7 @@ do
 		
 		-- resets all tracked SAs except the ones specified
 		-- originally designed for encounter fixes
-		function CS:RemoveAllGUIDsExcept(...)
+		function DS:RemoveAllGUIDsExcept(...)
 			local argCount = select("#", ...)
 			for GUID, _ in pairs(targets) do
 				local isExcluded
@@ -415,14 +417,14 @@ do
 		
 		-- hides SAs, etc. for specified GUID
 		-- originally designed for encounter fixes
-		function CS:HideGUID(GUID)
+		function DS:HideGUID(GUID)
 			hideGUID(GUID)
 			self:Update()
 		end
 		
 		-- hides SAs for specified GUID 
 		-- originally designed for encounter fixes
-		function CS:HideAllGUIDs()
+		function DS:HideAllGUIDs()
 			for GUID, _ in pairs(targets) do
 				hideGUID(GUID)
 			end
@@ -431,7 +433,7 @@ do
 		
 		-- hides all tracked SAs except the ones specified
 		-- originally designed for encounter fixes
-		function CS:HideAllGUIDsExcept(...)
+		function DS:HideAllGUIDsExcept(...)
 			local argCount = select("#", ...)
 			for GUID, _ in pairs(targets) do
 				local isExcluded
@@ -450,7 +452,7 @@ do
 		end
 	end
 	
-	function CS:COMBAT_LOG_EVENT_UNFILTERED(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, ...)
+	function DS:COMBAT_LOG_EVENT_UNFILTERED(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, ...)
 		if event == "UNIT_DIED" or event == "UNIT_DESTROYED" or event == "PARTY_KILL" or event == "SPELL_INSTAKILL" then
 		
 			self:RemoveGUID(destGUID)
@@ -529,7 +531,7 @@ end
 do
 	local aggressiveCachingTimer
 	
-	function CS:PLAYER_REGEN_DISABLED()
+	function DS:PLAYER_REGEN_DISABLED()
 		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		orbs = UnitPower("player", 13)
 		
@@ -549,8 +551,8 @@ do
 		end
 	end
 
-	function CS:PLAYER_REGEN_ENABLED()  -- player left combat or died
-		orbs = UnitPower("player", 13)
+	function DS:PLAYER_REGEN_ENABLED()  -- player left combat or died
+		orbs = UnitPower("player", SPELL_POWER_SOUL_SHARDS)
 		self:EndTestMode()
 		
 		if not self.db.calculateOutOfCombat then
@@ -574,19 +576,19 @@ do
 	local delay = 0.01
 	
 	local function delayOrbs()
-		orbs = UnitPower("player", 13)
-		CS:Update()
+		orbs = UnitPower("player", SPELL_POWER_SOUL_SHARDS)
+		DS:Update()
 	end
 	
-	function CS:UNIT_POWER_FREQUENT(_, unitID, power)
-		if not (unitID == "player" and power == "SHADOW_ORBS") then return end
+	function DS:UNIT_POWER_FREQUENT(_, unitID, power)
+		if not (unitID == "player" and power == unitPowerType) then return end
 		C_TimerAfter(delay, delayOrbs)  -- needs to be delayed so it fires after the SA events, otherwise everything will assume the SA is still in flight
 	end
 end
 
-function CS:PLAYER_ENTERING_WORLD()
+function DS:PLAYER_ENTERING_WORLD()
 	playerGUID = UnitGUID("player")
-	orbs = UnitPower("player", 13)
+	orbs = UnitPower("player", SPELL_POWER_SOUL_SHARDS)
 	self:ResetCount()
 end
 
@@ -604,9 +606,7 @@ do
 		return ASSpecced
 	end
 	
-	function CS:TalentsCheck()
-		local EF = self:GetModule("EncounterFixes")
-		
+	function DS:TalentsCheck()
 		self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")  -- does this lead to issues when changing talents when SAs are in flight with out-of-combat-calculation?
 		warningSound = function() end
 		
@@ -617,13 +617,11 @@ do
 			if isASSpecced() then
 				self:RegisterEvent("PLAYER_REGEN_DISABLED")
 				self:RegisterEvent("PLAYER_REGEN_ENABLED")
-				EF:Enable()
 			
 			else
 				self:UnregisterEvent("PLAYER_REGEN_DISABLED")
 				self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 				self:ResetCount()
-				EF:Disable()
 			
 			end
 			
@@ -634,7 +632,6 @@ do
 			self:UnregisterEvent("PLAYER_REGEN_DISABLED")
 			self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 			self:ResetCount()
-			EF:Disable()
 			self:SendMessage("CONSPICUOUS_SPIRITS_SPEC", false)
 			
 		end
@@ -643,7 +640,7 @@ do
 		self:Update()
 	end
 
-	function CS:Build()
+	function DS:Build()
 		self:EndTestMode()
 		self:ApplySettings()
 		
@@ -674,11 +671,11 @@ do
 	
 	local function SATickerFunc()
 		distanceCache[TestGUID].timeStamp = GetTime()
-		CS:AddGUID(TestGUID)
+		DS:AddGUID(TestGUID)
 		timers[#timers].impactTime = timers[#timers].impactTime + SAGraceTime  -- fixes "0.0"-issue
 	end
 	
-	function CS:TestMode()
+	function DS:TestMode()
 		if self.testMode then
 			self:EndTestMode()
 		else
@@ -700,7 +697,7 @@ do
 				else
 					orbs = orbs + 1
 				end
-				CS:Update()
+				DS:Update()
 			end)
 			
 			distanceCache[TestGUID] = {}
@@ -715,7 +712,7 @@ do
 		end
 	end
 	
-	function CS:EndTestMode()
+	function DS:EndTestMode()
 		if self.testMode then
 			if orbTicker then
 				orbTicker:Cancel()

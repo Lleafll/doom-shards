@@ -1,7 +1,7 @@
-local CS = LibStub("AceAddon-3.0"):GetAddon("Conspicuous Spirits", true)
-if not CS then return end
+local DS = LibStub("AceAddon-3.0"):GetAddon("Doom Shards", true)
+if not DS then return end
 
-local L = LibStub("AceLocale-3.0"):GetLocale("ConspicuousSpirits")
+local L = LibStub("AceLocale-3.0"):GetLocale("DoomShards")
 
 
 -------------
@@ -10,10 +10,10 @@ local L = LibStub("AceLocale-3.0"):GetLocale("ConspicuousSpirits")
 local function optionsTable()
 	return {
 		type = "group",
-		name = "Conspicuous Spirits",
+		name = "Doom Shards",
 		childGroups = "tab",
-		get = function(info) return CS.db[info[#info]] end,
-		set = function(info, value) CS.db[info[#info]] = value; CS:Build() end,
+		get = function(info) return DS.db[info[#info]] end,
+		set = function(info, value) DS.db[info[#info]] = value; DS:Build() end,
 		args = {
 			header2 = {
 				order = 0,
@@ -41,10 +41,10 @@ local function optionsTable()
 						name = L["Reset to Defaults"],
 						confirm = true,
 						func = function()
-							CS:ResetDB()
-							print(L["Conspicuous Spirits reset!"])
-							--CS:getDB()
-							CS:Build()
+							DS:ResetDB()
+							print(L["Doom Shards reset!"])
+							--DS:getDB()
+							DS:Build()
 						end
 					},
 					spacer = {
@@ -88,10 +88,10 @@ local function optionsTable()
 						desc = L["Shows the frame and toggles it for repositioning."],
 						func = function()
 							if UnitAffectingCombat("player") then return end
-							if not CS.locked then
-								CS:Lock()
+							if not DS.locked then
+								DS:Lock()
 							else
-								CS:Unlock()
+								DS:Unlock()
 							end
 						end
 					},
@@ -102,13 +102,13 @@ local function optionsTable()
 						cmdHidden = true,
 						confirm  = true,
 						func = function() 
-							for name, module in CS:IterateModules() do
-								if CS.db[name] then
-									if CS.db[name].posX then CS.db[name].posX = 0 end
-									if CS.db[name].posY then CS.db[name].posY = 0 end
+							for name, module in DS:IterateModules() do
+								if DS.db[name] then
+									if DS.db[name].posX then DS.db[name].posX = 0 end
+									if DS.db[name].posY then DS.db[name].posY = 0 end
 								end
 							end
-							CS:Build()
+							DS:Build()
 						end
 					},
 					testMode = {
@@ -117,7 +117,7 @@ local function optionsTable()
 						name = L["Test Mode"],
 						func = function()
 							if not UnitAffectingCombat("player") then
-								CS:TestMode() 
+								DS:TestMode() 
 							end
 						end
 					}
@@ -127,7 +127,7 @@ local function optionsTable()
 	}
 end
 
-CS.defaultSettings = {
+DS.defaultSettings = {
 	global = {
 		scale = 1,
 		aggressiveCaching = true,
@@ -141,7 +141,7 @@ CS.defaultSettings = {
 do
 	local moduleOptions = {}
 	
-	function CS:AddDisplayOptions(displayName, displayOptions, displayDefaults)
+	function DS:AddDisplayOptions(displayName, displayOptions, displayDefaults)
 		moduleOptions[displayName] = displayOptions
 		self.defaultSettings.global[displayName] = displayDefaults
 	end
@@ -157,14 +157,14 @@ do
 		return optionsTable
 	end
 
-	LibStub("AceConfig-3.0"):RegisterOptionsTable("Conspicuous Spirits", createOptions)
+	LibStub("AceConfig-3.0"):RegisterOptionsTable("Doom Shards", createOptions)
 end
 
 local ACD = LibStub("AceConfigDialog-3.0")
-ACD:AddToBlizOptions("Conspicuous Spirits")
-ACD:SetDefaultSize("Conspicuous Spirits", 700, 750)
+ACD:AddToBlizOptions("Doom Shards")
+ACD:SetDefaultSize("Doom Shards", 700, 750)
 
-function CS:HandleChatCommand(command)
+function DS:HandleChatCommand(command)
 	local suffix = string.match(command, "(%w+)")
 
 	if suffix then
@@ -178,18 +178,18 @@ function CS:HandleChatCommand(command)
 		elseif suffix == "debug" then
 			self.db.debug = not self.db.debug
 			if self.db.debug then
-				print("|cFF814eaaConspicuous Spirits|r: debugging enabled")
+				print("|cFF814eaaDoom Shards|r: debugging enabled")
 			else
-				print("|cFF814eaaConspicuous Spirits|r: debugging disabled")
+				print("|cFF814eaaDoom Shards|r: debugging disabled")
 			end
 			return
 			
 		elseif suffix == "debugSA" then
 			self.db.debugSA = not self.db.debugSA
 			if self.db.debugSA then
-				print("|cFF814eaaConspicuous Spirits|r: debugging SATimers enabled")
+				print("|cFF814eaaDoom Shards|r: debugging SATimers enabled")
 			else
-				print("|cFF814eaaConspicuous Spirits|r: debugging SATimers disabled")
+				print("|cFF814eaaDoom Shards|r: debugging SATimers disabled")
 			end
 			return
 			
@@ -197,12 +197,11 @@ function CS:HandleChatCommand(command)
 	end
 	
 	if ACD.OpenFrames[addons] then
-		ACD:Close("Conspicuous Spirits")
+		ACD:Close("Doom Shards")
 	else
-		ACD:Open("Conspicuous Spirits")
+		ACD:Open("Doom Shards")
 	end
 end
 
-CS:RegisterChatCommand("cs", "HandleChatCommand")
-CS:RegisterChatCommand("csp", "HandleChatCommand")
-CS:RegisterChatCommand("conspicuousspirits", "HandleChatCommand")
+DS:RegisterChatCommand("ds", "HandleChatCommand")
+DS:RegisterChatCommand("DoomShards", "HandleChatCommand")
