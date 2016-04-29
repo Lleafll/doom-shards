@@ -104,6 +104,9 @@ local function update()
 end
 
 function CD:CONSPICUOUS_SPIRITS_UPDATE(_, updatedOrbs, updatedTimers)
+	-- Debug
+	CS:Debug(updatedOrbs, updatedTimers)
+	
 	orbs = updatedOrbs
 	timers = updatedTimers
 	update()
@@ -443,7 +446,9 @@ local function buildFader()
 		CDFrame:Hide()
 	end)
 	CDFrame.fader.fadeOut = CDFrame.fader:CreateAnimation("Alpha")
-	CDFrame.fader.fadeOut:SetChange(-1)
+	--CDFrame.fader.fadeOut:SetChange(-1)  -- Deprecated
+	CDFrame.fader.fadeOut:SetFromAlpha(1)
+	CDFrame.fader.fadeOut:SetToAlpha(0)
 	CDFrame.fader.fadeOut:SetSmoothing("IN")
 end
 
