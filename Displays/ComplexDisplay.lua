@@ -28,19 +28,9 @@ CDOnUpdateFrame:Hide()
 
 
 ---------------
--- Variables --
+-- Constants --
 ---------------
-local db
-local orbCappedEnable
-local orbs
-local remainingTimeThreshold
-local statusbarCount
-local statusbarEnable
-local statusbarMaxTime
-local statusbarRefresh
-local textEnable
-local timers
-local visibilityConditionals = ""
+local maxResource = 5
 local backdrop = {
 	bgFile = nil,
 	edgeFile = nil,
@@ -62,6 +52,25 @@ local borderBackdrop = {
 
 
 ---------------
+-- Variables --
+---------------
+local db
+local durations
+local nextTick
+local orbCappedEnable
+local orbs
+local remainingTimeThreshold
+local statusbarCount
+local statusbarEnable
+local statusbarMaxTime
+local statusbarRefresh
+local textEnable
+local timers
+local timeStamp
+local visibilityConditionals = ""
+
+
+---------------
 -- Functions --
 ---------------
 local function update()
@@ -69,9 +78,9 @@ local function update()
 		if orbs >= i then
 			local orbFrame = orbFrames[i]
 			if orbCappedEnable then
-				if (orbs == 5) and (not orbFrame.orbCapColored) then
+				if (orbs == maxResource) and (not orbFrame.orbCapColored) then
 					orbFrame:SetOrbCapColor()
-				elseif (orbs ~= 5) and (orbFrame.orbCapColored) then
+				elseif (orbs ~= maxResource) and (orbFrame.orbCapColored) then
 					orbFrame:SetOriginalColor()
 				end
 			end
@@ -86,15 +95,18 @@ local function update()
 	
 	local k = orbs + 1
 	local t = 1
-	local timerID = timers[t]
-	while timerID and k <= statusbarCount do
-		if timerID.IsGUIDInRange() then
-			if textEnable then SATimers[k]:SetTimer(timerID) end
-			if statusbarEnable then statusbars[k]:SetTimer(timerID) end
-			k = k + 1
+	local GUID = timers[t]
+	while GUID and k <= statusbarCount do
+		local tick = nextTick[GUID]
+		if textEnable then 
+			SATimers[k]:SetTimer(tick)
 		end
+		if statusbarEnable then
+			statusbars[k]:SetTimer(tick)
+		end
+		k = k + 1
 		t = t + 1
-		timerID = timers[t]
+		GUID = timers[t]
 	end
 	
 	for m = k, statusbarCount do
@@ -103,12 +115,12 @@ local function update()
 	end
 end
 
-function CD:CONSPICUOUS_SPIRITS_UPDATE(_, updatedOrbs, updatedTimers)
-	-- Debug
-	DS:Debug(updatedOrbs, updatedTimers)
-	
+function CD:CONSPICUOUS_SPIRITS_UPDATE(_, updatedTimeStamp, updatedOrbs, updatedTimers, updatedNextTick, updatedDurations)
+	timeStamp = updatedTimeStamp
 	orbs = updatedOrbs
 	timers = updatedTimers
+	nextTick = updatedNextTick
+	durations = updatedDurations
 	update()
 end
 
@@ -341,16 +353,16 @@ local function buildFrames()
 			
 			parentFrame.elapsed = 0
 			parentFrame.remaining = 0
-			function parentFrame:SetTimer(timerID)
-				self.remaining = timerID.impactTime - GetTime()
+			function parentFrame:SetTimer(tick)
+				self.remaining = tick - GetTime()
 				self.elapsed = 1
-				if fontColorCacheEnable then
+				--[[if fontColorCacheEnable then
 					if timerID.isCached then
 						fontString:SetCacheColor()
 					elseif not timerID.isCached then
 						fontString:SetOriginalColor()
 					end
-				end
+				end]]--
 				self:Show()
 			end
 			parentFrame:SetScript("OnUpdate", SATimerOnUpdate)  -- only triggers when frame is shown
@@ -405,9 +417,9 @@ local function buildFrames()
 			
 			frame.remaining = 0
 			frame.elapsed = 0
-			function frame:SetTimer(timerID)
+			function frame:SetTimer(tick)
 				self.elapsed = 1
-				self.remaining = timerID.impactTime - GetTime()
+				self.remaining = tick - GetTime()
 				self:Show()
 			end
 			frame:SetScript("OnUpdate", statusbarOnUpdate)  -- only triggers when frame is shown
