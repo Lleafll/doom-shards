@@ -76,7 +76,9 @@ end
 -- set specific SATimeCorrection for a GUID
 do
 	function DS:GetDoomDuration()
-		return tonumber(stringmatch(GetSpellDescription(603), "%d%d%.%d"))  -- Possibly replace with something more sensible in the future
+		local duration = tonumber(stringmatch(GetSpellDescription(603), "%d%d%.%d"))  -- Possibly replace with something more sensible in the future
+		assert(duration, "Could not get Doom duration.")
+		return duration
 	end
 	
 	--[[DS:TargetChanged = function()
