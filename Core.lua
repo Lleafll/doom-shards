@@ -110,8 +110,15 @@ do
 	end
 
 	function DS:Remove(GUID)
+		for k, v in pairs(timers) do
+			if v == GUID then
+				tableremove(timers, k)
+				break
+			end
+		end
 		durations[GUID] = nil
 		nextTick[GUID] = nil
+		self:Update(GetTime())
 	end
 
 	function DS:Refresh(GUID)
@@ -132,18 +139,6 @@ do
 				return
 			end
 		end
-	end
-
-	function DS:TargetDeath(GUID)
-		for k, v in pairs(timers) do
-			if v == GUID then
-				tableremove(timers, k)
-				break
-			end
-		end
-		durations[GUID] = nil
-		nextTick[GUID] = nil
-		self:Update(GetTime())
 	end
 	
 	function DS:COMBAT_LOG_EVENT_UNFILTERED(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, ...)
@@ -169,19 +164,19 @@ do
 		end
 		
 		if event == "UNIT_DIED" or event == "UNIT_DESTROYED" or event == "PARTY_KILL" or event == "SPELL_INSTAKILL" then
-			self:TargetDeath(destGUID)
+			self:Remove(destGUID)
 		
 		-- Check for overkill because in some cases events don't fire when mobs die
 		elseif event == "SWING_DAMAGE" then
 			local _, overkill = ...
 			if overkill > 0 then
-				self:TargetDeath(destGUID)
+				self:Remove(destGUID)
 			end
 			
 		elseif event == "SPELL_DAMAGE" or event == "SPELL_PERIODIC_DAMAGE" or event == "RANGE_DAMAGE" then
 			local _, _, _, _, overkill = ...
 			if overkill > 0 then
-				self:TargetDeath(destGUID)
+				self:Remove(destGUID)
 			end
 			
 		end
