@@ -52,21 +52,6 @@ local function optionsTable()
 						type = "description",
 						name = ""
 					},
-					aggressiveCaching = {
-						order = 4,
-						type = "toggle",
-						name = L["Aggressive Caching"],
-						desc = L["Enables frequent distance scanning of all available targets. Will increase CPU usage slightly and is only going to increase accuracy in situations with many fast-moving mobs."]
-					},
-					aggressiveCachingInterval = {
-						order = 5,
-						type = "range",
-						name = L["Aggressive Caching Interval"],
-						desc = L["Scanning interval when Aggressive Caching is enabled"],
-						min = 0.2,
-						max = 3,
-						step = 0.1
-					},
 					calculateOutOfCombat = {
 						order = 6,
 						type = "toggle",
@@ -130,9 +115,7 @@ end
 DS.defaultSettings = {
 	global = {
 		scale = 1,
-		aggressiveCaching = true,
-		aggressiveCachingInterval = 0.5,
-		calculateOutOfCombat = false,
+		calculateOutOfCombat = true,  -- TODO: Always calculate ooc
 		debug = false,
 		debugSA = false
 	}
