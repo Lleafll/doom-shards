@@ -363,6 +363,10 @@ local function buildFrames()
 						fontString:SetOriginalColor()
 					end
 				end]]--
+				-- Debug
+				fontString:SetOriginalColor()
+				--print(self.remaining)
+				
 				self:Show()
 			end
 			parentFrame:SetScript("OnUpdate", SATimerOnUpdate)  -- only triggers when frame is shown
@@ -530,7 +534,7 @@ end
 function CD:OnEnable()
 	self:RegisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
 	self:RegisterMessage("CONSPICUOUS_SPIRITS_SPEC")
-	if GetSpecialization() == 3 then CDOnUpdateFrame:RegisterEvents() end
+	CDOnUpdateFrame:RegisterEvents()
 end
 
 function CD:OnDisable()
