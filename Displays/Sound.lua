@@ -55,12 +55,12 @@ end
 do
 	local previousOrbs = 0
 
-	function WS:CONSPICUOUS_SPIRITS_UPDATE(_, orbs, timers)
+	function WS:CONSPICUOUS_SPIRITS_UPDATE(_, updatedTimeStamp, updatedOrbs, updatedTimers, updatedNextTick, updatedDurations)
 		-- reset sound timer when orbs were spent
-		if orbs < previousOrbs then counter = 0 end
-		previousOrbs = orbs
+		if updatedOrbs < previousOrbs then counter = 0 end
+		previousOrbs = updatedOrbs
 		
-		isOverOrbThreshold = (orbs >= 3) and (orbs + timersCount(timers)) >= 5
+		isOverOrbThreshold = (updatedOrbs >= 3) and (updatedOrbs + timersCount(timers)) >= 5
 	end
 end
 
