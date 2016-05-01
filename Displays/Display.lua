@@ -1,7 +1,7 @@
 local DS = LibStub("AceAddon-3.0"):GetAddon("Doom Shards", true)
 if not DS then return end
 
-local CD = DS:NewModule("complex", "AceEvent-3.0")
+local CD = DS:NewModule("display", "AceEvent-3.0")
 local LSM = LibStub("LibSharedMedia-3.0")
 
 
@@ -16,7 +16,7 @@ local stringformat = string.format
 ------------
 -- Frames --
 ------------
-local CDFrame = DS:CreateParentFrame("DS Complex Display", "complex")
+local CDFrame = DS:CreateParentFrame("Doom Shards Display", "display")
 CD.frame = CDFrame
 CDFrame:Hide()
 local orbFrames = {}
@@ -492,7 +492,7 @@ function CD:Build()
 end
 
 function CD:OnInitialize()
-	db = DS.db.complex
+	db = DS.db.display
 end
 
 function CD:OnEnable()

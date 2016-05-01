@@ -38,8 +38,8 @@ DoomShards.lua
 Config.lua
 Core.lua
 
-Displays\ComplexDisplayConfig.lua
-Displays\ComplexDisplay.lua
+Displays\DisplayConfig.lua
+Displays\Display.lua
 Displays\WeakaurasConfig.lua
 Displays\Weakauras.lua
 Displays\Sound.lua
