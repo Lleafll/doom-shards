@@ -148,16 +148,6 @@ end
 ----------------
 -- Visibility --
 ----------------
-function CD:CONSPICUOUS_SPIRITS_SPEC(isShadow)
-	if isShadow then 
-		CDOnUpdateFrame:Show()
-		CDOnUpdateFrame:RegisterEvents()
-	else
-		CDOnUpdateFrame:Hide()
-		CDOnUpdateFrame:UnregisterEvents()
-	end
-end
-
 do
 	-- can't use RegisterStateDriver because Restricted Environment doesn't allow for animations
 	local currentState = "hide"
@@ -356,16 +346,8 @@ local function buildFrames()
 			function parentFrame:SetTimer(tick)
 				self.remaining = tick - GetTime()
 				self.elapsed = 1
-				--[[if fontColorCacheEnable then
-					if timerID.isCached then
-						fontString:SetCacheColor()
-					elseif not timerID.isCached then
-						fontString:SetOriginalColor()
-					end
-				end]]--
 				-- Debug
-				fontString:SetOriginalColor()
-				--print(self.remaining)
+				fontString:SetOriginalColor()  -- TODO: Check if necessary
 				
 				self:Show()
 			end
@@ -462,7 +444,6 @@ local function buildFader()
 		CDFrame:Hide()
 	end)
 	CDFrame.fader.fadeOut = CDFrame.fader:CreateAnimation("Alpha")
-	--CDFrame.fader.fadeOut:SetChange(-1)  -- Deprecated
 	CDFrame.fader.fadeOut:SetFromAlpha(1)
 	CDFrame.fader.fadeOut:SetToAlpha(0)
 	CDFrame.fader.fadeOut:SetSmoothing("IN")
@@ -522,24 +503,20 @@ end
 
 function CD:OnEnable()
 	self:RegisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
-	self:RegisterMessage("CONSPICUOUS_SPIRITS_SPEC")
 end
 
 function CD:OnDisable()
 	self:UnregisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
-	self:UnregisterMessage("CONSPICUOUS_SPIRITS_SPEC")
 	CDOnUpdateFrame:Hide()
 end
 
 function CD:OnEnable()
 	self:RegisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
-	self:RegisterMessage("CONSPICUOUS_SPIRITS_SPEC")
 	CDOnUpdateFrame:RegisterEvents()
 end
 
 function CD:OnDisable()
 	self:UnregisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
-	self:UnregisterMessage("CONSPICUOUS_SPIRITS_SPEC")
 	CDOnUpdateFrame:Hide()
 	CDOnUpdateFrame:UnregisterEvents()
 end

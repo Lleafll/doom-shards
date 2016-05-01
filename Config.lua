@@ -52,12 +52,6 @@ local function optionsTable()
 						type = "description",
 						name = ""
 					},
-					calculateOutOfCombat = {
-						order = 6,
-						type = "toggle",
-						name = L["Out-of-Combat Calculation"],
-						desc = L["Keep calculating distances and anticipated Orbs when leaving combat."]
-					}
 				}
 			},
 			position = {
@@ -115,7 +109,6 @@ end
 DS.defaultSettings = {
 	global = {
 		scale = 1,
-		calculateOutOfCombat = true,  -- TODO: Always calculate ooc
 		debug = false,
 		debugSA = false
 	}

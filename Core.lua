@@ -186,10 +186,7 @@ do
 end
 
 do	
-	function DS:PLAYER_REGEN_DISABLED()
-		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		orbs = UnitPower("player", unitPowerId)
-		
+	function DS:PLAYER_REGEN_DISABLED()		
 		if not self.locked then
 			self:Lock()
 		end
@@ -199,15 +196,8 @@ do
 	end
 
 	function DS:PLAYER_REGEN_ENABLED()  -- player left combat or died
-		orbs = UnitPower("player", unitPowerId)
 		self:EndTestMode()
-		
-		if not self.db.calculateOutOfCombat then
-			self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-			self:ResetCount()
-			self:UnregisterEvent("UPDATE_MOUSEOVER_UNIT")
-			
-		elseif UnitIsDead("player") then
+		if UnitIsDead("player") then
 			self:ResetCount()
 			
 		else
@@ -246,26 +236,12 @@ do
 		return GetSpecialization() == 2
 	end
 	
-	function DS:TalentsCheck()
-		self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")  -- does this lead to issues when changing talents when SAs are in flight with out-of-combat-calculation?
-		warningSound = function() end
-		
+	function DS:TalentsCheck()		
 		if isShadow() then
-			orbs = UnitPower("player", unitPowerId)
-			self:RegisterEvent("UNIT_POWER_FREQUENT")
-			self:RegisterEvent("PLAYER_REGEN_DISABLED")
-			self:RegisterEvent("PLAYER_REGEN_ENABLED")
-			self:SendMessage("CONSPICUOUS_SPIRITS_SPEC", true)
-			
+			self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		else
-			self:UnregisterEvent("UNIT_POWER_FREQUENT")
-			self:UnregisterEvent("PLAYER_REGEN_DISABLED")
-			self:UnregisterEvent("PLAYER_REGEN_ENABLED")
-			self:ResetCount()
-			self:SendMessage("CONSPICUOUS_SPIRITS_SPEC", false)
-			
+			self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		end
-		
 		self:Build()
 		self:Update()
 	end
@@ -273,11 +249,17 @@ do
 	function DS:Build()
 		self:EndTestMode()
 		self:ApplySettings()
+		orbs = UnitPower("player", unitPowerId)
+		
+		self:RegisterEvent("UNIT_POWER_FREQUENT")
+		self:RegisterEvent("PLAYER_REGEN_DISABLED")
+		self:RegisterEvent("PLAYER_REGEN_ENABLED")
+		if isShadow() then
+			self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+		end
 		
 		if UnitAffectingCombat("player") then
-			if isShadow()
-				then self:PLAYER_REGEN_DISABLED() 
-			end
+			self:PLAYER_REGEN_DISABLED() 
 		
 		elseif self.locked and not self.testMode then
 			self:PLAYER_REGEN_ENABLED()
