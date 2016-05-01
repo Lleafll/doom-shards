@@ -497,15 +497,6 @@ end
 
 function CD:OnEnable()
 	self:RegisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
-end
-
-function CD:OnDisable()
-	self:UnregisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
-	CDOnUpdateFrame:Hide()
-end
-
-function CD:OnEnable()
-	self:RegisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
 	CDOnUpdateFrame:RegisterEvents()
 end
 
