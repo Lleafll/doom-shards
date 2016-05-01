@@ -40,7 +40,6 @@ local unitPowerId = SPELL_POWER_SOUL_SHARDS
 -- Variables --
 ---------------
 local SAGraceTime = 3  -- maximum additional wait time before SA timer gets purged if it should not have hit in the meantime
-local cacheMaxTime = 1  -- seconds in which the cache does not get refreshed
 
 local orbs = 0
 local timers = {}  -- ordered table of all timer IDs

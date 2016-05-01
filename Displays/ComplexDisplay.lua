@@ -335,12 +335,7 @@ local function buildFrames()
 			function fontString:SetOriginalColor()
 				self:SetTextColor(c1r, c1b, c1g, c1a)
 			end
-			
-			local c2r, c2b, c2g, c2a = db.fontColorCache.r, db.fontColorCache.b, db.fontColorCache.g, db.fontColorCache.a
-			function fontString:SetCacheColor()
-				self:SetTextColor(c2r, c2b, c2g, c2a)
-			end
-			
+						
 			parentFrame.elapsed = 0
 			parentFrame.remaining = 0
 			function parentFrame:SetTimer(tick)
@@ -481,7 +476,6 @@ function CD:Build()
 	statusbarMaxTime = db.maxTime
 	textEnable = db.textEnable
 	remainingTimeThreshold = db.remainingTimeThreshold
-	fontColorCacheEnable = db.fontColorCacheEnable
 	statusbarEnable = db.statusbarEnable
 	orbCappedEnable = db.orbCappedEnable
 	visibilityConditionals = db.visibilityConditionals or ""

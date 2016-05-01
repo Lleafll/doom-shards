@@ -248,25 +248,6 @@ local function displayOptions()
 						max = 10,
 						step = 0.1
 					},
-					fontColorCacheEnable = {
-						order = 12,
-						type = "toggle",
-						name = L["Color Text On Using Cached Value"],
-						desc = L["Cached distances might be unreliable when you or the mobs move a lot"]
-					},
-					fontColorCache = {
-						order = 13,
-						type = "color",
-						name = L["Color for Cache Value"],
-						hasAlpha = true,
-						get = function()
-							return DS.db.complex.fontColorCache.r, DS.db.complex.fontColorCache.b, DS.db.complex.fontColorCache.g, DS.db.complex.fontColorCache.a
-						end,
-						set = function(info, r, b, g, a)
-							DS.db.complex.fontColorCache.r, DS.db.complex.fontColorCache.b, DS.db.complex.fontColorCache.g, DS.db.complex.fontColorCache.a = r, b, g, a
-							DS:Build()
-						end
-					},
 					spacer2 = {
 						order = 13.5,
 						type="description",
@@ -559,8 +540,6 @@ local defaultSettings = {
 	fontFlags = "Shadow",
 	fontColor = {r=1, b=1, g=1, a=1},
 	remainingTimeThreshold = 4,
-	fontColorCacheEnable = false,
-	fontColorCache = {r=0.80, b=0.00, g=0.38, a=1},
 	stringXOffset = 0,
 	stringYOffset = 6,
 	visibilityConditionals = "[mod:alt] [harm] [combat] show; fade",
