@@ -13,7 +13,7 @@ local WeakAurasScanEvents
 ---------------
 -- Variables --
 ---------------
-local conspicuous_spirits_wa
+local weakauras = {}
 
 
 ---------------
@@ -25,9 +25,9 @@ local function WeakAurasLoaded()
 	WeakAurasScanEvents = WeakAuras.ScanEvents
 	function WA:CONSPICUOUS_SPIRITS_UPDATE(_, orbs, timers)
 		local count = #timers
-		conspicuous_spirits_wa.count = count
-		conspicuous_spirits_wa.orbs = orbs
-		conspicuous_spirits_wa.timers = timers
+		weakauras.count = count
+		weakauras.orbs = orbs
+		weakauras.timers = timers
 		WeakAurasScanEvents("WA_AUSPICIOUS_SPIRITS", count, orbs)
 	end
 end
@@ -42,16 +42,13 @@ else
 end
 
 function WA:OnInitialize()
-	if not _G.conspicuous_spirits_wa then _G.conspicuous_spirits_wa = {} end
-	
 	-- old, going to be deprecated
-	conspicuous_spirits_wa = _G.conspicuous_spirits_wa
-	conspicuous_spirits_wa.count = 0
-	conspicuous_spirits_wa.orbs = UnitPower("player", 13)
-	conspicuous_spirits_wa.timers = {}
+	weakauras.count = 0
+	weakauras.orbs = UnitPower("player", 13)
+	weakauras.timers = {}
 	
 	-- new & better to reduce littering of global namespace
-	DS.weakauras = conspicuous_spirits_wa
+	DS.weakauras = weakauras
 end
 
 function WA:OnEnable()

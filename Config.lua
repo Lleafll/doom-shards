@@ -43,38 +43,10 @@ local function optionsTable()
 						func = function()
 							DS:ResetDB()
 							print(L["Doom Shards reset!"])
-							--DS:getDB()
 							DS:Build()
 						end
 					},
-					spacer = {
-						order = 3.5,
-						type = "description",
-						name = ""
-					},
-				}
-			},
-			position = {
-				order = 5,
-				type = "group",
-				name = L["Position"],
-				inline = true,
-				args = {
-					lock = {
-						order = 1,
-						type = "execute",
-						name = L["Toggle Lock"],
-						desc = L["Shows the frame and toggles it for repositioning."],
-						func = function()
-							if UnitAffectingCombat("player") then return end
-							if not DS.locked then
-								DS:Lock()
-							else
-								DS:Unlock()
-							end
-						end
-					},
-					reset = {
+					resetPosition = {
 						order = 3,
 						type = "execute",
 						name = L["Reset Position"],
@@ -90,8 +62,27 @@ local function optionsTable()
 							DS:Build()
 						end
 					},
+					spacer = {
+						order = 3.5,
+						type = "description",
+						name = ""
+					},
+					lock = {
+						order = 4,
+						type = "execute",
+						name = L["Toggle Lock"],
+						desc = L["Shows the frame and toggles it for repositioning."],
+						func = function()
+							if UnitAffectingCombat("player") then return end
+							if not DS.locked then
+								DS:Lock()
+							else
+								DS:Unlock()
+							end
+						end
+					},
 					testMode = {
-						order = 3,
+						order = 5,
 						type = "execute",
 						name = L["Test Mode"],
 						func = function()
@@ -101,7 +92,7 @@ local function optionsTable()
 						end
 					}
 				}
-			}
+			},
 		}
 	}
 end

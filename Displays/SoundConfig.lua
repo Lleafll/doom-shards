@@ -29,7 +29,7 @@ local function displayOptions()
 				order = 1,
 				type = "toggle",
 				name = L["Enable"],
-				desc = L["Play Warning Sound when about to cap Shadow Orbs."]
+				desc = L["Play Warning Sound when about to cap."]
 			},
 			soundHandle = {
 				order = 2,

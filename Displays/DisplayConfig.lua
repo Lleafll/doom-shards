@@ -33,7 +33,7 @@ local function displayOptions()
 			orbs = {
 				order = 3,
 				type = "group",
-				name = L["Orbs"],
+				name = L["Soul Shard Bars"],
 				args = {
 					height = {
 						order = 1,
@@ -142,13 +142,13 @@ local function displayOptions()
 					orbCappedEnable = {
 						order = 6,
 						type = "toggle",
-						name = L["Orb Cap Color Change"],
-						desc = L["Change color of all Shadow Orbs when reaching five Shadow Orbs"]
+						name = L["Shard Cap Color Change"],
+						desc = L["Change color of all Shards when reaching cap"]
 					},
 					orbCappedColor = {
 						order = 7,
 						type = "color",
-						name = L["Color When Orb Capped"],
+						name = L["Color When Shard Capped"],
 						hasAlpha = true,
 						get = function()
 							return DS.db.display.orbCappedColor.r, DS.db.display.orbCappedColor.b, DS.db.display.orbCappedColor.g, DS.db.display.orbCappedColor.a
@@ -174,6 +174,11 @@ local function displayOptions()
 						dialogControl = "LSM30_Statusbar",
 						name = L["Texture"],
 						values = LSM:HashTable("statusbar")
+					},
+					spacer3_5 = {
+						order = 9.5,
+						type="description",
+						name=""
 					},
 					borderColor = {
 						order = 10,
@@ -217,7 +222,87 @@ local function displayOptions()
 						min = 0.1,
 						max = 10,
 						step = 0.1
-					}
+					},
+					spacer5 = {
+						order = 13.5,
+						type="description",
+						name=""
+					},
+					gainFlash = {
+						order = 14,
+						type = "toggle",
+						name = L["Flash on Shard Gain"],
+						set = function(info, val)
+							DS.db.display.gainFlash = val
+							DS:Build()
+						end
+					},
+					resourceSpendIncludeHoG = {
+						order = 15,
+						type = "toggle",
+						name = L["Add. HoG Shards"],
+						desc = L["Include Doom tick indicator in Hand of Gul'dan casts. (Demonology only)"],
+						set = function(info, val)
+							DS.db.display.resourceSpendIncludeHoG = val
+							DS:Build()
+						end
+					},
+					spacer6 = {
+						order = 15.5,
+						type="description",
+						name=""
+					},
+					resourceGainPrediction = {
+						order = 16,
+						type = "toggle",
+						name = L["Indicate Shard Building"],
+						desc = L["Show prediction for gaining shards through casts"],
+						set = function(info, val)
+							DS.db.display.resourceGainPrediction = val
+							DS:Build()
+						end
+					},
+					resourceGainColor = {
+						order = 17,
+						type = "color",
+						name = L["Shard Gain Color"],
+						hasAlpha = true,
+						get = function()
+							return DS.db.display.resourceGainColor.r, DS.db.display.resourceGainColor.b, DS.db.display.resourceGainColor.g, DS.db.display.resourceGainColor.a
+						end,
+						set = function(info, r, b, g, a)
+							DS.db.display.resourceGainColor.r, DS.db.display.resourceGainColor.b, DS.db.display.resourceGainColor.g, DS.db.display.resourceGainColor.a = r, b, g, a
+							DS:Build()
+						end
+					},
+					spacer7 = {
+						order = 17.5,
+						type="description",
+						name=""
+					},
+					resourceSpendPrediction = {
+						order = 18,
+						type = "toggle",
+						name = L["Indicate Shard Spending"],
+						desc = L["Show prediction for spending shards through casts"],
+						set = function(info, val)
+							DS.db.display.resourceSpendPrediction = val
+							DS:Build()
+						end
+					},
+					resourceSpendColor = {
+						order = 19,
+						type = "color",
+						name = L["Shard Spend Color"],
+						hasAlpha = true,
+						get = function()
+							return DS.db.display.resourceSpendColor.r, DS.db.display.resourceSpendColor.b, DS.db.display.resourceSpendColor.g, DS.db.display.resourceSpendColor.a
+						end,
+						set = function(info, r, b, g, a)
+							DS.db.display.resourceSpendColor.r, DS.db.display.resourceSpendColor.b, DS.db.display.resourceSpendColor.g, DS.db.display.resourceSpendColor.a = r, b, g, a
+							DS:Build()
+						end
+					},
 				}
 			},
 			text = {
@@ -284,7 +369,8 @@ local function displayOptions()
 					fontColorHoGPrediction = {
 						order = 10.1,
 						type = "color",
-						name = L["Font Color for HoG Prediction"],
+						name = L["Font Color for Hand of Gul'dan Prediction"],
+						desc = L["Color the text will change to if doom will tick before next possible Hand of Gul'dan cast."],
 						hasAlpha = true,
 						get = function()
 							return DS.db.display.fontColorHoGPrediction.r, DS.db.display.fontColorHoGPrediction.b, DS.db.display.fontColorHoGPrediction.g, DS.db.display.fontColorHoGPrediction.a
@@ -308,16 +394,10 @@ local function displayOptions()
 						max = 10,
 						step = 0.1
 					},
-					spacer2 = {
-						order = 13.5,
-						type="description",
-						name=""
-					},
 					stringXOffset = {
 						order = 14,
 						type = "range",
 						name = L["X Offset"],
-						desc = L["X offset for the Shadowy Apparition time text"],
 						min = -1000,
 						max = 1000,
 						step = 1,
@@ -340,7 +420,6 @@ local function displayOptions()
 						order = 15,
 						type = "range",
 						name = L["Y Offset"],
-						desc = L["Y offset for the Shadowy Apparition time text"],
 						min = -1000,
 						max = 1000,
 						step = 1,
@@ -364,13 +443,13 @@ local function displayOptions()
 			statusbar = {
 				order = 4,
 				type = "group",
-				name = L["Anticipated Orbs"],
+				name = L["Doom Tick Indicator Bars"],
 				args = {
 					statusbarEnable = {
 						order = 1,
 						type = "toggle",
 						name = L["Enable"],
-						desc = L["Enable display of bars for anticipated Shadow Orbs in the Shadow Orbs' positions"]
+						desc = L["Enable bars for incoming Doom ticks"]
 					},
 					spacer0 = {
 						order = 1.5,
@@ -383,15 +462,6 @@ local function displayOptions()
 						name = L["Reverse Direction"],
 						desc = L["Fill indicator from right to left"]
 					},
-					--[[maxTime = {
-						order = 2,
-						type = "range",
-						name = L["Maximum Time"],
-						desc = L["Maximum remaining Shadowy Apparition flight time shown on the indicators"],
-						min = 0,
-						max = 10,
-						step = 0.1
-					},]]--
 					spacer = {
 						order = 3.5,
 						type="description",
@@ -400,7 +470,7 @@ local function displayOptions()
 					statusbarColor = {
 						order = 4,
 						type = "color",
-						name = L["Color"],
+						name = L["Bar Color"],
 						hasAlpha = true,
 						get = function()
 							return DS.db.display.statusbarColor.r, DS.db.display.statusbarColor.b, DS.db.display.statusbarColor.g, DS.db.display.statusbarColor.a
@@ -432,7 +502,6 @@ local function displayOptions()
 						order = 7,
 						type = "range",
 						name = L["X Offset"],
-						desc = L["X offset for the Shadowy Apparition indicator bars"],
 						min = -math.ceil(GetScreenWidth()),
 						max = math.ceil(GetScreenWidth()),
 						step = 1,
@@ -455,7 +524,6 @@ local function displayOptions()
 						order = 8,
 						type = "range",
 						name = L["Y Offset"],
-						desc = L["Y offset for the Shadowy Apparition time text"],
 						min = -math.ceil(GetScreenHeight()),
 						max = math.ceil(GetScreenHeight()),
 						step = 1,
@@ -483,7 +551,7 @@ local function displayOptions()
 						order = 10,
 						type = "color",
 						name = L["\"Overcap Orb\" Color"],
-						desc = L["Color of the sixth indicator when overcapping with Shadowy Apparitions"],
+						desc = L["Color of the additional indicator when overcapping with Doom ticks"],
 						hasAlpha = true,
 						get = function()
 							return DS.db.display.statusbarColorOverflow.r, DS.db.display.statusbarColorOverflow.b, DS.db.display.statusbarColorOverflow.g, DS.db.display.statusbarColorOverflow.a
@@ -496,80 +564,10 @@ local function displayOptions()
 					statusbarCount = {
 						order = 11,
 						type = "range",
-						name = L["Number of Overcap Orbs"],
+						name = L["Additional Doom Indicators"],
 						min = 0,
 						max = 20,
 						step = 1
-					}
-				}
-			},
-			animations = {
-				order = 7,
-				order = 7,
-				type = "group",
-				name = L["Animations"],
-				args = {
-					gainFlash = {
-						order = 1,
-						type = "toggle",
-						name = L["Flash on shard gain"],
-						set = function(info, val)
-							DS.db.display.gainFlash = val
-							DS:Build()
-						end
-					},
-					resourceGainPrediction = {
-						order = 2,
-						type = "toggle",
-						name = L["Show prediction for gaining shards through casts"],
-						set = function(info, val)
-							DS.db.display.resourceGainPrediction = val
-							DS:Build()
-						end
-					},
-					resourceGainColor = {
-						order = 2.5,
-						type = "color",
-						name = L["Shard Gain Color"],
-						hasAlpha = true,
-						get = function()
-							return DS.db.display.resourceGainColor.r, DS.db.display.resourceGainColor.b, DS.db.display.resourceGainColor.g, DS.db.display.resourceGainColor.a
-						end,
-						set = function(info, r, b, g, a)
-							DS.db.display.resourceGainColor.r, DS.db.display.resourceGainColor.b, DS.db.display.resourceGainColor.g, DS.db.display.resourceGainColor.a = r, b, g, a
-							DS:Build()
-						end
-					},
-					resourceSpendPrediction = {
-						order = 3,
-						type = "toggle",
-						name = L["Show prediction for spending shards through casts"],
-						set = function(info, val)
-							DS.db.display.resourceSpendPrediction = val
-							DS:Build()
-						end
-					},
-					resourceSpendColor = {
-						order = 3.5,
-						type = "color",
-						name = L["Shard Spend Color"],
-						hasAlpha = true,
-						get = function()
-							return DS.db.display.resourceSpendColor.r, DS.db.display.resourceSpendColor.b, DS.db.display.resourceSpendColor.g, DS.db.display.resourceSpendColor.a
-						end,
-						set = function(info, r, b, g, a)
-							DS.db.display.resourceSpendColor.r, DS.db.display.resourceSpendColor.b, DS.db.display.resourceSpendColor.g, DS.db.display.resourceSpendColor.a = r, b, g, a
-							DS:Build()
-						end
-					},
-					resourceSpendIncludeHoG = {
-						order = 4,
-						type = "toggle",
-						name = L["Include Doom Prediction in HoG casts"],
-						set = function(info, val)
-							DS.db.display.resourceSpendIncludeHoG = val
-							DS:Build()
-						end
 					}
 				}
 			},
