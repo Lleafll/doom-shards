@@ -158,7 +158,7 @@ do
 					self:Tick(destGUID)
 					if orbs < maxResource then
 						orbs = orbs + 1
-						self:UNIT_POWER_FREQUENT("UNIT_POWER_FREQUENT", "player", "SHADOW_ORBS")  -- fail safe in case the corresponding UNIT_POWER_FREQUENT fires wonkily
+						self:UNIT_POWER_FREQUENT("UNIT_POWER_FREQUENT", "player", "SOUL_SHARDS")  -- fail safe in case the corresponding UNIT_POWER_FREQUENT fires wonkily
 					end
 				end
 			end
