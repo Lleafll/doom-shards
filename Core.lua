@@ -41,7 +41,9 @@ local unitPowerId = SPELL_POWER_SOUL_SHARDS
 ---------------
 local SAGraceTime = 3  -- maximum additional wait time before SA timer gets purged if it should not have hit in the meantime
 
+local shardsFromCurrentCast = 0
 local orbs = 0
+local energizedShards = 0
 local timers = {}  -- ordered table of all timer IDs
 local nextTick = {}
 local durations = {}
@@ -56,14 +58,18 @@ local durations = {}
 	self:SendMessage("CONSPICUOUS_SPIRITS_UPDATE", orbs, timers)
 end]]--
 function DS:Update(timeStamp)
+	if not timeStamp then timeStamp = GetTime() end
 	self:SendMessage("CONSPICUOUS_SPIRITS_UPDATE",
 		timeStamp,
 		orbs,
 		timers,
 		nextTick,
-		durations
+		durations,
+		energizedShards,
+		shardsFromCurrentCast
 	)
 	--self:TargetChanged()
+	energizedShards = 0
 end
 
 -- resets all data
@@ -119,7 +125,7 @@ do
 		end
 		durations[GUID] = nil
 		nextTick[GUID] = nil
-		self:Update(GetTime())
+		self:Update()
 	end
 
 	function DS:Refresh(GUID)
@@ -142,9 +148,13 @@ do
 		end
 	end
 	
+	function DS:Energize(energizeAmount)
+		energizedShards = energizeAmount
+	end
+	
 	function DS:COMBAT_LOG_EVENT_UNFILTERED(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, ...)
 		if sourceGUID == playerGUID then
-			local spellID = ...
+			local spellID, _, _, energizeAmount = ...
 			-- Doom
 			if spellID == 603 and sourceGUID == playerGUID then
 				if event == "SPELL_AURA_APPLIED" then
@@ -160,6 +170,11 @@ do
 						self:UNIT_POWER_FREQUENT("UNIT_POWER_FREQUENT", "player", "SOUL_SHARDS")  -- fail safe in case the corresponding UNIT_POWER_FREQUENT fires wonkily
 					end
 				end
+			end
+			
+			-- Soul Conduit
+			if event == "SPELL_ENERGIZE" and spellID == 215942 then
+				self:Energize(energizeAmount)
 			end
 			
 		end

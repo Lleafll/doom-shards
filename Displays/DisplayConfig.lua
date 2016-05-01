@@ -485,8 +485,35 @@ local function displayOptions()
 					}
 				}
 			},
+			animations = {
+				order = 7,
+				order = 7,
+				type = "group",
+				name = L["Animations"],
+				args = {
+					gainFlash = {
+						order = 1,
+						type = "toggle",
+						name = L["Flash on shard gain"],
+						set = function(info, val)
+							DS.db.display.gainFlash = val
+							DS:Build()
+						end
+					},
+					shardGainPrediction = {
+						order = 2,
+						type = "toggle",
+						name = L["Show prediction for gaining shards through casts"],
+					},
+					shardUsePrediction = {
+						order = 3,
+						type = "toggle",
+						name = L["Show prediction for using shards through casts"],
+					},
+				}
+			},
 			positioning = {
-				order = 6,
+				order = 7,
 				type = "group",
 				name = L["Positioning"],
 				args = {
@@ -574,11 +601,11 @@ local defaultSettings = {
 	height = 8,
 	width = 32,
 	spacing = 1,
-	color1 = {r=0.51, b=0.00, g=0.24, a=1},
-	color2 = {r=0.51, b=0.00, g=0.24, a=1},
+	color1 = {r=0.38, b=0.23, g=0.51, a=1},
+	color2 = {r=0.38, b=0.23, g=0.51, a=1},
 	color3 = {r=0.38, b=0.23, g=0.51, a=1},
 	color4 = {r=0.38, b=0.23, g=0.51, a=1},
-	color5 = {r=0.51, b=0.00, g=0.24, a=1},
+	color5 = {r=0.38, b=0.23, g=0.51, a=1},  -- {r=0.51, b=0.00, g=0.24, a=1}
 	textEnable = true,
 	fontSize = 15,
 	fontName = "Friz Quadrata TT",
@@ -605,6 +632,9 @@ local defaultSettings = {
 	statusbarCount = 5,
 	orbCappedEnable = true,
 	orbCappedColor = {r=0.51, b=0.00, g=0.24, a=1},
+	gainFlash = true,
+	shardGainPrediction = true,
+	shardUsePrediction = true,
 }
 
 DS:AddDisplayOptions("display", displayOptions, defaultSettings)

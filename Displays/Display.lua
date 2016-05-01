@@ -56,10 +56,12 @@ local borderBackdrop = {
 ---------------
 local db
 local durations
+local energizedShards
 local nextTick
 local orbCappedEnable
 local orbs
 local remainingTimeThreshold
+local resourceFromCurrentCast
 local statusbarCount
 local statusbarEnable
 local statusbarMaxTime
@@ -75,8 +77,8 @@ local visibilityConditionals = ""
 ---------------
 local function update()
 	for i = 1, statusbarCount do
+		local orbFrame = orbFrames[i]
 		if orbs >= i then
-			local orbFrame = orbFrames[i]
 			if orbCappedEnable then
 				if (orbs == maxResource) and (not orbFrame.orbCapColored) then
 					orbFrame:SetOrbCapColor()
@@ -84,12 +86,22 @@ local function update()
 					orbFrame:SetOriginalColor()
 				end
 			end
+			if i > orbs - energizedShards and orbFrame.active then  -- TODO: pretty hacky
+				orbFrame.smoke:Show()
+				orbFrame.smoke.flasher:Play()
+			end
 			orbFrame:Show()
-			if textEnable then SATimers[i]:Hide() end
+			if textEnable then
+				SATimers[i]:Hide()
+			end
 			statusbars[i]:Hide()
+			if orbFrame.active == nil then  -- TODO: replace with more efficient solution?
+				orbFrame.active = true
+			end
 			
 		else
-			orbFrames[i]:Hide()
+			orbFrame:Hide()
+			orbFrame.active = false
 		end
 	end
 	
@@ -110,17 +122,21 @@ local function update()
 	end
 	
 	for m = k, statusbarCount do
-		if textEnable then SATimers[m]:Hide() end
+		if textEnable then 
+			SATimers[m]:Hide()
+		end
 		statusbars[m]:Hide()
 	end
 end
 
-function CD:CONSPICUOUS_SPIRITS_UPDATE(_, updatedTimeStamp, updatedOrbs, updatedTimers, updatedNextTick, updatedDurations)
+function CD:CONSPICUOUS_SPIRITS_UPDATE(_, updatedTimeStamp, updatedOrbs, updatedTimers, updatedNextTick, updatedDurations, updatedEnergizedShards, updatedResourceFromCurrentCast)
 	timeStamp = updatedTimeStamp
 	orbs = updatedOrbs
 	timers = updatedTimers
 	nextTick = updatedNextTick
 	durations = updatedDurations
+	energizedShards = updatedEnergizedShards
+	resourceFromCurrentCast = updatedResourceFromCurrentCast
 	update()
 end
 
@@ -154,7 +170,6 @@ do
 	
 	function CDOnUpdateFrame:EvaluateConditionals()
 		local state = SecureCmdOptionParse(visibilityConditionals)
-		--if not CDFrame.fader then return end
 		if state ~= currentState then
 			if state == "hide" then
 				CDFrame.fader:Stop()
@@ -201,6 +216,62 @@ do
 	function CDOnUpdateFrame:UnregisterEvents()
 		self:UnregisterAllEvents()
 	end
+end
+
+
+----------------
+-- Animations --
+----------------
+local function buildFader()
+	CDFrame.fader = CDFrame:CreateAnimationGroup()
+	CDFrame.fader:SetScript("OnFinished", function()
+		CDFrame:SetAlpha(1)
+		CDFrame:Hide()
+	end)
+	CDFrame.fader.fadeOut = CDFrame.fader:CreateAnimation("Alpha")
+	CDFrame.fader.fadeOut:SetFromAlpha(1)
+	CDFrame.fader.fadeOut:SetToAlpha(0)
+	CDFrame.fader.fadeOut:SetSmoothing("IN")
+end
+
+local function buildFlasher(parentFrame)
+	local smoke = parentFrame.smoke
+	if not smoke then
+		parentFrame.smoke = CreateFrame("frame", nil, parentFrame)
+		smoke = parentFrame.smoke
+		smoke:SetBackdrop(backdrop)
+		smoke:SetBackdropColor(1, 1, 1, 1)
+		smoke:SetAllPoints()
+	end
+	smoke:Hide()
+	
+	smoke.flasher = smoke:CreateAnimationGroup()
+	smoke.flasher:SetScript("OnFinished", function()
+		smoke:SetAlpha(0)
+		smoke:Hide()
+	end)
+	--smoke.flasher:SetLooping("NONE")
+	
+	smoke.flasher.start = smoke.flasher:CreateAnimation("Alpha")
+	smoke.flasher.start:SetFromAlpha(0)
+	smoke.flasher.start:SetToAlpha(0.5)
+	--smoke.flasher.start:SetSmoothing("IN")
+	smoke.flasher.start:SetDuration(0.2)
+	smoke.flasher.start:SetOrder(1)
+	
+	smoke.flasher.out = smoke.flasher:CreateAnimation("Alpha")
+	smoke.flasher.out:SetFromAlpha(0.5)
+	smoke.flasher.out:SetToAlpha(0)
+	--smoke.flasher.out:SetSmoothing("IN")
+	smoke.flasher.out:SetDuration(0.3)
+	smoke.flasher.out:SetOrder(2)
+	parentFrame:SetScript("OnShow", function()
+		if parentFrame.active == false then  -- Explicitly don't check for nil
+			parentFrame.smoke:Show()
+			parentFrame.smoke.flasher:Play()
+			parentFrame.active = true
+		end
+	end)
 end
 
 
@@ -257,7 +328,7 @@ local function buildFrames()
 			
 			frame:SetBackdrop(backdrop)
 			
-			if numeration <= 5 then
+			if numeration <= maxResource then
 				frame:Show()
 				
 				if not frame.border then
@@ -291,6 +362,10 @@ local function buildFrames()
 			function frame:SetOrbCapColor()
 				self:SetBackdropColor(c3r, c3b, c3g, c3a)
 				self.orbCapColored = true
+			end
+			
+			if db.gainFlash then
+				buildFlasher(frame)
 			end
 			
 			return frame
@@ -420,22 +495,6 @@ local function buildFrames()
 			end
 		end
 	end
-end
-
-
-----------------
--- Animations --
-----------------
-local function buildFader()
-	CDFrame.fader = CDFrame:CreateAnimationGroup()
-	CDFrame.fader:SetScript("OnFinished", function()
-		CDFrame:SetAlpha(1)
-		CDFrame:Hide()
-	end)
-	CDFrame.fader.fadeOut = CDFrame.fader:CreateAnimation("Alpha")
-	CDFrame.fader.fadeOut:SetFromAlpha(1)
-	CDFrame.fader.fadeOut:SetToAlpha(0)
-	CDFrame.fader.fadeOut:SetSmoothing("IN")
 end
 
 
