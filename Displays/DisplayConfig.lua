@@ -67,7 +67,7 @@ local function displayOptions()
 					color1 = {
 						order = 4,
 						type = "color",
-						name = L["Color 1"],
+						name = L["Color Shard 1"],
 						hasAlpha = true,
 						get = function()
 							local r, b, g, a = DS.db.display.color1.r, DS.db.display.color1.b, DS.db.display.color1.g, DS.db.display.color1.a
@@ -79,9 +79,9 @@ local function displayOptions()
 						end
 					},
 					color2 = {
-						order = 5,
+						order = 4.1,
 						type = "color",
-						name = L["Color 2"],
+						name = L["Color Shard 2"],
 						hasAlpha = true,
 						get = function()
 							local r, b, g, a = DS.db.display.color2.r, DS.db.display.color2.b, DS.db.display.color2.g, DS.db.display.color2.a
@@ -89,6 +89,48 @@ local function displayOptions()
 						end,
 						set = function(info, r, b, g, a)
 							DS.db.display.color2.r, DS.db.display.color2.b, DS.db.display.color2.g, DS.db.display.color2.a = r, b, g, a
+							DS:Build()
+						end
+					},
+					color3 = {
+						order = 4.2,
+						type = "color",
+						name = L["Color Shard 3"],
+						hasAlpha = true,
+						get = function()
+							local r, b, g, a = DS.db.display.color3.r, DS.db.display.color3.b, DS.db.display.color3.g, DS.db.display.color3.a
+							return r, b, g, a
+						end,
+						set = function(info, r, b, g, a)
+							DS.db.display.color3.r, DS.db.display.color3.b, DS.db.display.color3.g, DS.db.display.color3.a = r, b, g, a
+							DS:Build()
+						end
+					},
+					color4 = {
+						order = 4.3,
+						type = "color",
+						name = L["Color Shard 4"],
+						hasAlpha = true,
+						get = function()
+							local r, b, g, a = DS.db.display.color4.r, DS.db.display.color4.b, DS.db.display.color4.g, DS.db.display.color4.a
+							return r, b, g, a
+						end,
+						set = function(info, r, b, g, a)
+							DS.db.display.color4.r, DS.db.display.color4.b, DS.db.display.color4.g, DS.db.display.color4.a = r, b, g, a
+							DS:Build()
+						end
+					},
+					color5 = {
+						order = 4.4,
+						type = "color",
+						name = L["Color Shard 5"],
+						hasAlpha = true,
+						get = function()
+							local r, b, g, a = DS.db.display.color5.r, DS.db.display.color5.b, DS.db.display.color5.g, DS.db.display.color5.a
+							return r, b, g, a
+						end,
+						set = function(info, r, b, g, a)
+							DS.db.display.color5.r, DS.db.display.color5.b, DS.db.display.color5.g, DS.db.display.color5.a = r, b, g, a
 							DS:Build()
 						end
 					},
@@ -532,8 +574,11 @@ local defaultSettings = {
 	height = 8,
 	width = 32,
 	spacing = 1,
-	color1 = {r=0.38, b=0.23, g=0.51, a=1},
+	color1 = {r=0.51, b=0.00, g=0.24, a=1},
 	color2 = {r=0.51, b=0.00, g=0.24, a=1},
+	color3 = {r=0.38, b=0.23, g=0.51, a=1},
+	color4 = {r=0.38, b=0.23, g=0.51, a=1},
+	color5 = {r=0.51, b=0.00, g=0.24, a=1},
 	textEnable = true,
 	fontSize = 15,
 	fontName = "Friz Quadrata TT",

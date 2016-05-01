@@ -275,17 +275,11 @@ local function buildFrames()
 				frame:Hide()
 			end
 			
-			local c1r, c1b, c1g, c1a = db.color1.r, db.color1.b, db.color1.g, db.color1.a 
-			local c2r, c2b, c2g, c2a = db.color2.r, db.color2.b, db.color2.g, db.color2.a 
-			if numeration <= 3 then
+			if numeration <= maxResource then
+				local color = db["color"..numeration]
+				local cr, cb, cg, ca = color.r, color.b, color.g, color.a
 				function frame:SetOriginalColor()
-					self:SetBackdropColor(c1r, c1b, c1g, c1a)
-					self.orbCapColored = false
-				end
-				frame:SetOriginalColor()
-			elseif numeration <= 5 then
-				function frame:SetOriginalColor()
-					self:SetBackdropColor(c2r, c2b, c2g, c2a)
+					self:SetBackdropColor(cr, cb, cg, ca)
 					self.orbCapColored = false
 				end
 				frame:SetOriginalColor()
