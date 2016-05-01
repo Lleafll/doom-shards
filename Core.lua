@@ -250,12 +250,7 @@ do
 		return GetSpecialization() == 2
 	end
 	
-	function DS:TalentsCheck()		
-		if isShadow() then
-			self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		else
-			self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		end
+	function DS:TalentsCheck()
 		self:Build()
 		self:Update()
 	end
@@ -268,9 +263,7 @@ do
 		self:RegisterEvent("UNIT_POWER_FREQUENT")
 		self:RegisterEvent("PLAYER_REGEN_DISABLED")
 		self:RegisterEvent("PLAYER_REGEN_ENABLED")
-		if isShadow() then
-			self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		end
+		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		
 		if UnitAffectingCombat("player") then
 			self:PLAYER_REGEN_DISABLED() 
