@@ -62,10 +62,13 @@ local orbCappedEnable
 local orbs
 local remainingTimeThreshold
 local resourceFromCurrentCast
+local resourceGainPrediction
+local resourceSpendIncludeHoG
+local resourceSpendPrediction
 local shardGeneration
+local nextCast
 local statusbarCount
 local statusbarEnable
-local statusbarMaxTime
 local statusbarRefresh
 local textEnable
 local timers
@@ -76,50 +79,112 @@ local visibilityConditionals = ""
 ---------------
 -- Functions --
 ---------------
+do
+	function CD:GetHoGCastingTime()  -- TODO: Cache to improve performance
+		_, _, _, castingTime = GetSpellInfo(105174)
+		return (nextCast and (nextCast - GetTime()) or 0) + castingTime / 1000
+	end
+end
+
 local function update()
+	-- Shards
+	local energizeThreshold = orbs - energizedShards
+	local spendThreshold = orbs + ((resourceSpendPrediction and shardGeneration < 0) and shardGeneration or 0)
 	for i = 1, statusbarCount do
 		local orbFrame = orbFrames[i]
 		if orbs >= i then
-			if orbCappedEnable then
-				if (orbs == maxResource) and (not orbFrame.orbCapColored) then
-					orbFrame:SetOrbCapColor()
-				elseif (orbs ~= maxResource) and (orbFrame.orbCapColored) then
+			if i > spendThreshold then
+				if not orbFrame.spendColored then
+					orbFrame:SetSpendColor()
+				end
+			elseif orbCappedEnable and (orbs == maxResource) then
+				if not orbFrame.capColored then
+					orbFrame:SetCapColor()
+				end
+			elseif not orbCappedEnable or (orbs ~= maxResource) then
+				if orbFrame.capColored or orbFrame.gainColored or orbFrame.spendColored then
 					orbFrame:SetOriginalColor()
 				end
 			end
-			if i > orbs - energizedShards and orbFrame.active then  -- TODO: pretty hacky
+			orbFrame:Show()
+			if (i > energizeThreshold and orbFrame.active) or (orbFrame.active == false) then  -- TODO: pretty hacky  -- Explicitly don't check for nil
 				orbFrame.smoke:Show()
 				orbFrame.smoke.flasher:Play()
+				orbFrame.active = true
 			end
-			orbFrame:Show()
+			if orbFrame.active == nil then  -- TODO: replace with more efficient solution?
+				orbFrame.active = true
+			end
 			if textEnable then
 				SATimers[i]:Hide()
 			end
 			statusbars[i]:Hide()
-			if orbFrame.active == nil then  -- TODO: replace with more efficient solution?
-				orbFrame.active = true
-			end
 			
 		else
 			orbFrame:Hide()
 			orbFrame.active = false
+			
 		end
 	end
 	
+	-- Show shard spending for doom prediction in timeframe of currently cast spender
+	if resourceSpendIncludeHoG and nextCast and orbs + shardGeneration < 0 then
+		additionalResources = - orbs - shardGeneration
+		for t = 1, additionalResources do
+			local GUID = timers[t]
+			if GUID then
+				local tick = nextTick[GUID]
+				if tick < nextCast then
+					local orbFrame = orbFrames[orbs + t]
+					orbFrame:Show()
+					orbFrame:SetSpendColor()
+				else
+					break
+				end
+			end
+		end
+	end
+	
+	-- Doom prediction
 	local k = orbs + 1
 	local t = 1
 	local GUID = timers[t]
-	while GUID and k <= statusbarCount do
+	local generatedResource = shardGeneration > 0 and shardGeneration
+	local castEnd = (resourceGainPrediction and generatedResource) and nextCast or nil
+	while (GUID or castEnd) and k <= statusbarCount do
 		local tick = nextTick[GUID]
-		if textEnable then 
-			SATimers[k]:SetTimer(tick)
+		if GUID and (not castEnd or (castEnd and tick < castEnd)) then
+			if textEnable then
+				local SATimer = SATimers[k]
+				SATimer:Show()
+				SATimer:SetTimer(tick)
+			end
+			if statusbarEnable then
+				local statusbar = statusbars[k]
+				statusbar:SetTimer(tick)
+				if statusbar.gainColored then
+					statusbar:SetOriginalColor()
+				end
+			end
+			t = t + 1
+			GUID = timers[t]
+		else
+			if textEnable then
+				SATimers[k]:Hide()
+			end
+			if statusbarEnable then
+				statusbars[k]:Hide()
+			end
+			local orbFrame = orbFrames[k]
+			orbFrame:Show()
+			orbFrame:SetGainColor()
+			generatedResource = generatedResource - 1
+			if generatedResource <= 0 then  -- Should never be lower than 0
+				castEnd = nil
+			end
 		end
-		if statusbarEnable then
-			statusbars[k]:SetTimer(tick)
-		end
+		
 		k = k + 1
-		t = t + 1
-		GUID = timers[t]
 	end
 	
 	for m = k, statusbarCount do
@@ -131,18 +196,28 @@ local function update()
 end
 
 function CD:CONSPICUOUS_SPIRITS_UPDATE(_, ...)
-	timeStamp, orbs, timers, nextTick, durations, energizedShards, shardGeneration = ...
+	timeStamp, orbs, timers, nextTick, durations, energizedShards, shardGeneration, nextCast = ...
 	update()
 end
 
-local function SATimerOnUpdate(SATimer, elapsed)
-	SATimer.elapsed = SATimer.elapsed + elapsed
-	SATimer.remaining = SATimer.remaining - elapsed
-	if SATimer.elapsed > 0.1 then
-		if SATimer.remaining < remainingTimeThreshold then
-			SATimer.fontString:SetText(stringformat("%.1f", SATimer.remaining < 0 and 0 or SATimer.remaining))
+local function SATimerOnUpdate(self, elapsed)
+	self.elapsed = self.elapsed + elapsed
+	self.remaining = self.remaining - elapsed
+	if self.elapsed > 0.1 then
+		local remaining = self.remaining
+		if remaining < remainingTimeThreshold then
+			self.fontString:SetText(stringformat("%.1f", remaining < 0 and 0 or remaining))
 		else
-			SATimer.fontString:SetText(stringformat("%.0f", SATimer.remaining))
+			self.fontString:SetText(stringformat("%.0f", remaining))
+		end
+		if remaining < CD:GetHoGCastingTime() then
+			if not self.fontString.hogColored then
+				self.fontString:SetHoGColor()
+			end
+		else
+			if self.fontString.hogColored then
+				self.fontString:SetOriginalColor()
+			end
 		end
 	end
 end
@@ -151,7 +226,7 @@ local function statusbarOnUpdate(statusbar, elapsed)
 	statusbar.remaining = statusbar.remaining - elapsed
 	statusbar.elapsed = statusbar.elapsed + elapsed
 	if statusbar.elapsed > statusbarRefresh then
-		statusbar.statusbar:SetValue(statusbarMaxTime - (statusbar.remaining < 0 and 0 or statusbar.remaining))  -- check for < 0 necessary?
+		statusbar.statusbar:SetValue(statusbar.maxTime - (statusbar.remaining < 0 and 0 or statusbar.remaining))  -- check for < 0 necessary?
 	end
 end
 
@@ -245,28 +320,18 @@ local function buildFlasher(parentFrame)
 		smoke:SetAlpha(0)
 		smoke:Hide()
 	end)
-	--smoke.flasher:SetLooping("NONE")
 	
 	smoke.flasher.start = smoke.flasher:CreateAnimation("Alpha")
 	smoke.flasher.start:SetFromAlpha(0)
 	smoke.flasher.start:SetToAlpha(0.5)
-	--smoke.flasher.start:SetSmoothing("IN")
 	smoke.flasher.start:SetDuration(0.2)
 	smoke.flasher.start:SetOrder(1)
 	
 	smoke.flasher.out = smoke.flasher:CreateAnimation("Alpha")
 	smoke.flasher.out:SetFromAlpha(0.5)
 	smoke.flasher.out:SetToAlpha(0)
-	--smoke.flasher.out:SetSmoothing("IN")
 	smoke.flasher.out:SetDuration(0.3)
 	smoke.flasher.out:SetOrder(2)
-	parentFrame:SetScript("OnShow", function()
-		if parentFrame.active == false then  -- Explicitly don't check for nil
-			parentFrame.smoke:Show()
-			parentFrame.smoke.flasher:Play()
-			parentFrame.active = true
-		end
-	end)
 end
 
 
@@ -283,7 +348,7 @@ local function buildFrames()
 	local stringYOffset = db.stringYOffset
 	local statusbarXOffset = db.statusbarXOffset
 	local statusbarYOffset = db.statusbarYOffset
-	backdrop.bgFile = (db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
+	backdrop.bgFile = (not db.useTexture or db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
 	statusbarBackdrop.bgFile = (db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
 	
 	local CDFrameHeight = db.height + 25
@@ -346,7 +411,9 @@ local function buildFrames()
 				local cr, cb, cg, ca = color.r, color.b, color.g, color.a
 				function frame:SetOriginalColor()
 					self:SetBackdropColor(cr, cb, cg, ca)
-					self.orbCapColored = false
+					self.capColored = false
+					self.gainColored = false
+					self.spendColored = false
 				end
 				frame:SetOriginalColor()
 			else
@@ -354,9 +421,27 @@ local function buildFrames()
 			end
 			
 			local c3r, c3b, c3g, c3a = db.orbCappedColor.r, db.orbCappedColor.b, db.orbCappedColor.g, db.orbCappedColor.a
-			function frame:SetOrbCapColor()
+			function frame:SetCapColor()
 				self:SetBackdropColor(c3r, c3b, c3g, c3a)
-				self.orbCapColored = true
+				self.capColored = true
+				self.gainColored = false
+				self.spendColored = false
+			end
+			
+			local c4r, c4b, c4g, c4a = db.resourceSpendColor.r, db.resourceSpendColor.b, db.resourceSpendColor.g, db.resourceSpendColor.a
+			function frame:SetSpendColor()
+				self:SetBackdropColor(c4r, c4b, c4g, c4a)
+				self.spendColored = true
+				self.capColored = false
+				self.gainColored = false
+			end
+			
+			local c5r, c5b, c5g, c5a = db.resourceGainColor.r, db.resourceGainColor.b, db.resourceGainColor.g, db.resourceGainColor.a
+			function frame:SetGainColor()
+				self:SetBackdropColor(c5r, c5b, c5g, c5a)
+				self.gainColored = true
+				self.capColored = false
+				self.spendColored = false
 			end
 			
 			if db.gainFlash then
@@ -398,16 +483,19 @@ local function buildFrames()
 			local c1r, c1b, c1g, c1a = db.fontColor.r, db.fontColor.b, db.fontColor.g, db.fontColor.a
 			function fontString:SetOriginalColor()
 				self:SetTextColor(c1r, c1b, c1g, c1a)
+				self.hogColored = false
 			end
-						
+			local c2r, c2b, c2g, c2a = db.fontColorHoGPrediction.r, db.fontColorHoGPrediction.b, db.fontColorHoGPrediction.g, db.fontColorHoGPrediction.a
+			function fontString:SetHoGColor()
+				self:SetTextColor(c2r, c2b, c2g, c2a)
+				self.hogColored = true
+			end
+			
 			parentFrame.elapsed = 0
 			parentFrame.remaining = 0
 			function parentFrame:SetTimer(tick)
 				self.remaining = tick - GetTime()
 				self.elapsed = 1
-				-- Debug
-				fontString:SetOriginalColor()  -- TODO: Check if necessary
-				
 				self:Show()
 			end
 			parentFrame:SetScript("OnUpdate", SATimerOnUpdate)  -- only triggers when frame is shown
@@ -456,7 +544,7 @@ local function buildFrames()
 			statusbar:SetPoint("BOTTOMRIGHT", -1 , 1)
 			statusbar:SetStatusBarTexture((db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle))
 			statusbar:SetStatusBarColor(db.statusbarColor.r, db.statusbarColor.b, db.statusbarColor.g, db.statusbarColor.a)
-			statusbar:SetMinMaxValues(0, statusbarMaxTime)
+			statusbar:SetMinMaxValues(0, 20)
 			statusbar:SetOrientation(orientation == "Vertical" and "VERTICAL" or "HORIZONTAL")
 			statusbar:SetReverseFill(db.statusbarReverse)
 			
@@ -465,24 +553,32 @@ local function buildFrames()
 			function frame:SetTimer(tick)
 				self.elapsed = 1
 				self.remaining = tick - GetTime()
+				self.maxTime = DS:GetDoomDuration()
+				self.statusbar:SetMinMaxValues(0, self.maxTime)
 				self:Show()
 			end
 			frame:SetScript("OnUpdate", statusbarOnUpdate)  -- only triggers when frame is shown
 			
-			frame:Show()		
+			frame:Show()
+			
+			local c1r, c1b, c1g, c1a
+			if numeration <= maxResource then
+				c1r, c1b, c1g, c1a = db.statusbarColorBackground.r, db.statusbarColorBackground.b, db.statusbarColorBackground.g, db.statusbarColorBackground.a
+			else
+				c1r, c1b, c1g, c1a = db.statusbarColorOverflow.r, db.statusbarColorOverflow.b, db.statusbarColorOverflow.g, db.statusbarColorOverflow.a
+			end
+			
+			function frame:SetOriginalColor()
+				self:SetBackdropColor(c1r, c1b, c1g, c1a)
+				self.gainColored = false
+			end
+			
+			frame:SetOriginalColor()
+			
 			return frame
 		end
 		for i = 1, statusbarCount do
 			statusbars[i] = createStatusBars(orbFrames[i], i)
-		end
-		local c1r, c1b, c1g, c1a = db.statusbarColorBackground.r, db.statusbarColorBackground.b, db.statusbarColorBackground.g, db.statusbarColorBackground.a
-		local c2r, c2b, c2g, c2a = db.statusbarColorOverflow.r, db.statusbarColorOverflow.b, db.statusbarColorOverflow.g, db.statusbarColorOverflow.a
-		for i = 1, statusbarCount do
-			if i <= 5 then
-				statusbars[i]:SetBackdropColor(c1r, c1b, c1g, c1a)
-			else
-				statusbars[i]:SetBackdropColor(c2r, c2b, c2g, c2a)
-			end
 		end
 		if #statusbars > statusbarCount then
 			for i = statusbarCount + 1, #statusbars do
@@ -505,7 +601,7 @@ function CD:Unlock()
 			SATimers[i]:Show()
 		end
 		if statusbarEnable and (db.statusbarXOffset ~= 0 or db.statusbarYOffset ~= 0) then
-			statusbars[i].statusbar:SetValue(statusbarMaxTime / 2)
+			statusbars[i].statusbar:SetValue(10)
 			statusbars[i]:Show()
 		end
 		
@@ -521,15 +617,17 @@ function CD:Lock()
 end
 
 function CD:Build()
-	statusbarMaxTime = db.maxTime
-	textEnable = db.textEnable
-	remainingTimeThreshold = db.remainingTimeThreshold
-	statusbarEnable = db.statusbarEnable
 	orbCappedEnable = db.orbCappedEnable
+	remainingTimeThreshold = db.remainingTimeThreshold
+	resourceGainPrediction = db.resourceGainPrediction
+	resourceSpendIncludeHoG = db.resourceSpendIncludeHoG
+	resourceSpendPrediction = db.resourceSpendPrediction
+	statusbarEnable = db.statusbarEnable
+	textEnable = db.textEnable
 	visibilityConditionals = db.visibilityConditionals or ""
 	
 	statusbarCount = 5 + db.statusbarCount
-	statusbarRefresh = statusbarMaxTime / db.width / DS.db.scale
+	statusbarRefresh = 20 / db.width / DS.db.scale
 	
 	buildFrames()
 	if not CDFrame.fader then

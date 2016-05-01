@@ -10,7 +10,6 @@ local C_TimerAfter = C_Timer.After
 local GetSpellDescription = GetSpellDescription
 local GetTime = GetTime
 local gsub = gsub
-local IsActiveBattlefieldArena = IsActiveBattlefieldArena
 local IsInGroup = IsInGroup
 local IsInRaid = IsInRaid
 local IsItemInRange = IsItemInRange
@@ -19,10 +18,12 @@ local mathmin = math.min
 local pairs = pairs
 local select = select
 local stringmatch = string.match
+local strsplit = strsplit
 local tableinsert = table.insert  -- only used sparingly
 local tableremove = table.remove
 local tonumber = tonumber
 local UnitCanAttack = UnitCanAttack
+local UnitCastingInfo = UnitCastingInfo
 local UnitExists = UnitExists
 local UnitGUID = UnitGUID
 local UnitPower = UnitPower
@@ -66,6 +67,7 @@ local shardGeneration = {
 -- Variables --
 ---------------
 local currentlyGenerating = 0
+local nextCast
 local durations = {}
 local energizedShards = 0
 local nextTick = {}
@@ -76,38 +78,6 @@ local timers = {}  -- ordered table of all timer IDs
 ---------------
 -- Functions --
 ---------------
-
--- forces an update of displays
---[[ DS:Update()
-	self:SendMessage("CONSPICUOUS_SPIRITS_UPDATE", orbs, timers)
-end]]--
---[[do
-	local SOUL_SHARDS_COST_PATTERN = gsub(SOUL_SHARDS_COST, "%%s", "%%d")
-	local SOUL_SHARDS_COST_PATTERN_SINGULAR = gsub(gsub(SOUL_SHARDS_COST_PATTERN, ":.+;", ""), "\1244", "")
-	local SOUL_SHARDS_COST_PATTERN_PLURAL = gsub(gsub(SOUL_SHARDS_COST_PATTERN, "\124.+:", ""), ";", "")
-	
-	-- Debug
-	print(SOUL_SHARDS_COST_PATTERN_SINGULAR)
-	print(SOUL_SHARDS_COST_PATTERN_PLURAL)
-
-	GameTooltip:HookScript("OnTooltipSetSpell", function()
-		for i = 2, 4 do
-			local line = _G["GameTooltipTextLeft"..i]
-			local text = line:GetText()
-			if text then
-				local cost = stringmatch(text, SOUL_SHARDS_COST_PATTERN_SINGULAR) or stringmatch(text, SOUL_SHARDS_COST_PATTERN_PLURAL)
-				cost = cost and tonumber((gsub(cost, "%D", "")))
-				print(cost)
-				break
-			end
-		end
-	end)
-	
-	function DS:GetSpellCost(spellID)
-
-	end
-end]]--
-
 function DS:Update(timeStamp)
 	if not timeStamp then
 		timeStamp = GetTime()
@@ -120,7 +90,8 @@ function DS:Update(timeStamp)
 		nextTick,
 		durations,
 		energizedShards,
-		currentlyGenerating
+		currentlyGenerating,
+		nextCast
 	)
 	
 	--self:TargetChanged()
@@ -208,16 +179,26 @@ do
 		energizedShards = energizeAmount
 	end
 	
-	function DS:Cast(spellID)
-		if spellID then
-			local shards = shardGeneration[spellID]
-			if shards then
-				currentlyGenerating = shards
+	do
+		local function spellGUIDToID(GUID)
+			local _, _, _, _, ID = strsplit("-",GUID)
+			return tonumber(ID)
+		end
+		
+		function DS:Cast(spellGUID)
+			if spellGUID then
+				local shards = shardGeneration[spellGUIDToID(spellGUID)]
+				if shards then
+					currentlyGenerating = shards
+					local _, _, _, _, startTime, endTime = UnitCastingInfo("player")
+					nextCast = GetTime() + (endTime - startTime) / 1000
+					self:Update()
+				end
+			else
+				currentlyGenerating = 0
+				nextCast = nil
 				self:Update()
 			end
-		else
-			currentlyGenerating = 0
-			self:Update()
 		end
 	end
 	
@@ -241,15 +222,9 @@ do
 				end
 			end
 			
-			if event == "SPELL_ENERGIZE" and energizeType == unitPowerId then --and spellID == 215942 then
+			-- Soul Conduit
+			if event == "SPELL_ENERGIZE" and energizeType == unitPowerId and spellID == 215942 then
 				self:Energize(energizeAmount)
-
-			elseif event == "SPELL_CAST_START" then
-				self:Cast(spellID)				
-				
-			elseif event == "SPELL_CAST_SUCCESS" or event == "SPELL_CAST_FAILED" then
-				self:Cast(false)
-				
 			end
 			
 		end
@@ -310,6 +285,30 @@ do
 	end
 end
 
+function DS:UNIT_SPELLCAST_INTERRUPTED(_, unitID, _, _, spellGUID)
+	if unitID == "player" then
+		self:Cast(false)
+	end
+end
+
+function DS:UNIT_SPELLCAST_START(_, unitID, _, _, spellGUID)
+	if unitID == "player" then
+		self:Cast(spellGUID)
+	end
+end
+
+function DS:UNIT_SPELLCAST_STOP(_, unitID, _, _, spellGUID)
+	if unitID == "player" then
+		self:Cast(false)
+	end
+end
+
+function DS:UNIT_SPELLCAST_SUCCEEDED(_, unitID, _, _, spellGUID)
+	if unitID == "player" then
+		self:Cast(false)
+	end
+end
+
 function DS:PLAYER_ENTERING_WORLD()
 	playerGUID = UnitGUID("player")
 	orbs = UnitPower("player", SPELL_POWER_SOUL_SHARDS)
@@ -335,10 +334,14 @@ do
 		self:ApplySettings()
 		orbs = UnitPower("player", unitPowerId)
 		
-		self:RegisterEvent("UNIT_POWER_FREQUENT")
 		self:RegisterEvent("PLAYER_REGEN_DISABLED")
 		self:RegisterEvent("PLAYER_REGEN_ENABLED")
 		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+		self:RegisterEvent("UNIT_POWER_FREQUENT")
+		self:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+		self:RegisterEvent("UNIT_SPELLCAST_START")
+		self:RegisterEvent("UNIT_SPELLCAST_STOP")
+		self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 		
 		if UnitAffectingCombat("player") then
 			self:PLAYER_REGEN_DISABLED() 
@@ -355,7 +358,7 @@ end
 ---------------
 -- Test Mode --
 ---------------
-do
+do  -- TODO: Fix
 	local SAGraceTime = 3  -- maximum additional wait time before SA timer gets purged if it should not have hit in the meantime
 	local SAInterval = 6
 	local SATravelTime = 8

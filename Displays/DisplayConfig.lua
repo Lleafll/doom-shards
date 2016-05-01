@@ -163,6 +163,11 @@ local function displayOptions()
 						type="description",
 						name=""
 					},
+					useTexture = {
+						order = 8.6,
+						type = "toggle",
+						name = L["Use Texture for Shards"]
+					},
 					textureHandle = {
 						order = 9,
 						type = "select",
@@ -276,6 +281,19 @@ local function displayOptions()
 							DS:Build()
 						end
 					},
+					fontColorHoGPrediction = {
+						order = 10.1,
+						type = "color",
+						name = L["Font Color for HoG Prediction"],
+						hasAlpha = true,
+						get = function()
+							return DS.db.display.fontColorHoGPrediction.r, DS.db.display.fontColorHoGPrediction.b, DS.db.display.fontColorHoGPrediction.g, DS.db.display.fontColorHoGPrediction.a
+						end,
+						set = function(info, r, b, g, a)
+							DS.db.display.fontColorHoGPrediction.r, DS.db.display.fontColorHoGPrediction.b, DS.db.display.fontColorHoGPrediction.g, DS.db.display.fontColorHoGPrediction.a = r, b, g, a
+							DS:Build()
+						end
+					},
 					spacer1 = {
 						order = 10.5,
 						type="description",
@@ -365,7 +383,7 @@ local function displayOptions()
 						name = L["Reverse Direction"],
 						desc = L["Fill indicator from right to left"]
 					},
-					maxTime = {
+					--[[maxTime = {
 						order = 2,
 						type = "range",
 						name = L["Maximum Time"],
@@ -373,7 +391,7 @@ local function displayOptions()
 						min = 0,
 						max = 10,
 						step = 0.1
-					},
+					},]]--
 					spacer = {
 						order = 3.5,
 						type="description",
@@ -500,16 +518,59 @@ local function displayOptions()
 							DS:Build()
 						end
 					},
-					shardGainPrediction = {
+					resourceGainPrediction = {
 						order = 2,
 						type = "toggle",
 						name = L["Show prediction for gaining shards through casts"],
+						set = function(info, val)
+							DS.db.display.resourceGainPrediction = val
+							DS:Build()
+						end
 					},
-					shardUsePrediction = {
+					resourceGainColor = {
+						order = 2.5,
+						type = "color",
+						name = L["Shard Gain Color"],
+						hasAlpha = true,
+						get = function()
+							return DS.db.display.resourceGainColor.r, DS.db.display.resourceGainColor.b, DS.db.display.resourceGainColor.g, DS.db.display.resourceGainColor.a
+						end,
+						set = function(info, r, b, g, a)
+							DS.db.display.resourceGainColor.r, DS.db.display.resourceGainColor.b, DS.db.display.resourceGainColor.g, DS.db.display.resourceGainColor.a = r, b, g, a
+							DS:Build()
+						end
+					},
+					resourceSpendPrediction = {
 						order = 3,
 						type = "toggle",
-						name = L["Show prediction for using shards through casts"],
+						name = L["Show prediction for spending shards through casts"],
+						set = function(info, val)
+							DS.db.display.resourceSpendPrediction = val
+							DS:Build()
+						end
 					},
+					resourceSpendColor = {
+						order = 3.5,
+						type = "color",
+						name = L["Shard Spend Color"],
+						hasAlpha = true,
+						get = function()
+							return DS.db.display.resourceSpendColor.r, DS.db.display.resourceSpendColor.b, DS.db.display.resourceSpendColor.g, DS.db.display.resourceSpendColor.a
+						end,
+						set = function(info, r, b, g, a)
+							DS.db.display.resourceSpendColor.r, DS.db.display.resourceSpendColor.b, DS.db.display.resourceSpendColor.g, DS.db.display.resourceSpendColor.a = r, b, g, a
+							DS:Build()
+						end
+					},
+					resourceSpendIncludeHoG = {
+						order = 4,
+						type = "toggle",
+						name = L["Include Doom Prediction in HoG casts"],
+						set = function(info, val)
+							DS.db.display.resourceSpendIncludeHoG = val
+							DS:Build()
+						end
+					}
 				}
 			},
 			positioning = {
@@ -611,6 +672,7 @@ local defaultSettings = {
 	fontName = "Friz Quadrata TT",
 	fontFlags = "Shadow",
 	fontColor = {r=1, b=1, g=1, a=1},
+	fontColorHoGPrediction = {r=0.51, b=0.00, g=0.24, a=1},
 	remainingTimeThreshold = 4,
 	stringXOffset = 0,
 	stringYOffset = 6,
@@ -618,6 +680,7 @@ local defaultSettings = {
 	fadeOutDuration = 0.5,
 	orientation = "Horizontal",
 	growthDirection = "Regular",
+	useTexture = false,
 	textureHandle = "Empty",
 	borderColor = {r=0, b=0, g=0, a=1},
 	alwaysShowBorders = false,
@@ -626,15 +689,17 @@ local defaultSettings = {
 	statusbarColorBackground = {r=0.06, b=0.06, g=0.06, a=1},
 	statusbarColorOverflow = {r=0.51, b=0.00, g=0.24, a=1},
 	statusbarReverse = false,
-	maxTime = 20,
 	statusbarXOffset = 0,
 	statusbarYOffset = 6,
 	statusbarCount = 5,
 	orbCappedEnable = true,
 	orbCappedColor = {r=0.51, b=0.00, g=0.24, a=1},
 	gainFlash = true,
-	shardGainPrediction = true,
-	shardUsePrediction = true,
+	resourceGainPrediction = true,
+	resourceGainColor = {r=0.4, b=0.4, g=0.4, a=1},--{r=0.51, b=0.00, g=0.24, a=1},
+	resourceSpendPrediction = true,
+	resourceSpendColor = {r=0.4, b=0.4, g=0.4, a=1},
+	resourceSpendIncludeHoG = true,
 }
 
 DS:AddDisplayOptions("display", displayOptions, defaultSettings)
