@@ -62,6 +62,7 @@ local orbCappedEnable
 local orbs
 local remainingTimeThreshold
 local resourceFromCurrentCast
+local shardGeneration
 local statusbarCount
 local statusbarEnable
 local statusbarMaxTime
@@ -129,14 +130,8 @@ local function update()
 	end
 end
 
-function CD:CONSPICUOUS_SPIRITS_UPDATE(_, updatedTimeStamp, updatedOrbs, updatedTimers, updatedNextTick, updatedDurations, updatedEnergizedShards, updatedResourceFromCurrentCast)
-	timeStamp = updatedTimeStamp
-	orbs = updatedOrbs
-	timers = updatedTimers
-	nextTick = updatedNextTick
-	durations = updatedDurations
-	energizedShards = updatedEnergizedShards
-	resourceFromCurrentCast = updatedResourceFromCurrentCast
+function CD:CONSPICUOUS_SPIRITS_UPDATE(_, ...)
+	timeStamp, orbs, timers, nextTick, durations, energizedShards, shardGeneration = ...
 	update()
 end
 

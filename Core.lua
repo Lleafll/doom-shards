@@ -9,6 +9,7 @@ local L = LibStub("AceLocale-3.0"):GetLocale("DoomShards")
 local C_TimerAfter = C_Timer.After
 local GetSpellDescription = GetSpellDescription
 local GetTime = GetTime
+local gsub = gsub
 local IsActiveBattlefieldArena = IsActiveBattlefieldArena
 local IsInGroup = IsInGroup
 local IsInRaid = IsInRaid
@@ -34,17 +35,42 @@ local maxResource = 5
 local playerGUID
 local unitPowerType = "SOUL_SHARDS"
 local unitPowerId = SPELL_POWER_SOUL_SHARDS
+local shardGeneration = {
+	-- General
+	[196098] = 5,  -- Soul Harvest
+	[157757] = -1,  -- Summon Doomguard
+	[688] = -1,  -- Summon Imp
+	[157898] = -1,  -- Summon Infernal
+	[691] = -1,  -- Summon Felhunter
+	[712] = -1,  -- Summon Succubus
+	[697] = -1,  -- Summon Voidwalker
+		
+	-- Affliction
+	--27243 = -1, -- Seed of Corruption w/ Sow the Seeds
+	[30108] = -1,  -- Unstable Affliction
+	
+	-- Demonology
+	[104316] = -2,  -- Call Dreadstalkers
+	[157695] = 1,  -- Demonbolt
+	[105174] = -4,  -- Hand of Gul'dan
+	[686] = 1,  -- Shadow Bolt
+	[30146] = -1,  -- Summon Felguard
+	
+	-- Destruction
+	[116858] = -2,  -- Chaos Bolt
+	[5740] = -3,  -- Rain of Fire
+}
 
 
 ---------------
 -- Variables --
 ---------------
-local shardsFromCurrentCast = 0
-local orbs = 0
-local energizedShards = 0
-local timers = {}  -- ordered table of all timer IDs
-local nextTick = {}
+local currentlyGenerating = 0
 local durations = {}
+local energizedShards = 0
+local nextTick = {}
+local orbs = 0
+local timers = {}  -- ordered table of all timer IDs
 
 
 ---------------
@@ -55,8 +81,38 @@ local durations = {}
 --[[ DS:Update()
 	self:SendMessage("CONSPICUOUS_SPIRITS_UPDATE", orbs, timers)
 end]]--
+--[[do
+	local SOUL_SHARDS_COST_PATTERN = gsub(SOUL_SHARDS_COST, "%%s", "%%d")
+	local SOUL_SHARDS_COST_PATTERN_SINGULAR = gsub(gsub(SOUL_SHARDS_COST_PATTERN, ":.+;", ""), "\1244", "")
+	local SOUL_SHARDS_COST_PATTERN_PLURAL = gsub(gsub(SOUL_SHARDS_COST_PATTERN, "\124.+:", ""), ";", "")
+	
+	-- Debug
+	print(SOUL_SHARDS_COST_PATTERN_SINGULAR)
+	print(SOUL_SHARDS_COST_PATTERN_PLURAL)
+
+	GameTooltip:HookScript("OnTooltipSetSpell", function()
+		for i = 2, 4 do
+			local line = _G["GameTooltipTextLeft"..i]
+			local text = line:GetText()
+			if text then
+				local cost = stringmatch(text, SOUL_SHARDS_COST_PATTERN_SINGULAR) or stringmatch(text, SOUL_SHARDS_COST_PATTERN_PLURAL)
+				cost = cost and tonumber((gsub(cost, "%D", "")))
+				print(cost)
+				break
+			end
+		end
+	end)
+	
+	function DS:GetSpellCost(spellID)
+
+	end
+end]]--
+
 function DS:Update(timeStamp)
-	if not timeStamp then timeStamp = GetTime() end
+	if not timeStamp then
+		timeStamp = GetTime()
+	end
+		
 	self:SendMessage("CONSPICUOUS_SPIRITS_UPDATE",
 		timeStamp,
 		orbs,
@@ -64,9 +120,11 @@ function DS:Update(timeStamp)
 		nextTick,
 		durations,
 		energizedShards,
-		shardsFromCurrentCast
+		currentlyGenerating
 	)
+	
 	--self:TargetChanged()
+	
 	energizedShards = 0
 end
 
@@ -150,9 +208,22 @@ do
 		energizedShards = energizeAmount
 	end
 	
+	function DS:Cast(spellID)
+		if spellID then
+			local shards = shardGeneration[spellID]
+			if shards then
+				currentlyGenerating = shards
+				self:Update()
+			end
+		else
+			currentlyGenerating = 0
+			self:Update()
+		end
+	end
+	
 	function DS:COMBAT_LOG_EVENT_UNFILTERED(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, ...)
 		if sourceGUID == playerGUID then
-			local spellID, _, _, energizeAmount = ...
+			local spellID, _, _, energizeAmount, energizeType = ...
 			-- Doom
 			if spellID == 603 and sourceGUID == playerGUID then
 				if event == "SPELL_AURA_APPLIED" then
@@ -170,9 +241,15 @@ do
 				end
 			end
 			
-			-- Soul Conduit
-			if event == "SPELL_ENERGIZE" and spellID == 215942 then
+			if event == "SPELL_ENERGIZE" and energizeType == unitPowerId then --and spellID == 215942 then
 				self:Energize(energizeAmount)
+
+			elseif event == "SPELL_CAST_START" then
+				self:Cast(spellID)				
+				
+			elseif event == "SPELL_CAST_SUCCESS" or event == "SPELL_CAST_FAILED" then
+				self:Cast(false)
+				
 			end
 			
 		end
