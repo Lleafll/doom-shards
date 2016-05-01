@@ -44,14 +44,6 @@ end
 ---------------
 -- Functions --
 ---------------
-local function timersCount(timers)
-	local count = 0
-	for i = 1, #timers do
-		count = count + (timers[i].IsGUIDInRange() and 1 or 0)
-	end
-	return count
-end
-
 do
 	local previousOrbs = 0
 
@@ -60,7 +52,7 @@ do
 		if updatedOrbs < previousOrbs then counter = 0 end
 		previousOrbs = updatedOrbs
 		
-		isOverOrbThreshold = (updatedOrbs >= 3) and (updatedOrbs + timersCount(timers)) >= 5
+		isOverOrbThreshold = (updatedOrbs >= 3) and (updatedOrbs + #updatedTimers) >= 5
 	end
 end
 
