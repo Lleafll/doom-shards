@@ -39,8 +39,6 @@ local unitPowerId = SPELL_POWER_SOUL_SHARDS
 ---------------
 -- Variables --
 ---------------
-local SAGraceTime = 3  -- maximum additional wait time before SA timer gets purged if it should not have hit in the meantime
-
 local shardsFromCurrentCast = 0
 local orbs = 0
 local energizedShards = 0
@@ -281,6 +279,7 @@ end
 -- Test Mode --
 ---------------
 do
+	local SAGraceTime = 3  -- maximum additional wait time before SA timer gets purged if it should not have hit in the meantime
 	local SAInterval = 6
 	local SATravelTime = 8
 	local orbTicker
