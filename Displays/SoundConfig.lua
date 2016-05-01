@@ -10,7 +10,7 @@ if not DS then return end
 ---------------
 local L = LibStub("AceLocale-3.0"):GetLocale("DoomShards")
 local LSM = LibStub("LibSharedMedia-3.0")
-LSM:Register("sound", "Droplet", "Interface\\addons\\DoomShards\\Media\\DSDroplet.mp3")
+LSM:Register("sound", "Droplet", "Interface\\Addons\\DoomShards\\Media\\CSDroplet.mp3")
 
 
 -------------
