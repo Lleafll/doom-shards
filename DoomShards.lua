@@ -91,7 +91,6 @@ do
 		function frame:Lock()
 			self.texture:Hide()
 			self:EnableMouse(false)
-			--self:SetScript("OnUpdate", nil)
 			self:SetScript("OnEnter", nil)
 			self:SetScript("OnLeave", nil)
 			self:SetScript("OnMouseDown", nil)
@@ -125,7 +124,7 @@ function DS:Lock()
 			if module.frame then module.frame:Lock() end
 		end
 	end
-	self:TalentsCheck()  -- build displays if Shadow and AS specced
+	self:TalentsCheck()  -- build displays  -- TODO: rebuild initialization flow
 end
 
 

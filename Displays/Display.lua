@@ -80,7 +80,7 @@ local visibilityConditionals = ""
 -- Functions --
 ---------------
 do
-	function CD:GetHoGCastingTime()  -- TODO: Cache to improve performance
+	function CD:GetHoGCastingTime()  -- TODO: Cache to possibly improve performance
 		_, _, _, castingTime = GetSpellInfo(105174)
 		return (nextCast and (nextCast - GetTime()) or 0) + castingTime / 1000
 	end

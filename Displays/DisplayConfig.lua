@@ -196,8 +196,7 @@ local function displayOptions()
 					alwaysShowBorders = {
 						order = 11,
 						type = "toggle",
-						name = L["Always show borders"],
-						desc = L["Show borders even when orb isn't shown"]
+						name = L["Always show borders"]
 					},
 					spacer4 = {
 						order = 11.5,
@@ -550,7 +549,7 @@ local function displayOptions()
 					statusbarColorOverflow = {
 						order = 10,
 						type = "color",
-						name = L["\"Overcap Orb\" Color"],
+						name = L["\"Overcap Shards\" Color"],
 						desc = L["Color of the additional indicator when overcapping with Doom ticks"],
 						hasAlpha = true,
 						get = function()
@@ -590,7 +589,7 @@ local function displayOptions()
 						order = 2,
 						type = "select",
 						name = L["Growth direction"],
-						desc = L["Order in which the Shadow Orbs get filled in"],
+						desc = L["Order in which Shards get filled in"],
 						values = {
 							["Regular"] = L["Regular"],
 							["Reversed"] = L["Reversed"]
