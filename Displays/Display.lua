@@ -200,7 +200,7 @@ function CD:DOOM_SHARDS_UPDATE(_, ...)
 	resource = DS.resource
 	timers = DS.timers
 	nextTick = DS.nextTick
-	durations = DS.durations
+	durations = DS.duration
 	energizedShards = DS.energized
 	resourceGeneration = DS.generating
 	nextCast = DS.nextCast

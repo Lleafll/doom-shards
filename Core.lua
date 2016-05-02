@@ -68,7 +68,7 @@ local resourceGeneration = {
 ---------------
 local generating = 0
 local nextCast
-local durations = {}
+local duration = {}
 local energized = 0
 local nextTick = {}
 local resource = 0
@@ -87,7 +87,7 @@ function DS:Update(timeStamp)
 	DS.resource = resource
 	DS.timers = timers
 	DS.nextTick = nextTick
-	DS.durations = durations
+	DS.duration = duration
 	DS.energized = energized
 	DS.generating = generating
 	DS.nextCast = nextCast
@@ -108,18 +108,17 @@ end
 -- set specific SATimeCorrection for a GUID
 do
 	function DS:GetDoomDuration()
-		local duration = tonumber(stringmatch(GetSpellDescription(603), "%d%d%.%d"))  -- Possibly replace with something more sensible in the future
-		assert(duration, "Could not get Doom duration.")
-		return duration
+		local doomDuration = tonumber(stringmatch(GetSpellDescription(603), "%d%d%.%d"))  -- Possibly replace with something more sensible in the future
+		return doomDuration
 	end
 	
 	--[[DS:TargetChanged = function()
 		local GUID = self.UnitGUID("target")
-		self.ScanEvents("WARLOCK_DOOM", self:GetDoomDuration(), nextTick[GUID], durations[GUID])
+		self.ScanEvents("WARLOCK_DOOM", self:GetDoomDuration(), nextTick[GUID], duration[GUID])
 	end]]--
 	
 	function DS:Add(GUID, timeStamp, tick)
-		durations[GUID] = tick
+		duration[GUID] = tick
 		nextTick[GUID] = tick
 		if #timers == 0 then  -- might not be necessary if for-loop skips looping on empty tables (need to check)
 			timers[1] = GUID
@@ -150,15 +149,15 @@ do
 				break
 			end
 		end
-		durations[GUID] = nil
+		duration[GUID] = nil
 		nextTick[GUID] = nil
 		self:Update()
 	end
 
 	function DS:Refresh(GUID)
 		local timeStamp = GetTime()
-		local duration = self:GetDoomDuration()
-		durations[GUID] = timeStamp + duration + mathmin(nextTick[GUID]-timeStamp, 0.3*duration)
+		local doomDuration = self:GetDoomDuration()
+		duration[GUID] = timeStamp + doomDuration + mathmin(nextTick[GUID]-timeStamp, 0.3*doomDuration)
 		--self:TargetChanged()
 	end
 
@@ -166,9 +165,9 @@ do
 		for k, v in pairs(timers) do
 			if v == GUID then
 				tableremove(timers, k)
-				local duration = durations[GUID]
-				if duration > nextTick[GUID] then
-					self:Add(GUID, GetTime(), duration)
+				local maxDuration = duration[GUID]
+				if maxDuration > nextTick[GUID] then
+					self:Add(GUID, GetTime(), maxDuration)
 				end
 				return
 			end
