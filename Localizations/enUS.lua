@@ -19,20 +19,29 @@ if not L then return end
 L["Add. HoG Shards"] = true
 L["Additional Doom Indicators"] = true
 L["Always show borders"] = true
+L["Anchor"] =  true
+L["Animations"] = true
 L["Background Color"] = true
+L["Bar Color"] = true
 L["Border Color"] = true
-L["Cancelled Test Mode"] = "|cFF814eaaConspicuous Spirits|r: Cancelled Test Mode!"
+L["Borders"] = true
+L["Cancelled Test Mode"] = "|cFF814eaaDoom Shards|r: Cancelled Test Mode!"
 L["Change color of all Shards when reaching cap"] = true
+L["Color of additional indicators for overcapping with Doom ticks"] = true
 L["Color Shard 1"] = true
 L["Color Shard 2"] = true
 L["Color Shard 3"] = true
 L["Color Shard 4"] = true
 L["Color Shard 5"] = true
-L["Color the text will change to if doom will tick before next possible Hand of Gul'dan cast."] = true
+L["Color the text will change to if doom will tick before next possible Hand of Gul'dan cast."] = "Color the text will change to if Doom will tick before end of the next possible Hand of Gul'dan cast."
 L["Color When Shard Capped"] = true
-L["Doom Shards locked!"] = "|cFF814eaaDoom Shards locked!"
-L["Doom Shards reset!"] = "|cFF814eaaDoom Shards reset!"
-L["Doom Shards unlocked!"] = "|cFF814eaaDoom Shards unlocked!"
+L["Colors"] = true
+L["Dimensions"] = true
+L["Direction"] = true
+L["Display"] = true
+L["Doom Shards locked!"] = "|cFF814eaaDoom Shards|r locked!"
+L["Doom Shards reset!"] = "|cFF814eaaDoom Shards|r reset!"
+L["Doom Shards unlocked!"] = "|cFF814eaaDoom Shards|r unlocked!"
 L["Doom Tick Indicator Bars"] = true
 L["Documentation"] = true
 L["dragFrameTooltip"] = [=[|cFFcc0060Left mouse button|r to drag.
@@ -48,6 +57,7 @@ L["Font Color"] = true
 L["Font Color for Hand of Gul'dan Prediction"] = true
 L["Font Flags"] = true
 L["Font Size"] = true
+L["Functionality"] = true
 L["General"] = true
 L["Growth direction"] = true
 L["Height"] = true
@@ -59,11 +69,14 @@ L["Instance Type"] = true
 L["Interval"] = true
 L["MONOCHROMEOUTLINE"] = true
 L["None"] = true
+L["Offset"] = true
 L["Order in which Shards get filled in"] = true
 L["Orientation"] = true
 L["OUTLINE"] = true
 L["\"Overcap Shards\" Color"] = true
+L["Overcapping"] = true
 L["Play Warning Sound when about to cap."] = true
+L["Position"] = true
 L["Regular"] = true
 L["Regulate display visibility with macro conditionals"] = [=[
 Regulate display visibility with macro conditionals
@@ -77,8 +90,9 @@ L["Reversed"] = true
 L["Reverse Direction"] = true
 L["Scale"] = true
 L["Shadow"] = true
+L["Shard Colors"] = true
 L["Shard Gain Color"] = true
-L["Shard Cap Color Change"] = true
+L["Shard Cap Color Change"] = "Cap Color Change"
 L["Shard Spend Color"] = true
 L["Show prediction for gaining shards through casts"] = true
 L["Show prediction for spending shards through casts"] = true
@@ -86,12 +100,13 @@ L["Shows the frame and toggles it for repositioning."] = true
 L["Soul Shard Bars"] = true
 L["Sound"] = true
 L["Spacing"] = true
-L["Starting Test Mode"] = "|cFF814eaaConspicuous Spirits|r: Starting Test Mode"
+L["Starting Test Mode"] = "|cFF814eaaDoom Shards|r: Starting Test Mode"
 L["Test Mode"] = true
 L["Text"] = true
 L["Texture"] = true
+L["Textures"] = true
 L["THICKOUTLINE"] = true
-L["Threshold when text begins showing first decimal place"] = true
+L["Threshold when text begins showing first decimal place"] = "Threshold when text begins showing first decimal place."
 L["Time between warning sounds"] = true
 L["Time Threshold"] = true
 L["Toggle Lock"] = true
@@ -99,22 +114,18 @@ L["Use Texture for Shards"] = true
 L["Version"] = true
 L["Vertical"] = true
 L["Visibility"] = true
-L["WeakAurasDocumentation"] = [=[WA_AUSPICIOUS_SPIRITS(event, count, orbs)
-  event - event name (string)
-  count - Shadowy Apparition currently in flight (number)
-  orbs - player's Shadow Orbs (number) 
+L["Visibility Conditionals"] = true
+L["WeakAurasDocumentation"] = [=[WeakAuras event to listen to: DOOM_SHARDS_UPDATE
 
-Properties conspicuous_spirits_wa:
-  count - Shadowy Apparitions currently in flight (number)
-  orbs - player's Shadow Orbs (number)
-  timers - chronologically ordered table of AceTimer objects corresponding to the automatic cleanup of the Shadowy Apparitions (table)
-
-New properties AceTimer object:
-  impactTime - estimated point in time for the Shadowy Apparition impact (timestamp)
-  isCached - whether timer is based on cached distance value (boolean)
-
-New method AceTimer object:
-  IsGUIDInRange - whether the target is within 100 yards of the player (boolean)]=]
+Relevant properties of global object DoomShards:
+  timeStamp - time of last update (number)
+  resource - current amount of Soul Shards (number)
+  timers - chronologically ordered table of GUIDs with Doom (table)
+  nextTick - time of next Doom tick for every GUID (table)
+  duration - total Doom duration for every GUID (table)
+  energized - refunded Soul Shards for latest update (number)
+  generating - number of Soul Shards which are generated (positive) or spent (negative) with current spell cast (number)
+  nextCast - time when current cast will finish or nil if not currently casting (number)]=]
 L["WeakAuras Example Strings"] = true
 L["WeakAuras Import String 1"] = true
 L["WeakAuras Import String 2"] = true

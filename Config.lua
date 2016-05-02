@@ -171,4 +171,4 @@ function DS:HandleChatCommand(command)
 end
 
 DS:RegisterChatCommand("ds", "HandleChatCommand")
-DS:RegisterChatCommand("DoomShards", "HandleChatCommand")
+DS:RegisterChatCommand("doomdhards", "HandleChatCommand")

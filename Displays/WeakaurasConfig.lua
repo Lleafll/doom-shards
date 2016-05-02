@@ -31,7 +31,7 @@ local function displayOptions()
 				type = "toggle",
 				name = L["Enable"]
 			},
-			weakaurasStrings = {
+			--[[weakaurasStrings = {
 				order = 2,
 				type = "group",
 				name = L["WeakAuras Example Strings"],
@@ -58,7 +58,7 @@ local function displayOptions()
 						end
 					}
 				}
-			},
+			},]]--
 			documentation = {
 				order = 3,
 				type = "group",

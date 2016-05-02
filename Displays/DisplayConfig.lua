@@ -35,6 +35,11 @@ local function displayOptions()
 				type = "group",
 				name = L["Soul Shard Bars"],
 				args = {
+					header0 = {
+						order = 0,
+						type="header",
+						name=L["Dimensions"]
+					},
 					height = {
 						order = 1,
 						type = "range",
@@ -59,10 +64,10 @@ local function displayOptions()
 						max = 100,
 						step = 1
 					},
-					spacer = {
+					header1 = {
 						order = 3.5,
-						type="description",
-						name=""
+						type="header",
+						name=L["Shard Colors"]
 					},
 					color1 = {
 						order = 4,
@@ -158,15 +163,19 @@ local function displayOptions()
 							DS:Build()
 						end
 					},
-					spacer3 = {
+					header3 = {
 						order = 8.5,
-						type="description",
-						name=""
+						type="header",
+						name=L["Textures"]
 					},
 					useTexture = {
 						order = 8.6,
 						type = "toggle",
-						name = L["Use Texture for Shards"]
+						name = L["Use Texture for Shards"],
+						set = function(info, val)
+							DS.db.display.useTexture = val
+							DS:Build()
+						end
 					},
 					textureHandle = {
 						order = 9,
@@ -175,10 +184,10 @@ local function displayOptions()
 						name = L["Texture"],
 						values = LSM:HashTable("statusbar")
 					},
-					spacer3_5 = {
+					header4 = {
 						order = 9.5,
-						type="description",
-						name=""
+						type="header",
+						name=L["Borders"]
 					},
 					borderColor = {
 						order = 10,
@@ -198,15 +207,15 @@ local function displayOptions()
 						type = "toggle",
 						name = L["Always show borders"]
 					},
-					spacer4 = {
+					header5 = {
 						order = 11.5,
-						type="description",
-						name=""
+						type="header",
+						name=L["Visibility"]
 					},
 					visibilityConditionals = {
 						order = 12,
 						type = "input",
-						name = L["Visibility"],
+						name = L["Visibility Conditionals"],
 						desc = L["Regulate display visibility with macro conditionals"],
 						width = "double",
 						set = function(info, val)
@@ -222,10 +231,17 @@ local function displayOptions()
 						max = 10,
 						step = 0.1
 					},
-					spacer5 = {
+				}
+			},
+			animations = {
+				order = 10,
+				type = "group",
+				name = L["Animations"],
+				args = {
+					header6 = {
 						order = 13.5,
-						type="description",
-						name=""
+						type="header",
+						name=L["Soul Shard Bars"]
 					},
 					gainFlash = {
 						order = 14,
@@ -302,7 +318,30 @@ local function displayOptions()
 							DS:Build()
 						end
 					},
-				}
+					header7 = {
+						order = 19.5,
+						type="header",
+						name=L["Text"]
+					},
+					desc = {
+						order = 19.9,
+						type = "description",
+						name = L["Color the text will change to if doom will tick before next possible Hand of Gul'dan cast."],
+					},
+					fontColorHoGPrediction = {
+						order = 20,
+						type = "color",
+						name = L["Font Color for Hand of Gul'dan Prediction"],
+						hasAlpha = true,
+						get = function()
+							return DS.db.display.fontColorHoGPrediction.r, DS.db.display.fontColorHoGPrediction.b, DS.db.display.fontColorHoGPrediction.g, DS.db.display.fontColorHoGPrediction.a
+						end,
+						set = function(info, r, b, g, a)
+							DS.db.display.fontColorHoGPrediction.r, DS.db.display.fontColorHoGPrediction.b, DS.db.display.fontColorHoGPrediction.g, DS.db.display.fontColorHoGPrediction.a = r, b, g, a
+							DS:Build()
+						end
+					},
+				},
 			},
 			text = {
 				order = 5,
@@ -314,10 +353,10 @@ local function displayOptions()
 						type = "toggle",
 						name = L["Enable"]
 					},
-					spacer_1 = {
+					header1 = {
 						order = 5.5,
-						type="description",
-						name=""
+						type="header",
+						name=L["Font"]
 					},
 					fontName = {
 						order = 6,
@@ -365,33 +404,28 @@ local function displayOptions()
 							DS:Build()
 						end
 					},
-					fontColorHoGPrediction = {
-						order = 10.1,
-						type = "color",
-						name = L["Font Color for Hand of Gul'dan Prediction"],
-						desc = L["Color the text will change to if doom will tick before next possible Hand of Gul'dan cast."],
-						hasAlpha = true,
-						get = function()
-							return DS.db.display.fontColorHoGPrediction.r, DS.db.display.fontColorHoGPrediction.b, DS.db.display.fontColorHoGPrediction.g, DS.db.display.fontColorHoGPrediction.a
-						end,
-						set = function(info, r, b, g, a)
-							DS.db.display.fontColorHoGPrediction.r, DS.db.display.fontColorHoGPrediction.b, DS.db.display.fontColorHoGPrediction.g, DS.db.display.fontColorHoGPrediction.a = r, b, g, a
-							DS:Build()
-						end
-					},
-					spacer1 = {
+					header2 = {
 						order = 10.5,
-						type="description",
-						name=""
+						type="header",
+						name=L["Functionality"]
+					},
+					desc = {
+						order = 11,
+						type = "description",
+						name = L["Threshold when text begins showing first decimal place"],
 					},
 					remainingTimeThreshold = {
-						order = 11,
+						order = 12,
 						type = "range",
 						name = L["Time Threshold"],
-						desc = L["Threshold when text begins showing first decimal place"],
 						min = 0,
 						max = 10,
 						step = 0.1
+					},
+					header3 = {
+						order = 13,
+						type="header",
+						name=L["Offset"]
 					},
 					stringXOffset = {
 						order = 14,
@@ -450,21 +484,10 @@ local function displayOptions()
 						name = L["Enable"],
 						desc = L["Enable bars for incoming Doom ticks"]
 					},
-					spacer0 = {
-						order = 1.5,
-						type="description",
-						name=""
-					},
-					statusbarReverse = {
+					header2 = {
 						order = 3,
-						type = "toggle",
-						name = L["Reverse Direction"],
-						desc = L["Fill indicator from right to left"]
-					},
-					spacer = {
-						order = 3.5,
-						type="description",
-						name=""
+						type="header",
+						name=L["Colors"]
 					},
 					statusbarColor = {
 						order = 4,
@@ -492,13 +515,51 @@ local function displayOptions()
 							DS:Build()
 						end
 					},
-					spacer2 = {
-						order = 6.5,
-						type="description",
-						name=""
+					header3 = {
+						order = 9,
+						type="header",
+						name=L["Overcapping"]
+					},
+					statusbarCount = {
+						order = 10,
+						type = "range",
+						name = L["Additional Doom Indicators"],
+						min = 0,
+						max = 20,
+						step = 1
+					},
+					statusbarColorOverflow = {
+						order = 11,
+						type = "color",
+						name = L["\"Overcap Shards\" Color"],
+						desc = L["Color of additional indicators for overcapping with Doom ticks"],
+						hasAlpha = true,
+						get = function()
+							return DS.db.display.statusbarColorOverflow.r, DS.db.display.statusbarColorOverflow.b, DS.db.display.statusbarColorOverflow.g, DS.db.display.statusbarColorOverflow.a
+						end,
+						set = function(info, r, b, g, a)
+							DS.db.display.statusbarColorOverflow.r, DS.db.display.statusbarColorOverflow.b, DS.db.display.statusbarColorOverflow.g, DS.db.display.statusbarColorOverflow.a = r, b, g, a
+							DS:Build()
+						end
+					},
+					header4 = {
+						order = 12,
+						type="header",
+						name=L["Direction"]
+					},
+					statusbarReverse = {
+						order = 13,
+						type = "toggle",
+						name = L["Reverse Direction"],
+						desc = L["Fill indicator from right to left"]
+					},
+					header5 = {
+						order = 14,
+						type="header",
+						name=L["Offset"]
 					},
 					statusbarXOffset = {
-						order = 7,
+						order = 15,
 						type = "range",
 						name = L["X Offset"],
 						min = -math.ceil(GetScreenWidth()),
@@ -520,7 +581,7 @@ local function displayOptions()
 						end
 					},
 					statusbarYOffset = {
-						order = 8,
+						order = 16,
 						type = "range",
 						name = L["Y Offset"],
 						min = -math.ceil(GetScreenHeight()),
@@ -541,33 +602,6 @@ local function displayOptions()
 							DS:Build()
 						end
 					},
-					spacer3 = {
-						order = 9.5,
-						type="description",
-						name=""
-					},
-					statusbarColorOverflow = {
-						order = 10,
-						type = "color",
-						name = L["\"Overcap Shards\" Color"],
-						desc = L["Color of the additional indicator when overcapping with Doom ticks"],
-						hasAlpha = true,
-						get = function()
-							return DS.db.display.statusbarColorOverflow.r, DS.db.display.statusbarColorOverflow.b, DS.db.display.statusbarColorOverflow.g, DS.db.display.statusbarColorOverflow.a
-						end,
-						set = function(info, r, b, g, a)
-							DS.db.display.statusbarColorOverflow.r, DS.db.display.statusbarColorOverflow.b, DS.db.display.statusbarColorOverflow.g, DS.db.display.statusbarColorOverflow.a = r, b, g, a
-							DS:Build()
-						end
-					},
-					statusbarCount = {
-						order = 11,
-						type = "range",
-						name = L["Additional Doom Indicators"],
-						min = 0,
-						max = 20,
-						step = 1
-					}
 				}
 			},
 			positioning = {
@@ -595,34 +629,13 @@ local function displayOptions()
 							["Reversed"] = L["Reversed"]
 						}
 					},
-					spacer = {
-						order = 3.5,
-						type = "description",
-						name = ""
-					},
-					posX = {
-						order = 4,
-						type = "range",
-						name = L["X Position"],
-						min = -math.ceil(GetScreenWidth()),
-						max = math.ceil(GetScreenWidth()),
-						step = 1
-					},
-					posY = {
-						order = 5,
-						type = "range",
-						name = L["Y Position"],
-						min = -math.ceil(GetScreenHeight()),
-						max = math.ceil(GetScreenHeight()),
-						step = 1
-					},
-					spacer2 = {
-						order = 6.5,
-						type = "description",
-						name = ""
+					header2 = {
+						order = 2.5,
+						type = "header",
+						name = L["Anchor"]
 					},
 					anchor = {
-						order = 7,
+						order = 3,
 						type = "select",
 						style = "dropdown",
 						name = L["Anchor Point"],
@@ -639,11 +652,32 @@ local function displayOptions()
 						}
 					},
 					anchorFrame = {
-						order = 8,
+						order = 4,
 						type = "input",
 						name = L["Anchor Frame"],
 						desc = L["Will change to UIParent when manually dragging frame."]
-					}
+					},
+					header3 = {
+						order = 4.5,
+						type = "header",
+						name = L["Position"]
+					},
+					posX = {
+						order = 5,
+						type = "range",
+						name = L["X Position"],
+						min = -math.ceil(GetScreenWidth()),
+						max = math.ceil(GetScreenWidth()),
+						step = 1
+					},
+					posY = {
+						order = 6,
+						type = "range",
+						name = L["Y Position"],
+						min = -math.ceil(GetScreenHeight()),
+						max = math.ceil(GetScreenHeight()),
+						step = 1
+					},
 				}
 			}
 		}
