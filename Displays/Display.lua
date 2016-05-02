@@ -357,7 +357,7 @@ local function buildFrames()
 	local statusbarXOffset = db.statusbarXOffset
 	local statusbarYOffset = db.statusbarYOffset
 	backdrop.bgFile = (not db.useTexture or db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
-	statusbarBackdrop.bgFile = (db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
+	statusbarBackdrop.bgFile = (not db.useTexture or db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
 	
 	local CDFrameHeight = db.height + 25
 	local CDFrameWidth = statusbarCount * db.width + (statusbarCount - 1) * db.spacing
@@ -550,7 +550,7 @@ local function buildFrames()
 			
 			statusbar:SetPoint("TOPLEFT", 1 , -1)  -- to properly display border
 			statusbar:SetPoint("BOTTOMRIGHT", -1 , 1)
-			statusbar:SetStatusBarTexture((db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle))
+			statusbar:SetStatusBarTexture((not db.useTexture or db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle))
 			statusbar:SetStatusBarColor(db.statusbarColor.r, db.statusbarColor.b, db.statusbarColor.g, db.statusbarColor.a)
 			statusbar:SetMinMaxValues(0, 20)
 			statusbar:SetOrientation(orientation == "Vertical" and "VERTICAL" or "HORIZONTAL")
@@ -558,6 +558,7 @@ local function buildFrames()
 			
 			frame.remaining = 0
 			frame.elapsed = 0
+			frame.maxTime = 20
 			function frame:SetTimer(tick)
 				self.elapsed = 1
 				self.remaining = tick - GetTime()
