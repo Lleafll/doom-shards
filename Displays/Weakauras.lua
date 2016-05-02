@@ -11,24 +11,14 @@ local WeakAurasScanEvents
 
 
 ---------------
--- Variables --
----------------
-local weakauras = {}
-
-
----------------
 -- Functions --
 ---------------
-function WA:CONSPICUOUS_SPIRITS_UPDATE() end
+function WA:DOOM_SHARDS_UPDATE() end
 
 local function WeakAurasLoaded()
 	WeakAurasScanEvents = WeakAuras.ScanEvents
-	function WA:CONSPICUOUS_SPIRITS_UPDATE(_, orbs, timers)
-		local count = #timers
-		weakauras.count = count
-		weakauras.orbs = orbs
-		weakauras.timers = timers
-		WeakAurasScanEvents("WA_AUSPICIOUS_SPIRITS", count, orbs)
+	function WA:DOOM_SHARDS_UPDATE(_, resource, timers)
+		WeakAurasScanEvents("DOOM_SHARDS_UPDATE")
 	end
 end
 
@@ -42,19 +32,13 @@ else
 end
 
 function WA:OnInitialize()
-	-- old, going to be deprecated
-	weakauras.count = 0
-	weakauras.orbs = UnitPower("player", 13)
-	weakauras.timers = {}
 	
-	-- new & better to reduce littering of global namespace
-	DS.weakauras = weakauras
 end
 
 function WA:OnEnable()
-	self:RegisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
+	self:RegisterMessage("DOOM_SHARDS_UPDATE")
 end
 
 function WA:OnDisable()
-	self:UnregisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
+	self:UnregisterMessage("DOOM_SHARDS_UPDATE")
 end

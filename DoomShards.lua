@@ -6,10 +6,10 @@ local L = LibStub("AceLocale-3.0"):GetLocale("DoomShards")
 local ACR = LibStub("AceConfigRegistry-3.0")
 
 
-----------------
--- API Object --
-----------------
-DoomShards = {}
+-------------------
+-- Global Object --
+-------------------
+DoomShards = DS
 
 
 ---------------

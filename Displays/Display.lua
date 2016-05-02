@@ -19,7 +19,7 @@ local stringformat = string.format
 local CDFrame = DS:CreateParentFrame("Doom Shards Display", "display")
 CD.frame = CDFrame
 CDFrame:Hide()
-local orbFrames = {}
+local resourceFrames = {}
 local fontStringParent
 local SATimers = {}
 local statusbars = {}
@@ -58,14 +58,14 @@ local db
 local durations
 local energizedShards
 local nextTick
-local orbCappedEnable
-local orbs
+local resourceCappedEnable
+local resource
 local remainingTimeThreshold
 local resourceFromCurrentCast
 local resourceGainPrediction
 local resourceSpendIncludeHoG
 local resourceSpendPrediction
-local shardGeneration
+local resourceGeneration
 local nextCast
 local statusbarCount
 local statusbarEnable
@@ -88,32 +88,32 @@ end
 
 local function update()
 	-- Shards
-	local energizeThreshold = orbs - energizedShards
-	local spendThreshold = orbs + ((resourceSpendPrediction and shardGeneration < 0) and shardGeneration or 0)
+	local energizeThreshold = resource - energizedShards
+	local spendThreshold = resource + ((resourceSpendPrediction and resourceGeneration < 0) and resourceGeneration or 0)
 	for i = 1, statusbarCount do
-		local orbFrame = orbFrames[i]
-		if orbs >= i then
+		local resourceFrame = resourceFrames[i]
+		if resource >= i then
 			if i > spendThreshold then
-				if not orbFrame.spendColored then
-					orbFrame:SetSpendColor()
+				if not resourceFrame.spendColored then
+					resourceFrame:SetSpendColor()
 				end
-			elseif orbCappedEnable and (orbs == maxResource) then
-				if not orbFrame.capColored then
-					orbFrame:SetCapColor()
+			elseif resourceCappedEnable and (resource == maxResource) then
+				if not resourceFrame.capColored then
+					resourceFrame:SetCapColor()
 				end
-			elseif not orbCappedEnable or (orbs ~= maxResource) then
-				if orbFrame.capColored or orbFrame.gainColored or orbFrame.spendColored then
-					orbFrame:SetOriginalColor()
+			elseif not resourceCappedEnable or (resource ~= maxResource) then
+				if resourceFrame.capColored or resourceFrame.gainColored or resourceFrame.spendColored then
+					resourceFrame:SetOriginalColor()
 				end
 			end
-			orbFrame:Show()
-			if (i > energizeThreshold and orbFrame.active) or (orbFrame.active == false) then  -- TODO: pretty hacky  -- Explicitly don't check for nil
-				orbFrame.smoke:Show()
-				orbFrame.smoke.flasher:Play()
-				orbFrame.active = true
+			resourceFrame:Show()
+			if (i > energizeThreshold and resourceFrame.active) or (resourceFrame.active == false) then  -- TODO: pretty hacky  -- Explicitly don't check for nil
+				resourceFrame.smoke:Show()
+				resourceFrame.smoke.flasher:Play()
+				resourceFrame.active = true
 			end
-			if orbFrame.active == nil then  -- TODO: replace with more efficient solution?
-				orbFrame.active = true
+			if resourceFrame.active == nil then  -- TODO: replace with more efficient solution?
+				resourceFrame.active = true
 			end
 			if textEnable then
 				SATimers[i]:Hide()
@@ -121,23 +121,23 @@ local function update()
 			statusbars[i]:Hide()
 			
 		else
-			orbFrame:Hide()
-			orbFrame.active = false
+			resourceFrame:Hide()
+			resourceFrame.active = false
 			
 		end
 	end
 	
 	-- Show shard spending for doom prediction in timeframe of currently cast spender
-	if resourceSpendIncludeHoG and nextCast and orbs + shardGeneration < 0 then
-		additionalResources = - orbs - shardGeneration
+	if resourceSpendIncludeHoG and nextCast and resource + resourceGeneration < 0 then
+		additionalResources = - resource - resourceGeneration
 		for t = 1, additionalResources do
 			local GUID = timers[t]
 			if GUID then
 				local tick = nextTick[GUID]
 				if tick < nextCast then
-					local orbFrame = orbFrames[orbs + t]
-					orbFrame:Show()
-					orbFrame:SetSpendColor()
+					local resourceFrame = resourceFrames[resource + t]
+					resourceFrame:Show()
+					resourceFrame:SetSpendColor()
 				else
 					break
 				end
@@ -146,10 +146,10 @@ local function update()
 	end
 	
 	-- Doom prediction
-	local k = orbs + 1
+	local k = resource + 1
 	local t = 1
 	local GUID = timers[t]
-	local generatedResource = shardGeneration > 0 and shardGeneration
+	local generatedResource = resourceGeneration > 0 and resourceGeneration
 	local castEnd = (resourceGainPrediction and generatedResource) and nextCast or nil
 	while (GUID or castEnd) and k <= statusbarCount do
 		local tick = nextTick[GUID]
@@ -175,9 +175,9 @@ local function update()
 			if statusbarEnable then
 				statusbars[k]:Hide()
 			end
-			local orbFrame = orbFrames[k]
-			orbFrame:Show()
-			orbFrame:SetGainColor()
+			local resourceFrame = resourceFrames[k]
+			resourceFrame:Show()
+			resourceFrame:SetGainColor()
 			generatedResource = generatedResource - 1
 			if generatedResource <= 0 then  -- Should never be lower than 0
 				castEnd = nil
@@ -195,8 +195,16 @@ local function update()
 	end
 end
 
-function CD:CONSPICUOUS_SPIRITS_UPDATE(_, ...)
-	timeStamp, orbs, timers, nextTick, durations, energizedShards, shardGeneration, nextCast = ...
+function CD:DOOM_SHARDS_UPDATE(_, ...)
+	timeStamp = DS.timeStamp
+	resource = DS.resource
+	timers = DS.timers
+	nextTick = DS.nextTick
+	durations = DS.durations
+	energizedShards = DS.energized
+	resourceGeneration = DS.generating
+	nextCast = DS.nextCast
+	
 	update()
 end
 
@@ -364,8 +372,8 @@ local function buildFrames()
 	end
 	
 	do
-		local function createOrbFrame(numeration)
-			local frame = orbFrames[numeration] or CreateFrame("frame", nil, CDFrame)
+		local function createResourceFrame(numeration)
+			local frame = resourceFrames[numeration] or CreateFrame("frame", nil, CDFrame)
 			frame:ClearAllPoints()
 			local displacement = (width + db.spacing) * (numeration - 1)
 			if orientation == "Vertical" then
@@ -420,7 +428,7 @@ local function buildFrames()
 				frame:SetBackdropColor(0, 0, 0, 0)  -- dummy frame to anchor overflow fontstring to
 			end
 			
-			local c3r, c3b, c3g, c3a = db.orbCappedColor.r, db.orbCappedColor.b, db.orbCappedColor.g, db.orbCappedColor.a
+			local c3r, c3b, c3g, c3a = db.resourceCappedColor.r, db.resourceCappedColor.b, db.resourceCappedColor.g, db.resourceCappedColor.a
 			function frame:SetCapColor()
 				self:SetBackdropColor(c3r, c3b, c3g, c3a)
 				self.capColored = true
@@ -451,7 +459,7 @@ local function buildFrames()
 			return frame
 		end
 		for i = 1, statusbarCount do
-			orbFrames[i] = createOrbFrame(i)
+			resourceFrames[i] = createResourceFrame(i)
 		end
 	end
 	
@@ -506,7 +514,7 @@ local function buildFrames()
 			return parentFrame
 		end
 		for i = 1, statusbarCount do
-			SATimers[i] = createTimerFontString(orbFrames[i], i)
+			SATimers[i] = createTimerFontString(resourceFrames[i], i)
 			SATimers[i]:Show()
 		end
 		if #SATimers > statusbarCount then
@@ -578,7 +586,7 @@ local function buildFrames()
 			return frame
 		end
 		for i = 1, statusbarCount do
-			statusbars[i] = createStatusBars(orbFrames[i], i)
+			statusbars[i] = createStatusBars(resourceFrames[i], i)
 		end
 		if #statusbars > statusbarCount then
 			for i = statusbarCount + 1, #statusbars do
@@ -607,7 +615,7 @@ function CD:Unlock()
 		
 		if i == statusbarCount then break end
 		
-		orbFrames[i]:Show()
+		resourceFrames[i]:Show()
 	end
 end
 
@@ -617,7 +625,7 @@ function CD:Lock()
 end
 
 function CD:Build()
-	orbCappedEnable = db.orbCappedEnable
+	resourceCappedEnable = db.resourceCappedEnable
 	remainingTimeThreshold = db.remainingTimeThreshold
 	resourceGainPrediction = db.resourceGainPrediction
 	resourceSpendIncludeHoG = db.resourceSpendIncludeHoG
@@ -642,12 +650,12 @@ function CD:OnInitialize()
 end
 
 function CD:OnEnable()
-	self:RegisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
+	self:RegisterMessage("DOOM_SHARDS_UPDATE")
 	CDOnUpdateFrame:RegisterEvents()
 end
 
 function CD:OnDisable()
-	self:UnregisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
+	self:UnregisterMessage("DOOM_SHARDS_UPDATE")
 	CDOnUpdateFrame:Hide()
 	CDOnUpdateFrame:UnregisterEvents()
 end

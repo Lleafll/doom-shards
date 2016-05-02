@@ -47,8 +47,8 @@ end
 do
 	local previousOrbs = 0
 
-	function WS:CONSPICUOUS_SPIRITS_UPDATE(_, updatedTimeStamp, updatedOrbs, updatedTimers, updatedNextTick, updatedDurations)
-		-- reset sound timer when orbs were spent
+	function WS:DOOM_SHARDS_UPDATE(_, updatedTimeStamp, updatedOrbs, updatedTimers, updatedNextTick, updatedDurations)
+		-- reset sound timer when shards were spent
 		if updatedOrbs < previousOrbs then counter = 0 end
 		previousOrbs = updatedOrbs
 		
@@ -87,14 +87,14 @@ function WS:OnEnable()
 	if UnitAffectingCombat("player") then
 		self:PLAYER_REGEN_DISABLED()
 	end
-	self:RegisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
+	self:RegisterMessage("DOOM_SHARDS_UPDATE")
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 end
 
 function WS:OnDisable()
 	WSFrame:Hide()
-	self:UnregisterMessage("CONSPICUOUS_SPIRITS_UPDATE")
+	self:UnregisterMessage("DOOM_SHARDS_UPDATE")
 	self:UnregisterEvent("PLAYER_REGEN_DISABLED")
 	self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 end
