@@ -23,12 +23,12 @@ function WA:CONSPICUOUS_SPIRITS_UPDATE() end
 
 local function WeakAurasLoaded()
 	WeakAurasScanEvents = WeakAuras.ScanEvents
-	function WA:CONSPICUOUS_SPIRITS_UPDATE(_, orbs, timers)
+	function WA:CONSPICUOUS_SPIRITS_UPDATE(_, resource, timers)
 		local count = #timers
 		weakauras.count = count
-		weakauras.orbs = orbs
+		weakauras.resource = resource
 		weakauras.timers = timers
-		WeakAurasScanEvents("WA_AUSPICIOUS_SPIRITS", count, orbs)
+		WeakAurasScanEvents("WA_AUSPICIOUS_SPIRITS", count, resource)
 	end
 end
 
@@ -42,9 +42,8 @@ else
 end
 
 function WA:OnInitialize()
-	-- old, going to be deprecated
 	weakauras.count = 0
-	weakauras.orbs = UnitPower("player", 13)
+	weakauras.resource = UnitPower("player", 13)
 	weakauras.timers = {}
 	
 	-- new & better to reduce littering of global namespace

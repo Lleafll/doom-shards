@@ -48,7 +48,7 @@ do
 	local previousOrbs = 0
 
 	function WS:CONSPICUOUS_SPIRITS_UPDATE(_, updatedTimeStamp, updatedOrbs, updatedTimers, updatedNextTick, updatedDurations)
-		-- reset sound timer when orbs were spent
+		-- reset sound timer when shards were spent
 		if updatedOrbs < previousOrbs then counter = 0 end
 		previousOrbs = updatedOrbs
 		

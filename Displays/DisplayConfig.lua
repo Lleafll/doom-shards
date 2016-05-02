@@ -30,7 +30,7 @@ local function displayOptions()
 				type = "toggle",
 				name = L["Enable"]
 			},
-			orbs = {
+			resource = {
 				order = 3,
 				type = "group",
 				name = L["Soul Shard Bars"],
@@ -139,22 +139,22 @@ local function displayOptions()
 						type="description",
 						name=""
 					},
-					orbCappedEnable = {
+					resourceCappedEnable = {
 						order = 6,
 						type = "toggle",
 						name = L["Shard Cap Color Change"],
 						desc = L["Change color of all Shards when reaching cap"]
 					},
-					orbCappedColor = {
+					resourceCappedColor = {
 						order = 7,
 						type = "color",
 						name = L["Color When Shard Capped"],
 						hasAlpha = true,
 						get = function()
-							return DS.db.display.orbCappedColor.r, DS.db.display.orbCappedColor.b, DS.db.display.orbCappedColor.g, DS.db.display.orbCappedColor.a
+							return DS.db.display.resourceCappedColor.r, DS.db.display.resourceCappedColor.b, DS.db.display.resourceCappedColor.g, DS.db.display.resourceCappedColor.a
 						end,
 						set = function(info, r, b, g, a)
-							DS.db.display.orbCappedColor.r, DS.db.display.orbCappedColor.b, DS.db.display.orbCappedColor.g, DS.db.display.orbCappedColor.a = r, b, g, a
+							DS.db.display.resourceCappedColor.r, DS.db.display.resourceCappedColor.b, DS.db.display.resourceCappedColor.g, DS.db.display.resourceCappedColor.a = r, b, g, a
 							DS:Build()
 						end
 					},
@@ -689,8 +689,8 @@ local defaultSettings = {
 	statusbarXOffset = 0,
 	statusbarYOffset = 6,
 	statusbarCount = 5,
-	orbCappedEnable = true,
-	orbCappedColor = {r=0.51, b=0.00, g=0.24, a=1},
+	resourceCappedEnable = true,
+	resourceCappedColor = {r=0.51, b=0.00, g=0.24, a=1},
 	gainFlash = true,
 	resourceGainPrediction = true,
 	resourceGainColor = {r=0.4, b=0.4, g=0.4, a=1},--{r=0.51, b=0.00, g=0.24, a=1},

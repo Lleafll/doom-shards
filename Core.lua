@@ -36,7 +36,7 @@ local maxResource = 5
 local playerGUID
 local unitPowerType = "SOUL_SHARDS"
 local unitPowerId = SPELL_POWER_SOUL_SHARDS
-local shardGeneration = {
+local resourceGeneration = {
 	-- General
 	[196098] = 5,  -- Soul Harvest
 	[157757] = -1,  -- Summon Doomguard
@@ -71,7 +71,7 @@ local nextCast
 local durations = {}
 local energizedShards = 0
 local nextTick = {}
-local orbs = 0
+local resource = 0
 local timers = {}  -- ordered table of all timer IDs
 
 
@@ -85,7 +85,7 @@ function DS:Update(timeStamp)
 		
 	self:SendMessage("CONSPICUOUS_SPIRITS_UPDATE",
 		timeStamp,
-		orbs,
+		resource,
 		timers,
 		nextTick,
 		durations,
@@ -187,9 +187,9 @@ do
 		
 		function DS:Cast(spellGUID)
 			if spellGUID then
-				local shards = shardGeneration[spellGUIDToID(spellGUID)]
-				if shards then
-					currentlyGenerating = shards
+				local generation = resourceGeneration[spellGUIDToID(spellGUID)]
+				if generation then
+					currentlyGenerating = generation
 					local _, _, _, _, startTime, endTime = UnitCastingInfo("player")
 					nextCast = GetTime() + (endTime - startTime) / 1000
 					self:Update()
@@ -215,8 +215,8 @@ do
 					self:Refresh(destGUID)
 				elseif event == "SPELL_PERIODIC_DAMAGE" then
 					self:Tick(destGUID)
-					if orbs < maxResource then
-						orbs = orbs + 1
+					if resource < maxResource then
+						resource = resource + 1
 						self:UNIT_POWER_FREQUENT("UNIT_POWER_FREQUENT", "player", "SOUL_SHARDS")  -- fail safe in case the corresponding UNIT_POWER_FREQUENT fires wonkily
 					end
 				end
@@ -275,13 +275,13 @@ do
 	local delay = 0.01
 	
 	local function delayOrbs()
-		orbs = UnitPower("player", unitPowerId)
+		resource = UnitPower("player", unitPowerId)
 		DS:Update()
 	end
 	
 	function DS:UNIT_POWER_FREQUENT(_, unitID, power)
 		if not (unitID == "player" and power == unitPowerType) then return end
-		C_TimerAfter(delay, delayOrbs)  -- needs to be delayed so it fires after the SA events, otherwise everything will assume the SA is still in flight
+		C_TimerAfter(delay, delayOrbs)  -- needs to be delayed so it fires after the SA events, otherwise everything will assume the SA is still in flight  -- TODO: Check if still necessary with Doom
 	end
 end
 
@@ -311,7 +311,7 @@ end
 
 function DS:PLAYER_ENTERING_WORLD()
 	playerGUID = UnitGUID("player")
-	orbs = UnitPower("player", SPELL_POWER_SOUL_SHARDS)
+	resource = UnitPower("player", SPELL_POWER_SOUL_SHARDS)
 	self:ResetCount()
 end
 
@@ -332,7 +332,7 @@ do
 	function DS:Build()
 		self:EndTestMode()
 		self:ApplySettings()
-		orbs = UnitPower("player", unitPowerId)
+		resource = UnitPower("player", unitPowerId)
 		
 		self:RegisterEvent("PLAYER_REGEN_DISABLED")
 		self:RegisterEvent("PLAYER_REGEN_ENABLED")
@@ -362,7 +362,7 @@ do  -- TODO: Fix
 	local SAGraceTime = 3  -- maximum additional wait time before SA timer gets purged if it should not have hit in the meantime
 	local SAInterval = 6
 	local SATravelTime = 8
-	local orbTicker
+	local resourceTicker
 	local TestGUID = "Test Mode"
 	
 	local function SATickerFunc()
@@ -387,11 +387,11 @@ do  -- TODO: Fix
 				self:Update()
 			end
 			
-			orbTicker = C_Timer.NewTicker(0.5, function()
-				if orbs > 4 then
-					orbs = 0
+			resourceTicker = C_Timer.NewTicker(0.5, function()
+				if resource > 4 then
+					resource = 0
 				else
-					orbs = orbs + 1
+					resource = resource + 1
 				end
 				DS:Update()
 			end)
@@ -410,16 +410,16 @@ do  -- TODO: Fix
 	
 	function DS:EndTestMode()
 		if self.testMode then
-			if orbTicker then
-				orbTicker:Cancel()
-				orbTicker = nil
+			if resourceTicker then
+				resourceTicker:Cancel()
+				resourceTicker = nil
 			end
 			if SATicker then
 				SATicker:Cancel()
 				SATicker = nil
 			end
 			self:ResetCount()
-			orbs = UnitPower("player", 13)
+			resource = UnitPower("player", 13)
 			self.testMode = false
 			self:Lock()
 			if not UnitAffectingCombat("player") then
