@@ -139,6 +139,8 @@ function CD:UpdateDoomPrediction(position, timer)
 end
 
 function CD:Update()
+	if not DS.locked then return end
+	
 	-- Shards
 	local spendThreshold = resource + ((resourceSpendPrediction and resourceGeneration < 0) and resourceGeneration or 0)
 	for i = 1, 5 do  -- TODO: work with max resource
