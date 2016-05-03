@@ -147,4 +147,5 @@ L["Y Position"] = true
 L["Anchor Point"] = true
 L["Anchor Frame"] = true
 L["Will change to UIParent when manually dragging frame."] = true
+
 --@end-do-not-package@
