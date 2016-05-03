@@ -120,170 +120,166 @@ function DS:ResetCount()
 end
 
 -- set specific SATimeCorrection for a GUID
-do
-	function DS:GetDoomDuration()
-		local doomDuration = tonumber(stringmatch(GetSpellDescription(603), "%d%d%.%d"))  -- Possibly replace with something more sensible in the future
-		return doomDuration
+function DS:GetDoomDuration()
+	local doomDuration = tonumber(stringmatch(GetSpellDescription(603), "%d%d%.%d"))  -- Possibly replace with something more sensible in the future
+	return doomDuration
+end
+
+--[[DS:TargetChanged = function()
+	local GUID = self.UnitGUID("target")
+	self.ScanEvents("WARLOCK_DOOM", self:GetDoomDuration(), nextTick[GUID], duration[GUID])
+end]]--
+
+function DS:Add(GUID, timeStamp, tick)
+	duration[GUID] = tick
+	nextTick[GUID] = tick
+	if #timers == 0 then  -- might not be necessary if for-loop skips looping on empty tables (need to check)
+		timers[1] = GUID
+		self:Update(timeStamp)
+		return
 	end
-	
-	--[[DS:TargetChanged = function()
-		local GUID = self.UnitGUID("target")
-		self.ScanEvents("WARLOCK_DOOM", self:GetDoomDuration(), nextTick[GUID], duration[GUID])
-	end]]--
-	
-	function DS:Add(GUID, timeStamp, tick)
-		duration[GUID] = tick
-		nextTick[GUID] = tick
-		if #timers == 0 then  -- might not be necessary if for-loop skips looping on empty tables (need to check)
-			timers[1] = GUID
+	for k, v in pairs(timers) do
+		if nextTick[v] > tick then
+			tableinsert(timers, k, GUID)
 			self:Update(timeStamp)
 			return
 		end
-		for k, v in pairs(timers) do
-			if nextTick[v] > tick then
-				tableinsert(timers, k, GUID)
-				self:Update(timeStamp)
-				return
-			end
-		end
-		timers[#timers+1] = GUID
-		self:Update(timeStamp)
 	end
+	timers[#timers+1] = GUID
+	self:Update(timeStamp)
+end
 
-	function DS:Apply(GUID)
-		local timeStamp = GetTime()
-		local tick = timeStamp + self:GetDoomDuration()
-		self:Add(GUID, timeStamp, tick)
-	end
+function DS:Apply(GUID)
+	local timeStamp = GetTime()
+	local tick = timeStamp + self:GetDoomDuration()
+	self:Add(GUID, timeStamp, tick)
+end
 
-	function DS:Remove(GUID)
-		for k, v in pairs(timers) do
-			if v == GUID then
-				tableremove(timers, k)
-				break
-			end
+function DS:Remove(GUID)
+	for k, v in pairs(timers) do
+		if v == GUID then
+			tableremove(timers, k)
+			break
 		end
-		duration[GUID] = nil
-		nextTick[GUID] = nil
-		self:Update()
 	end
+	duration[GUID] = nil
+	nextTick[GUID] = nil
+	self:Update()
+end
 
-	function DS:Refresh(GUID)
-		local timeStamp = GetTime()
-		local doomDuration = self:GetDoomDuration()
-		duration[GUID] = timeStamp + doomDuration + mathmin(nextTick[GUID]-timeStamp, 0.3*doomDuration)
-		--self:TargetChanged()
-	end
+function DS:Refresh(GUID)
+	local timeStamp = GetTime()
+	local doomDuration = self:GetDoomDuration()
+	duration[GUID] = timeStamp + doomDuration + mathmin(nextTick[GUID]-timeStamp, 0.3*doomDuration)
+	--self:TargetChanged()
+end
 
-	function DS:Tick(GUID)
-		for k, v in pairs(timers) do
-			if v == GUID then
-				tableremove(timers, k)
-				local maxDuration = duration[GUID]
-				if maxDuration > nextTick[GUID] then
-					self:Add(GUID, GetTime(), maxDuration)
-				end
-				return
+function DS:Tick(GUID)
+	for k, v in pairs(timers) do
+		if v == GUID then
+			tableremove(timers, k)
+			local maxDuration = duration[GUID]
+			if maxDuration > nextTick[GUID] then
+				self:Add(GUID, GetTime(), maxDuration)
 			end
-		end
-	end
-	
-	function DS:Energize(energizeAmount)
-		energized = energizeAmount
-	end
-	
-	do
-		local function spellGUIDToID(GUID)
-			local _, _, _, _, ID = strsplit("-", GUID)
-			return tonumber(ID)
-		end
-		
-		function DS:Cast(spellGUID)
-			if spellGUID then
-				local generation = resourceGeneration[spellGUIDToID(spellGUID)]
-				if generation then
-					if type(generation) == "function" then
-						generation = generation()
-					end
-					generating = generation
-					local _, _, _, _, startTime, endTime = UnitCastingInfo("player")
-					nextCast = GetTime() + (endTime - startTime) / 1000
-					self:Update()
-				end
-			else
-				generating = 0
-				nextCast = nil
-				self:Update()
-			end
-		end
-	end
-	
-	function DS:COMBAT_LOG_EVENT_UNFILTERED(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, ...)
-		if sourceGUID == playerGUID then
-			local spellID, _, _, energizeAmount, energizeType = ...
-			-- Doom
-			if spellID == 603 and sourceGUID == playerGUID then
-				if event == "SPELL_AURA_APPLIED" then
-					self:Apply(destGUID)
-				elseif event == "SPELL_AURA_REMOVED" then
-					self:Remove(destGUID)
-				elseif event == "SPELL_AURA_REFRESH" then
-					self:Refresh(destGUID)
-				elseif event == "SPELL_PERIODIC_DAMAGE" then
-					self:Tick(destGUID)
-					if resource < maxResource then
-						resource = resource + 1
-						self:UNIT_POWER_FREQUENT("UNIT_POWER_FREQUENT", "player", "SOUL_SHARDS")  -- fail safe in case the corresponding UNIT_POWER_FREQUENT fires wonkily
-					end
-				end
-			end
-			
-			-- Soul Conduit
-			if event == "SPELL_ENERGIZE" and energizeType == unitPowerId and spellID == 215942 then
-				self:Energize(energizeAmount)
-			end
-			
-		end
-		
-		if event == "UNIT_DIED" or event == "UNIT_DESTROYED" or event == "PARTY_KILL" or event == "SPELL_INSTAKILL" then
-			self:Remove(destGUID)
-		
-		-- Check for overkill because in some cases events don't fire when mobs die
-		--[[elseif event == "SWING_DAMAGE" then
-			local _, overkill = ...
-			if overkill > 0 then
-				self:Remove(destGUID)
-			end
-			
-		elseif event == "SPELL_DAMAGE" or event == "SPELL_PERIODIC_DAMAGE" or event == "RANGE_DAMAGE" then
-			local _, _, _, _, overkill = ...
-			if overkill > 0 then
-				self:Remove(destGUID)
-			end]]--
-			
+			return
 		end
 	end
 end
 
-do	
-	function DS:PLAYER_REGEN_DISABLED()		
-		if not self.locked then
-			self:Lock()
-		end
-		if self.testMode then
-			self:EndTestMode()
+function DS:Energize(energizeAmount)
+	energized = energizeAmount
+end
+
+do
+	local function spellGUIDToID(GUID)
+		local _, _, _, _, ID = strsplit("-", GUID)
+		return tonumber(ID)
+	end
+	
+	function DS:Cast(spellGUID)
+		if spellGUID then
+			local generation = resourceGeneration[spellGUIDToID(spellGUID)]
+			if generation then
+				if type(generation) == "function" then
+					generation = generation()
+				end
+				generating = generation
+				local _, _, _, _, startTime, endTime = UnitCastingInfo("player")
+				nextCast = GetTime() + (endTime - startTime) / 1000
+				self:Update()
+			end
+		elseif not UnitCastingInfo("player") then  -- Command Demon fires SPELL_CAST_SUCCEEDED 
+			generating = 0
+			nextCast = nil
+			self:Update()
 		end
 	end
+end
 
-	function DS:PLAYER_REGEN_ENABLED()  -- player left combat or died
-		self:EndTestMode()
-		if UnitIsDead("player") then
-			self:ResetCount()
-			
-		else
-			self:Update()
-			
+function DS:COMBAT_LOG_EVENT_UNFILTERED(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, ...)
+	if sourceGUID == playerGUID then
+		local spellID, _, _, energizeAmount, energizeType = ...
+		-- Doom
+		if spellID == 603 and sourceGUID == playerGUID then
+			if event == "SPELL_AURA_APPLIED" then
+				self:Apply(destGUID)
+			elseif event == "SPELL_AURA_REMOVED" then
+				self:Remove(destGUID)
+			elseif event == "SPELL_AURA_REFRESH" then
+				self:Refresh(destGUID)
+			elseif event == "SPELL_PERIODIC_DAMAGE" then
+				self:Tick(destGUID)
+				if resource < maxResource then
+					resource = resource + 1
+					self:UNIT_POWER_FREQUENT("UNIT_POWER_FREQUENT", "player", "SOUL_SHARDS")  -- fail safe in case the corresponding UNIT_POWER_FREQUENT fires wonkily
+				end
+			end
 		end
+		
+		-- Soul Conduit
+		if event == "SPELL_ENERGIZE" and energizeType == unitPowerId and spellID == 215942 then
+			self:Energize(energizeAmount)
+		end
+		
+	end
+	
+	if event == "UNIT_DIED" or event == "UNIT_DESTROYED" or event == "PARTY_KILL" or event == "SPELL_INSTAKILL" then
+		self:Remove(destGUID)
+	
+	-- Check for overkill because in some cases events don't fire when mobs die
+	--[[elseif event == "SWING_DAMAGE" then
+		local _, overkill = ...
+		if overkill > 0 then
+			self:Remove(destGUID)
+		end
+		
+	elseif event == "SPELL_DAMAGE" or event == "SPELL_PERIODIC_DAMAGE" or event == "RANGE_DAMAGE" then
+		local _, _, _, _, overkill = ...
+		if overkill > 0 then
+			self:Remove(destGUID)
+		end]]--
+		
+	end
+end
+
+function DS:PLAYER_REGEN_DISABLED()		
+	if not self.locked then
+		self:Lock()
+	end
+	if self.testMode then
+		self:EndTestMode()
+	end
+end
+
+function DS:PLAYER_REGEN_ENABLED()  -- player left combat or died
+	self:EndTestMode()
+	if UnitIsDead("player") then
+		self:ResetCount()
+		
+	else
+		self:Update()
+		
 	end
 end
 
