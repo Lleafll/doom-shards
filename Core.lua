@@ -37,7 +37,7 @@ local UnitPower = UnitPower
 ---------------
 -- Constants --
 ---------------
-local maxResource = 5
+local maxResource = 5  -- TODO: work with API call or global variable
 local playerGUID
 local unitPowerType = "SOUL_SHARDS"
 local unitPowerId = SPELL_POWER_SOUL_SHARDS
@@ -257,7 +257,7 @@ function DS:COMBAT_LOG_EVENT_UNFILTERED(_, timeStamp, event, _, sourceGUID, _, _
 	end
 end
 
-function DS:PLAYER_REGEN_DISABLED()		
+function DS:PLAYER_REGEN_DISABLED()  -- TODO: possibly add shard countdown when player leaves combat
 	if not self.locked then
 		self:Lock()
 	end
@@ -321,7 +321,7 @@ do
 		self:RegisterEvent("PLAYER_REGEN_DISABLED")
 		self:RegisterEvent("PLAYER_REGEN_ENABLED")
 		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		self:RegisterUnitEvent("UNIT_POWER_FREQUENT", "player")  -- TODO: possibly replace following event with RegisterUnitEvent()
+		self:RegisterUnitEvent("UNIT_POWER_FREQUENT", "player")
 		self:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", "player")
 		self:RegisterUnitEvent("UNIT_SPELLCAST_START", "player")
 		self:RegisterUnitEvent("UNIT_SPELLCAST_STOP", "player")

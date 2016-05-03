@@ -11,6 +11,7 @@ local LSM = LibStub("LibSharedMedia-3.0")
 local GetSpellInfo = GetSpellInfo
 local GetTime = GetTime
 local mathmax = math.max
+local SPEC_WARLOCK_DEMONOLOGY = SPEC_WARLOCK_DEMONOLOGY
 local stringformat = string.format
 
 
@@ -79,9 +80,13 @@ local visibilityConditionals = ""
 ---------------
 -- Functions --
 ---------------
-function CD:GetHoGCastingTime()  -- TODO: Cache to possibly improve performance
-	_, _, _, castingTime = GetSpellInfo(105174)
-	return (nextCast and (nextCast - GetTime()) or 0) + castingTime / 1000
+function CD:GetHoGCastingTime()  -- TODO: Cache to possibly improve performance  -- TODO: Seed of Corruption w/ Sow the Seed for Affliction
+	if GetSpecialization() == SPEC_WARLOCK_DEMONOLOGY then
+		_, _, _, castingTime = GetSpellInfo(105174)
+		return (nextCast and (nextCast - GetTime()) or 0) + castingTime / 1000
+	else
+		return 0
+	end
 end
 
 function CD:UpdateResource(frame, active, coloring)
@@ -115,7 +120,7 @@ function CD:UpdateResourceGainPrediction(frame)  -- Must not play animations
 	frame:SetGainColor()
 end
 
-function CD:UpdateHoGPrediction(frame)  -- Must not play animations
+function CD:UpdateHoGPrediction(frame)  -- Must not play animations  -- TODO: maybe add another color (yellow) for another GCD before this one
 	frame:Show()
 	frame:SetSpendColor()
 end
