@@ -7,7 +7,10 @@ local L = LibStub("AceLocale-3.0"):GetLocale("DoomShards")
 -- Upvalues --
 --------------
 local C_TimerAfter = C_Timer.After
+local GetActiveSpecGroup = GetActiveSpecGroup
+local GetSpecializationInfo = GetSpecializationInfo
 local GetSpellDescription = GetSpellDescription
+local GetTalentInfo = GetTalentInfo
 local GetTime = GetTime
 local gsub = gsub
 local IsInGroup = IsInGroup
@@ -22,6 +25,8 @@ local strsplit = strsplit
 local tableinsert = table.insert  -- only used sparingly
 local tableremove = table.remove
 local tonumber = tonumber
+local type = type
+local UnitBuff = UnitBuff
 local UnitCanAttack = UnitCanAttack
 local UnitCastingInfo = UnitCastingInfo
 local UnitExists = UnitExists
@@ -47,11 +52,9 @@ local resourceGeneration = {
 	[697] = -1,  -- Summon Voidwalker
 		
 	-- Affliction
-	--27243 = -1, -- Seed of Corruption w/ Sow the Seeds
 	[30108] = -1,  -- Unstable Affliction
 	
 	-- Demonology
-	[104316] = -2,  -- Call Dreadstalkers
 	[157695] = 1,  -- Demonbolt
 	[105174] = -4,  -- Hand of Gul'dan
 	[686] = 1,  -- Shadow Bolt
@@ -61,6 +64,17 @@ local resourceGeneration = {
 	[116858] = -2,  -- Chaos Bolt
 	[5740] = -3,  -- Rain of Fire
 }
+-- Affliction/Seed of Corruption/Sow the Seeds
+resourceGeneration[27243] = function()  -- TODO: possibly cache and update on event
+	return (GetSpecialization() == 1 and GetTalentInfo(4, 2, GetActiveSpecGroup() and resource > 0) and -1 or 0
+end
+-- Demonology/Call Dreadstalkers/Demonic Calling
+do
+	local demonicCallingString = GetSpellInfo(205146)
+	resourceGeneration[104316] = function()  -- TODO: possibly cache and update on event
+		return UnitBuff("player", demonicCallingString) and 0 or 1
+	end
+end
 
 
 ---------------
@@ -180,7 +194,7 @@ do
 	
 	do
 		local function spellGUIDToID(GUID)
-			local _, _, _, _, ID = strsplit("-",GUID)
+			local _, _, _, _, ID = strsplit("-", GUID)
 			return tonumber(ID)
 		end
 		
@@ -188,6 +202,9 @@ do
 			if spellGUID then
 				local generation = resourceGeneration[spellGUIDToID(spellGUID)]
 				if generation then
+					if type(generation) == "function" then
+						generation = generation()
+					end
 					generating = generation
 					local _, _, _, _, startTime, endTime = UnitCastingInfo("player")
 					nextCast = GetTime() + (endTime - startTime) / 1000
@@ -232,7 +249,7 @@ do
 			self:Remove(destGUID)
 		
 		-- Check for overkill because in some cases events don't fire when mobs die
-		elseif event == "SWING_DAMAGE" then
+		--[[elseif event == "SWING_DAMAGE" then
 			local _, overkill = ...
 			if overkill > 0 then
 				self:Remove(destGUID)
@@ -242,7 +259,7 @@ do
 			local _, _, _, _, overkill = ...
 			if overkill > 0 then
 				self:Remove(destGUID)
-			end
+			end]]--
 			
 		end
 	end
