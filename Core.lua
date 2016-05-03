@@ -41,6 +41,12 @@ local maxResource = 5
 local playerGUID
 local unitPowerType = "SOUL_SHARDS"
 local unitPowerId = SPELL_POWER_SOUL_SHARDS
+local SPEC_WARLOCK_AFFLICTION = SPEC_WARLOCK_AFFLICTION
+
+
+-------------------
+-- Lookup Tables --
+-------------------
 local resourceGeneration = {
 	-- General
 	[196098] = 5,  -- Soul Harvest
@@ -66,7 +72,7 @@ local resourceGeneration = {
 }
 -- Affliction/Seed of Corruption/Sow the Seeds
 resourceGeneration[27243] = function()  -- TODO: possibly cache and update on event
-	return (GetSpecialization() == 1 and GetTalentInfo(4, 2, GetActiveSpecGroup() and resource > 0) and -1 or 0
+	return (GetSpecialization() == SPEC_WARLOCK_AFFLICTION and GetTalentInfo(4, 2, GetActiveSpecGroup() and resource > 0) and -1 or 0
 end
 -- Demonology/Call Dreadstalkers/Demonic Calling
 do
@@ -97,14 +103,14 @@ function DS:Update(timeStamp)
 		timeStamp = GetTime()
 	end
 	
-	DS.timeStamp = timeStamp
-	DS.resource = resource
-	DS.timers = timers
-	DS.nextTick = nextTick
-	DS.duration = duration
-	DS.energized = energized
-	DS.generating = generating
-	DS.nextCast = nextCast
+	self.timeStamp = timeStamp
+	self.resource = resource
+	self.timers = timers
+	self.nextTick = nextTick
+	self.duration = duration
+	self.energized = energized
+	self.generating = generating
+	self.nextCast = nextCast
 	
 	self:SendMessage("DOOM_SHARDS_UPDATE")
 	
@@ -297,28 +303,20 @@ do
 	end
 end
 
-function DS:UNIT_SPELLCAST_INTERRUPTED(_, unitID, _, _, spellGUID)
-	if unitID == "player" then
-		self:Cast(false)
-	end
+function DS:UNIT_SPELLCAST_INTERRUPTED(_, _, _, _, spellGUID)
+	self:Cast(false)
 end
 
-function DS:UNIT_SPELLCAST_START(_, unitID, _, _, spellGUID)
-	if unitID == "player" then
-		self:Cast(spellGUID)
-	end
+function DS:UNIT_SPELLCAST_START(_, _, _, _, spellGUID)
+	self:Cast(spellGUID)
 end
 
-function DS:UNIT_SPELLCAST_STOP(_, unitID, _, _, spellGUID)
-	if unitID == "player" then
-		self:Cast(false)
-	end
+function DS:UNIT_SPELLCAST_STOP(_, _, _, _, spellGUID)
+	self:Cast(false)
 end
 
-function DS:UNIT_SPELLCAST_SUCCEEDED(_, unitID, _, _, spellGUID)
-	if unitID == "player" then
-		self:Cast(false)
-	end
+function DS:UNIT_SPELLCAST_SUCCEEDED(_, _, _, _, spellGUID)
+	self:Cast(false)
 end
 
 function DS:PLAYER_ENTERING_WORLD()
@@ -332,10 +330,6 @@ end
 -- Handling Settings --
 -----------------------
 do
-	local function isShadow()
-		return GetSpecialization() == 2
-	end
-	
 	function DS:TalentsCheck()
 		self:Build()
 		self:Update()
@@ -349,11 +343,11 @@ do
 		self:RegisterEvent("PLAYER_REGEN_DISABLED")
 		self:RegisterEvent("PLAYER_REGEN_ENABLED")
 		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		self:RegisterEvent("UNIT_POWER_FREQUENT")
-		self:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
-		self:RegisterEvent("UNIT_SPELLCAST_START")
-		self:RegisterEvent("UNIT_SPELLCAST_STOP")
-		self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+		self:RegisterUnitEvent("UNIT_POWER_FREQUENT", "player")  -- TODO: possibly replace following event with RegisterUnitEvent()
+		self:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", "player")
+		self:RegisterUnitEvent("UNIT_SPELLCAST_START", "player")
+		self:RegisterUnitEvent("UNIT_SPELLCAST_STOP", "player")
+		self:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
 		
 		if UnitAffectingCombat("player") then
 			self:PLAYER_REGEN_DISABLED() 
