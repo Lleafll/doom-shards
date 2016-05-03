@@ -8,6 +8,7 @@ local LSM = LibStub("LibSharedMedia-3.0")
 --------------
 -- Upvalues --
 --------------
+local GetSpellInfo = GetSpellInfo
 local GetTime = GetTime
 local mathmax = math.max
 local stringformat = string.format
@@ -78,11 +79,9 @@ local visibilityConditionals = ""
 ---------------
 -- Functions --
 ---------------
-do
-	function CD:GetHoGCastingTime()  -- TODO: Cache to possibly improve performance
-		_, _, _, castingTime = GetSpellInfo(105174)
-		return (nextCast and (nextCast - GetTime()) or 0) + castingTime / 1000
-	end
+function CD:GetHoGCastingTime()  -- TODO: Cache to possibly improve performance
+	_, _, _, castingTime = GetSpellInfo(105174)
+	return (nextCast and (nextCast - GetTime()) or 0) + castingTime / 1000
 end
 
 function CD:UpdateResource(frame, active, coloring)
@@ -144,112 +143,61 @@ function CD:Update()
 
 	-- Shards
 	local spendThreshold = resource + ((resourceSpendPrediction and resourceGeneration < 0) and resourceGeneration or 0)
-	for i = 1, statusbarCount do
-		local resourceFrame = resourceFrames[i]
-		if resource >= i then
-			if i > spendThreshold then
-				if not resourceFrame.spendColored then
-					resourceFrame:SetSpendColor()
-				end
-			elseif resourceCappedEnable and (resource == maxResource) then
-				if not resourceFrame.capColored then
-					resourceFrame:SetCapColor()
-				end
-			elseif not resourceCappedEnable or (resource ~= maxResource) then
-				if resourceFrame.capColored or resourceFrame.gainColored or resourceFrame.spendColored then
-					resourceFrame:SetOriginalColor()
-				end
-			end
-			resourceFrame:Show()
-			if (i > energizeThreshold and resourceFrame.active) or (resourceFrame.active == false) then  -- TODO: pretty hacky  -- Explicitly don't check for nil
-				resourceFrame.smoke:Show()
-				resourceFrame.smoke.flasher:Play()
-				resourceFrame.active = true
-			end
-			if resourceFrame.active == nil then  -- TODO: replace with more efficient solution?
-				resourceFrame.active = true
-			end
-			if textEnable then
-				SATimers[i]:Hide()
-			end
-			statusbars[i]:Hide()
-			
-		else
-			resourceFrame:Hide()
-			resourceFrame.active = false
-			
-		end
+	for i = 1, 5 do  -- TODO: work with max resource
+		self:UpdateResource(resourceFrames[i], i <= resource, i > spendThreshold and "spending" or (resourceCappedEnable and resource == maxResource) and "capped" or nil)
+		self:UpdateDoomPrediction(i, false)
 	end
 	
 	-- Show shard spending for doom prediction in timeframe of currently cast spender
-	if resourceSpendIncludeHoG and nextCast and resource + resourceGeneration < 0 then
-		additionalResources = - resource - resourceGeneration
-		for t = 1, additionalResources do
-			local GUID = timers[t]
-			if GUID then
-				local tick = nextTick[GUID]
-				if tick < nextCast then
-					local resourceFrame = resourceFrames[resource + t]
-					resourceFrame:Show()
-					resourceFrame:SetSpendColor()
+	if resourceSpendIncludeHoG and nextCast then
+		local additionalResources = - resource - resourceGeneration
+		if additionalResources > 0 then
+			for t = 1, additionalResources do
+				local GUID = timers[t]
+				if GUID then
+					if nextTick[GUID] < nextCast then
+						CD:UpdateHoGPrediction(resourceFrames[resource + t])
+					else
+						break
+					end
+					
 				else
 					break
+					
 				end
 			end
 		end
 	end
+	
 	
 	-- Doom prediction
-	local k = resource + 1
+	local generatedResource
+	local castEnd
+	if resourceGainPrediction then
+		generatedResource = resourceGeneration > 0 and resourceGeneration
+		castEnd = generatedResource and nextCast or nil
+	end
 	local t = 1
-	local GUID = timers[t]
-	local generatedResource = resourceGeneration > 0 and resourceGeneration
-	local castEnd = (resourceGainPrediction and generatedResource) and nextCast or nil
-	while (GUID or castEnd) and k <= statusbarCount do
-		local tick = nextTick[GUID]
-		if GUID and (not castEnd or (castEnd and tick < castEnd)) then
-			if textEnable then
-				local SATimer = SATimers[k]
-				SATimer:Show()
-				SATimer:SetTimer(tick)
-			end
-			if statusbarEnable then
-				local statusbar = statusbars[k]
-				statusbar:SetTimer(tick)
-				if statusbar.gainColored then
-					statusbar:SetOriginalColor()
-				end
-			end
-			t = t + 1
-			GUID = timers[t]
-		else
-			if textEnable then
-				SATimers[k]:Hide()
-			end
-			if statusbarEnable then
-				statusbars[k]:Hide()
-			end
-			local resourceFrame = resourceFrames[k]
-			resourceFrame:Show()
-			resourceFrame:SetGainColor()
+	local tick = nextTick[timers[t]]
+	for i = resource + 1, statusbarCount do
+		if resourceGainPrediction and castEnd and castEnd < tick then
+			self:UpdateResourceGainPrediction(resourceFrames[i])
+			self:UpdateDoomPrediction(i, false)
 			generatedResource = generatedResource - 1
-			if generatedResource <= 0 then  -- Should never be lower than 0
+			if generatedResource <= 0 then
 				castEnd = nil
 			end
+			
+		else
+			self:UpdateDoomPrediction(i, tick)
+			t = t + 1
+			tick = nextTick[timers[t]]
+			
 		end
-		
-		k = k + 1
-	end
-	
-	for m = k, statusbarCount do
-		if textEnable then 
-			SATimers[m]:Hide()
-		end
-		statusbars[m]:Hide()
 	end
 end
 
-function CD:DOOM_SHARDS_UPDATE(_, ...)
+function CD:DOOM_SHARDS_UPDATE()
 	timeStamp = DS.timeStamp
 	resource = DS.resource
 	timers = DS.timers
@@ -258,7 +206,7 @@ function CD:DOOM_SHARDS_UPDATE(_, ...)
 	resourceGeneration = DS.generating
 	nextCast = DS.nextCast
 	
-	update()
+	self:Update()
 end
 
 local function SATimerOnUpdate(self, elapsed)
@@ -373,14 +321,14 @@ local function buildFlasher(parentFrame)
 		smoke:SetBackdrop(backdrop)
 		smoke:SetBackdropColor(1, 1, 1, 1)
 		smoke:SetAllPoints()
+		smoke:SetAlpha(0)
+		smoke:Show()
 	end
-	smoke:Hide()
 	
 	smoke.flasher = smoke:CreateAnimationGroup()
-	smoke.flasher:SetScript("OnFinished", function()
+	--[[smoke.flasher:SetScript("OnFinished", function()
 		smoke:SetAlpha(0)
-		smoke:Hide()
-	end)
+	end)]]--
 	
 	smoke.flasher.start = smoke.flasher:CreateAnimation("Alpha")
 	smoke.flasher.start:SetFromAlpha(0)
@@ -472,9 +420,9 @@ local function buildFrames()
 				local cr, cb, cg, ca = color.r, color.b, color.g, color.a
 				function frame:SetOriginalColor()
 					self:SetBackdropColor(cr, cb, cg, ca)
-					self.capColored = false
+					--[[self.capColored = false
 					self.gainColored = false
-					self.spendColored = false
+					self.spendColored = false]]--
 				end
 				frame:SetOriginalColor()
 			else
@@ -484,30 +432,32 @@ local function buildFrames()
 			local c3r, c3b, c3g, c3a = db.resourceCappedColor.r, db.resourceCappedColor.b, db.resourceCappedColor.g, db.resourceCappedColor.a
 			function frame:SetCapColor()
 				self:SetBackdropColor(c3r, c3b, c3g, c3a)
-				self.capColored = true
+				--[[self.capColored = true
 				self.gainColored = false
-				self.spendColored = false
+				self.spendColored = false]]--
 			end
 			
 			local c4r, c4b, c4g, c4a = db.resourceSpendColor.r, db.resourceSpendColor.b, db.resourceSpendColor.g, db.resourceSpendColor.a
 			function frame:SetSpendColor()
 				self:SetBackdropColor(c4r, c4b, c4g, c4a)
-				self.spendColored = true
+				--[[self.spendColored = true
 				self.capColored = false
-				self.gainColored = false
+				self.gainColored = false]]--
 			end
 			
 			local c5r, c5b, c5g, c5a = db.resourceGainColor.r, db.resourceGainColor.b, db.resourceGainColor.g, db.resourceGainColor.a
 			function frame:SetGainColor()
 				self:SetBackdropColor(c5r, c5b, c5g, c5a)
-				self.gainColored = true
+				--[[self.gainColored = true
 				self.capColored = false
-				self.spendColored = false
+				self.spendColored = false]]--
 			end
 			
 			if db.gainFlash then
 				buildFlasher(frame)
 			end
+			
+			frame.active = true
 			
 			return frame
 		end
