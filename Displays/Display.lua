@@ -101,12 +101,12 @@ function CD:UpdateResource(frame, active, coloring)
 		--frame.coloring = coloring
 		if not frame.active then
 			frame:Show()
-			frame.smoke.flasher:Play()
+			frame.flasher:Play()
 			frame.active = true
 		end
 	else
-		if frame.smoke.flasher:IsPlaying() then
-			frame.smoke.flasher:Stop()
+		if frame.flasher:IsPlaying() then
+			frame.flasher:Stop()
 		end
 		if frame.active then
 			frame:Hide()
@@ -330,22 +330,22 @@ local function buildFlasher(parentFrame)
 		smoke:Show()
 	end
 	
-	smoke.flasher = smoke:CreateAnimationGroup()
+	parentFrame.flasher = smoke:CreateAnimationGroup()
 	--[[smoke.flasher:SetScript("OnFinished", function()
 		smoke:SetAlpha(0)
 	end)]]--
 	
-	smoke.flasher.start = smoke.flasher:CreateAnimation("Alpha")
-	smoke.flasher.start:SetFromAlpha(0)
-	smoke.flasher.start:SetToAlpha(0.5)
-	smoke.flasher.start:SetDuration(0.2)
-	smoke.flasher.start:SetOrder(1)
+	parentFrame.flasher.start = parentFrame.flasher:CreateAnimation("Alpha")
+	parentFrame.flasher.start:SetFromAlpha(0)
+	parentFrame.flasher.start:SetToAlpha(0.5)
+	parentFrame.flasher.start:SetDuration(0.2)
+	parentFrame.flasher.start:SetOrder(1)
 	
-	smoke.flasher.out = smoke.flasher:CreateAnimation("Alpha")
-	smoke.flasher.out:SetFromAlpha(0.5)
-	smoke.flasher.out:SetToAlpha(0)
-	smoke.flasher.out:SetDuration(0.3)
-	smoke.flasher.out:SetOrder(2)
+	parentFrame.flasher.out = parentFrame.flasher:CreateAnimation("Alpha")
+	parentFrame.flasher.out:SetFromAlpha(0.5)
+	parentFrame.flasher.out:SetToAlpha(0)
+	parentFrame.flasher.out:SetDuration(0.3)
+	parentFrame.flasher.out:SetOrder(2)
 end
 
 
