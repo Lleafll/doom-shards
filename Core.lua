@@ -37,7 +37,7 @@ local UnitPower = UnitPower
 ---------------
 -- Constants --
 ---------------
-local maxResource = 5
+local maxResource = 5  -- TODO: work with API call or global variable
 local playerGUID
 local unitPowerType = "SOUL_SHARDS"
 local unitPowerId = SPELL_POWER_SOUL_SHARDS
@@ -89,7 +89,6 @@ end
 local generating = 0
 local nextCast
 local duration = {}
-local energized = 0
 local nextTick = {}
 local resource = 0
 local timers = {}  -- ordered table of all timer IDs
@@ -108,7 +107,6 @@ function DS:Update(timeStamp)
 	self.timers = timers
 	self.nextTick = nextTick
 	self.duration = duration
-	self.energized = energized
 	self.generating = generating
 	self.nextCast = nextCast
 	
@@ -120,7 +118,7 @@ function DS:Update(timeStamp)
 end
 
 -- resets all data
-function DS:ResetCount()
+function DS:ResetCount()  -- TODO: revamp
 	timers = {}
 	self:Update(GetTime())
 end
@@ -193,10 +191,6 @@ function DS:Tick(GUID)
 	end
 end
 
-function DS:Energize(energizeAmount)
-	energized = energizeAmount
-end
-
 do
 	local function spellGUIDToID(GUID)
 		local _, _, _, _, ID = strsplit("-", GUID)
@@ -242,12 +236,6 @@ function DS:COMBAT_LOG_EVENT_UNFILTERED(_, timeStamp, event, _, sourceGUID, _, _
 				end
 			end
 		end
-		
-		-- Soul Conduit
-		if event == "SPELL_ENERGIZE" and energizeType == unitPowerId and spellID == 215942 then
-			self:Energize(energizeAmount)
-		end
-		
 	end
 	
 	if event == "UNIT_DIED" or event == "UNIT_DESTROYED" or event == "PARTY_KILL" or event == "SPELL_INSTAKILL" then
@@ -269,7 +257,7 @@ function DS:COMBAT_LOG_EVENT_UNFILTERED(_, timeStamp, event, _, sourceGUID, _, _
 	end
 end
 
-function DS:PLAYER_REGEN_DISABLED()		
+function DS:PLAYER_REGEN_DISABLED()  -- TODO: possibly add shard countdown when player leaves combat
 	if not self.locked then
 		self:Lock()
 	end
@@ -282,25 +270,15 @@ function DS:PLAYER_REGEN_ENABLED()  -- player left combat or died
 	self:EndTestMode()
 	if UnitIsDead("player") then
 		self:ResetCount()
-		
 	else
 		self:Update()
-		
 	end
 end
 
-do
-	local delay = 0.01
-	
-	local function delayResource()
-		resource = UnitPower("player", unitPowerId)
-		DS:Update()
-	end
-	
-	function DS:UNIT_POWER_FREQUENT(_, unitID, power)
-		if not (unitID == "player" and power == unitPowerType) then return end
-		C_TimerAfter(delay, delayResource)  -- needs to be delayed so it fires after the SA events, otherwise everything will assume the SA is still in flight  -- TODO: Check if still necessary with Doom
-	end
+function DS:UNIT_POWER_FREQUENT(_, _, power)
+	if not and power == unitPowerType then return end
+	UnitPower("player", unitPowerId)
+	DS:Update()
 end
 
 function DS:UNIT_SPELLCAST_INTERRUPTED(_, _, _, _, spellGUID)
@@ -343,7 +321,7 @@ do
 		self:RegisterEvent("PLAYER_REGEN_DISABLED")
 		self:RegisterEvent("PLAYER_REGEN_ENABLED")
 		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		self:RegisterUnitEvent("UNIT_POWER_FREQUENT", "player")  -- TODO: possibly replace following event with RegisterUnitEvent()
+		self:RegisterUnitEvent("UNIT_POWER_FREQUENT", "player")
 		self:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", "player")
 		self:RegisterUnitEvent("UNIT_SPELLCAST_START", "player")
 		self:RegisterUnitEvent("UNIT_SPELLCAST_STOP", "player")
