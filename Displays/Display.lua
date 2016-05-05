@@ -205,9 +205,6 @@ function CD:DOOM_SHARDS_UPDATE(_, ...)
 	resourceGeneration = DS.generating
 	nextCast = DS.nextCast
 	
-	-- Debug
-	print(resourceGeneration, nextCast)
-	
 	update()
 end
 
