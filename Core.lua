@@ -348,16 +348,19 @@ end
 -- Test Mode --
 ---------------
 do  -- TODO: Fix
-	local SAGraceTime = 3  -- maximum additional wait time before SA timer gets purged if it should not have hit in the meantime
-	local SAInterval = 6
-	local SATravelTime = 8
+	local testFrame = CreateFrame("frame")
+	
+	--DS:Add(GUID, timeStamp, tick)
+	
 	local resourceTicker
 	local TestGUID = "Test Mode"
 	
 	local function SATickerFunc()
-		distanceCache[TestGUID].timeStamp = GetTime()
-		DS:AddGUID(TestGUID)
-		timers[#timers].impactTime = timers[#timers].impactTime + SAGraceTime  -- fixes "0.0"-issue
+		local timeStamp = GetTime()
+		local dur = DS:GetDoomDuration()
+		DS:Add(TestGUID, timeStamp, timeStamp + dur)
+		--timers[#timers].impactTime = timers[#timers].impactTime + SAGraceTime  -- fixes "0.0"-issue
+		C_TimerAfter(dur + 0.2, function() DS:Remove("Test Mode") end)
 	end
 	
 	function DS:TestMode()
@@ -371,26 +374,18 @@ do  -- TODO: Fix
 			for name, module in self:IterateModules() do
 				if self.db[name] and self.db[name].enable then
 					if module.frame then module.frame:Show() end
-					if module.Unlock then module:Unlock() end
+					--if module.Unlock then module:Unlock() end
 				end
 				self:Update()
 			end
 			
-			resourceTicker = C_Timer.NewTicker(0.5, function()
-				if resource > 4 then
-					resource = 0
-				else
-					resource = resource + 1
-				end
+			resourceTicker = C_Timer.NewTicker(1, function()
+				resource = resource < maxResource and resource + 1 or 0
 				DS:Update()
 			end)
 			
-			distanceCache[TestGUID] = {}
-			distanceCache[TestGUID].travelTime = SATravelTime
-			distanceCache[TestGUID].timeStamp = GetTime()
-			
 			SATickerFunc()
-			SATicker = C_Timer.NewTicker(SAInterval, SATickerFunc)
+			SATicker = C_Timer.NewTicker(self:GetDoomDuration()+1, SATickerFunc)
 			
 			self.testMode = true
 			print(L["Starting Test Mode"])
@@ -408,7 +403,7 @@ do  -- TODO: Fix
 				SATicker = nil
 			end
 			self:ResetCount()
-			resource = UnitPower("player", 13)
+			resource = UnitPower("player", unitPowerId)
 			self.testMode = false
 			self:Lock()
 			if not UnitAffectingCombat("player") then
@@ -417,4 +412,6 @@ do  -- TODO: Fix
 			print(L["Cancelled Test Mode"])
 		end
 	end
+	
+	testFrame:RegisterEvent("PLAYER_REGEN_DISABLED", DS.EndTestMode)
 end
