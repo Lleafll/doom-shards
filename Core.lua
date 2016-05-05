@@ -289,18 +289,10 @@ function DS:PLAYER_REGEN_ENABLED()  -- player left combat or died
 	end
 end
 
-do
-	local delay = 0.01
-	
-	local function delayResource()
-		resource = UnitPower("player", unitPowerId)
-		DS:Update()
-	end
-	
-	function DS:UNIT_POWER_FREQUENT(_, unitID, power)
-		if not (unitID == "player" and power == unitPowerType) then return end
-		C_TimerAfter(delay, delayResource)  -- needs to be delayed so it fires after the SA events, otherwise everything will assume the SA is still in flight  -- TODO: Check if still necessary with Doom
-	end
+function DS:UNIT_POWER_FREQUENT(_, unitID, power)
+	if not (unitID == "player" and power == unitPowerType) then return end
+	resource = UnitPower("player", unitPowerId)
+	DS:Update()
 end
 
 function DS:UNIT_SPELLCAST_INTERRUPTED(_, unitID, _, _, spellGUID)
@@ -351,6 +343,7 @@ do
 		self:RegisterEvent("PLAYER_REGEN_DISABLED")
 		self:RegisterEvent("PLAYER_REGEN_ENABLED")
 		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+
 		self:RegisterEvent("UNIT_POWER_FREQUENT")
 		self:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
 		self:RegisterEvent("UNIT_SPELLCAST_START")

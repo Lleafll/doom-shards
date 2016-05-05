@@ -86,7 +86,63 @@ do
 	end
 end
 
-local function update()
+function CD:UpdateResource(frame, active, coloring)
+	if active then
+		if coloring == "spending" then  -- TODO: possibly stop animation of spending for better visuals
+			frame:SetSpendColor()
+		elseif coloring == "capped" then
+			frame:SetCapColor()
+		else
+			frame:SetOriginalColor()
+		end
+		--frame.coloring = coloring
+		if not frame.active then
+			frame:Show()
+			frame.flasher:Play()
+			frame.active = true
+		end
+	else
+		if frame.flasher:IsPlaying() then
+			frame.flasher:Stop()
+		end
+		if frame.active then
+			frame:Hide()
+			frame.active = false
+		end
+	end
+end
+
+function CD:UpdateResourceGainPrediction(frame)  -- Must not play animations
+	frame:Show()
+	frame:SetGainColor()
+end
+
+function CD:UpdateHoGPrediction(frame)  -- Must not play animations  -- TODO: maybe add another color (yellow) for another GCD before this one
+	frame:Show()
+	frame:SetSpendColor()
+end
+
+function CD:UpdateDoomPrediction(position, timer)
+	if timer then
+		if textEnable then
+			local SATimer = SATimers[position]
+			SATimer:SetTimer(timer)
+			SATimer:Show()
+		end
+		local statusbar = statusbars[position]
+		statusbar:SetTimer(timer)
+		statusbar:Show()
+	else
+		if textEnable then
+			SATimers[position]:Hide()
+		end
+		statusbars[position]:Hide()
+	end
+end
+
+function CD:Update()
+	if not DS.locked then return end
+
 	-- Shards
 	local energizeThreshold = resource - energizedShards
 	local spendThreshold = resource + ((resourceSpendPrediction and resourceGeneration < 0) and resourceGeneration or 0)
