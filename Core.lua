@@ -111,8 +111,6 @@ function DS:Update(timeStamp)
 	self.nextCast = nextCast
 	
 	self:SendMessage("DOOM_SHARDS_UPDATE")
-	
-	--self:TargetChanged()
 end
 
 -- resets all data
@@ -129,11 +127,6 @@ do
 		return doomDuration
 	end
 end
-
---[[DS:TargetChanged = function()
-	local GUID = self.UnitGUID("target")
-	self.ScanEvents("WARLOCK_DOOM", self:GetDoomDuration(), nextTick[GUID], duration[GUID])
-end]]--
 
 function DS:Add(GUID, timeStamp, tick)
 	duration[GUID] = tick
