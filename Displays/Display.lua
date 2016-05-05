@@ -128,14 +128,18 @@ function CD:UpdateDoomPrediction(position, timer)
 			SATimer:SetTimer(timer)
 			SATimer:Show()
 		end
-		local statusbar = statusbars[position]
-		statusbar:SetTimer(timer)
-		statusbar:Show()
+		if statusbarEnable then
+			local statusbar = statusbars[position]
+			statusbar:SetTimer(timer)
+			statusbar:Show()
+		end
 	else
 		if textEnable then
 			SATimers[position]:Hide()
 		end
-		statusbars[position]:Hide()
+		if statusbarEnable then
+			statusbars[position]:Hide()
+		end
 	end
 end
 
