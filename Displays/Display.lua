@@ -630,6 +630,7 @@ function CD:Lock()
 end
 
 function CD:Build()
+	db = DS.db.display
 	gainFlash = db.gainFlash
 	resourceCappedEnable = db.resourceCappedEnable
 	remainingTimeThreshold = db.remainingTimeThreshold
@@ -652,7 +653,6 @@ function CD:Build()
 end
 
 function CD:OnInitialize()
-	db = DS.db.display
 end
 
 function CD:OnEnable()

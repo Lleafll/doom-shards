@@ -177,7 +177,13 @@ function DS:OnInitialize()
 	-- database
 	local DSDB = LibStub("AceDB-3.0"):New("DoomShardsDB", self.defaultSettings, true)
 	self.db = DSDB.global
-	function self:ResetDB() DSDB:ResetDB() end
+	function self:ResetDB()
+		DSDB:ResetDB()
+		self.db = DSDB.global
+		ACR:NotifyChange("Doom Shards")
+		self:Build()
+		print(L["Doom Shards reset!"])
+	end
 	
 	-- debugging
 	if not isAlpha then  -- automatically reset debug values if version isn't alpha

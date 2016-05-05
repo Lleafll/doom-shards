@@ -75,12 +75,12 @@ function WS:PLAYER_REGEN_ENABLED()
 end
 
 function WS:Build()
+	db = DS.db.warningSound
 	soundFile = LSM:Fetch("sound", DS.db.warningSound.soundHandle)
 	soundInterval = DS.db.warningSound.soundInterval
 end
 
 function WS:OnInitialize()
-	db = DS.db.warningSound
 end
 
 function WS:OnEnable()

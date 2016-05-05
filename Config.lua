@@ -42,8 +42,6 @@ local function optionsTable()
 						confirm = true,
 						func = function()
 							DS:ResetDB()
-							print(L["Doom Shards reset!"])
-							DS:Build()
 						end
 					},
 					resetPosition = {
