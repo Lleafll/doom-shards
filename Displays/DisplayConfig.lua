@@ -726,7 +726,7 @@ local defaultSettings = {
 	resourceCappedEnable = true,
 	resourceCappedColor = {r=0.51, b=0.00, g=0.24, a=1},
 	gainFlash = true,
-	resourceGainPrediction = true,
+	resourceGainPrediction = false,
 	resourceGainColor = {r=0.4, b=0.4, g=0.4, a=1},--{r=0.51, b=0.00, g=0.24, a=1},
 	resourceSpendPrediction = true,
 	resourceSpendColor = {r=0.4, b=0.4, g=0.4, a=1},
