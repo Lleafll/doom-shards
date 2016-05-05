@@ -72,7 +72,7 @@ local resourceGeneration = {
 }
 -- Affliction/Seed of Corruption/Sow the Seeds
 resourceGeneration[27243] = function()  -- TODO: possibly cache and update on event
-	return (GetSpecialization() == SPEC_WARLOCK_AFFLICTION and GetTalentInfo(4, 2, GetActiveSpecGroup() and resource > 0) and -1 or 0
+	return (GetSpecialization() == SPEC_WARLOCK_AFFLICTION and GetTalentInfo(4, 2, GetActiveSpecGroup()) and resource > 0) and -1 or 0
 end
 -- Demonology/Call Dreadstalkers/Demonic Calling
 do
