@@ -116,16 +116,21 @@ L["Version"] = true
 L["Vertical"] = true
 L["Visibility"] = true
 L["Visibility Conditionals"] = true
-L["WeakAurasDocumentation"] = [=[WeakAuras event to listen to: DOOM_SHARDS_UPDATE
+L["WeakAurasDocumentation"] = [=[WeakAuras event
+  DOOM_SHARDS_UPDATE
 
-Relevant properties of global object DoomShards:
-  timeStamp - time of last update (number)
-  resource - current amount of Soul Shards (number)
-  timers - chronologically ordered table of GUIDs with Doom (table)
-  nextTick - time of next Doom tick for every GUID (table)
-  duration - total Doom duration for every GUID (table)
-  generating - number of Soul Shards which are generated (positive) or spent (negative) with current spell cast (number)
-  nextCast - time when current cast will finish or nil if not currently casting (number)]=]
+DoomShards methods
+  DoomShards:GetNumDoomTargets()
+    return totalDoomTargets
+      totalDoomTargets - number of targets with Doom from the player (number)
+
+  DoomShards:GetDoomInfo(targetNumber) or DoomShards:GetDoomInfo(GUID)
+      targetNumber - position in chronologically anticipated Doom tick order, from 1 to GetNumDoomTargets() (number)
+      GUID - target GUID (string)
+    return GUID, nextTick, duration
+      GUID - target GUID or nil if no Doom applied to that target (string)
+      nextTick - timeStamp for next Doom tick on that target (number)
+      duration - timeStamp for end of total Doom duration on that target (number)]=]
 L["WeakAuras Example Strings"] = true
 L["WeakAuras Import String 1"] = true
 L["WeakAuras Import String 2"] = true
