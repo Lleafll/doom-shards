@@ -217,7 +217,7 @@ end
 
 function DS:COMBAT_LOG_EVENT_UNFILTERED(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, ...)
 	if sourceGUID == playerGUID then
-		local spellID, _, _, energizeAmount, energizeType = ...
+		local spellID, _, _, _, _ = ...
 		-- Doom
 		if spellID == 603 and sourceGUID == playerGUID then
 			if event == "SPELL_AURA_APPLIED" then
@@ -234,12 +234,6 @@ function DS:COMBAT_LOG_EVENT_UNFILTERED(_, timeStamp, event, _, sourceGUID, _, _
 				end
 			end
 		end
-		
-		-- Soul Conduit
-		if event == "SPELL_ENERGIZE" and energizeType == unitPowerId and spellID == 215942 then
-			self:Energize(energizeAmount)
-		end
-		
 	end
 	
 	if event == "UNIT_DIED" or event == "UNIT_DESTROYED" or event == "PARTY_KILL" or event == "SPELL_INSTAKILL" then
