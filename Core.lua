@@ -275,8 +275,8 @@ function DS:PLAYER_REGEN_ENABLED()  -- player left combat or died
 	end
 end
 
-function DS:UNIT_POWER_FREQUENT(_, _, power)
-	if not and power == unitPowerType then return end
+function DS:UNIT_POWER_FREQUENT(_, unitID, power)
+	if not (unitID == "player" and power == unitPowerType) then return end
 	UnitPower("player", unitPowerId)
 	DS:Update()
 end
