@@ -78,7 +78,7 @@ end
 do
 	local demonicCallingString = GetSpellInfo(205146)
 	resourceGeneration[104316] = function()  -- TODO: possibly cache and update on event
-		return UnitBuff("player", demonicCallingString) and 0 or 1
+		return UnitBuff("player", demonicCallingString) and 0 or -2
 	end
 end
 
