@@ -78,7 +78,7 @@ end
 do
 	local demonicCallingString = GetSpellInfo(205146)
 	resourceGeneration[104316] = function()  -- TODO: possibly cache and update on event
-		return UnitBuff("player", demonicCallingString) and 0 or 1
+		return UnitBuff("player", demonicCallingString) and 0 or -2
 	end
 end
 
@@ -309,19 +309,19 @@ function DS:UNIT_SPELLCAST_INTERRUPTED(_, unitID, _, _, spellGUID)
 	end
 end
 
-function DS:UNIT_SPELLCAST_START(_, _, _, _, spellGUID)
+function DS:UNIT_SPELLCAST_START(_, unitID, _, _, spellGUID)
 	if unitID == "player"  then
 		self:Cast(spellGUID)
 	end
 end
 
-function DS:UNIT_SPELLCAST_STOP(_, _, _, _, spellGUID)
+function DS:UNIT_SPELLCAST_STOP(_, unitID, _, _, spellGUID)
 	if unitID == "player"  then
 		self:Cast(false)
 	end
 end
 
-function DS:UNIT_SPELLCAST_SUCCEEDED(_, _, _, _, spellGUID)
+function DS:UNIT_SPELLCAST_SUCCEEDED(_, unitID, _, _, spellGUID)
 	if unitID == "player"  then
 		self:Cast(false)
 	end
