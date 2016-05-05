@@ -430,9 +430,6 @@ local function buildFrames()
 				local cr, cb, cg, ca = color.r, color.b, color.g, color.a
 				function frame:SetOriginalColor()
 					self:SetBackdropColor(cr, cb, cg, ca)
-					--[[self.capColored = false
-					self.gainColored = false
-					self.spendColored = false]]--
 				end
 				frame:SetOriginalColor()
 			else
@@ -442,25 +439,16 @@ local function buildFrames()
 			local c3r, c3b, c3g, c3a = db.resourceCappedColor.r, db.resourceCappedColor.b, db.resourceCappedColor.g, db.resourceCappedColor.a
 			function frame:SetCapColor()
 				self:SetBackdropColor(c3r, c3b, c3g, c3a)
-				--[[self.capColored = true
-				self.gainColored = false
-				self.spendColored = false]]--
 			end
 			
 			local c4r, c4b, c4g, c4a = db.resourceSpendColor.r, db.resourceSpendColor.b, db.resourceSpendColor.g, db.resourceSpendColor.a
 			function frame:SetSpendColor()
 				self:SetBackdropColor(c4r, c4b, c4g, c4a)
-				--[[self.spendColored = true
-				self.capColored = false
-				self.gainColored = false]]--
 			end
 			
 			local c5r, c5b, c5g, c5a = db.resourceGainColor.r, db.resourceGainColor.b, db.resourceGainColor.g, db.resourceGainColor.a
 			function frame:SetGainColor()
 				self:SetBackdropColor(c5r, c5b, c5g, c5a)
-				--[[self.gainColored = true
-				self.capColored = false
-				self.spendColored = false]]--
 			end
 			
 			buildFlasher(frame)
@@ -562,7 +550,7 @@ local function buildFrames()
 			statusbar:SetPoint("TOPLEFT", 1 , -1)  -- to properly display border
 			statusbar:SetPoint("BOTTOMRIGHT", -1 , 1)
 			statusbar:SetStatusBarTexture((not db.useTexture or db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle))
-			statusbar:SetStatusBarColor(db.statusbarColor.r, db.statusbarColor.b, db.statusbarColor.g, db.statusbarColor.a)
+			
 			statusbar:SetMinMaxValues(0, 20)
 			statusbar:SetOrientation(orientation == "Vertical" and "VERTICAL" or "HORIZONTAL")
 			statusbar:SetReverseFill(db.statusbarReverse)
@@ -582,17 +570,22 @@ local function buildFrames()
 			frame:Show()
 			
 			local c1r, c1b, c1g, c1a
+			local c2r, c2b, c2g, c2a
 			if numeration <= maxResource then
 				c1r, c1b, c1g, c1a = db.statusbarColorBackground.r, db.statusbarColorBackground.b, db.statusbarColorBackground.g, db.statusbarColorBackground.a
+				c2r, c2b, c2g, c2a = db.statusbarColor.r, db.statusbarColor.b, db.statusbarColor.g, db.statusbarColor.a
 			else
 				c1r, c1b, c1g, c1a = db.statusbarColorOverflow.r, db.statusbarColorOverflow.b, db.statusbarColorOverflow.g, db.statusbarColorOverflow.a
+				c2r, c2b, c2g, c2a = db.statusbarColorOverflowForeground.r, db.statusbarColorOverflowForeground.b, db.statusbarColorOverflowForeground.g, db.statusbarColorOverflowForeground.a
 			end
+			
 			
 			function frame:SetOriginalColor()
 				self:SetBackdropColor(c1r, c1b, c1g, c1a)
 				self.gainColored = false
 			end
 			
+			statusbar:SetStatusBarColor(c2r, c2b, c2g, c2a)
 			frame:SetOriginalColor()
 			
 			return frame

@@ -528,11 +528,24 @@ local function displayOptions()
 						max = 20,
 						step = 1
 					},
+					statusbarColorOverflowForeground = {
+						order = 10.9,
+						type = "color",
+						name = L["\"Overcap Shards\" Bar Color"],
+						desc = L["Color of additional indicators for overcapping with Doom ticks"],
+						hasAlpha = true,
+						get = function()
+							return DS.db.display.statusbarColorOverflowForeground.r, DS.db.display.statusbarColorOverflowForeground.b, DS.db.display.statusbarColorOverflowForeground.g, DS.db.display.statusbarColorOverflowForeground.a
+						end,
+						set = function(info, r, b, g, a)
+							DS.db.display.statusbarColorOverflowForeground.r, DS.db.display.statusbarColorOverflowForeground.b, DS.db.display.statusbarColorOverflowForeground.g, DS.db.display.statusbarColorOverflowForeground.a = r, b, g, a
+							DS:Build()
+						end
+					},
 					statusbarColorOverflow = {
 						order = 11,
 						type = "color",
 						name = L["\"Overcap Shards\" Color"],
-						desc = L["Color of additional indicators for overcapping with Doom ticks"],
 						hasAlpha = true,
 						get = function()
 							return DS.db.display.statusbarColorOverflow.r, DS.db.display.statusbarColorOverflow.b, DS.db.display.statusbarColorOverflow.g, DS.db.display.statusbarColorOverflow.a
@@ -718,6 +731,7 @@ local defaultSettings = {
 	statusbarEnable = true,
 	statusbarColor = {r=0.33, b=0.33, g=0.33, a=0.5},
 	statusbarColorBackground = {r=0.06, b=0.06, g=0.06, a=1},
+	statusbarColorOverflowForeground = {r=0.33, b=0.33, g=0.33, a=0.5},
 	statusbarColorOverflow = {r=0.51, b=0.00, g=0.24, a=1},
 	statusbarReverse = false,
 	statusbarXOffset = 0,
