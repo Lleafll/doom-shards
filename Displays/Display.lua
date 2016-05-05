@@ -57,6 +57,7 @@ local borderBackdrop = {
 ---------------
 local db
 local durations
+local nextCast
 local nextTick
 local resourceCappedEnable
 local resource
@@ -66,7 +67,6 @@ local resourceGainPrediction
 local resourceSpendIncludeHoG
 local resourceSpendPrediction
 local resourceGeneration
-local nextCast
 local statusbarCount
 local statusbarEnable
 local statusbarRefresh
@@ -148,7 +148,7 @@ function CD:Update()
 
 	-- Shards
 	local spendThreshold = resource + ((resourceSpendPrediction and resourceGeneration < 0) and resourceGeneration or 0)
-	for i = 1, 5 do  -- TODO: work with max resource
+	for i = 1, maxResource do
 		self:UpdateResource(resourceFrames[i], i <= resource, i > spendThreshold and "spending" or (resourceCappedEnable and resource == maxResource) and "capped" or nil)
 		self:UpdateDoomPrediction(i, false)
 	end
@@ -186,7 +186,9 @@ function CD:Update()
 	local tick = nextTick[timers[t]]
 	for i = resource + 1, statusbarCount do
 		if resourceGainPrediction and castEnd and (not tick or castEnd < tick) then
-			self:UpdateResourceGainPrediction(resourceFrames[i])
+			if i <= maxResource then
+				self:UpdateResourceGainPrediction(resourceFrames[i])
+			end
 			self:UpdateDoomPrediction(i, false)
 			generatedResource = generatedResource - 1
 			if generatedResource <= 0 then
