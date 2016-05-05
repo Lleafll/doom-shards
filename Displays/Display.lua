@@ -57,6 +57,7 @@ local borderBackdrop = {
 ---------------
 local db
 local durations
+local gainFlash
 local nextCast
 local nextTick
 local resourceCappedEnable
@@ -99,7 +100,9 @@ function CD:UpdateResource(frame, active, coloring)
 		--frame.coloring = coloring
 		if not frame.active then
 			frame:Show()
-			frame.flasher:Play()
+			if gainFlash then
+				frame.flasher:Play()
+			end
 			frame.active = true
 		end
 	else
@@ -460,9 +463,7 @@ local function buildFrames()
 				self.spendColored = false]]--
 			end
 			
-			if db.gainFlash then
-				buildFlasher(frame)
-			end
+			buildFlasher(frame)
 			
 			frame.active = true
 			
@@ -636,6 +637,7 @@ function CD:Lock()
 end
 
 function CD:Build()
+	gainFlash = db.gainFlash
 	resourceCappedEnable = db.resourceCappedEnable
 	remainingTimeThreshold = db.remainingTimeThreshold
 	resourceGainPrediction = db.resourceGainPrediction
