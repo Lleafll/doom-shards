@@ -56,7 +56,6 @@ local borderBackdrop = {
 ---------------
 local db
 local durations
-local energizedShards
 local nextTick
 local resourceCappedEnable
 local resource
@@ -144,7 +143,6 @@ function CD:Update()
 	if not DS.locked then return end
 
 	-- Shards
-	local energizeThreshold = resource - energizedShards
 	local spendThreshold = resource + ((resourceSpendPrediction and resourceGeneration < 0) and resourceGeneration or 0)
 	for i = 1, statusbarCount do
 		local resourceFrame = resourceFrames[i]
@@ -257,7 +255,6 @@ function CD:DOOM_SHARDS_UPDATE(_, ...)
 	timers = DS.timers
 	nextTick = DS.nextTick
 	durations = DS.duration
-	energizedShards = DS.energized
 	resourceGeneration = DS.generating
 	nextCast = DS.nextCast
 	

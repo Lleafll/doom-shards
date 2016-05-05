@@ -89,7 +89,6 @@ end
 local generating = 0
 local nextCast
 local duration = {}
-local energized = 0
 local nextTick = {}
 local resource = 0
 local timers = {}  -- ordered table of all timer IDs
@@ -108,15 +107,12 @@ function DS:Update(timeStamp)
 	self.timers = timers
 	self.nextTick = nextTick
 	self.duration = duration
-	self.energized = energized
 	self.generating = generating
 	self.nextCast = nextCast
 	
 	self:SendMessage("DOOM_SHARDS_UPDATE")
 	
 	--self:TargetChanged()
-	
-	energized = 0
 end
 
 -- resets all data
@@ -191,10 +187,6 @@ function DS:Tick(GUID)
 			return
 		end
 	end
-end
-
-function DS:Energize(energizeAmount)
-	energized = energizeAmount
 end
 
 do

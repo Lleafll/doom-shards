@@ -123,7 +123,6 @@ Relevant properties of global object DoomShards:
   timers - chronologically ordered table of GUIDs with Doom (table)
   nextTick - time of next Doom tick for every GUID (table)
   duration - total Doom duration for every GUID (table)
-  energized - refunded Soul Shards for latest update (number)
   generating - number of Soul Shards which are generated (positive) or spent (negative) with current spell cast (number)
   nextCast - time when current cast will finish or nil if not currently casting (number)]=]
 L["WeakAuras Example Strings"] = true
