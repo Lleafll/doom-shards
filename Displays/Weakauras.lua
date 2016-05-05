@@ -19,7 +19,9 @@ function DS:GetDoomInfo(arg)
 	local type_arg = type(arg)
 	assert(type_arg == "number" or type_arg == "string", "Argument to GetDoomInfo() must be a number or GUID")
 	local GUID = type(arg) == "number" and self.timers[arg] or arg
-	return GUID, self.nextTick[GUID], self.duration[GUID]
+	local nextTick = self.nextTick[GUID]
+	local duration = self.duration[GUID]
+	return nextTick and GUID or nil, nextTick, duration
 end
 
 function DS:GetNumDoomTargets()
