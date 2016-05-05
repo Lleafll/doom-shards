@@ -277,7 +277,7 @@ end
 
 function DS:UNIT_POWER_FREQUENT(_, unitID, power)
 	if not (unitID == "player" and power == unitPowerType) then return end
-	UnitPower("player", unitPowerId)
+	resource = UnitPower("player", unitPowerId)
 	DS:Update()
 end
 
