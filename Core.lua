@@ -303,20 +303,28 @@ do
 	end
 end
 
-function DS:UNIT_SPELLCAST_INTERRUPTED(_, _, _, _, spellGUID)
-	self:Cast(false)
+function DS:UNIT_SPELLCAST_INTERRUPTED(_, unitID, _, _, spellGUID)
+	if unitID == "player"  then
+		self:Cast(false)
+	end
 end
 
 function DS:UNIT_SPELLCAST_START(_, _, _, _, spellGUID)
-	self:Cast(spellGUID)
+	if unitID == "player"  then
+		self:Cast(spellGUID)
+	end
 end
 
 function DS:UNIT_SPELLCAST_STOP(_, _, _, _, spellGUID)
-	self:Cast(false)
+	if unitID == "player"  then
+		self:Cast(false)
+	end
 end
 
 function DS:UNIT_SPELLCAST_SUCCEEDED(_, _, _, _, spellGUID)
-	self:Cast(false)
+	if unitID == "player"  then
+		self:Cast(false)
+	end
 end
 
 function DS:PLAYER_ENTERING_WORLD()
@@ -343,11 +351,11 @@ do
 		self:RegisterEvent("PLAYER_REGEN_DISABLED")
 		self:RegisterEvent("PLAYER_REGEN_ENABLED")
 		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		self:RegisterUnitEvent("UNIT_POWER_FREQUENT", "player")  -- TODO: possibly replace following event with RegisterUnitEvent()
-		self:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", "player")
-		self:RegisterUnitEvent("UNIT_SPELLCAST_START", "player")
-		self:RegisterUnitEvent("UNIT_SPELLCAST_STOP", "player")
-		self:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
+		self:RegisterEvent("UNIT_POWER_FREQUENT")
+		self:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+		self:RegisterEvent("UNIT_SPELLCAST_START")
+		self:RegisterEvent("UNIT_SPELLCAST_STOP")
+		self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 		
 		if UnitAffectingCombat("player") then
 			self:PLAYER_REGEN_DISABLED() 
