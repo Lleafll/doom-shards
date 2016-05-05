@@ -106,10 +106,8 @@ function CD:UpdateResource(frame, active, coloring)
 		if frame.flasher:IsPlaying() then
 			frame.flasher:Stop()
 		end
-		if frame.active then
-			frame:Hide()
-			frame.active = false
-		end
+		frame:Hide()
+		frame.active = false
 	end
 end
 
@@ -183,7 +181,7 @@ function CD:Update()
 	local t = 1
 	local tick = nextTick[timers[t]]
 	for i = resource + 1, statusbarCount do
-		if resourceGainPrediction and castEnd and castEnd < tick then
+		if resourceGainPrediction and castEnd and (not tick or castEnd < tick) then
 			self:UpdateResourceGainPrediction(resourceFrames[i])
 			self:UpdateDoomPrediction(i, false)
 			generatedResource = generatedResource - 1
