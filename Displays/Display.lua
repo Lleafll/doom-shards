@@ -238,6 +238,7 @@ local function SATimerOnUpdate(self, elapsed)
 				self.fontString:SetOriginalColor()
 			end
 		end
+		self.elapsed = 0
 	end
 end
 
@@ -246,6 +247,7 @@ local function statusbarOnUpdate(statusbar, elapsed)
 	statusbar.elapsed = statusbar.elapsed + elapsed
 	if statusbar.elapsed > statusbarRefresh then
 		statusbar.statusbar:SetValue(statusbar.maxTime - (statusbar.remaining < 0 and 0 or statusbar.remaining))  -- check for < 0 necessary?
+		statusbar.elapsed = 0
 	end
 end
 
