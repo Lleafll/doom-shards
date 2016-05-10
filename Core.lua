@@ -169,7 +169,6 @@ function DS:Refresh(GUID)
 	local timeStamp = GetTime()
 	local doomDuration = self:GetDoomDuration()
 	duration[GUID] = timeStamp + doomDuration + mathmin(nextTick[GUID]-timeStamp, 0.3*doomDuration)
-	--self:TargetChanged()
 end
 
 function DS:Tick(GUID)
@@ -305,6 +304,27 @@ function DS:PLAYER_ENTERING_WORLD()
 	playerGUID = UnitGUID("player")
 	resource = UnitPower("player", SPELL_POWER_SOUL_SHARDS)
 	self:ResetCount()
+end
+
+
+--------------------
+-- Cleanup Ticker --
+--------------------
+do
+	local timeStamp
+	local nextTick
+	local function cleanUp()
+		timeStamp = GetTime() - 3
+		for i, GUID in pairs(timers) do
+			tick = nextTick
+			if tick < timeStamp then
+				DS:Tick(GUID)
+				DS:Update()
+			end
+		end
+		C_TimerAfter(2, cleanUp)
+	end
+	cleanUp()
 end
 
 
