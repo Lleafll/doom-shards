@@ -316,7 +316,7 @@ do
 	local function cleanUp()
 		timeStamp = GetTime() - 3
 		for i, GUID in pairs(timers) do
-			tick = nextTick
+			tick = nextTick[GUID]
 			if tick < timeStamp then
 				DS:Tick(GUID)
 				DS:Update()
