@@ -97,7 +97,6 @@ function CD:UpdateResource(frame, active, coloring)
 		else
 			frame:SetOriginalColor()
 		end
-		--frame.coloring = coloring
 		if not frame.active then
 			frame:Show()
 			if gainFlash then
