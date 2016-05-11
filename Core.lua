@@ -303,6 +303,27 @@ function DS:PLAYER_ENTERING_WORLD()
 end
 
 
+--------------------
+-- Cleanup Ticker --
+--------------------
+do
+	local timeStamp
+	local nextTick
+	local function cleanUp()
+		timeStamp = GetTime() - 3
+		for i, GUID in pairs(timers) do
+			tick = nextTick[GUID]
+			if tick < timeStamp then
+				DS:Tick(GUID)
+				DS:Update()
+			end
+		end
+		C_TimerAfter(2, cleanUp)
+	end
+	cleanUp()
+end
+
+
 -----------------------
 -- Handling Settings --
 -----------------------
