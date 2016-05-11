@@ -94,6 +94,15 @@ local resource = 0
 local timers = {}  -- ordered table of all timer IDs
 
 
+-------------
+-- Utility --
+-------------
+local function getHasteMod()
+	return 1 + GetHaste() / 100
+end
+DS.GetHasteMod = getHasteMod
+
+
 ---------------
 -- Functions --
 ---------------
