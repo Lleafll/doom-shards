@@ -13,6 +13,7 @@ local GetSpellDescription = GetSpellDescription
 local GetTalentInfo = GetTalentInfo
 local GetTime = GetTime
 local gsub = gsub
+local IsEquippedItem = IsEquippedItem
 local IsInGroup = IsInGroup
 local IsInRaid = IsInRaid
 local IsItemInRange = IsItemInRange
@@ -78,7 +79,14 @@ end
 do
 	local demonicCallingString = GetSpellInfo(205146)
 	resourceGeneration[104316] = function()  -- TODO: possibly cache and update on event
-		return UnitBuff("player", demonicCallingString) and 0 or -2
+		local generates = -2
+		if UnitBuff("player", demonicCallingString) then
+			generates = generates + 2
+		end
+		if IsEquippedItem(132393) then  -- Recurrent Ritual
+			generates = generates + 2
+		end
+		return generates
 	end
 end
 DS.resourceGeneration = resourceGeneration
