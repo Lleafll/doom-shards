@@ -97,6 +97,15 @@ local resource = 0
 local timers = {}
 
 
+-------------
+-- Utility --
+-------------
+local function getHasteMod()
+	return 1 + GetHaste() / 100
+end
+DS.GetHasteMod = getHasteMod
+
+
 ---------------
 -- Functions --
 ---------------
