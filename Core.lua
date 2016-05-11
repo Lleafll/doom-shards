@@ -81,6 +81,9 @@ do
 		return UnitBuff("player", demonicCallingString) and 0 or -2
 	end
 end
+DS.resourceGeneration = resourceGeneration
+
+
 
 
 ---------------
