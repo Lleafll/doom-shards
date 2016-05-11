@@ -169,7 +169,6 @@ function DS:Refresh(GUID)
 	local timeStamp = GetTime()
 	local doomDuration = self:GetDoomDuration()
 	duration[GUID] = timeStamp + doomDuration + mathmin(nextTick[GUID]-timeStamp, 0.3*doomDuration)
-	--self:TargetChanged()
 end
 
 function DS:Tick(GUID)
