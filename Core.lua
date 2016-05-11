@@ -94,7 +94,7 @@ local nextCast
 local duration = {}
 local nextTick = {}
 local resource = 0
-local timers = {}  -- ordered table of all timer IDs
+local timers = {}
 
 
 ---------------
@@ -122,7 +122,6 @@ function DS:ResetCount()
 	self:Update(GetTime())
 end
 
--- set specific SATimeCorrection for a GUID
 do
 	local matchString = "%d%d%"..DECIMAL_SEPERATOR.."%d"
 	function DS:GetDoomDuration()
@@ -236,20 +235,6 @@ function DS:COMBAT_LOG_EVENT_UNFILTERED(_, timeStamp, event, _, sourceGUID, _, _
 	
 	if event == "UNIT_DIED" or event == "UNIT_DESTROYED" or event == "PARTY_KILL" or event == "SPELL_INSTAKILL" then
 		self:Remove(destGUID)
-	
-	-- Check for overkill because in some cases events don't fire when mobs die
-	--[[elseif event == "SWING_DAMAGE" then
-		local _, overkill = ...
-		if overkill > 0 then
-			self:Remove(destGUID)
-		end
-		
-	elseif event == "SPELL_DAMAGE" or event == "SPELL_PERIODIC_DAMAGE" or event == "RANGE_DAMAGE" then
-		local _, _, _, _, overkill = ...
-		if overkill > 0 then
-			self:Remove(destGUID)
-		end]]--
-		
 	end
 end
 
