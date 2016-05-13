@@ -128,13 +128,8 @@ function DS:ResetCount()
 	self:Update(GetTime())
 end
 
--- set specific SATimeCorrection for a GUID
-do
-	local matchString = "%d%d%"..DECIMAL_SEPERATOR.."%d"
-	function DS:GetDoomDuration()
-		local doomDuration = tonumber(stringmatch(GetSpellDescription(603), matchString))  -- Possibly replace with something more sensible in the future
-		return doomDuration
-	end
+function DS:GetDoomDuration()
+	return 20 / getHasteMod()
 end
 
 function DS:Add(GUID, timeStamp, tick)
