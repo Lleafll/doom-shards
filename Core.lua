@@ -214,9 +214,9 @@ function DS:Tick(GUID, dot)
 		if v == GUID then
 			tableremove(timers, k)
 			tableremove(dots, k)
-			local maxDuration = duration[GUID]
-			if maxDuration > nextTick[GUID] then
-				self:Add(GUID, GetTime(),mathmin(dot.tick, maxDuration), maxDuration, dot)
+			local remaining = duration[GUID]
+			if remaining > nextTick[GUID] then
+				self:Add(GUID, GetTime(), mathmin(dot.tickLength(), remaining), remaining, dot)
 			end
 			return
 		end
