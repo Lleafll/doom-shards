@@ -160,9 +160,9 @@ function DS:ResetCount()
 	self:Update(GetTime())
 end
 
-function DS:Add(GUID, timeStamp, tick, duration, dot)
+function DS:Add(GUID, timeStamp, tick, dur, dot)
 	nextTick[GUID] = tick
-	duration[GUID] = duration
+	duration[GUID] = dur
 	local timerLength = #timers
 	if timerLength == 0 then  -- might not be necessary if for-loop skips looping on empty tables (need to check)
 		timers[1] = GUID
