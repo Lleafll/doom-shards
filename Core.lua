@@ -143,6 +143,8 @@ trackedDots[157736] = {
 	pandemic = function() return 4.5 end,
 	tickLength = buildTickLength(3)
 }
+
+
 ---------------
 -- Functions --
 ---------------
@@ -346,7 +348,7 @@ end
 --------------------
 do
 	local timeStamp
-	local nextTick
+	local tick
 	local function cleanUp()
 		timeStamp = GetTime() - 3
 		for i, GUID in pairs(timers) do
