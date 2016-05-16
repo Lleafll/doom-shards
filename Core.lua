@@ -45,6 +45,27 @@ local unitPowerId = SPELL_POWER_SOUL_SHARDS
 local SPEC_WARLOCK_AFFLICTION = SPEC_WARLOCK_AFFLICTION
 
 
+---------------
+-- Variables --
+---------------
+local generating = 0
+local nextCast
+local duration = {}
+local nextTick = {}
+local resource = 0
+local timers = {}
+local dots = {}
+
+
+-------------
+-- Utility --
+-------------
+local function getHasteMod()
+	return 1 + GetHaste() / 100
+end
+DS.GetHasteMod = getHasteMod
+
+
 -------------------
 -- Lookup Tables --
 -------------------
@@ -115,27 +136,6 @@ trackedDots[157736] = {
 	pandemic = function() return 4.5 end,
 	tickLength = buildTickLength(3)
 }
-
-
----------------
--- Variables --
----------------
-local generating = 0
-local nextCast
-local duration = {}
-local nextTick = {}
-local resource = 0
-local timers = {}
-local dots = {}
-
-
--------------
--- Utility --
--------------
-local function getHasteMod()
-	return 1 + GetHaste() / 100
-end
-DS.GetHasteMod = getHasteMod
 
 
 ---------------
