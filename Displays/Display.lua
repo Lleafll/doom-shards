@@ -563,7 +563,7 @@ local function buildFrames()
 			function frame:SetTimer(tick)
 				self.elapsed = 1
 				self.remaining = tick - GetTime()
-				self.maxTime = DS:GetDoomDuration()
+				self.maxTime = 20  -- TODO: replace with proper max duration
 				self.statusbar:SetMinMaxValues(0, self.maxTime)
 				self:Show()
 			end
