@@ -8,6 +8,7 @@ local L = LibStub("AceLocale-3.0"):GetLocale("DoomShards")
 --------------
 local C_TimerAfter = C_Timer.After
 local GetActiveSpecGroup = GetActiveSpecGroup
+local GetHaste = GetHaste
 local GetSpecializationInfo = GetSpecializationInfo
 local GetSpellDescription = GetSpellDescription
 local GetTalentInfo = GetTalentInfo
@@ -54,11 +55,22 @@ local duration = {}
 local nextTick = {}
 local resource = 0
 local timers = {}
+local dots = {}
+
+
+-------------
+-- Utility --
+-------------
+local function getHasteMod()
+	return 1 + GetHaste() / 100
+end
+DS.GetHasteMod = getHasteMod
 
 
 -------------------
 -- Lookup Tables --
 -------------------
+-- Resource Generation
 local resourceGeneration = {
 	-- General
 	[196098] = 5,  -- Soul Harvest
@@ -68,7 +80,7 @@ local resourceGeneration = {
 	[691] = -1,  -- Summon Felhunter
 	[712] = -1,  -- Summon Succubus
 	[697] = -1,  -- Summon Voidwalker
-		
+	
 	-- Affliction
 	[30108] = -1,  -- Unstable Affliction
 	
@@ -82,6 +94,7 @@ local resourceGeneration = {
 	[116858] = -2,  -- Chaos Bolt
 	[5740] = -3,  -- Rain of Fire
 }
+DS.resourceGeneration = resourceGeneration
 -- Affliction/Seed of Corruption/Sow the Seeds
 resourceGeneration[27243] = function()  -- TODO: possibly cache and update on event
 	return (GetSpecialization() == SPEC_WARLOCK_AFFLICTION and GetTalentInfo(4, 2, GetActiveSpecGroup()) and resource > 0) and -1 or 0
@@ -100,24 +113,48 @@ do
 		return generates
 	end
 end
-DS.resourceGeneration = resourceGeneration
-
-
+-- Tracked DoTs
+local trackedDots = {}
+DS.trackedDots = trackedDots
+local function buildTickLength(baseTickLength)
+	local function tickLength()
+		return baseTickLength / getHasteMod()
+	end
+	return tickLength
+end
+trackedDots[980] = {
+	name = "Agony",
+	id = 980,
+	duration = function() return 24 end,
+	pandemic = function() return 7.2 end,
+	tickLength = buildTickLength(2)
+}
+trackedDots[603] = {
+	name = "Doom",
+	id = 603,
+	duration = buildTickLength(20),
+	pandemic = buildTickLength(20),
+	tickLength = buildTickLength(20),
+}
+trackedDots[157736] = {
+	name = "Immolate",
+	id = 157736,
+	duration = function() return 15 end,
+	pandemic = function() return 4.5 end,
+	tickLength = buildTickLength(3)
+}
 ---------------
 -- Functions --
 ---------------
 function DS:Update(timeStamp)
-	if not timeStamp then
-		timeStamp = GetTime()
-	end
-	
-	self.timeStamp = timeStamp
+	self.timeStamp = timeStamp or GetTime()
 	self.resource = resource
 	self.timers = timers
 	self.nextTick = nextTick
 	self.duration = duration
 	self.generating = generating
 	self.nextCast = nextCast
+	self.dots = dots
 	
 	self:SendMessage("DOOM_SHARDS_UPDATE")
 end
@@ -128,43 +165,42 @@ function DS:ResetCount()
 	self:Update(GetTime())
 end
 
-do
-	local matchString = "%d%d%"..DECIMAL_SEPERATOR.."%d"
-	function DS:GetDoomDuration()
-		local doomDuration = tonumber(stringmatch(GetSpellDescription(603), matchString))  -- Possibly replace with something more sensible in the future
-		return doomDuration
-	end
-end
-
-function DS:Add(GUID, timeStamp, tick)
-	duration[GUID] = tick
+function DS:Add(GUID, timeStamp, tick, dur, dot)
 	nextTick[GUID] = tick
-	if #timers == 0 then  -- might not be necessary if for-loop skips looping on empty tables (need to check)
+	duration[GUID] = dur
+	local timerLength = #timers
+	if timerLength == 0 then  -- might not be necessary if for-loop skips looping on empty tables (need to check)
 		timers[1] = GUID
+		dots[1] = dot
 		self:Update(timeStamp)
 		return
 	end
 	for k, v in pairs(timers) do
 		if nextTick[v] > tick then
 			tableinsert(timers, k, GUID)
+			tableinsert(dots, k, dot)
 			self:Update(timeStamp)
 			return
 		end
 	end
-	timers[#timers+1] = GUID
+	timerLength = timerLength + 1
+	timers[timerLength] = GUID
+	dots[timerLength] = dot
 	self:Update(timeStamp)
 end
 
-function DS:Apply(GUID)
+function DS:Apply(GUID, dot)
 	local timeStamp = GetTime()
-	local tick = timeStamp + self:GetDoomDuration()
-	self:Add(GUID, timeStamp, tick)
+	local tick = timeStamp + dot.tickLength()
+	local duration = timeStamp + dot.duration()
+	self:Add(GUID, timeStamp, tick, duration, dot)
 end
 
-function DS:Remove(GUID)
+function DS:Remove(GUID, dot)
 	for k, v in pairs(timers) do
 		if v == GUID then
 			tableremove(timers, k)
+			tableremove(dots, k)
 			break
 		end
 	end
@@ -173,19 +209,19 @@ function DS:Remove(GUID)
 	self:Update()
 end
 
-function DS:Refresh(GUID)
+function DS:Refresh(GUID, dot)
 	local timeStamp = GetTime()
-	local doomDuration = self:GetDoomDuration()
-	duration[GUID] = timeStamp + doomDuration + mathmin(nextTick[GUID]-timeStamp, 0.3*doomDuration)
+	duration[GUID] = timeStamp + dot.duration() + mathmin(duration[GUID]-timeStamp, dot.pandemic())
 end
 
-function DS:Tick(GUID)
+function DS:Tick(GUID, dot)
 	for k, v in pairs(timers) do
 		if v == GUID then
 			tableremove(timers, k)
-			local maxDuration = duration[GUID]
-			if maxDuration > nextTick[GUID] then
-				self:Add(GUID, GetTime(), maxDuration)
+			tableremove(dots, k)
+			local remaining = duration[GUID]
+			if remaining > nextTick[GUID] then
+				self:Add(GUID, GetTime(), mathmin(dot.tickLength(), remaining), remaining, dot)
 			end
 			return
 		end
@@ -218,19 +254,23 @@ do
 	end
 end
 
+
+--------------------
+-- Event Handling --
+--------------------
 function DS:COMBAT_LOG_EVENT_UNFILTERED(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, ...)
 	if sourceGUID == playerGUID then
 		local spellID, _, _, _, _ = ...
-		-- Doom
-		if spellID == 603 and sourceGUID == playerGUID then
+		local dot = trackedDots[spellID]
+		if dot and sourceGUID == playerGUID then
 			if event == "SPELL_AURA_APPLIED" then
-				self:Apply(destGUID)
+				self:Apply(destGUID, dot)
 			elseif event == "SPELL_AURA_REMOVED" then
-				self:Remove(destGUID)
+				self:Remove(destGUID, dot)
 			elseif event == "SPELL_AURA_REFRESH" then
-				self:Refresh(destGUID)
+				self:Refresh(destGUID, dot)
 			elseif event == "SPELL_PERIODIC_DAMAGE" then
-				self:Tick(destGUID)
+				self:Tick(destGUID, dot)
 				if resource < maxResource then
 					resource = resource + 1
 					self:UNIT_POWER_FREQUENT("UNIT_POWER_FREQUENT", "player", "SOUL_SHARDS")  -- fail safe in case the corresponding UNIT_POWER_FREQUENT fires wonkily
