@@ -45,6 +45,17 @@ local unitPowerId = SPELL_POWER_SOUL_SHARDS
 local SPEC_WARLOCK_AFFLICTION = SPEC_WARLOCK_AFFLICTION
 
 
+---------------
+-- Variables --
+---------------
+local generating = 0
+local nextCast
+local duration = {}
+local nextTick = {}
+local resource = 0
+local timers = {}
+
+
 -------------------
 -- Lookup Tables --
 -------------------
@@ -90,19 +101,6 @@ do
 	end
 end
 DS.resourceGeneration = resourceGeneration
-
-
-
-
----------------
--- Variables --
----------------
-local generating = 0
-local nextCast
-local duration = {}
-local nextTick = {}
-local resource = 0
-local timers = {}
 
 
 ---------------
