@@ -82,38 +82,38 @@ function DS:ResetCount()
 	self:Update(GetTime())
 end
 
-function DS:Add(GUID, timeStamp, tick, dur, dot)
+function DS:Add(GUID, timeStamp, tick, dur, aura)
 	nextTick[GUID] = tick
 	duration[GUID] = dur
 	local timerLength = #timers
 	if timerLength == 0 then  -- might not be necessary if for-loop skips looping on empty tables (need to check)
 		timers[1] = GUID
-		dots[1] = dot
+		dots[1] = aura
 		self:Update(timeStamp)
 		return
 	end
 	for k, v in pairs(timers) do
 		if nextTick[v] > tick then
 			tableinsert(timers, k, GUID)
-			tableinsert(dots, k, dot)
+			tableinsert(dots, k, aura)
 			self:Update(timeStamp)
 			return
 		end
 	end
 	timerLength = timerLength + 1
 	timers[timerLength] = GUID
-	dots[timerLength] = dot
+	dots[timerLength] = aura
 	self:Update(timeStamp)
 end
 
-function DS:Apply(GUID, dot)
+function DS:Apply(GUID, aura)
 	local timeStamp = GetTime()
-	local tick = timeStamp + dot.tickLength()
-	local duration = timeStamp + dot.duration()
-	self:Add(GUID, timeStamp, tick, duration, dot)
+	local tick = timeStamp + aura.tickLength
+	local duration = timeStamp + aura.duration
+	self:Add(GUID, timeStamp, tick, duration, aura)
 end
 
-function DS:Remove(GUID, dot)
+function DS:Remove(GUID, aura)
 	for k, v in pairs(timers) do
 		if v == GUID then
 			tableremove(timers, k)
@@ -126,19 +126,19 @@ function DS:Remove(GUID, dot)
 	self:Update()
 end
 
-function DS:Refresh(GUID, dot)
+function DS:Refresh(GUID, aura)
 	local timeStamp = GetTime()
-	duration[GUID] = timeStamp + dot.duration() + mathmin(duration[GUID]-timeStamp, dot.pandemic())
+	duration[GUID] = timeStamp + aura.duration + mathmin(duration[GUID]-timeStamp, aura.pandemic)
 end
 
-function DS:Tick(GUID, dot)
+function DS:Tick(GUID, aura)
 	for k, v in pairs(timers) do
 		if v == GUID then
 			tableremove(timers, k)
 			tableremove(dots, k)
 			local remaining = duration[GUID]
 			if remaining > nextTick[GUID] then
-				self:Add(GUID, GetTime(), mathmin(dot.tickLength(), remaining), remaining, dot)
+				self:Add(GUID, GetTime(), mathmin(aura.tickLength, remaining), remaining, aura)
 			end
 			return
 		end
@@ -181,13 +181,13 @@ function DS:COMBAT_LOG_EVENT_UNFILTERED(_, timeStamp, event, _, sourceGUID, _, _
 		local dot = trackedDots[spellID]
 		if dot and sourceGUID == playerGUID then
 			if event == "SPELL_AURA_APPLIED" then
-				self:Apply(destGUID, dot)
+				self:Apply(destGUID, aura)
 			elseif event == "SPELL_AURA_REMOVED" then
-				self:Remove(destGUID, dot)
+				self:Remove(destGUID, aura)
 			elseif event == "SPELL_AURA_REFRESH" then
-				self:Refresh(destGUID, dot)
+				self:Refresh(destGUID, aura)
 			elseif event == "SPELL_PERIODIC_DAMAGE" then
-				self:Tick(destGUID, dot)
+				self:Tick(destGUID, aura)
 				if resource < maxResource then
 					resource = resource + 1
 					self:UNIT_POWER_FREQUENT("UNIT_POWER_FREQUENT", "player", "SOUL_SHARDS")  -- fail safe in case the corresponding UNIT_POWER_FREQUENT fires wonkily
