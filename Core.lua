@@ -43,7 +43,6 @@ local maxResource = 5
 local playerGUID
 local unitPowerType = "SOUL_SHARDS"
 local unitPowerId = SPELL_POWER_SOUL_SHARDS
-local SPEC_WARLOCK_AFFLICTION = SPEC_WARLOCK_AFFLICTION
 
 
 ---------------
