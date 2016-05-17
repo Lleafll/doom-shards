@@ -283,9 +283,6 @@ end
 -- Handling Settings --
 -----------------------
 do
-	function DS:TalentsCheck()
-		self:Build()
-		self:Update()
 	do
 		DS.specializationID = GetSpecializationInfo(GetSpecialization())
 		function DS:SpecializationsCheck()
