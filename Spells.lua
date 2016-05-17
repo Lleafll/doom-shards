@@ -8,8 +8,13 @@ local L = LibStub("AceLocale-3.0"):GetLocale("DoomShards")
 --------------
 GetActiveSpecGroup = GetActiveSpecGroup
 GetSpecialization = GetSpecialization
+GetSpellInfo = GetSpellInfo
 GetTalentInfo = GetTalentInfo
 IsEquippedItem = IsEquippedItem
+pairs = pairs
+rawget = rawget
+rawset = rawset
+setmetatable = setmetatable
 UnitBuff = UnitBuff
 
 
@@ -21,81 +26,125 @@ local function getHasteMod()
 end
 DS.GetHasteMod = getHasteMod
 
-
--------------------
--- Lookup Tables --
--------------------
--- Resource Generation
-local resourceGeneration = {
-	-- General
-	[196098] = 5,  -- Soul Harvest
-	[157757] = -1,  -- Summon Doomguard
-	[688] = -1,  -- Summon Imp
-	[157898] = -1,  -- Summon Infernal
-	[691] = -1,  -- Summon Felhunter
-	[712] = -1,  -- Summon Succubus
-	[697] = -1,  -- Summon Voidwalker
-	
-	-- Affliction
-	[30108] = -1,  -- Unstable Affliction
-	
-	-- Demonology
-	[157695] = 1,  -- Demonbolt
-	[105174] = -4,  -- Hand of Gul'dan
-	[686] = 1,  -- Shadow Bolt
-	[30146] = -1,  -- Summon Felguard
-	
-	-- Destruction
-	[116858] = -2,  -- Chaos Bolt
-	[5740] = -3,  -- Rain of Fire
-}
-DS.resourceGeneration = resourceGeneration
--- Affliction/Seed of Corruption/Sow the Seeds
-resourceGeneration[27243] = function()  -- TODO: possibly cache and update on event
-	return (GetSpecialization() == SPEC_WARLOCK_AFFLICTION and GetTalentInfo(4, 2, GetActiveSpecGroup()) and DS.resource > 0) and -1 or 0
-end
--- Demonology/Call Dreadstalkers/Demonic Calling
-do
-	local demonicCallingString = GetSpellInfo(205146)
-	resourceGeneration[104316] = function()  -- TODO: possibly cache and update on event
-		local generates = -2
-		if UnitBuff("player", demonicCallingString) then
-			generates = generates + 2
-		end
-		if IsEquippedItem(132393) then  -- Recurrent Ritual
-			generates = generates + 2
-		end
-		return generates
-	end
-end
-
--- Tracked DoTs
-local trackedDots = {}
-DS.trackedDots = trackedDots
-local function buildTickLength(baseTickLength)
+local function buildHastedIntervalFunc(base)
 	local function tickLength()
-		return baseTickLength / getHasteMod()
+		return base / getHasteMod()
 	end
 	return tickLength
 end
-trackedDots[980] = {
-	name = "Agony",
-	id = 980,
-	duration = function() return 24 end,
-	pandemic = function() return 7.2 end,
-	tickLength = buildTickLength(2)
-}
-trackedDots[603] = {
-	name = "Doom",
-	id = 603,
-	duration = buildTickLength(20),
-	pandemic = buildTickLength(20),
-	tickLength = buildTickLength(20),
-}
-trackedDots[157736] = {
-	name = "Immolate",
-	id = 157736,
-	duration = function() return 15 end,
-	pandemic = function() return 4.5 end,
-	tickLength = buildTickLength(3)
-}
+
+
+----------------------------------
+-- Spell and Aura Lookup Tables --
+----------------------------------
+local specSettings = {}
+DS.specSettings = specSettings
+
+local trackedAurasMetaTable = {}
+trackedAurasMetaTable.__index = function(tbl, k)
+	local func = rawget(tbl, k.."Func")
+	return func and func() or nil
+end
+local auraMetaTable = {}
+
+function DS:AddSpecSettings(specID, resourceGeneration, trackedAuras)
+	local settings = {}
+	specSettings[specID] = settings
+	settings.resourceGeneration = resourceGeneration
+	settings.trackedAuras = trackedAuras
+	
+	auraMetaTable[specID] = {}
+	for k, v in pairs(trackedAuras) do
+		setmetatable(v, trackedAurasMetaTable)
+		
+		v.id = k
+		v.name = GetSpellInfo(k)
+		v.pandemic = (v.pandemic) or (0.3 * v.duration)
+		auraMetaTable[specID][k] = {__index = v}
+	end
+end
+
+function DS:BuildAura(spellID, GUID)
+	local aura = {}
+	setmetatable(aura, auraMetaTable[self.specializationID][spellID])
+	return aura
+end
+
+
+---------------
+-- Add Specs --
+---------------
+-- Affliction
+DS:AddSpecSettings(265,
+	{
+		[27243] = function()  -- Seed of Corruption  -- TODO: possibly cache and update on event
+			return (GetTalentInfo(4, 2, GetActiveSpecGroup()) and DS.resource > 0) and -1 or 0
+		end,
+		[196098] = 5,  -- Soul Harvest
+		[157757] = -1,  -- Summon Doomguard
+		[688] = -1,  -- Summon Imp
+		[157898] = -1,  -- Summon Infernal
+		[691] = -1,  -- Summon Felhunter
+		[712] = -1,  -- Summon Succubus
+		[697] = -1,  -- Summon Voidwalker
+		[30108] = -1  -- Unstable Affliction
+	},
+	{
+		[980] = {  -- Agony
+			duration = 24,
+			tickLengthFunc = buildHastedIntervalFunc(2)
+		}
+	}
+)
+
+-- Demonology
+local demonicCallingString = GetSpellInfo(205146)
+DS:AddSpecSettings(266,
+	{
+		[104316] = function()  -- Call Dreadstalkers  -- TODO: possibly cache and update on event
+			local generates = -2
+			if UnitBuff("player", demonicCallingString) then
+				generates = generates + 2
+			end
+			if IsEquippedItem(132393) then  -- Recurrent Ritual
+				generates = generates + 2
+			end
+			return generates
+		end,
+		[196098] = 5,  -- Soul Harvest
+		[157757] = -1,  -- Summon Doomguard
+		[688] = -1,  -- Summon Imp
+		[157898] = -1,  -- Summon Infernal
+		[691] = -1,  -- Summon Felhunter
+		[712] = -1,  -- Summon Succubus
+		[697] = -1,  -- Summon Voidwalker
+	},
+	{
+		[603] = {
+			durationFunc = buildHastedIntervalFunc(20),
+			pandemicFunc = buildHastedIntervalFunc(6),
+			tickLengthFunc = buildHastedIntervalFunc(20),
+		}
+	}
+)
+
+-- Destruction
+DS:AddSpecSettings(267,
+	{
+		[116858] = -2,  -- Chaos Bolt
+		[5740] = -3,  -- Rain of Fire
+		[196098] = 5,  -- Soul Harvest
+		[157757] = -1,  -- Summon Doomguard
+		[688] = -1,  -- Summon Imp
+		[157898] = -1,  -- Summon Infernal
+		[691] = -1,  -- Summon Felhunter
+		[712] = -1,  -- Summon Succubus
+		[697] = -1,  -- Summon Voidwalker
+	},
+	{
+		[157736] = {
+			duration = 15,
+			tickLengthFunc = buildHastedIntervalFunc(3)
+		}
+	}
+)

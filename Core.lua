@@ -55,8 +55,8 @@ local nextTick = {}
 local resource = 0
 local timers = {}
 local dots = {}
-local resourceGeneration = DS.resourceGeneration
-local trackedDots = DS.trackedDots
+local resourceGeneration
+local trackedAuras
 
 
 ---------------
@@ -177,8 +177,8 @@ end
 function DS:COMBAT_LOG_EVENT_UNFILTERED(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, ...)
 	if sourceGUID == playerGUID then
 		local spellID, _, _, _, _ = ...
-		local dot = trackedDots[spellID]
-		if dot and sourceGUID == playerGUID then
+		if trackedAuras[spellID] and sourceGUID == playerGUID then
+			local aura = self:BuildAura(spellID, GUID)
 			if event == "SPELL_AURA_APPLIED" then
 				self:Apply(destGUID, aura)
 			elseif event == "SPELL_AURA_REMOVED" then
@@ -297,7 +297,11 @@ do
 	function DS:Build()
 		self:EndTestMode()
 		self:ApplySettings()
+		
 		resource = UnitPower("player", unitPowerId)
+		local specSettings = DS.specSettings[DS.specializationID]
+		resourceGeneration = specSettings.resourceGeneration
+		trackedAuras = specSettings.trackedAuras
 		
 		self:RegisterEvent("PLAYER_REGEN_DISABLED")
 		self:RegisterEvent("PLAYER_REGEN_ENABLED")
