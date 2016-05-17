@@ -3,6 +3,16 @@ if not DS then return end
 local L = LibStub("AceLocale-3.0"):GetLocale("DoomShards")
 
 
+--------------
+-- Upvalues --
+--------------
+GetActiveSpecGroup = GetActiveSpecGroup
+GetSpecialization = GetSpecialization
+GetTalentInfo = GetTalentInfo
+IsEquippedItem = IsEquippedItem
+UnitBuff = UnitBuff
+
+
 -------------
 -- Utility --
 -------------
