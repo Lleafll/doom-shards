@@ -45,7 +45,16 @@ trackedAurasMetaTable.__index = function(tbl, k)
 	local func = rawget(tbl, k.."Func")
 	return func and func() or nil
 end
-local auraMetaTable = {}
+
+local auraMetaTable = {}  -- Aura prototypes
+
+local function tickMethod(self, timeStamp)
+	self.nextTick = timeStamp + self.tickLength
+end
+
+local function refreshMethod(self, timeStamp)
+	self.expiration = mathmin(self.expiration + self.duration, timeStamp + self.duration + self.pandemic)
+end 
 
 function DS:AddSpecSettings(specID, resourceGeneration, trackedAuras)
 	local settings = {}
@@ -60,6 +69,9 @@ function DS:AddSpecSettings(specID, resourceGeneration, trackedAuras)
 		v.id = k
 		v.name = GetSpellInfo(k)
 		v.pandemic = (v.pandemic) or (0.3 * v.duration)
+		v.Tick = v.Tick or tickMethod
+		v.Refresh = v.Refresh or refreshMethod
+		
 		auraMetaTable[specID][k] = {__index = v}
 	end
 end
@@ -67,6 +79,8 @@ end
 function DS:BuildAura(spellID, GUID)
 	local aura = {}
 	setmetatable(aura, auraMetaTable[self.specializationID][spellID])
+	aura.expiration = GetTime() + aura.duration
+	aura:Tick()  -- TODO: replace with intialization, possibly via methamethods
 	return aura
 end
 
