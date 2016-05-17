@@ -6,13 +6,6 @@ local L = LibStub("AceLocale-3.0"):GetLocale("DoomShards")
 local ACR = LibStub("AceConfigRegistry-3.0")
 
 
---------------
--- Upvalues --
---------------
-GetSpecialization = GetSpecialization
-GetSpecializationInfo = GetSpecializationInfo
-
-
 -------------------
 -- Global Object --
 -------------------
