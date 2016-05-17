@@ -220,14 +220,12 @@ end
 -- Cleanup Ticker --
 --------------------
 do
-	local timeStamp
-	local tick
 	local function cleanUp()
-		timeStamp = GetTime() - 3
-		for i, GUID in pairs(timers) do
-			tick = nextTick[GUID]
-			if tick < timeStamp then
-				DS:Tick(GUID)
+		local timeStamp = GetTime() - 3
+		for GUID, aura in pairs(auras) do
+			local expiration = aura.expiration
+			if expiration < timeStamp then
+				DS:Remove(GUID, aura.id)
 				DS:Update()
 			end
 		end
