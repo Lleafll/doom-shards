@@ -50,11 +50,8 @@ local unitPowerId = SPELL_POWER_SOUL_SHARDS
 ---------------
 local generating = 0
 local nextCast
-local duration = {}
-local nextTick = {}
 local resource = 0
-local timers = {}
-local dots = {}
+local auras = {}
 local resourceGeneration
 local trackedAuras
 
@@ -65,83 +62,46 @@ local trackedAuras
 function DS:Update(timeStamp)
 	self.timeStamp = timeStamp or GetTime()
 	self.resource = resource
-	self.timers = timers
-	self.nextTick = nextTick
-	self.duration = duration
+	self.auras = auras
 	self.generating = generating
 	self.nextCast = nextCast
-	self.dots = dots
 	
 	self:SendMessage("DOOM_SHARDS_UPDATE")
 end
 
 -- resets all data
 function DS:ResetCount()
-	timers = {}
-	self:Update(GetTime())
-end
-
-function DS:Add(GUID, timeStamp, tick, dur, aura)
-	nextTick[GUID] = tick
-	duration[GUID] = dur
-	local timerLength = #timers
-	if timerLength == 0 then  -- might not be necessary if for-loop skips looping on empty tables (need to check)
-		timers[1] = GUID
-		dots[1] = aura
-		self:Update(timeStamp)
-		return
-	end
-	for k, v in pairs(timers) do
-		if nextTick[v] > tick then
-			tableinsert(timers, k, GUID)
-			tableinsert(dots, k, aura)
-			self:Update(timeStamp)
-			return
-		end
-	end
-	timerLength = timerLength + 1
-	timers[timerLength] = GUID
-	dots[timerLength] = aura
-	self:Update(timeStamp)
-end
-
-function DS:Apply(GUID, aura)
-	local timeStamp = GetTime()
-	local tick = timeStamp + aura.tickLength
-	local duration = timeStamp + aura.duration
-	self:Add(GUID, timeStamp, tick, duration, aura)
-end
-
-function DS:Remove(GUID, aura)
-	for k, v in pairs(timers) do
-		if v == GUID then
-			tableremove(timers, k)
-			tableremove(dots, k)
-			break
-		end
-	end
-	duration[GUID] = nil
-	nextTick[GUID] = nil
+	auras = {}
 	self:Update()
 end
 
-function DS:Refresh(GUID, aura)
-	local timeStamp = GetTime()
-	duration[GUID] = timeStamp + aura.duration + mathmin(duration[GUID]-timeStamp, aura.pandemic)
+function DS:Apply(GUID, spellID)
+	local aura = self:BuildAura(spellID)
+	auras[GUID] = auras[GUID] or {}
+	auras[GUID][aura.id] = aura
+	self:Update()
 end
 
-function DS:Tick(GUID, aura)
-	for k, v in pairs(timers) do
-		if v == GUID then
-			tableremove(timers, k)
-			tableremove(dots, k)
-			local remaining = duration[GUID]
-			if remaining > nextTick[GUID] then
-				self:Add(GUID, GetTime(), mathmin(aura.tickLength, remaining), remaining, aura)
-			end
-			return
-		end
+function DS:Remove(GUID, spellID)
+	local auras_GUID = auras[GUID]
+	if auras_GUID then
+		auras_GUID[spellID] = nil
+		self:Update()
 	end
+end
+
+function DS:Refresh(GUID, spellID)
+	local aura = auras[GUID][spellID]
+	local timeStamp = GetTime()
+	self:Refresh(timeStamp)
+	self:Update(timeStamp)
+end
+
+function DS:Tick(GUID, spellID)
+	local aura = auras[GUID][spellID]
+	local timeStamp = GetTime()
+	aura:Tick(timeStamp)
+	self:Update(timeStamp)
 end
 
 do
@@ -178,15 +138,14 @@ function DS:COMBAT_LOG_EVENT_UNFILTERED(_, timeStamp, event, _, sourceGUID, _, _
 	if sourceGUID == playerGUID then
 		local spellID, _, _, _, _ = ...
 		if trackedAuras[spellID] and sourceGUID == playerGUID then
-			local aura = self:BuildAura(spellID, GUID)
 			if event == "SPELL_AURA_APPLIED" then
-				self:Apply(destGUID, aura)
+				self:Apply(destGUID, spellID)
 			elseif event == "SPELL_AURA_REMOVED" then
-				self:Remove(destGUID, aura)
+				self:Remove(destGUID, spellID)
 			elseif event == "SPELL_AURA_REFRESH" then
-				self:Refresh(destGUID, aura)
+				self:Refresh(destGUID, spellID)
 			elseif event == "SPELL_PERIODIC_DAMAGE" then
-				self:Tick(destGUID, aura)
+				self:Tick(destGUID, spellID)
 				if resource < maxResource then
 					resource = resource + 1
 					self:UNIT_POWER_FREQUENT("UNIT_POWER_FREQUENT", "player", "SOUL_SHARDS")  -- fail safe in case the corresponding UNIT_POWER_FREQUENT fires wonkily
