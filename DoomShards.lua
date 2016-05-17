@@ -6,6 +6,13 @@ local L = LibStub("AceLocale-3.0"):GetLocale("DoomShards")
 local ACR = LibStub("AceConfigRegistry-3.0")
 
 
+--------------
+-- Upvalues --
+--------------
+GetSpecialization = GetSpecialization
+GetSpecializationInfo = GetSpecializationInfo
+
+
 -------------------
 -- Global Object --
 -------------------
@@ -124,7 +131,7 @@ function DS:Lock()
 			if module.frame then module.frame:Lock() end
 		end
 	end
-	self:TalentsCheck()  -- build displays  -- TODO: rebuild initialization flow
+	self:SpecializationsCheck()  -- build displays  -- TODO: rebuild initialization flow
 end
 
 
@@ -199,5 +206,5 @@ function DS:OnInitialize()
 	
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
 	-- will fire once for every talent tier after player is in-game and ultimately initialize events and displays if player is Shadow
-	self:RegisterEvent("PLAYER_TALENT_UPDATE", "TalentsCheck")
+	self:RegisterEvent("PLAYER_TALENT_UPDATE", "SpecializationsCheck")
 end

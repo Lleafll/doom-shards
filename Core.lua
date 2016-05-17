@@ -286,6 +286,16 @@ do
 	function DS:TalentsCheck()
 		self:Build()
 		self:Update()
+	do
+		DS.specializationID = GetSpecializationInfo(GetSpecialization())
+		function DS:SpecializationsCheck()
+			local newSpecID = GetSpecializationInfo(GetSpecialization())
+			if newSpecID ~= self.specializationID then
+				self.specializationID = newSpecID
+				self:Build()
+				self:Update()
+			end
+		end
 	end
 
 	function DS:Build()
