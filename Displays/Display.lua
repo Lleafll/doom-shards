@@ -55,11 +55,10 @@ local borderBackdrop = {
 ---------------
 -- Variables --
 ---------------
+local auras
 local db
-local durations
 local gainFlash
 local nextCast
-local nextTick
 local resourceCappedEnable
 local resource
 local remainingTimeThreshold
@@ -72,7 +71,6 @@ local statusbarCount
 local statusbarEnable
 local statusbarRefresh
 local textEnable
-local timers
 local timeStamp
 local visibilityConditionals = ""
 
@@ -83,6 +81,19 @@ local visibilityConditionals = ""
 function CD:GetHoGCastingTime()  -- TODO: Cache to possibly improve performance
 	_, _, _, castingTime = GetSpellInfo(105174)
 	return (nextCast and (nextCast - GetTime()) or 0) + castingTime / 1000
+end
+
+function CD:BuildOrderedAuras()
+	local tbl = {}  -- TODO: possibly recycle
+	for GUID, tbl in pairs(auras) do
+		for spellID, aura in pairs(tbl) do
+			tbl[#tbl+1] = aura
+			
+			-- Debug
+			print(GUID, spellID, aura.nextTick, aura.expiration)
+		end
+	end
+	return tbl
 end
 
 function CD:UpdateResource(frame, active, coloring)
@@ -123,16 +134,16 @@ function CD:UpdateHoGPrediction(frame)  -- Must not play animations  -- TODO: ma
 	frame:SetSpendColor()
 end
 
-function CD:UpdateDoomPrediction(position, timer)
-	if timer then
+function CD:UpdateDoomPrediction(position, nextTick)
+	if nextTick then
 		if textEnable then
 			local SATimer = SATimers[position]
-			SATimer:SetTimer(timer)
+			SATimer:SetTimer(nextTick)
 			SATimer:Show()
 		end
 		if statusbarEnable then
 			local statusbar = statusbars[position]
-			statusbar:SetTimer(timer)
+			statusbar:SetTimer(nextTick)
 			statusbar:Show()
 		end
 	else
@@ -147,7 +158,9 @@ end
 
 function CD:Update()
 	if not DS.locked then return end
-
+	
+	local orderedAuras = self:BuildOrderedAuras()
+	
 	-- Shards
 	local spendThreshold = resource + ((resourceSpendPrediction and resourceGeneration < 0) and resourceGeneration or 0)
 	for i = 1, maxResource do
@@ -160,9 +173,9 @@ function CD:Update()
 		local additionalResources = - resource - resourceGeneration
 		if additionalResources > 0 then
 			for t = 1, additionalResources do
-				local GUID = timers[t]
-				if GUID then
-					if nextTick[GUID] < nextCast then
+				local aura = orderedAuras[t]
+				if aura then
+					if aura.nextTick < nextCast then
 						CD:UpdateHoGPrediction(resourceFrames[resource + t])
 					else
 						break
@@ -185,9 +198,9 @@ function CD:Update()
 		castEnd = generatedResource and nextCast or nil
 	end
 	local t = 1
-	local tick = nextTick[timers[t]]
+	local aura = auras[t]
 	for i = resource + 1, statusbarCount do
-		if resourceGainPrediction and castEnd and (not tick or castEnd < tick) then
+		if resourceGainPrediction and castEnd and (not aura.nextTick or castEnd < aura.nextTick) then
 			if i <= maxResource then
 				self:UpdateResourceGainPrediction(resourceFrames[i])
 			end
@@ -198,9 +211,9 @@ function CD:Update()
 			end
 			
 		else
-			self:UpdateDoomPrediction(i, tick)
+			self:UpdateDoomPrediction(i, aura and aura.nextTick)
 			t = t + 1
-			tick = nextTick[timers[t]]
+			aura = auras[t]
 			
 		end
 	end
@@ -209,9 +222,7 @@ end
 function CD:DOOM_SHARDS_UPDATE()
 	timeStamp = DS.timeStamp
 	resource = DS.resource
-	timers = DS.timers
-	nextTick = DS.nextTick
-	durations = DS.duration
+	auras = DS.auras
 	resourceGeneration = DS.generating
 	nextCast = DS.nextCast
 	
