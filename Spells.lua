@@ -11,6 +11,7 @@ local GetSpecialization = GetSpecialization
 local GetSpellInfo = GetSpellInfo
 local GetTalentInfo = GetTalentInfo
 local IsEquippedItem = IsEquippedItem
+local mathmin = math.min
 local pairs = pairs
 local rawget = rawget
 local rawset = rawset
@@ -79,8 +80,12 @@ end
 function DS:BuildAura(spellID, GUID)
 	local aura = {}
 	setmetatable(aura, auraMetaTable[self.specializationID][spellID])
-	aura.expiration = GetTime() + aura.duration
-	aura:Tick()  -- TODO: replace with intialization, possibly via methamethods
+	
+	-- TODO: replace with intialization, possibly via methamethods
+	local timeStamp = GetTime()
+	aura.expiration = timeStamp + aura.duration
+	aura:Tick(timeStamp)
+	
 	return aura
 end
 
