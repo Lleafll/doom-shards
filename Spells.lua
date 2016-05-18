@@ -125,10 +125,14 @@ DS:AddSpecSettings(266,
 			end
 			return generates
 		end,
+		[157695] = 1,  -- Demonbolt
+		[105174] = -4,  -- Hand of Gul'dan
+		[686] = 1,  -- Shadow Bolt
 		[196098] = 5,  -- Soul Harvest
 		[157757] = -1,  -- Summon Doomguard
 		[688] = -1,  -- Summon Imp
 		[157898] = -1,  -- Summon Infernal
+		[30146] = -1,  -- Summon Felguard
 		[691] = -1,  -- Summon Felhunter
 		[712] = -1,  -- Summon Succubus
 		[697] = -1,  -- Summon Voidwalker
