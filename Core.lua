@@ -78,7 +78,7 @@ end
 function DS:Apply(GUID, spellID)
 	local aura = self:BuildAura(spellID)
 	auras[GUID] = auras[GUID] or {}
-	auras[GUID][aura.id] = aura
+	auras[GUID][spellID] = aura
 	self:Update()
 end
 
@@ -91,17 +91,21 @@ function DS:Remove(GUID, spellID)
 end
 
 function DS:Refresh(GUID, spellID)
-	local aura = auras[GUID][spellID]
-	local timeStamp = GetTime()
-	self:Refresh(timeStamp)
-	self:Update(timeStamp)
+	if auras[GUID] and auras[GUID][spellID] then
+		local timeStamp = GetTime()
+		auras[GUID][spellID]:Refresh(timeStamp)
+		self:Update(timeStamp)
+	else
+		self:Apply(GUID, spellID)  -- Fallback, not entirely accurate due to missing pandemic
+	end
 end
 
 function DS:Tick(GUID, spellID)
-	local aura = auras[GUID][spellID]
-	local timeStamp = GetTime()
-	aura:Tick(timeStamp)
-	self:Update(timeStamp)
+	if auras[GUID] and auras[GUID][spellID] then
+		local timeStamp = GetTime()
+		auras[GUID][spellID]:Tick(timeStamp)
+		self:Update(timeStamp)
+	end
 end
 
 do
