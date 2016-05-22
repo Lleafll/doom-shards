@@ -131,16 +131,16 @@ function CD:UpdateHoGPrediction(frame)  -- Must not play animations  -- TODO: ma
 	frame:SetSpendColor()
 end
 
-function CD:UpdateDoomPrediction(position, nextTick)
-	if nextTick then
+function CD:UpdateDoomPrediction(position, aura)
+	if aura then
 		if textEnable then
 			local SATimer = SATimers[position]
-			SATimer:SetTimer(nextTick)
+			SATimer:SetTimer(aura)
 			SATimer:Show()
 		end
 		if statusbarEnable then
 			local statusbar = statusbars[position]
-			statusbar:SetTimer(nextTick)
+			statusbar:SetTimer(aura)
 			statusbar:Show()
 		end
 	else
@@ -208,7 +208,7 @@ function CD:Update()
 			end
 			
 		else
-			self:UpdateDoomPrediction(i, aura and aura.nextTick)
+			self:UpdateDoomPrediction(i, aura)
 			t = t + 1
 			aura = orderedAuras[t]
 			
@@ -252,7 +252,7 @@ end
 local function statusbarOnUpdate(statusbar, elapsed)
 	statusbar.remaining = statusbar.remaining - elapsed
 	statusbar.elapsed = statusbar.elapsed + elapsed
-	if statusbar.elapsed > statusbarRefresh then
+	if statusbar.elapsed > statusbar.refresh then
 		statusbar.statusbar:SetValue(statusbar.maxTime - (statusbar.remaining < 0 and 0 or statusbar.remaining))  -- check for < 0 necessary?
 		statusbar.elapsed = 0
 	end
@@ -509,8 +509,8 @@ local function buildFrames()
 			
 			parentFrame.elapsed = 0
 			parentFrame.remaining = 0
-			function parentFrame:SetTimer(tick)
-				self.remaining = tick - GetTime()
+			function parentFrame:SetTimer(aura)
+				self.remaining = aura.nextTick - GetTime()
 				self.elapsed = 1
 				self:Show()
 			end
@@ -567,10 +567,12 @@ local function buildFrames()
 			frame.remaining = 0
 			frame.elapsed = 0
 			frame.maxTime = 20
-			function frame:SetTimer(tick)
+			function frame:SetTimer(aura)
 				self.elapsed = 1
-				self.remaining = tick - GetTime()
-				self.maxTime = 20  -- TODO: replace with proper max duration
+				self.remaining = aura.nextTick - GetTime()
+				local tickLength = aura.tickLength
+				self.maxTime = tickLength
+				self.refresh = tickLength / db.width / DS.db.scale  -- TODO: cache width and scale
 				self.statusbar:SetMinMaxValues(0, self.maxTime)
 				self:Show()
 			end
@@ -651,7 +653,6 @@ function CD:Build()
 	visibilityConditionals = db.visibilityConditionals or ""
 	
 	statusbarCount = 5 + db.statusbarCount
-	statusbarRefresh = 20 / db.width / DS.db.scale
 	
 	buildFrames()
 	if not CDFrame.fader then
