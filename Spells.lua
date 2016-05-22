@@ -100,9 +100,9 @@ DS:AddSpecSettings(265,
 			return (GetTalentInfo(4, 2, GetActiveSpecGroup()) and DS.resource > 0) and -1 or 0
 		end,
 		[196098] = 5,  -- Soul Harvest
-		[157757] = -1,  -- Summon Doomguard
+		[18540] = -1,  -- Summon Doomguard
 		[688] = -1,  -- Summon Imp
-		[157898] = -1,  -- Summon Infernal
+		[1122] = -1,  -- Summon Infernal
 		[691] = -1,  -- Summon Felhunter
 		[712] = -1,  -- Summon Succubus
 		[697] = -1,  -- Summon Voidwalker
@@ -134,9 +134,9 @@ DS:AddSpecSettings(266,
 		[105174] = -4,  -- Hand of Gul'dan
 		[686] = 1,  -- Shadow Bolt
 		[196098] = 5,  -- Soul Harvest
-		[157757] = -1,  -- Summon Doomguard
+		[18540] = -1,  -- Summon Doomguard
 		[688] = -1,  -- Summon Imp
-		[157898] = -1,  -- Summon Infernal
+		[1122] = -1,  -- Summon Infernal
 		[30146] = -1,  -- Summon Felguard
 		[691] = -1,  -- Summon Felhunter
 		[712] = -1,  -- Summon Succubus
@@ -157,9 +157,9 @@ DS:AddSpecSettings(267,
 		[116858] = -2,  -- Chaos Bolt
 		[5740] = -3,  -- Rain of Fire
 		[196098] = 5,  -- Soul Harvest
-		[157757] = -1,  -- Summon Doomguard
+		[18540] = -1,  -- Summon Doomguard
 		[688] = -1,  -- Summon Imp
-		[157898] = -1,  -- Summon Infernal
+		[1122] = -1,  -- Summon Infernal
 		[691] = -1,  -- Summon Felhunter
 		[712] = -1,  -- Summon Succubus
 		[697] = -1,  -- Summon Voidwalker
