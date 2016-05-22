@@ -96,9 +96,6 @@ end
 function CD:UpdateResource(frame, active, coloring)
 	if active then
 		if coloring == "spending" then
-			if frame.flasher:IsPlaying() then
-				frame.flasher:Stop()  -- Stop animation for better visuals
-			end
 			frame:SetSpendColor()
 		elseif coloring == "capped" then
 			frame:SetCapColor()
