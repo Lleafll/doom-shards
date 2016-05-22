@@ -84,16 +84,16 @@ function CD:GetHoGCastingTime()  -- TODO: Cache to possibly improve performance
 end
 
 function CD:BuildOrderedAuras()
-	local tbl = {}  -- TODO: possibly recycle
+	local orderedTbl = {}  -- TODO: possibly recycle
 	for GUID, tbl in pairs(auras) do
 		for spellID, aura in pairs(tbl) do
-			tbl[#tbl+1] = aura
+			orderedTbl[#orderedTbl+1] = aura
 			
 			-- Debug
 			print(GUID, spellID, aura.nextTick, aura.expiration)
 		end
 	end
-	return tbl
+	return orderedTbl
 end
 
 function CD:UpdateResource(frame, active, coloring)
