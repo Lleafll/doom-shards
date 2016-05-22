@@ -88,9 +88,6 @@ function CD:BuildOrderedAuras()
 	for GUID, tbl in pairs(auras) do
 		for spellID, aura in pairs(tbl) do
 			orderedTbl[#orderedTbl+1] = aura
-			
-			-- Debug
-			print(GUID, spellID, aura.nextTick, aura.expiration)
 		end
 	end
 	return orderedTbl
@@ -198,7 +195,7 @@ function CD:Update()
 		castEnd = generatedResource and nextCast or nil
 	end
 	local t = 1
-	local aura = auras[t]
+	local aura = orderedAuras[t]
 	for i = resource + 1, statusbarCount do
 		if resourceGainPrediction and castEnd and (not aura.nextTick or castEnd < aura.nextTick) then
 			if i <= maxResource then
@@ -213,7 +210,7 @@ function CD:Update()
 		else
 			self:UpdateDoomPrediction(i, aura and aura.nextTick)
 			t = t + 1
-			aura = auras[t]
+			aura = orderedAuras[t]
 			
 		end
 	end
