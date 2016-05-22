@@ -244,7 +244,7 @@ cleanUp()
 -----------------------
 do
 	do
-		DS.specializationID = 0 --GetSpecializationInfo(GetSpecialization())
+		DS.specializationID = nil --GetSpecializationInfo(GetSpecialization())
 		function DS:SpecializationsCheck()
 			local newSpecID = GetSpecializationInfo(GetSpecialization())
 			if newSpecID ~= self.specializationID then
