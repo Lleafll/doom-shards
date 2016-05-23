@@ -62,7 +62,7 @@ local function iterateTickMethod(self, timeStamp)
 		local expiration = self.expiration
 		local iteratedTick = timeStamp + self.tickLength
 		local isLastTick = iteratedTick >= expiration
-		return isLastTick and expiration or iteratedTick, isNotLastTick
+		return isLastTick and expiration or iteratedTick, isLastTick
 	else
 		local nextTick = self.nextTick
 		return nextTick, nextTick >= self.expiration
