@@ -93,9 +93,13 @@ do
 	local tblCache = {}
 	local function getRecycledTbl()
 		local tblCacheLength = #tblCache
-		local tbl = tblCache[tblCacheLength] or {}
-		tblCache[tblCacheLength] = nil
-		return tbl
+		if tblCacheLength > 0 then
+			local tbl = tblCache[tblCacheLength]
+			tblCache[tblCacheLength] = nil
+			return tbl
+		else
+			return {}
+		end
 	end
 	
 	local function storeRecycleTbl(tbl)
