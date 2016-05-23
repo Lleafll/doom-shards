@@ -55,7 +55,19 @@ end
 
 local function refreshMethod(self, timeStamp)
 	self.expiration = mathmin(self.expiration + self.duration, timeStamp + self.duration + self.pandemic)
-end 
+end
+
+local function iterateTickMethod(self, timeStamp)
+	if timeStamp then
+		local expiration = self.expiration
+		local iteratedTick = timeStamp + self.tickLength
+		local isNotLastTick = iteratedTick < expiration
+		return isNotLastTick and iteratedTick or expiration, isNotLastTick
+	else
+		local nextTick = self.nextTick
+		return nextTick, nextTick < self.expiration
+	end
+end
 
 function DS:AddSpecSettings(specID, resourceGeneration, trackedAuras)
 	local settings = {}
@@ -72,6 +84,7 @@ function DS:AddSpecSettings(specID, resourceGeneration, trackedAuras)
 		v.pandemic = (v.pandemic) or (0.3 * v.duration)
 		v.Tick = v.Tick or tickMethod
 		v.Refresh = v.Refresh or refreshMethod
+		v.IterateTick = v.IterateTick or iterateTickMethod
 		
 		auraMetaTable[specID][k] = {__index = v}
 	end
