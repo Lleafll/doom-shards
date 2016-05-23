@@ -123,7 +123,7 @@ DS:AddSpecSettings(265,
 	},
 	{
 		[980] = {  -- Agony
-			duration = 24,
+			duration = 18,
 			tickLengthFunc = buildHastedIntervalFunc(2)
 		}
 	}
