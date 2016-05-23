@@ -745,6 +745,7 @@ local defaultSettings = {
 	resourceSpendPrediction = true,
 	resourceSpendColor = {r=0.4, b=0.4, g=0.4, a=1},
 	resourceSpendIncludeHoG = true,
+	consolidateTicks = true,
 }
 
 DS:AddDisplayOptions("display", displayOptions, defaultSettings)

@@ -28,10 +28,9 @@ end
 DS.GetHasteMod = getHasteMod
 
 local function buildHastedIntervalFunc(base)
-	local function tickLength()
+	return function()
 		return base / getHasteMod()
 	end
-	return tickLength
 end
 
 
@@ -58,7 +57,6 @@ local function tickMethod(self, timeStamp)
 end
 
 local function refreshMethod(self, timeStamp)
-	self.expiration = mathmin(self.expiration + self.duration, timeStamp + self.duration + self.pandemic)
 	local belowPandemic = self.expiration + self.duration
 	local overPandemic = timeStamp + self.duration + self.pandemic
 	self.expiration = belowPandemic < overPandemic and belowPandemic or overPandemic
@@ -91,6 +89,7 @@ function DS:AddSpecSettings(specID, resourceGeneration, trackedAuras)
 		if not v.pandemic then
 			v.pandemicFunc = v.pandemicFunc or pandemicFunc
 		end
+		v.resourceChance = v.resourceChance or 1
 		v.Tick = v.Tick or tickMethod
 		v.Refresh = v.Refresh or refreshMethod
 		v.IterateTick = v.IterateTick or iterateTickMethod
@@ -133,7 +132,8 @@ DS:AddSpecSettings(265,
 	{
 		[980] = {  -- Agony
 			duration = 18,
-			tickLengthFunc = buildHastedIntervalFunc(2)
+			tickLengthFunc = buildHastedIntervalFunc(2),
+			resourceChance = 0.26  -- TODO: Change to actual values
 		}
 	}
 )
@@ -169,6 +169,7 @@ DS:AddSpecSettings(266,
 			durationFunc = buildHastedIntervalFunc(20),
 			pandemicFunc = buildHastedIntervalFunc(6),
 			tickLengthFunc = buildHastedIntervalFunc(20),
+			-- TODO: Add resource change depending on partial ticks here
 		}
 	}
 )
@@ -189,7 +190,8 @@ DS:AddSpecSettings(267,
 	{
 		[157736] = {
 			duration = 15,
-			tickLengthFunc = buildHastedIntervalFunc(3)
+			tickLengthFunc = buildHastedIntervalFunc(3),
+			resourceChance = 0.15  -- TODO: Change to crit modified chance function
 		}
 	}
 )

@@ -14,6 +14,7 @@ local math_huge = math.huge
 local mathmax = math.max
 local stringformat = string.format
 local table_sort = table.sort
+local wipe = wipe
 
 
 ------------
@@ -58,6 +59,7 @@ local borderBackdrop = {
 -- Variables --
 ---------------
 local auras
+local consolidateTicks
 local db
 local gainFlash
 local nextCast
@@ -107,6 +109,7 @@ do
 	end
 	
 	local orderedTbl = {}
+	local consolidatedTbl = {}
 	function CD:BuildSortedAuraIndicators()
 		local i = 0
 		for GUID, tbl in pairs(auras) do
@@ -118,7 +121,7 @@ do
 					orderedTbl[i] = orderedTbl[i] or getRecycledTbl()
 					orderedTbl[i].tick = tick
 					orderedTbl[i].aura = aura
-				until isLastTick or i > statusbarCount
+				until isLastTick or i > 100
 			end
 		end
 		for k = i+1, #orderedTbl do
@@ -126,7 +129,25 @@ do
 			orderedTbl[k] = nil
 		end
 		table_sort(orderedTbl, sortFunc)
-		return orderedTbl
+		
+		if consolidateTicks then
+			for k, v in ipairs(consolidatedTbl) do
+				consolidatedTbl[k] = nil
+			end
+			i = 1
+			local chance = 0
+			for k, indicator in ipairs(orderedTbl) do
+				chance = chance + indicator.aura.resourceChance
+				if chance > 1 then
+					consolidatedTbl[i] = indicator
+					i = i + 1
+					chance = 0
+				end
+			end
+			return consolidatedTbl
+		else
+			return orderedTbl
+		end
 	end
 end
 
@@ -685,6 +706,7 @@ function CD:Build()
 	statusbarEnable = db.statusbarEnable
 	textEnable = db.textEnable
 	visibilityConditionals = db.visibilityConditionals or ""
+	consolidateTicks = db.consolidateTicks
 	
 	statusbarCount = 5 + db.statusbarCount
 	
