@@ -55,6 +55,9 @@ end
 
 local function refreshMethod(self, timeStamp)
 	self.expiration = mathmin(self.expiration + self.duration, timeStamp + self.duration + self.pandemic)
+	local belowPandemic = self.expiration + self.duration
+	local overPandemic = timeStamp + self.duration + self.pandemic
+	self.expiration = belowPandemic < overPandemic and belowPandemic or overPandemic
 end
 
 local function iterateTickMethod(self, timeStamp)
