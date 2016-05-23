@@ -604,9 +604,9 @@ local function buildFrames()
 			function frame:SetTimer(indicator)
 				self.elapsed = 1
 				self.remaining = indicator.tick - GetTime()
-				local tickLength = indicator.aura.tickLength
-				self.maxTime = tickLength
-				self.refresh = tickLength / db.width / DS.db.scale  -- TODO: cache width and scale
+				local aura = indicator.aura
+				self.maxTime = aura.duration
+				self.refresh = aura.tickLength / db.width / DS.db.scale  -- TODO: cache width and scale
 				self.statusbar:SetMinMaxValues(0, self.maxTime)
 				self:Show()
 			end
