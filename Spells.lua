@@ -44,10 +44,14 @@ DS.specSettings = specSettings
 local trackedAurasMetaTable = {}
 trackedAurasMetaTable.__index = function(tbl, k)
 	local func = rawget(tbl, k.."Func")
-	return func and func() or nil
+	return func and func(tbl) or nil
 end
 
 local auraMetaTable = {}  -- Aura prototypes
+
+local function pandemicFunc(self)
+	return 0.3 * self.duration
+end
 
 local function tickMethod(self, timeStamp)
 	self.nextTick = self:IterateTick(timeStamp)
@@ -84,7 +88,9 @@ function DS:AddSpecSettings(specID, resourceGeneration, trackedAuras)
 		
 		v.id = k
 		v.name = GetSpellInfo(k)
-		v.pandemic = (v.pandemic) or (0.3 * v.duration)
+		if not v.pandemic then
+			v.pandemicFunc = v.pandemicFunc or pandemicFunc
+		end
 		v.Tick = v.Tick or tickMethod
 		v.Refresh = v.Refresh or refreshMethod
 		v.IterateTick = v.IterateTick or iterateTickMethod
