@@ -108,24 +108,24 @@ do
 	
 	local orderedTbl = {}
 	function CD:BuildSortedAuraIndicators()
-		local i = 1
+		local i = 0
 		for GUID, tbl in pairs(auras) do
 			for spellID, aura in pairs(tbl) do
 				local tick, isLastTick
 				repeat
+					i = i + 1
 					tick, isLastTick = aura:IterateTick(tick)
 					orderedTbl[i] = orderedTbl[i] or getRecycledTbl()
 					orderedTbl[i].tick = tick
 					orderedTbl[i].aura = aura
-					i = i + 1
-				until isLastTick
+				until isLastTick or i > statusbarCount
 			end
 		end
 		for k = i+1, #orderedTbl do
 			storeRecycleTbl(orderedTbl[k])
 			orderedTbl[k] = nil
 		end
-		table_sort(orderedTable, sortFunc)
+		table_sort(orderedTbl, sortFunc)
 		return orderedTbl
 	end
 end
@@ -166,7 +166,7 @@ function CD:UpdateHoGPrediction(frame)  -- Must not play animations  -- TODO: ma
 end
 
 function CD:UpdateDoomPrediction(position, indicator)
-	if aura then
+	if indicator then
 		if textEnable then
 			local SATimer = SATimers[position]
 			SATimer:SetTimer(indicator)
@@ -242,7 +242,7 @@ function CD:Update()
 			end
 			
 		else
-			self:UpdateDoomPrediction(i, indicator.aura)
+			self:UpdateDoomPrediction(i, indicator)
 			t = t + 1
 			indicator = indicators[t]
 			
