@@ -91,13 +91,9 @@ function DS:Remove(GUID, spellID)
 end
 
 function DS:Refresh(GUID, spellID)
-	if auras[GUID] and auras[GUID][spellID] then
-		local timeStamp = GetTime()
-		auras[GUID][spellID]:Refresh(timeStamp)
-		self:Update(timeStamp)
-	else
-		self:Apply(GUID, spellID)  -- Fallback, not entirely accurate due to missing pandemic
-	end
+	local timeStamp = GetTime()
+	auras[GUID][spellID]:Refresh(timeStamp)
+	self:Update(timeStamp)
 end
 
 function DS:Tick(GUID, spellID)
@@ -142,12 +138,14 @@ function DS:COMBAT_LOG_EVENT_UNFILTERED(_, timeStamp, event, _, sourceGUID, _, _
 	if sourceGUID == playerGUID then
 		local spellID, _, _, _, _ = ...
 		if trackedAuras[spellID] and sourceGUID == playerGUID then
-			if event == "SPELL_AURA_APPLIED" then
-				self:Apply(destGUID, spellID)
+			if event == "SPELL_CAST_SUCCESS" then  -- "SPELL_AURA_REFRESH" won't fire for Agony
+				if auras[destGUID] and auras[destGUID][spellID] then
+					self:Refresh(destGUID, spellID)
+				else
+					self:Apply(destGUID, spellID)
+				end				
 			elseif event == "SPELL_AURA_REMOVED" then
 				self:Remove(destGUID, spellID)
-			elseif event == "SPELL_AURA_REFRESH" then
-				self:Refresh(destGUID, spellID)
 			elseif event == "SPELL_PERIODIC_DAMAGE" then
 				self:Tick(destGUID, spellID)
 				if resource < maxResource then
