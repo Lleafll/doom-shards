@@ -247,7 +247,7 @@ do
 		DS.specializationID = nil --GetSpecializationInfo(GetSpecialization())
 		function DS:SpecializationsCheck()
 			local newSpecID = GetSpecializationInfo(GetSpecialization())
-			if newSpecID ~= self.specializationID then
+			if newSpecID and newSpecID ~= self.specializationID then
 				self.specializationID = newSpecID
 				self:Build()
 				self:Update()
@@ -260,6 +260,7 @@ do
 		self:ApplySettings()
 		
 		resource = UnitPower("player", unitPowerId)
+		
 		local specSettings = DS.specSettings[DS.specializationID]
 		resourceGeneration = specSettings.resourceGeneration
 		trackedAuras = specSettings.trackedAuras
