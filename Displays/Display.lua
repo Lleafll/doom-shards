@@ -10,8 +10,10 @@ local LSM = LibStub("LibSharedMedia-3.0")
 --------------
 local GetSpellInfo = GetSpellInfo
 local GetTime = GetTime
+local math_huge = math.huge
 local mathmax = math.max
 local stringformat = string.format
+local table_sort = table.sort
 
 
 ------------
@@ -83,14 +85,45 @@ function CD:GetHoGCastingTime()  -- TODO: Cache to possibly improve performance
 	return (nextCast and (nextCast - GetTime()) or 0) + castingTime / 1000
 end
 
-function CD:BuildOrderedAuras()
-	local orderedTbl = {}  -- TODO: possibly recycle
-	for GUID, tbl in pairs(auras) do
-		for spellID, aura in pairs(tbl) do
-			orderedTbl[#orderedTbl+1] = aura
-		end
+do
+	local function sortFunc(a, b)
+		return a.tick < b.tick
 	end
-	return orderedTbl
+	
+	local tblCache = {}
+	local function getRecycledTbl()
+		local tblCacheLength = #tblCache
+		local tbl = tblCache[tblCacheLength] or {}
+		tblCache[tblCacheLength] = nil
+		return tbl
+	end
+	
+	local function storeRecycleTbl(tbl)
+		tblCache[#tblCache+1] = tbl
+	end
+	
+	local orderedTbl = {}
+	function CD:BuildSortedAuraIndicators()
+		local i = 1
+		for GUID, tbl in pairs(auras) do
+			for spellID, aura in pairs(tbl) do
+				local tick, isLastTick
+				repeat
+					tick, isLastTick = aura:IterateTick(tick)
+					orderedTbl[i] = orderedTbl[i] or getRecycledTbl()
+					orderedTbl[i].tick = tick
+					orderedTbl[i].aura = aura
+					i = i + 1
+				until isLastTick
+			end
+		end
+		for k = i+1, #orderedTbl do
+			storeRecycleTbl(orderedTbl[k])
+			orderedTbl[k] = nil
+		end
+		table_sort(orderedTable, sortFunc)
+		return orderedTbl
+	end
 end
 
 function CD:UpdateResource(frame, active, coloring)
@@ -128,16 +161,16 @@ function CD:UpdateHoGPrediction(frame)  -- Must not play animations  -- TODO: ma
 	frame:SetSpendColor()
 end
 
-function CD:UpdateDoomPrediction(position, aura)
+function CD:UpdateDoomPrediction(position, indicator)
 	if aura then
 		if textEnable then
 			local SATimer = SATimers[position]
-			SATimer:SetTimer(aura)
+			SATimer:SetTimer(indicator)
 			SATimer:Show()
 		end
 		if statusbarEnable then
 			local statusbar = statusbars[position]
-			statusbar:SetTimer(aura)
+			statusbar:SetTimer(indicator)
 			statusbar:Show()
 		end
 	else
@@ -153,7 +186,7 @@ end
 function CD:Update()
 	if not DS.locked then return end
 	
-	local orderedAuras = self:BuildOrderedAuras()
+	local indicators = self:BuildSortedAuraIndicators()
 	
 	-- Shards
 	local spendThreshold = resource + ((resourceSpendPrediction and resourceGeneration < 0) and resourceGeneration or 0)
@@ -167,9 +200,9 @@ function CD:Update()
 		local additionalResources = - resource - resourceGeneration
 		if additionalResources > 0 then
 			for t = 1, additionalResources do
-				local aura = orderedAuras[t]
-				if aura then
-					if aura.nextTick < nextCast then
+				local indicator = indicators[t]
+				if indicator then
+					if indicator.tick < nextCast then
 						CD:UpdateHoGPrediction(resourceFrames[resource + t])
 					else
 						break
@@ -192,9 +225,9 @@ function CD:Update()
 		castEnd = generatedResource and nextCast or nil
 	end
 	local t = 1
-	local aura = orderedAuras[t]
+	local indicator = indicators[t]
 	for i = resource + 1, statusbarCount do
-		if resourceGainPrediction and castEnd and (not aura.nextTick or castEnd < aura.nextTick) then
+		if resourceGainPrediction and castEnd and (not indicator or castEnd < indicator.tick) then
 			if i <= maxResource then
 				self:UpdateResourceGainPrediction(resourceFrames[i])
 			end
@@ -205,9 +238,9 @@ function CD:Update()
 			end
 			
 		else
-			self:UpdateDoomPrediction(i, aura)
+			self:UpdateDoomPrediction(i, indicator.aura)
 			t = t + 1
-			aura = orderedAuras[t]
+			indicator = indicators[t]
 			
 		end
 	end
@@ -506,8 +539,8 @@ local function buildFrames()
 			
 			parentFrame.elapsed = 0
 			parentFrame.remaining = 0
-			function parentFrame:SetTimer(aura)
-				self.remaining = aura.nextTick - GetTime()
+			function parentFrame:SetTimer(indicator)
+				self.remaining = indicator.tick - GetTime()
 				self.elapsed = 1
 				self:Show()
 			end
@@ -564,10 +597,10 @@ local function buildFrames()
 			frame.remaining = 0
 			frame.elapsed = 0
 			frame.maxTime = 20
-			function frame:SetTimer(aura)
+			function frame:SetTimer(indicator)
 				self.elapsed = 1
-				self.remaining = aura.nextTick - GetTime()
-				local tickLength = aura.tickLength
+				self.remaining = indicator.tick - GetTime()
+				local tickLength = indicator.aura.tickLength
 				self.maxTime = tickLength
 				self.refresh = tickLength / db.width / DS.db.scale  -- TODO: cache width and scale
 				self.statusbar:SetMinMaxValues(0, self.maxTime)
