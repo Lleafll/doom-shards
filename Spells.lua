@@ -50,7 +50,7 @@ end
 local auraMetaTable = {}  -- Aura prototypes
 
 local function tickMethod(self, timeStamp)
-	self.nextTick = timeStamp + self.tickLength
+	self.nextTick = self:IterateTick(timeStamp)
 end
 
 local function refreshMethod(self, timeStamp)
