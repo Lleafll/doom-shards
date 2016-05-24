@@ -12,6 +12,7 @@ local GetSpellInfo = GetSpellInfo
 local GetTalentInfo = GetTalentInfo
 local IsEquippedItem = IsEquippedItem
 local mathmin = math.min
+local math_sqrt = math.sqrt
 local pairs = pairs
 local rawget = rawget
 local rawset = rawset
@@ -32,6 +33,7 @@ local function buildHastedIntervalFunc(base)
 		return base / getHasteMod()
 	end
 end
+DS.buildHastedIntervalFunc = buildHastedIntervalFunc
 
 
 ----------------------------------
@@ -67,10 +69,10 @@ local function iterateTickMethod(self, timeStamp)
 		local expiration = self.expiration
 		local iteratedTick = timeStamp + self.tickLength
 		local isLastTick = iteratedTick >= expiration
-		return isLastTick and expiration or iteratedTick, isLastTick
+		return isLastTick and expiration or iteratedTick, self.resourceChance, isLastTick
 	else
 		local nextTick = self.nextTick
-		return nextTick, nextTick >= self.expiration
+		return nextTick, self.resourceChance, nextTick >= self.expiration
 	end
 end
 
@@ -89,7 +91,7 @@ function DS:AddSpecSettings(specID, resourceGeneration, trackedAuras)
 		if not v.pandemic then
 			v.pandemicFunc = v.pandemicFunc or pandemicFunc
 		end
-		v.resourceChance = v.resourceChance or 1
+		v.resourceChance = v.resourceChance or 0
 		v.Tick = v.Tick or tickMethod
 		v.Refresh = v.Refresh or refreshMethod
 		v.IterateTick = v.IterateTick or iterateTickMethod
@@ -120,28 +122,71 @@ end
 -- Add Specs --
 ---------------
 -- Affliction
-DS:AddSpecSettings(265,
-	{
-		[27243] = function()  -- Seed of Corruption  -- TODO: possibly cache and update on event
-			return (GetTalentInfo(4, 2, GetActiveSpecGroup()) and DS.resource > 0) and -1 or 0
-		end,
-		[196098] = 5,  -- Soul Harvest
-		[18540] = -1,  -- Summon Doomguard
-		[688] = -1,  -- Summon Imp
-		[1122] = -1,  -- Summon Infernal
-		[691] = -1,  -- Summon Felhunter
-		[712] = -1,  -- Summon Succubus
-		[697] = -1,  -- Summon Voidwalker
-		[30108] = -1  -- Unstable Affliction
-	},
-	{
-		[980] = {  -- Agony
-			duration = 18,
-			tickLengthFunc = buildHastedIntervalFunc(2),
-			resourceChance = 0.26  -- TODO: Change to actual values
+do
+	local spellEnergizeFrame = CreateFrame()
+	spellEnergizeFrame:SetScript("OnEvent", function(self, _, _, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
+		if event == "SPELL_ENERGIZE" and spellID == 980 and sourceGUID = UnitGUID("player") then
+			DS.agonyChance = 0.5
+		end
+	end)
+	
+	DS:AddSpecSettings(265,
+		{
+			[27243] = function()  -- Seed of Corruption  -- TODO: possibly cache and update on event
+				return (GetTalentInfo(4, 2, GetActiveSpecGroup()) and DS.resource > 0) and -1 or 0
+			end,
+			[196098] = 5,  -- Soul Harvest
+			[18540] = -1,  -- Summon Doomguard
+			[688] = -1,  -- Summon Imp
+			[1122] = -1,  -- Summon Infernal
+			[691] = -1,  -- Summon Felhunter
+			[712] = -1,  -- Summon Succubus
+			[697] = -1,  -- Summon Voidwalker
+			[30108] = -1  -- Unstable Affliction
+		},
+		{
+			[980] = {  -- Agony
+				duration = 18,
+				tickLengthFunc = buildHastedIntervalFunc(2),
+				resourceChanceFunc = function(self)
+					return DS.agonyChance 
+				end,
+				resourceChanceFunc = function(self)
+					return 0.16 / math_sqrt(self.agonyCounter)
+				end,
+				IterateTick = function(self, timeStamp)
+					if timeStamp then
+						local expiration = self.expiration
+						local iteratedTick = timeStamp + self.tickLength
+						local procInterval =  -- =MOD(A5+CEILING(($B$3-0.5)/$C$1),$D$1)
+						local isLastTick = iteratedTick >= expiration
+						return isLastTick and expiration or iteratedTick, self.resourceChance, isLastTick
+					else
+						local nextTick = self.nextTick
+						return nextTick, self.agonyChance, nextTick >= self.expiration
+					end
+				end,
+				OnApply = function(self, timeStamp)
+					if not DS.agonyChance then
+						DS.agonyChance = DS.agonyChance or 0.5
+						spellEnergizeFrame:RegisterEvent("COMBAT_LOG_UNFILTERED")
+					end
+					DS.agonyCounter = (DS.agonyCounter or 0) + 1
+				end,
+				OnTick = function(self, timeStamp)  -- TODO: check if tick or resource gain happens first, maybe store timeStamp for check if it's not consistent
+					DS.agonyChance = DS.agonyChance + self.resourceChance
+				end,
+				OnRemove = function(self)
+					DS.agonyCounter = DS.agonyCounter - 1
+					if DS.agonyCounter <= 0 then
+						DS.agonyChance = nil
+						spellEnergizeFrame:UnregisterEvent("COMBAT_LOG_UNFILTERED")
+					end
+				end
+			}
 		}
-	}
-)
+	)
+end
 
 -- Demonology
 local demonicCallingString = GetSpellInfo(205146)
@@ -174,6 +219,7 @@ DS:AddSpecSettings(266,
 			durationFunc = buildHastedIntervalFunc(20),
 			pandemicFunc = buildHastedIntervalFunc(6),
 			tickLengthFunc = buildHastedIntervalFunc(20),
+			resourceChance = 1
 			-- TODO: Add resource change depending on partial ticks here
 		}
 	}
