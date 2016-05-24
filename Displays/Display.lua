@@ -114,12 +114,13 @@ do
 		local i = 0
 		for GUID, tbl in pairs(auras) do
 			for spellID, aura in pairs(tbl) do
-				local tick, isLastTick
+				local tick, resourceChance, isLastTick
 				repeat
 					i = i + 1
 					tick, isLastTick = aura:IterateTick(tick)
 					orderedTbl[i] = orderedTbl[i] or getRecycledTbl()
 					orderedTbl[i].tick = tick
+					orderedTbl[i].resourceChance = resourceChance
 					orderedTbl[i].aura = aura
 				until isLastTick or i > 100
 			end
@@ -137,9 +138,10 @@ do
 			i = 1
 			local chance = 0
 			for k, indicator in ipairs(orderedTbl) do
-				chance = chance + indicator.aura.resourceChance
+				chance = chance + indicator.resourceChance
 				if chance > 1 then
 					consolidatedTbl[i] = indicator
+					indicator.resourceChance = chance
 					i = i + 1
 					chance = 0
 				end
