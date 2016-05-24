@@ -93,6 +93,9 @@ function DS:AddSpecSettings(specID, resourceGeneration, trackedAuras)
 		v.Tick = v.Tick or tickMethod
 		v.Refresh = v.Refresh or refreshMethod
 		v.IterateTick = v.IterateTick or iterateTickMethod
+		v.OnApply = v.OnApply or function() end
+		v.OnTick = v.OnTick or function() end
+		v.OnRemove = v.OnRemove or function() end
 		
 		auraMetaTable[specID][k] = {__index = v}
 	end
@@ -106,6 +109,8 @@ function DS:BuildAura(spellID, GUID)
 	local timeStamp = GetTime()
 	aura.expiration = timeStamp + aura.duration
 	aura:Tick(timeStamp)
+	
+	aura:OnApply(timeStamp)
 	
 	return aura
 end

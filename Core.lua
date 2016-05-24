@@ -85,6 +85,7 @@ end
 function DS:Remove(GUID, spellID)
 	local auras_GUID = auras[GUID]
 	if auras_GUID then
+		aura_GUID[spellID]:OnRemove()
 		auras_GUID[spellID] = nil
 		self:Update()
 	end
@@ -99,7 +100,9 @@ end
 function DS:Tick(GUID, spellID)
 	if auras[GUID] and auras[GUID][spellID] then
 		local timeStamp = GetTime()
-		auras[GUID][spellID]:Tick(timeStamp)
+		local aura = auras[GUID][spellID]
+		aura:Tick(timeStamp)
+		aura:OnTick(timeStamp)
 		self:Update(timeStamp)
 	end
 end
