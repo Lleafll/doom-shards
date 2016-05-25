@@ -117,7 +117,7 @@ do
 				local tick, resourceChance, isLastTick
 				repeat
 					i = i + 1
-					tick, isLastTick = aura:IterateTick(tick)
+					tick, resourceChance, isLastTick = aura:IterateTick(tick)
 					orderedTbl[i] = orderedTbl[i] or getRecycledTbl()
 					orderedTbl[i].tick = tick
 					orderedTbl[i].resourceChance = resourceChance
