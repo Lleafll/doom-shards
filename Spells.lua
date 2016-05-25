@@ -94,7 +94,6 @@ function DS:AddSpecSettings(specID, resourceGeneration, trackedAuras)
 		if not v.pandemic then
 			v.pandemicFunc = v.pandemicFunc or pandemicFunc
 		end
-		v.resourceChance = v.resourceChance or 0
 		v.Tick = v.Tick or tickMethod
 		v.Refresh = v.Refresh or refreshMethod
 		v.IterateTick = v.IterateTick or iterateTickMethod
