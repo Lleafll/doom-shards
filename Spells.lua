@@ -55,7 +55,7 @@ local function pandemicFunc(self)
 end
 
 local function tickMethod(self, timeStamp)
-	self.nextTick = self:IterateTick(timeStamp)
+	self.nextTick = timeStamp + self.tickLength
 end
 
 local function refreshMethod(self, timeStamp)
@@ -112,10 +112,11 @@ function DS:BuildAura(spellID, GUID)
 	-- TODO: replace with intialization, possibly via methamethods
 	local timeStamp = GetTime()
 	aura.expiration = timeStamp + aura.duration
+	
 	aura:Tick(timeStamp)
 	
 	aura:OnApply(timeStamp)
-	
+		
 	return aura
 end
 
@@ -125,12 +126,29 @@ end
 ---------------
 -- Affliction
 do
-	local spellEnergizeFrame = CreateFrame()
+	DS.globalNextAgonyTick = {}
+	DS.globalAppliedAgonies = {}
+	local spellEnergizeFrame = CreateFrame("Frame")
+	spellEnergizeFrame:Show()
 	spellEnergizeFrame:SetScript("OnEvent", function(self, _, _, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
-		if event == "SPELL_ENERGIZE" and spellID == 980 and sourceGUID = UnitGUID("player") then
-			DS.agonyChance = 0.5
+		if event == "SPELL_ENERGIZE" and spellID == 17941 and sourceGUID == UnitGUID("player") and DS.agonyAccumulator then
+			DS.agonyAccumulator = 0.5 - DS.globalNextAgonyTick.aura.resourceChance  -- SPELL_ENERGIZE fire before respective SPELL_DAMAGE from Agony
 		end
 	end)
+	
+	local function setGlobalNextAgonyTick()
+		local globalNextAgonyTick
+		local globalNextTickAura
+		for aura in pairs(DS.globalAppliedAgonies) do
+			local nextTick = aura.nextTick
+			if not globalNextTickAura or nextTick < globalNextAgonyTick then
+				globalNextAgonyTick = nextTick
+				globalNextTickAura = aura
+			end
+		end
+		DS.globalNextAgonyTick.tick = globalNextTick
+		DS.globalNextAgonyTick.aura = globalNextTickAura
+	end
 	
 	DS:AddSpecSettings(265,
 		{
@@ -151,39 +169,40 @@ do
 				duration = 18,
 				tickLengthFunc = buildHastedIntervalFunc(2),
 				resourceChanceFunc = function(self)
-					return DS.agonyChance 
-				end,
-				resourceChanceFunc = function(self)
-					return 0.16 / math_sqrt(self.agonyCounter)
+					return 0.16 / math_sqrt(DS.agonyCounter)
 				end,
 				IterateTick = function(self, timeStamp)
 					if timeStamp then
 						local expiration = self.expiration
 						local iteratedTick = timeStamp + self.tickLength
-						local procInterval =  -- =MOD(A5+CEILING(($B$3-0.5)/$C$1),$D$1)
 						local isLastTick = iteratedTick >= expiration
 						return isLastTick and expiration or iteratedTick, self.resourceChance, isLastTick
 					else
 						local nextTick = self.nextTick
-						return nextTick, self.agonyChance, nextTick >= self.expiration
+						local resourceChance = DS.globalNextAgonyTick.aura == self and DS.agonyAccumulator or self.resourceChance
+						return nextTick, resourceChance, nextTick >= self.expiration
 					end
 				end,
 				OnApply = function(self, timeStamp)
-					if not DS.agonyChance then
-						DS.agonyChance = DS.agonyChance or 0.5
-						spellEnergizeFrame:RegisterEvent("COMBAT_LOG_UNFILTERED")
-					end
 					DS.agonyCounter = (DS.agonyCounter or 0) + 1
+					if not DS.agonyAccumulator then
+						DS.agonyAccumulator = 0.5
+						spellEnergizeFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+					end
+					DS.globalAppliedAgonies[self] = true
+					setGlobalNextAgonyTick()
 				end,
-				OnTick = function(self, timeStamp)  -- TODO: check if tick or resource gain happens first, maybe store timeStamp for check if it's not consistent
-					DS.agonyChance = DS.agonyChance + self.resourceChance
+				OnTick = function(self, timeStamp)
+					DS.agonyAccumulator = DS.agonyAccumulator + self.resourceChance
+					setGlobalNextAgonyTick()
 				end,
 				OnRemove = function(self)
 					DS.agonyCounter = DS.agonyCounter - 1
 					if DS.agonyCounter <= 0 then
-						DS.agonyChance = nil
-						spellEnergizeFrame:UnregisterEvent("COMBAT_LOG_UNFILTERED")
+						DS.agonyAccumulator = nil
+						spellEnergizeFrame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 					end
+					setGlobalNextAgonyTick()
 				end
 			}
 		}
