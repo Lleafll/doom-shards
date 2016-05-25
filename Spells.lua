@@ -7,17 +7,19 @@ local L = LibStub("AceLocale-3.0"):GetLocale("DoomShards")
 -- Upvalues --
 --------------
 local GetActiveSpecGroup = GetActiveSpecGroup
+local GetHaste = GetHaste
+local GetSpellCritChance = GetSpellCritChance
 local GetSpecialization = GetSpecialization
 local GetSpellInfo = GetSpellInfo
 local GetTalentInfo = GetTalentInfo
 local IsEquippedItem = IsEquippedItem
-local mathmin = math.min
 local math_sqrt = math.sqrt
 local pairs = pairs
 local rawget = rawget
 local rawset = rawset
 local setmetatable = setmetatable
 local UnitBuff = UnitBuff
+local UnitGUID = UnitGUID
 
 
 -------------
