@@ -118,7 +118,7 @@ function DS:BuildAura(spellID, GUID)
 	aura:Tick(timeStamp)
 	
 	aura:OnApply(timeStamp)
-		
+	
 	return aura
 end
 
@@ -128,13 +128,16 @@ end
 ---------------
 -- Affliction
 do
+	local baseAverageAccumulatorIncrease = 0.16
+	local baseAverageAccumulatorResetValue = 0.5
+	
 	DS.globalNextAgonyTick = {}
 	DS.globalAppliedAgonies = {}
 	local spellEnergizeFrame = CreateFrame("Frame")
 	spellEnergizeFrame:Show()
 	spellEnergizeFrame:SetScript("OnEvent", function(self, _, _, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
 		if event == "SPELL_ENERGIZE" and spellID == 17941 and sourceGUID == UnitGUID("player") and DS.agonyAccumulator then
-			DS.agonyAccumulator = 0.5 - DS.globalNextAgonyTick.aura.resourceChance  -- SPELL_ENERGIZE fire before respective SPELL_DAMAGE from Agony
+			DS.agonyAccumulator = baseAverageAccumulatorResetValue - DS.globalNextAgonyTick.aura.resourceChance  -- SPELL_ENERGIZE fire before respective SPELL_DAMAGE from Agony
 		end
 	end)
 	
@@ -171,7 +174,7 @@ do
 				duration = 18,
 				tickLengthFunc = buildHastedIntervalFunc(2),
 				resourceChanceFunc = function(self)
-					return 0.16 / math_sqrt(DS.agonyCounter)
+					return baseAverageAccumulatorIncrease / math_sqrt(DS.agonyCounter)
 				end,
 				IterateTick = function(self, timeStamp)
 					if timeStamp then
@@ -188,7 +191,7 @@ do
 				OnApply = function(self, timeStamp)
 					DS.agonyCounter = (DS.agonyCounter or 0) + 1
 					if not DS.agonyAccumulator then
-						DS.agonyAccumulator = 0.5
+						DS.agonyAccumulator = baseAverageAccumulatorResetValue
 						spellEnergizeFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 					end
 					DS.globalAppliedAgonies[self] = true
