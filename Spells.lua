@@ -76,6 +76,9 @@ local function iterateTickMethod(self, timeStamp)
 	end
 end
 
+local dummyFunc = function()
+end
+
 function DS:AddSpecSettings(specID, resourceGeneration, trackedAuras)
 	local settings = {}
 	specSettings[specID] = settings
@@ -95,9 +98,9 @@ function DS:AddSpecSettings(specID, resourceGeneration, trackedAuras)
 		v.Tick = v.Tick or tickMethod
 		v.Refresh = v.Refresh or refreshMethod
 		v.IterateTick = v.IterateTick or iterateTickMethod
-		v.OnApply = v.OnApply or function() end
-		v.OnTick = v.OnTick or function() end
-		v.OnRemove = v.OnRemove or function() end
+		v.OnApply = v.OnApply or dummyFunc
+		v.OnTick = v.OnTick or dummyFunc
+		v.OnRemove = v.OnRemove or dummyFunc
 		
 		auraMetaTable[specID][k] = {__index = v}
 	end
