@@ -76,6 +76,7 @@ local defaultSettings = {
   enable = false,
   soundHandle = "Droplet",
   soundInterval = 2,
+  timeFrame = 10,
   instances = {
     arena = true,
     none = true,

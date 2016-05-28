@@ -9,6 +9,7 @@ local LSM = LibStub("LibSharedMedia-3.0")
 -- Upvalues --
 --------------
 local GetTime = GetTime
+local pairs = pairs
 local PlaySoundFile = PlaySoundFile
 
 
@@ -27,6 +28,7 @@ local counter = 0
 local isOverOrbThreshold  -- boolean to play sound
 local soundFile
 local soundInterval
+local timeFrame
 
 
 --------------
@@ -47,12 +49,30 @@ end
 do
   local previousOrbs = 0
 
-  function WS:DOOM_SHARDS_UPDATE(_, updatedTimeStamp, updatedOrbs, updatedTimers, updatedNextTick, updatedDurations)
-    -- reset sound timer when shards were spent
+  function WS:DOOM_SHARDS_UPDATE()
+    local updatedOrbs = DS.resource
+    
     if updatedOrbs < previousOrbs then counter = 0 end
+    
     previousOrbs = updatedOrbs
     
-    isOverOrbThreshold = (updatedOrbs >= 3) and (updatedOrbs + #updatedTimers) >= 5
+    local expectedShards = 0
+    local timeStamp = GetTime() + timeFrame
+    for GUID, tbl in pairs(DS.auras) do
+      local i = 0
+      for spellID, aura in pairs(tbl) do
+        local tick, resourceChance, isLastTick
+        repeat
+          tick, resourceChance, isLastTick = aura:IterateTick(tick)
+          if tick < timeStamp then
+            expectedShards = expectedShards + resourceChance
+            i = i + 1
+          end
+        until isLastTick or tick > timeStamp or i > 100
+      end
+    end
+    
+    isOverOrbThreshold = (updatedOrbs >= 3) and (updatedOrbs + expectedShards) >= 5
   end
 end
 
@@ -78,6 +98,7 @@ function WS:Build()
   db = DS.db.warningSound
   soundFile = LSM:Fetch("sound", DS.db.warningSound.soundHandle)
   soundInterval = DS.db.warningSound.soundInterval
+  timeFrame = db.timeFrame
 end
 
 function WS:OnInitialize()
