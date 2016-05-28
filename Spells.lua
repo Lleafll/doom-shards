@@ -265,10 +265,12 @@ DS:AddSpecSettings(267,
 		[697] = -1,  -- Summon Voidwalker
 	},
 	{
-		[157736] = {
+		--[[[348] = {  -- Immolate  -- ID 157736 for DoT
 			duration = 15,
 			tickLengthFunc = buildHastedIntervalFunc(3),
-			resourceChance = 0.15  -- TODO: Change to crit modified chance function
-		}
+			resourceChanceFunc = function(self)  -- TODO: Implement artifact traits (Burning Hunger)
+				return (1 + GetSpellCritChance()/100) * 0.15
+			end
+		}]]--
 	}
 )
