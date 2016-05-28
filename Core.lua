@@ -85,9 +85,12 @@ end
 function DS:Remove(GUID, spellID)
 	local auras_GUID = auras[GUID]
 	if auras_GUID then
-		auras_GUID[spellID]:OnRemove()
-		auras_GUID[spellID] = nil
-		self:Update()
+		local aura = auras_GUID[spellID]
+		if aura then
+			aura:OnRemove()
+			auras_GUID[spellID] = nil
+			self:Update()
+		end
 	end
 end
 
