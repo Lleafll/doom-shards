@@ -131,6 +131,7 @@ do
   local baseAverageAccumulatorIncrease = 0.16
   local baseAverageAccumulatorResetValue = 0.5
   
+  DS.agonyAccumulator = baseAverageAccumulatorResetValue
   DS.globalNextAgonyTick = {}
   DS.globalAppliedAgonies = {}
   local spellEnergizeFrame = CreateFrame("Frame")
@@ -189,11 +190,10 @@ do
           end
         end,
         OnApply = function(self, timeStamp)
-          DS.agonyCounter = (DS.agonyCounter or 0) + 1
-          if not DS.agonyAccumulator then
-            DS.agonyAccumulator = baseAverageAccumulatorResetValue
+          if not DS.agonyCounter then
             spellEnergizeFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
           end
+          DS.agonyCounter = (DS.agonyCounter or 0) + 1
           DS.globalAppliedAgonies[self] = true
           setGlobalNextAgonyTick()
         end,
