@@ -13,7 +13,7 @@ local GetSpecialization = GetSpecialization
 local GetSpellInfo = GetSpellInfo
 local GetTalentInfo = GetTalentInfo
 local IsEquippedItem = IsEquippedItem
-local math_sqrt = math.sqrt
+local sqrt = sqrt
 local pairs = pairs
 local rawget = rawget
 local rawset = rawset
@@ -146,7 +146,7 @@ do
 		local globalNextTickAura
 		for aura in pairs(DS.globalAppliedAgonies) do
 			local nextTick = aura.nextTick
-			if not globalNextTickAura or nextTick < globalNextAgonyTick then
+			if not globalNextAgonyTick or nextTick < globalNextAgonyTick then
 				globalNextAgonyTick = nextTick
 				globalNextTickAura = aura
 			end
@@ -174,7 +174,7 @@ do
 				duration = 18,
 				tickLengthFunc = buildHastedIntervalFunc(2),
 				resourceChanceFunc = function(self)
-					return baseAverageAccumulatorIncrease / math_sqrt(DS.agonyCounter)
+					return (baseAverageAccumulatorIncrease / sqrt(DS.agonyCounter)) / baseAverageAccumulatorResetValue
 				end,
 				IterateTick = function(self, timeStamp)
 					if timeStamp then
@@ -184,7 +184,7 @@ do
 						return isLastTick and expiration or iteratedTick, self.resourceChance, isLastTick
 					else
 						local nextTick = self.nextTick
-						local resourceChance = DS.globalNextAgonyTick.aura == self and DS.agonyAccumulator or self.resourceChance
+						local resourceChance = (DS.globalNextAgonyTick.aura == self) and (DS.agonyAccumulator) or (self.resourceChance)
 						return nextTick, resourceChance, nextTick >= self.expiration
 					end
 				end,
@@ -204,9 +204,10 @@ do
 				OnRemove = function(self)
 					DS.agonyCounter = DS.agonyCounter - 1
 					if DS.agonyCounter <= 0 then
-						DS.agonyAccumulator = nil
+						DS.agonyCounter = nil
 						spellEnergizeFrame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 					end
+					DS.globalAppliedAgonies[self] = nil
 					setGlobalNextAgonyTick()
 				end
 			}
