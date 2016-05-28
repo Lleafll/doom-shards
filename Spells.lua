@@ -241,12 +241,23 @@ DS:AddSpecSettings(266,
 		[697] = -1,  -- Summon Voidwalker
 	},
 	{
-		[603] = {
+		[603] = {  -- Doom
 			durationFunc = buildHastedIntervalFunc(20),
 			pandemicFunc = buildHastedIntervalFunc(6),
 			tickLengthFunc = buildHastedIntervalFunc(20),
-			resourceChance = 1
-			-- TODO: Add resource change depending on partial ticks here
+			resourceChance = 1,
+			IterateTick = function(self, timeStamp)
+				if timeStamp then
+					local expiration = self.expiration
+					local iteratedTick = timeStamp + self.tickLength
+					local isLastTick = iteratedTick >= expiration
+					local resourceChance = (expiration - self.nextTick) / self.duration
+					return isLastTick and expiration or iteratedTick, self.resourceChance, isLastTick
+				else
+					local nextTick = self.nextTick
+					return nextTick, self.resourceChance, nextTick >= self.expiration
+				end
+			end
 		}
 	}
 )
