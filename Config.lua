@@ -35,7 +35,7 @@ local function optionsTable()
             max = 3,
             step = 0.01
           },
-          reset = {
+          --[[reset = {
             order = 2,
             type = "execute",
             name = L["Reset to Defaults"],
@@ -43,7 +43,7 @@ local function optionsTable()
             func = function()
               DS:ResetDB()
             end
-          },
+          },]]--
           resetPosition = {
             order = 3,
             type = "execute",
@@ -96,7 +96,7 @@ local function optionsTable()
 end
 
 DS.defaultSettings = {
-  global = {
+  profile = {
     scale = 1,
     debug = false,
     debugSA = false
@@ -108,7 +108,7 @@ do
   
   function DS:AddDisplayOptions(displayName, displayOptions, displayDefaults)
     moduleOptions[displayName] = displayOptions
-    self.defaultSettings.global[displayName] = displayDefaults
+    self.defaultSettings.profile[displayName] = displayDefaults.profile
   end
   
   
@@ -141,8 +141,8 @@ function DS:HandleChatCommand(command)
       end
       
     elseif suffix == "debug" then
-      self.db.debug = not self.db.debug
-      if self.db.debug then
+      self.debug = not self.debug
+      if self.debug then
         print("|cFF814eaaDoom Shards|r: debugging enabled")
       else
         print("|cFF814eaaDoom Shards|r: debugging disabled")
@@ -150,8 +150,8 @@ function DS:HandleChatCommand(command)
       return
       
     elseif suffix == "debugSA" then
-      self.db.debugSA = not self.db.debugSA
-      if self.db.debugSA then
+      self.debugSA = not self.debugSA
+      if self.debugSA then
         print("|cFF814eaaDoom Shards|r: debugging SATimers enabled")
       else
         print("|cFF814eaaDoom Shards|r: debugging SATimers disabled")

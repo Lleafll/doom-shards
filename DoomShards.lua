@@ -174,19 +174,34 @@ end
 function DS:OnInitialize()
   self.locked = true
   
-  -- database
+  -- Database
   local DSDB = LibStub("AceDB-3.0"):New("DoomShardsDB", self.defaultSettings, true)
-  self.db = DSDB.global
+  
+  if next(DSDB.global) ~= nil then  -- Copy settings from old database (TODO: Deprecate in the future)
+    for k, v in pairs(DSDB.global) do
+      if type(v) == "table" then
+        for k2, v2 in pairs(v) do
+          DSDB.profile[k][k2] = v2
+        end
+      else
+        DSDB.profile[k] = v
+      end
+      DSDB.global[k] = nil
+    end
+  end
+  
+  self.db = DSDB.profile
+  self:AddDisplayOptions("Profile", function() return LibStub("AceDBOptions-3.0"):GetOptionsTable(DSDB) end, {})
   function self:ResetDB()
     DSDB:ResetDB()
-    self.db = DSDB.global
+    self.db = DSDB.profile
     ACR:NotifyChange("Doom Shards")
     self:Build()
     print(L["Doom Shards reset!"])
   end
-  
-  -- debugging
-  if not isAlpha then  -- automatically reset debug values if version isn't alpha
+    
+  -- Debugging
+  if not isAlpha then  -- Automatically reset debug values if version isn't alpha
     self.db.debug = false
     self.db.debugSA = false
   end

@@ -77,7 +77,9 @@ local function displayOptions()
 end
 
 local defaultSettings = {
-  enable = false
+  profile = {
+    enable = false
+  }
 }
 
 DS:AddDisplayOptions("weakauras", displayOptions, defaultSettings)

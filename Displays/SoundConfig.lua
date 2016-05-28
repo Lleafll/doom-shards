@@ -73,17 +73,19 @@ local function displayOptions()
 end
 
 local defaultSettings = {
-  enable = false,
-  soundHandle = "Droplet",
-  soundInterval = 2,
-  timeFrame = 10,
-  instances = {
-    arena = true,
-    none = true,
-    party = true,
-    pvp = true,
-    raid = true,
-    scenario = true
+  profile = {
+    enable = false,
+    soundHandle = "Droplet",
+    soundInterval = 2,
+    timeFrame = 10,
+    instances = {
+      arena = true,
+      none = true,
+      party = true,
+      pvp = true,
+      raid = true,
+      scenario = true
+    }
   }
 }
 
