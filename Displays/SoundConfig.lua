@@ -31,11 +31,6 @@ local function displayOptions()
         name = L["Enable"],
         desc = L["Play Warning Sound when about to cap."]
       },
-      noSoundOnAlpha = {
-        order = 1.5,
-        type = "description",
-        name = "No custom sound on Alpha yet."
-      },
       soundHandle = {
         order = 2,
         type = "select",
