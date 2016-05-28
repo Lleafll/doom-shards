@@ -484,6 +484,21 @@ local function displayOptions()
             name = L["Enable"],
             desc = L["Enable bars for incoming Doom ticks"]
           },
+          header1 = {
+            order = 2,
+            type="header",
+            name=L["Consolidate Ticks"]
+          },
+          descConsolidateTicks = {
+            order = 2.1,
+            type = "description",
+            name = L["Consolidate individual ticks to full expected shards"],
+          },
+          consolidateTicks = {
+            order = 2.2,
+            type = "toggle",
+            name = L["Consolidate Ticks"]
+          },
           header2 = {
             order = 3,
             type="header",
