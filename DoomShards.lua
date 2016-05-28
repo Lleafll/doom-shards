@@ -176,6 +176,7 @@ function DS:OnInitialize()
   
   -- Database
   local DSDB = LibStub("AceDB-3.0"):New("DoomShardsDB", self.defaultSettings, true)
+  DS.DSDB = DSDB
   
   if next(DSDB.global) ~= nil then  -- Copy settings from old database (TODO: Deprecate in the future)
     for k, v in pairs(DSDB.global) do
@@ -199,7 +200,11 @@ function DS:OnInitialize()
     self:Build()
     print(L["Doom Shards reset!"])
   end
-    
+  
+  DSDB.RegisterCallback(self, "OnProfileChanged", "ReloadSettings")
+  DSDB.RegisterCallback(self, "OnProfileCopied", "ReloadSettings")
+  DSDB.RegisterCallback(self, "OnProfileReset", "ReloadSettings")
+  
   -- Debugging
   if not isAlpha then  -- Automatically reset debug values if version isn't alpha
     self.db.debug = false
@@ -215,4 +220,9 @@ function DS:OnInitialize()
   self:RegisterEvent("PLAYER_ENTERING_WORLD")
   -- will fire once for every talent tier after player is in-game and ultimately initialize events and displays if player is Shadow
   self:RegisterEvent("PLAYER_TALENT_UPDATE", "SpecializationsCheck")
+end
+
+function DS:ReloadSettings()
+  self.db = self.DSDB.profile
+  self:Build()
 end
