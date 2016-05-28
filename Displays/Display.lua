@@ -293,7 +293,7 @@ local function SATimerOnUpdate(self, elapsed)
     else
       self.fontString:SetText(stringformat("%.0f", remaining))
     end
-    if remaining < CD:GetHoGCastingTime() then
+    if remaining < CD:GetHoGCastingTime() then  -- TODO: maybe replace with different color handling for Affliction
       if not self.fontString.hogColored then
         self.fontString:SetHoGColor()
       end
