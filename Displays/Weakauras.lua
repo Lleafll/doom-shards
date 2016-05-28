@@ -16,16 +16,16 @@ local WeakAurasScanEvents
 -- API --
 ---------
 function DS:GetDoomInfo(arg)
-	local type_arg = type(arg)
-	assert(type_arg == "number" or type_arg == "string", "Argument to GetDoomInfo() must be a number or GUID")
-	local GUID = type(arg) == "number" and self.timers[arg] or arg
-	local nextTick = self.nextTick[GUID]
-	local duration = self.duration[GUID]
-	return nextTick and GUID or nil, nextTick, duration
+  local type_arg = type(arg)
+  assert(type_arg == "number" or type_arg == "string", "Argument to GetDoomInfo() must be a number or GUID")
+  local GUID = type(arg) == "number" and self.timers[arg] or arg
+  local nextTick = self.nextTick[GUID]
+  local duration = self.duration[GUID]
+  return nextTick and GUID or nil, nextTick, duration
 end
 
 function DS:GetNumDoomTargets()
-	return #self.timers
+  return #self.timers
 end
 
 
@@ -35,29 +35,29 @@ end
 function WA:DOOM_SHARDS_UPDATE() end
 
 local function WeakAurasLoaded()
-	WeakAurasScanEvents = WeakAuras.ScanEvents
-	function WA:DOOM_SHARDS_UPDATE(_, resource, timers)
-		WeakAurasScanEvents("DOOM_SHARDS_UPDATE")
-	end
+  WeakAurasScanEvents = WeakAuras.ScanEvents
+  function WA:DOOM_SHARDS_UPDATE(_, resource, timers)
+    WeakAurasScanEvents("DOOM_SHARDS_UPDATE")
+  end
 end
 
 -- optionalDeps produces bugs with some addons
 if IsAddOnLoaded("WeakAuras") then
-	WeakAurasLoaded()
+  WeakAurasLoaded()
 else
-	WA:RegisterEvent("ADDON_LOADED", function(_, name)
-		if name == "WeakAuras" then WeakAurasLoaded() end
-	end)
+  WA:RegisterEvent("ADDON_LOADED", function(_, name)
+    if name == "WeakAuras" then WeakAurasLoaded() end
+  end)
 end
 
 function WA:OnInitialize()
-	
+  
 end
 
 function WA:OnEnable()
-	self:RegisterMessage("DOOM_SHARDS_UPDATE")
+  self:RegisterMessage("DOOM_SHARDS_UPDATE")
 end
 
 function WA:OnDisable()
-	self:UnregisterMessage("DOOM_SHARDS_UPDATE")
+  self:UnregisterMessage("DOOM_SHARDS_UPDATE")
 end
