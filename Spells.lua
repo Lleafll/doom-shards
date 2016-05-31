@@ -203,13 +203,15 @@ do
           setGlobalNextAgonyTick()
         end,
         OnRemove = function(self)
-          DS.agonyCounter = DS.agonyCounter - 1
-          if DS.agonyCounter <= 0 then
-            DS.agonyCounter = nil
-            spellEnergizeFrame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+          if DS.globalAppliedAgonies[self] then
+            DS.globalAppliedAgonies[self] = nil
+            DS.agonyCounter = DS.agonyCounter - 1
+            if DS.agonyCounter <= 0 then
+              DS.agonyCounter = nil
+              spellEnergizeFrame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+            end
+            setGlobalNextAgonyTick()
           end
-          DS.globalAppliedAgonies[self] = nil
-          setGlobalNextAgonyTick()
         end
       }
     }
