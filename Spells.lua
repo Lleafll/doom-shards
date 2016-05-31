@@ -159,7 +159,8 @@ do
   DS:AddSpecSettings(265,
     {
       [27243] = function()  -- Seed of Corruption  -- TODO: possibly cache and update on event
-        return (GetTalentInfo(4, 2, GetActiveSpecGroup()) and DS.resource > 0) and -1 or 0
+        local _, _, _, _, selected = GetTalentInfo(4, 2, GetActiveSpecGroup())
+        return selected and -1 or 0
       end,
       [196098] = 5,  -- Soul Harvest
       [18540] = -1,  -- Summon Doomguard

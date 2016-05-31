@@ -293,7 +293,7 @@ local function SATimerOnUpdate(self, elapsed)
     else
       self.fontString:SetText(stringformat("%.0f", remaining))
     end
-    if remaining < CD:GetHoGCastingTime() then  -- TODO: maybe replace with different color handling for Affliction
+    if remaining < CD:GetHoGCastingTime() then
       if not self.fontString.hogColored then
         self.fontString:SetHoGColor()
       end
@@ -703,7 +703,7 @@ function CD:Build()
   resourceCappedEnable = db.resourceCappedEnable
   remainingTimeThreshold = db.remainingTimeThreshold
   resourceGainPrediction = db.resourceGainPrediction
-  resourceSpendIncludeHoG = db.resourceSpendIncludeHoG
+  resourceSpendIncludeHoG = DS.specializationID == 266 and db.resourceSpendIncludeHoG  -- Only show for Demonology
   resourceSpendPrediction = db.resourceSpendPrediction
   statusbarEnable = db.statusbarEnable
   textEnable = db.textEnable
