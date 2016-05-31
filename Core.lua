@@ -71,7 +71,7 @@ end
 
 -- resets all data
 function DS:ResetCount()
-  auras = {}
+  --auras = {}
   self:Update()
 end
 
