@@ -15,17 +15,11 @@ local WeakAurasScanEvents
 ---------
 -- API --
 ---------
-function DS:GetDoomInfo(arg)
-  local type_arg = type(arg)
-  assert(type_arg == "number" or type_arg == "string", "Argument to GetDoomInfo() must be a number or GUID")
-  local GUID = type(arg) == "number" and self.timers[arg] or arg
-  local nextTick = self.nextTick[GUID]
-  local duration = self.duration[GUID]
-  return nextTick and GUID or nil, nextTick, duration
-end
-
-function DS:GetNumDoomTargets()
-  return #self.timers
+function DS:GetAuraInfo(spellID, unitGUID)
+  if self.auras[unitGUID] and self.auras[unitGUID][spellID] then
+    local aura = self.auras[unitGUID][spellID]
+    return aura.name, aura.id, aura.duration, aura.tickLength, aura.pandemic, aura.expiration
+  end
 end
 
 
