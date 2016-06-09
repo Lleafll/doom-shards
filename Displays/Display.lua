@@ -139,7 +139,7 @@ do
       local chance = 0
       for k, indicator in ipairs(orderedTbl) do
         chance = chance + indicator.resourceChance
-        if chance > 1 then
+        if chance >= 1 then
           consolidatedTbl[i] = indicator
           indicator.resourceChance = chance
           i = i + 1
