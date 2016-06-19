@@ -1,3 +1,6 @@
+--@alpha@
+
+
 local DS = LibStub("AceAddon-3.0"):GetAddon("Doom Shards", true)
 if not DS then return end
 
@@ -55,3 +58,6 @@ end
 function WA:OnDisable()
   self:UnregisterMessage("DOOM_SHARDS_UPDATE")
 end
+
+
+--@end-alpha@
