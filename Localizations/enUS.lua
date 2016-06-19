@@ -153,4 +153,7 @@ L["Anchor Point"] = true
 L["Anchor Frame"] = true
 L["Will change to UIParent when manually dragging frame."] = true
 
+L["Consolidate individual ticks to full expected shards"] = true
+L["Consolidate Ticks"] = true
+
 --@end-do-not-package@
