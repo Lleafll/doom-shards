@@ -1,3 +1,6 @@
+--@alpha@
+
+
 ----------------------
 -- Get addon object --
 ----------------------
@@ -83,3 +86,6 @@ local defaultSettings = {
 }
 
 DS:AddDisplayOptions("weakauras", displayOptions, defaultSettings)
+
+
+--@end-alpha@
