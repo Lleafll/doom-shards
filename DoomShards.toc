@@ -36,7 +36,8 @@ Localizations\koKR.lua
 
 DoomShards.lua
 Config.lua
-Spells.lua
+Specs.lua
+SpecsConfig.lua
 Core.lua
 
 Displays\DisplayConfig.lua
