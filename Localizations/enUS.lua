@@ -156,4 +156,12 @@ L["Will change to UIParent when manually dragging frame."] = true
 L["Consolidate individual ticks to full expected shards"] = true
 L["Consolidate Ticks"] = true
 
+L["Specializations"] = true
+L["Affliction"] = true
+L["Track Agony"] = true
+L["Demonology"] = true
+L["Destruction"] = true
+L["Track Doom"] = true
+L["Track Shadowburn"] = true
+
 --@end-do-not-package@

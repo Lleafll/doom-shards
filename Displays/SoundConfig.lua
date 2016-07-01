@@ -18,7 +18,7 @@ LSM:Register("sound", "Droplet", "Interface\\Addons\\DoomShards\\Media\\CSDrople
 -------------
 local function displayOptions()
   return {
-    order = 6,
+    order = 4,
     type = "group",
     name = L["Sound"],
     cmdHidden = true,

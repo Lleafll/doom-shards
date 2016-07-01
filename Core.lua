@@ -152,7 +152,7 @@ end
 function DS:COMBAT_LOG_EVENT_UNFILTERED(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, ...)
   if sourceGUID == playerGUID then
     local spellID, _, _, _, _ = ...
-    if trackedAuras[spellID] and sourceGUID == playerGUID then
+    if trackedAuras[spellID] and sourceGUID == playerGUID and self.db.specializations[spellID] then
       if event == "SPELL_CAST_SUCCESS" then  -- "SPELL_AURA_REFRESH" won't fire for Agony
         if auras[destGUID] and auras[destGUID][spellID] then
           self:Refresh(destGUID, spellID)
