@@ -286,6 +286,12 @@ DS:AddSpecSettings(267,
       resourceChanceFunc = function(self)  -- TODO: Implement artifact traits (Burning Hunger)
         return (1 + GetSpellCritChance()/100) * 0.15
       end
-    }]]--
+    },]]--
+    [17877] = {   -- Shadowburn
+      duration = 5,
+      pandemic = 0,
+      tickLength = 5,
+      resourceChance = 1
+    }
   }
 )
