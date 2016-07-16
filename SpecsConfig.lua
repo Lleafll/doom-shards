@@ -203,7 +203,17 @@ DS:AddSpecSettings(267,
       duration = 5,
       pandemic = 0,
       tickLength = 5,
-      resourceChance = 1
+      resourceChance = 1,
+      IterateTick = function(self, timeStamp)
+        if timeStamp then
+          return self.nextTick, self.resourceChance, true
+        else
+          return self.nextTick, self.resourceChance, false
+        end
+      end,
+      Refresh = function(self, timeStamp)
+        self:Tick(timeStamp)
+      end
     }
   }
 )
