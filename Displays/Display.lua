@@ -625,6 +625,7 @@ local function buildFrames()
       frame.remaining = 0
       frame.elapsed = 0
       frame.maxTime = 20
+      frame.refresh = 0.1
       function frame:SetTimer(indicator)
         self.elapsed = 1
         self.remaining = indicator.tick - GetTime()
