@@ -263,11 +263,14 @@ do
   do
     DS.specializationID = nil --GetSpecializationInfo(GetSpecialization())
     function DS:SpecializationsCheck()
-      local newSpecID = GetSpecializationInfo(GetSpecialization())
-      if newSpecID and newSpecID ~= self.specializationID then
-        self.specializationID = newSpecID
-        self:Build()
-        self:Update()
+      local specialization = GetSpecialization()
+      if specialization then
+        local newSpecID = GetSpecializationInfo(specialization)
+        if newSpecID and newSpecID ~= self.specializationID then
+          self.specializationID = newSpecID
+          self:Build()
+          self:Update()
+        end
       end
     end
   end
