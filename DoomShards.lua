@@ -171,10 +171,11 @@ function DS:ApplySettings()
   end
 end
 
-function DS:OnInitialize()
+function DS:OnInitialize()  
   self.locked = true
   
   -- Database
+  local OPT = LibStub("AceDBOptions-3.0")
   local DSDB = LibStub("AceDB-3.0"):New("DoomShardsDB", self.defaultSettings, true)
   DS.DSDB = DSDB
   
@@ -192,7 +193,7 @@ function DS:OnInitialize()
   end
   
   self.db = DSDB.profile
-  self:AddDisplayOptions("Profile", function() return LibStub("AceDBOptions-3.0"):GetOptionsTable(DSDB) end, {})
+  self:AddDisplayOptions("Profile", function() return OPT:GetOptionsTable(DSDB) end, {})
   function self:ResetDB()
     DSDB:ResetDB()
     self.db = DSDB.profile
@@ -200,6 +201,11 @@ function DS:OnInitialize()
     self:Build()
     print(L["Doom Shards reset!"])
   end
+  
+  -- Dual Spec
+  local LDS = LibStub("LibDualSpec-1.0")
+  LDS:EnhanceDatabase(DSDB, "Doom Shards")
+  LDS:EnhanceOptions(OPT:GetOptionsTable(DSDB), DSDB)
   
   DSDB.RegisterCallback(self, "OnProfileChanged", "ReloadSettings")
   DSDB.RegisterCallback(self, "OnProfileCopied", "ReloadSettings")
