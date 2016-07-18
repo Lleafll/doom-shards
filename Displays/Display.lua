@@ -695,7 +695,9 @@ end
 
 function CD:Lock()
   CDFrame.fader:Stop()  -- necessary?
+  CDOnUpdateFrame:Show()
   CDOnUpdateFrame:RegisterEvents()
+  self:Update()
 end
 
 function CD:Build()
