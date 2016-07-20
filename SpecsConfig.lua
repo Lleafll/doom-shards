@@ -103,6 +103,7 @@ do
         resourceChanceFunc = function(self)
           return (baseAverageAccumulatorIncrease / sqrt(DS.agonyCounter)) / baseAverageAccumulatorResetValue
         end,
+        refreshEvent = "SPELL_CAST_SUCCESS",
         IterateTick = function(self, timeStamp)
           if timeStamp then
             local expiration = self.expiration

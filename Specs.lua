@@ -101,6 +101,10 @@ function DS:AddSpecSettings(specID, resourceGeneration, trackedAuras)
     if not v.pandemic then
       v.pandemicFunc = v.pandemicFunc or pandemicFunc
     end
+    v.applyEvent = v.applyEvent or "SPELL_AURA_APPLIED"
+    v.refreshEvent = v.refreshEvent or "SPELL_AURA_REFRESH"
+    v.removeEvent = v.removeEvent or "SPELL_AURA_REMOVED"
+    v.tickEvent = v.tickEvent or "SPELL_PERIODIC_DAMAGE"
     
     v.Tick = v.Tick or tickMethod
     v.Refresh = v.Refresh or refreshMethod

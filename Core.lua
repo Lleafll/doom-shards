@@ -157,15 +157,14 @@ function DS:COMBAT_LOG_EVENT_UNFILTERED(_, timeStamp, event, _, sourceGUID, _, _
   if sourceGUID == playerGUID then
     local spellID, _, _, _, _ = ...
     if trackedAuras[spellID] and sourceGUID == playerGUID and self.db.specializations[spellID] then
-      if event == "SPELL_CAST_SUCCESS" then  -- "SPELL_AURA_REFRESH" won't fire for Agony
-        if auras[destGUID] and auras[destGUID][spellID] then
-          self:Refresh(destGUID, spellID)
-        else
-          self:Apply(destGUID, spellID)
-        end        
-      elseif event == "SPELL_AURA_REMOVED" then
+      local trackedAura = trackedAuras[spellID]
+      if auras[destGUID] and auras[destGUID][spellID] and event == trackedAura.refreshEvent then
+        self:Refresh(destGUID, spellID)
+      elseif event == trackedAura.applyEvent then
+        self:Apply(destGUID, spellID)
+      elseif event == trackedAura.removeEvent then
         self:Remove(destGUID, spellID)
-      elseif event == "SPELL_PERIODIC_DAMAGE" then
+      elseif event == trackedAura.tickEvent then
         self:Tick(destGUID, spellID)
         if resource < maxResource then
           resource = resource + 1
