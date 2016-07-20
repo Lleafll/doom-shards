@@ -38,6 +38,19 @@ local buildHastedIntervalFunc = DS.buildHastedIntervalFunc
 -----------
 -- Specs --
 -----------
+-- Dummy Spec
+DS:AddSpecSettings(-1,
+  {
+  },
+  {
+    [-1] = {
+      duration = 10,
+      tickLength = 10,
+      resourceChance = 1,
+    }
+  }
+)
+
 -- Affliction
 do
   local baseAverageAccumulatorIncrease = 0.16

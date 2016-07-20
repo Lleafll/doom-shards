@@ -261,7 +261,7 @@ cleanUp()
 -----------------------
 do
   do
-    DS.specializationID = nil --GetSpecializationInfo(GetSpecialization())
+    DS.specializationID = nil
     function DS:SpecializationsCheck()
       local specialization = GetSpecialization()
       if specialization then
@@ -310,20 +310,17 @@ end
 ---------------
 -- Test Mode --
 ---------------
-do  -- TODO: Fix
+do
   local testFrame = CreateFrame("frame")
-  
-  --DS:Add(GUID, timeStamp, tick)
   
   local resourceTicker
   local TestGUID = "Test Mode"
+  local applyInterval = 10
   
   local function SATickerFunc()
     local timeStamp = GetTime()
-    local dur = DS:GetDoomDuration()
-    DS:Add(TestGUID, timeStamp, timeStamp + dur)
-    --timers[#timers].impactTime = timers[#timers].impactTime + SAGraceTime  -- fixes "0.0"-issue
-    C_TimerAfter(dur + 0.2, function() DS:Remove("Test Mode") end)
+    DS:Apply(TestGUID, -1)
+    C_TimerAfter(applyInterval + 0.2, function() DS:Remove("Test Mode") end)
   end
   
   function DS:TestMode()
@@ -333,11 +330,11 @@ do  -- TODO: Fix
       if UnitAffectingCombat("player") then return end
       if not self.locked then self:Lock() end
       self:PLAYER_REGEN_DISABLED()
-
+      self.specializationID = -1
+      
       for name, module in self:IterateModules() do
         if self.db[name] and self.db[name].enable then
           if module.frame then module.frame:Show() end
-          --if module.Unlock then module:Unlock() end
         end
         self:Update()
       end
@@ -348,7 +345,7 @@ do  -- TODO: Fix
       end)
       
       SATickerFunc()
-      SATicker = C_Timer.NewTicker(self:GetDoomDuration()+1, SATickerFunc)
+      SATicker = C_Timer.NewTicker(applyInterval+1, SATickerFunc)
       
       self.testMode = true
       print(L["Starting Test Mode"])
@@ -365,7 +362,9 @@ do  -- TODO: Fix
         SATicker:Cancel()
         SATicker = nil
       end
+      self:Remove("Test Mode")
       self:ResetCount()
+      self:SpecializationsCheck()
       resource = UnitPower("player", unitPowerId)
       self.testMode = false
       self:Lock()

@@ -21,6 +21,12 @@ local UnitBuff = UnitBuff
 local UnitGUID = UnitGUID
 
 
+---------------
+-- Constants --
+---------------
+local PANDEMIC_RANGE = 0.3
+
+
 -------------
 -- Utility --
 -------------
@@ -52,7 +58,7 @@ end
 local auraMetaTable = {}  -- Aura prototypes
 
 local function pandemicFunc(self)
-  return 0.3 * self.duration
+  return PANDEMIC_RANGE * self.duration
 end
 
 local function tickMethod(self, timeStamp)
