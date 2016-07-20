@@ -11,8 +11,10 @@ local L = LibStub("AceLocale-3.0"):GetLocale("DoomShards")
 --------------
 -- Upvalues --
 --------------
+local exp = exp
 local GetActiveSpecGroup = GetActiveSpecGroup
 local GetHaste = GetHaste
+local GetInventoryItemID = GetInventoryItemID
 local GetSpellCritChance = GetSpellCritChance
 local GetSpecialization = GetSpecialization
 local GetSpellInfo = GetSpellInfo
@@ -98,7 +100,21 @@ do
     },
     {
       [980] = {  -- Agony
-        duration = 18,
+        durationFunc = function(self)
+          local fotdsID = 124522  -- Fragment of the Dark Star
+          if IsEquippedItem(fotdsID) then
+            local ilink
+            if GetInventoryItemID("player", 13) == fotdsID then
+              ilink = GetInventoryItemLink("player", 13) 
+            else
+              ilink = GetInventoryItemLink("player", 14) 
+            end
+            local _, _, _, ilvl = GetItemInfo(ilink)
+            return -1.183E-4 * ilvl*ilvl + 0.141 * ilvl - 25.336
+          else
+            return 18
+          end
+        end,
         tickLengthFunc = buildHastedIntervalFunc(2),
         resourceChanceFunc = function(self)
           return (baseAverageAccumulatorIncrease / sqrt(DS.agonyCounter)) / baseAverageAccumulatorResetValue
