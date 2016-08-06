@@ -767,7 +767,9 @@ function CD:Build()
     buildFader()
   end
   CDFrame.fader.fadeOut:SetDuration(db.fadeOutDuration)
-  if DS.locked and GetSpecialization() == 3 then CDOnUpdateFrame:Show() end
+  if DS.locked then
+    CDOnUpdateFrame:Show()
+  end
 end
 
 function CD:OnInitialize()
