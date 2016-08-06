@@ -55,17 +55,17 @@ DS:AddSpecSettings(-1,
 
 -- Affliction
 do
-  local baseAverageAccumulatorIncrease = 0.16
-  local baseAverageAccumulatorResetValue = 0.5
+  local BASE_AVERAGE_ACCUMULATOR_INCREASE = 0.16
+  local BASE_AVERAGE_ACCUMULATOR_RESET_VALUE = 0.5
   
-  DS.agonyAccumulator = baseAverageAccumulatorResetValue
+  DS.agonyAccumulator = BASE_AVERAGE_ACCUMULATOR_RESET_VALUE
   DS.globalNextAgonyTick = {}
   DS.globalAppliedAgonies = {}
   local spellEnergizeFrame = CreateFrame("Frame")
   spellEnergizeFrame:Show()
   spellEnergizeFrame:SetScript("OnEvent", function(self, _, _, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
     if event == "SPELL_ENERGIZE" and spellID == 17941 and sourceGUID == UnitGUID("player") and DS.agonyAccumulator then
-      DS.agonyAccumulator = baseAverageAccumulatorResetValue - DS.globalNextAgonyTick.aura.resourceChance  -- SPELL_ENERGIZE fire before respective SPELL_DAMAGE from Agony
+      DS.agonyAccumulator = BASE_AVERAGE_ACCUMULATOR_RESET_VALUE - DS.globalNextAgonyTick.aura.resourceChance  -- SPELL_ENERGIZE fire before respective SPELL_DAMAGE from Agony
     end
   end)
   
@@ -89,7 +89,6 @@ do
         local _, _, _, _, selected = GetTalentInfo(4, 2, GetActiveSpecGroup())
         return selected and -1 or 0
       end,
-      [196098] = 5,  -- Soul Harvest
       [18540] = -1,  -- Summon Doomguard
       [688] = -1,  -- Summon Imp
       [1122] = -1,  -- Summon Infernal
@@ -117,7 +116,7 @@ do
         end,
         tickLengthFunc = buildHastedIntervalFunc(2),
         resourceChanceFunc = function(self)
-          return (baseAverageAccumulatorIncrease / sqrt(DS.agonyCounter)) / baseAverageAccumulatorResetValue
+          return (BASE_AVERAGE_ACCUMULATOR_INCREASE / sqrt(DS.agonyCounter)) / BASE_AVERAGE_ACCUMULATOR_RESET_VALUE
         end,
         refreshEvent = "SPELL_CAST_SUCCESS",
         IterateTick = function(self, timeStamp)
