@@ -117,20 +117,15 @@ L["Vertical"] = true
 L["Visibility"] = true
 L["Visibility Conditionals"] = true
 L["WeakAurasDocumentation"] = [=[WeakAuras event
-  DOOM_SHARDS_UPDATE
+  DOOM_SHARDS_DISPLAY_UPDATE
 
 DoomShards methods
-  DoomShards:GetNumDoomTargets()
-    return totalDoomTargets
-      totalDoomTargets - number of targets with Doom from the player (number)
-
-  DoomShards:GetDoomInfo(targetNumber) or DoomShards:GetDoomInfo(GUID)
-      targetNumber - position in chronologically anticipated Doom tick order, from 1 to GetNumDoomTargets() (number)
-      GUID - target GUID (string)
-    return GUID, nextTick, duration
-      GUID - target GUID or nil if no Doom applied to that target (string)
-      nextTick - timeStamp for next Doom tick on that target (number)
-      duration - timeStamp for end of total Doom duration on that target (number)]=]
+  DoomShards:GetPrediction(index)
+    arguments
+      index : index of predicted tick
+    return nextTick, resourceGenerationChance
+      nextTick : time stamp of next tick
+      resourceGenerationChance : chance to generate a Soul Shard on the next tick]=]
 L["WeakAuras Example Strings"] = true
 L["WeakAuras Import String 1"] = true
 L["WeakAuras Import String 2"] = true
