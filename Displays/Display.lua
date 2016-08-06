@@ -212,9 +212,12 @@ function CD:UpdateDoomPrediction(position, indicator)
 end
 
 function CD:Update()
-  if not DS.locked then return end
+  if not DS.locked then
+    return
+  end
   
   local indicators = self:BuildSortedAuraIndicators()
+  CD.indicators = indicators  -- For WeakAuras methods
   
   -- Shards
   local spendThreshold = resource + ((resourceSpendPrediction and resourceGeneration < 0) and resourceGeneration or 0)
@@ -283,6 +286,7 @@ function CD:DOOM_SHARDS_UPDATE()
   nextCast = DS.nextCast
   
   self:Update()
+  self:SendMessage("DOOM_SHARDS_DISPLAY_UPDATE", "test")
 end
 
 local function SATimerOnUpdate(self, elapsed)

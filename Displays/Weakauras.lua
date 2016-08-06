@@ -1,10 +1,11 @@
---@alpha@
-
-
+-----------------------
+-- Addon and Modules --
+-----------------------
 local DS = LibStub("AceAddon-3.0"):GetAddon("Doom Shards", true)
 if not DS then return end
 
 local WA = DS:NewModule("weakauras", "AceEvent-3.0")
+local CD = DS:GetModule("display")
 
 
 --------------
@@ -12,16 +13,15 @@ local WA = DS:NewModule("weakauras", "AceEvent-3.0")
 --------------
 local assert = assert
 local type = type
-local WeakAurasScanEvents
 
 
 ---------
 -- API --
 ---------
-function DS:GetAuraInfo(spellID, unitGUID)
-  if self.auras[unitGUID] and self.auras[unitGUID][spellID] then
-    local aura = self.auras[unitGUID][spellID]
-    return aura.name, aura.id, aura.duration, aura.tickLength, aura.pandemic, aura.expiration
+function DS:GetPrediction(position)
+  local indicator = CD.indicators[position]
+  if indicator then
+    return indicator.tick, indicator.resourceChance
   end
 end
 
@@ -29,35 +29,33 @@ end
 ---------------
 -- Functions --
 ---------------
-function WA:DOOM_SHARDS_UPDATE() end
-
 local function WeakAurasLoaded()
-  WeakAurasScanEvents = WeakAuras.ScanEvents
-  function WA:DOOM_SHARDS_UPDATE(_, resource, timers)
-    WeakAurasScanEvents("DOOM_SHARDS_UPDATE")
-  end
-end
-
--- optionalDeps produces bugs with some addons
-if IsAddOnLoaded("WeakAuras") then
-  WeakAurasLoaded()
-else
-  WA:RegisterEvent("ADDON_LOADED", function(_, name)
-    if name == "WeakAuras" then WeakAurasLoaded() end
-  end)
-end
-
-function WA:OnInitialize()
+  -- Debug
+  print("WeakAurasLoaded")
   
+  local WeakAuras_ScanEvents = WeakAuras.ScanEvents
+  function WA:DOOM_SHARDS_DISPLAY_UPDATE()
+    -- Debug
+    print("Send DOOM_SHARDS_DISPLAY_UPDATE")
+    
+    WeakAuras_ScanEvents("DOOM_SHARDS_DISPLAY_UPDATE")
+  end
+  
+  WA:RegisterMessage("DOOM_SHARDS_DISPLAY_UPDATE")
 end
 
 function WA:OnEnable()
-  self:RegisterMessage("DOOM_SHARDS_UPDATE")
+  if IsAddOnLoaded("WeakAuras") then  -- optionalDeps produces bugs with some addons
+    WeakAurasLoaded()
+  else
+    WA:RegisterEvent("ADDON_LOADED", function(_, name)
+      if name == "WeakAuras" then
+        WeakAurasLoaded()
+      end
+    end)
+  end
 end
 
 function WA:OnDisable()
-  self:UnregisterMessage("DOOM_SHARDS_UPDATE")
+  self:UnregisterMessage("DOOM_SHARDS_DISPLAY_UPDATE")
 end
-
-
---@end-alpha@

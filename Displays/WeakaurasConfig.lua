@@ -1,6 +1,3 @@
---@alpha@
-
-
 ----------------------
 -- Get addon object --
 ----------------------
@@ -29,11 +26,11 @@ local function displayOptions()
     get = function(info) return DS.db.weakauras[info[#info]] end,
     set = function(info, value) DS.db.weakauras[info[#info]] = value; DS:Build() end,
     args = {
-      enable = {
+      --[[enable = {
         order = 1,
         type = "toggle",
         name = L["Enable"]
-      },
+      },]]--
       --[[weakaurasStrings = {
         order = 2,
         type = "group",
@@ -86,6 +83,3 @@ local defaultSettings = {
 }
 
 DS:AddDisplayOptions("weakauras", displayOptions, defaultSettings)
-
-
---@end-alpha@
