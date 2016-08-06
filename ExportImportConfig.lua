@@ -31,6 +31,8 @@ local function importProfile(_, value)
       end
     end
     
+    print(L["Doom Shards: Profile import completed"])
+    
     DS:Build()
   end
 end

@@ -159,4 +159,12 @@ L["Destruction"] = true
 L["Track Doom"] = true
 L["Track Shadowburn"] = true
 
+L["Copy string for later import"] = true
+L["Doom Shards: Profile import completed"] = "|cFF814eaaDoom Shards|r: Profile import completed"
+L["Export"] = true
+L["Export/Import"] = true
+L["Import"] = true
+L["Paste import string here"] = true
+L["Really import profile?"] = true
+
 --@end-do-not-package@
