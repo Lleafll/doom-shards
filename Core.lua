@@ -39,10 +39,10 @@ local UnitPower = UnitPower
 ---------------
 -- Constants --
 ---------------
-local maxResource = 5
-local playerGUID
-local unitPowerType = "SOUL_SHARDS"
-local unitPowerId = SPELL_POWER_SOUL_SHARDS
+local MAX_RESOURCE = 5
+local PLAYER_GUID
+local UNIT_POWER_TYPE = "SOUL_SHARDS"
+local UNIT_POWER_ID = SPELL_POWER_SOUL_SHARDS
 
 
 ---------------
@@ -144,9 +144,9 @@ end
 -- Event Handling --
 --------------------
 function DS:COMBAT_LOG_EVENT_UNFILTERED(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, ...)
-  if sourceGUID == playerGUID then
+  if sourceGUID == PLAYER_GUID then
     local spellID, _, _, _, _ = ...
-    if trackedAuras[spellID] and sourceGUID == playerGUID and self.db.specializations[spellID] then
+    if trackedAuras[spellID] and sourceGUID == PLAYER_GUID and self.db.specializations[spellID] then
       local trackedAura = trackedAuras[spellID]
       if auras[destGUID] and auras[destGUID][spellID] and event == trackedAura.refreshEvent then
         self:Refresh(destGUID, spellID)
@@ -156,7 +156,7 @@ function DS:COMBAT_LOG_EVENT_UNFILTERED(_, timeStamp, event, _, sourceGUID, _, _
         self:Remove(destGUID, spellID)
       elseif event == trackedAura.tickEvent then
         self:Tick(destGUID, spellID)
-        if resource < maxResource then
+        if resource < MAX_RESOURCE then
           resource = resource + 1
           self:UNIT_POWER_FREQUENT("UNIT_POWER_FREQUENT", "player", "SOUL_SHARDS")  -- fail safe in case the corresponding UNIT_POWER_FREQUENT fires wonkily
         end
@@ -190,8 +190,8 @@ function DS:PLAYER_REGEN_ENABLED()  -- player left combat or died
 end
 
 function DS:UNIT_POWER_FREQUENT(_, unitID, power)
-  if not (unitID == "player" and power == unitPowerType) then return end
-  resource = UnitPower("player", unitPowerId)
+  if not (unitID == "player" and power == UNIT_POWER_TYPE) then return end
+  resource = UnitPower("player", UNIT_POWER_ID)
   DS:Update()
 end
 
@@ -220,7 +220,7 @@ function DS:UNIT_SPELLCAST_SUCCEEDED(_, unitID, _, _, spellGUID)
 end
 
 function DS:PLAYER_ENTERING_WORLD()
-  playerGUID = UnitGUID("player")
+  PLAYER_GUID = UnitGUID("player")
   resource = UnitPower("player", SPELL_POWER_SOUL_SHARDS)
   self:ResetCount()
 end
@@ -268,7 +268,7 @@ do
     self:EndTestMode()
     self:ApplySettings()
     
-    resource = UnitPower("player", unitPowerId)
+    resource = UnitPower("player", UNIT_POWER_ID)
     
     local specSettings = DS.specSettings[DS.specializationID]
     resourceGeneration = specSettings.resourceGeneration
@@ -329,7 +329,7 @@ do
       end
       
       resourceTicker = C_Timer.NewTicker(1, function()
-        resource = resource < maxResource and resource + 1 or 0
+        resource = resource < MAX_RESOURCE and resource + 1 or 0
         DS:Update()
       end)
       
@@ -355,7 +355,7 @@ do
       self:Remove("Test Mode")
       self:ResetCount()
       self:SpecializationsCheck()
-      resource = UnitPower("player", unitPowerId)
+      resource = UnitPower("player", UNIT_POWER_ID)
       self:Lock()
       if not UnitAffectingCombat("player") then
         self:PLAYER_REGEN_ENABLED()
