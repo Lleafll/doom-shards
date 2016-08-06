@@ -196,7 +196,7 @@ DS:AddSpecSettings(266,
           local iteratedTick = timeStamp + self.tickLength
           local isLastTick = iteratedTick >= expiration
           local resourceChance = (expiration - self.nextTick) / self.duration
-          return isLastTick and expiration or iteratedTick, self.resourceChance, isLastTick
+          return isLastTick and expiration or iteratedTick, resourceChance, isLastTick
         else
           local isLastTick = self.nextTick >= self.expiration
           return isLastTick and self.expiration or self.nextTick, self.resourceChance, isLastTick
