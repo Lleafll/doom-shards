@@ -76,9 +76,10 @@ function DS:ResetCount()
 end
 
 function DS:Apply(GUID, spellID)
-  local aura = self:BuildAura(spellID)
-  auras[GUID] = auras[GUID] or {}
+  local aura = self:BuildAura(spellID, GUID)
+  auras[GUID] = auras[GUID] or {}  -- TODO: Set automatically
   auras[GUID][spellID] = aura
+  aura:Apply()
   self:Update()
 end
 
@@ -99,9 +100,8 @@ function DS:Remove(GUID, spellID)
 end
 
 function DS:Refresh(GUID, spellID)
-  local timeStamp = GetTime()
-  auras[GUID][spellID]:Refresh(timeStamp)
-  self:Update(timeStamp)
+  auras[GUID][spellID]:Refresh()
+  self:Update(GetTime())
 end
 
 function DS:Tick(GUID, spellID)
@@ -109,7 +109,6 @@ function DS:Tick(GUID, spellID)
     local timeStamp = GetTime()
     local aura = auras[GUID][spellID]
     aura:Tick(timeStamp)
-    aura:OnTick(timeStamp)
     self:Update(timeStamp)
   end
 end
