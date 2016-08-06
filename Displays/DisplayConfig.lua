@@ -43,7 +43,13 @@ local function displayOptions()
           height = {
             order = 1,
             type = "range",
-            name = function() if DS.db.display.orientation == "Vertical" then return L["Width"] else return L["Height"] end end,
+            name = function()
+              if DS.db.display.orientation == "Vertical" then
+                return L["Width"]
+              else
+                return L["Height"]
+              end
+            end,
             min = 1,
             max = 100,
             step = 1
@@ -51,7 +57,13 @@ local function displayOptions()
           width = {
             order = 2,
             type = "range",
-            name = function() if DS.db.display.orientation == "Vertical" then return L["Height"] else return L["Width"] end end,
+            name = function()
+              if DS.db.display.orientation == "Vertical" then
+                return L["Height"]
+              else
+                return L["Width"]
+              end
+            end,
             min = 1,
             max = 100,
             step = 1
