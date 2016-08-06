@@ -193,7 +193,7 @@ function DS:OnInitialize()
   end
   
   self.db = DSDB.profile
-  self:AddDisplayOptions("Profile", function() return OPT:GetOptionsTable(DSDB) end, {})
+  self:AddDisplayOptions("Profile", function() local options = OPT:GetOptionsTable(DSDB); options.order = 6; return options end, {})
   function self:ResetDB()
     DSDB:ResetDB()
     self.db = DSDB.profile
