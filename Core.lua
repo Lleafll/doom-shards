@@ -343,6 +343,7 @@ do
   
   function DS:EndTestMode()
     if self.testMode then
+      self.testMode = false
       if resourceTicker then
         resourceTicker:Cancel()
         resourceTicker = nil
@@ -355,7 +356,6 @@ do
       self:ResetCount()
       self:SpecializationsCheck()
       resource = UnitPower("player", unitPowerId)
-      self.testMode = false
       self:Lock()
       if not UnitAffectingCombat("player") then
         self:PLAYER_REGEN_ENABLED()
