@@ -451,7 +451,6 @@ local function buildFrames()
   local CDFrameWidth = statusbarCount * db.width + (statusbarCount - 1) * db.spacing
   CDFrame:ClearAllPoints()
   CDFrame:SetPoint(db.anchor, _G[db.anchorFrame], db.posX, db.posY)
-  CDFrame:SetScale(DS.db.scale)
   CDFrame:SetHeight(db.orientation == "Vertical" and CDFrameWidth or CDFrameHeight)
   CDFrame:SetWidth(db.orientation == "Vertical" and CDFrameHeight or CDFrameWidth)
   
@@ -677,7 +676,7 @@ local function buildFrames()
         self.remaining = indicator.tick - GetTime()
         local aura = indicator.aura
         self.maxTime = aura.duration
-        self.refresh = aura.tickLength / db.width / DS.db.scale  -- TODO: cache width and scale
+        self.refresh = aura.tickLength / db.width  -- TODO: cache scale
         self.statusbar:SetMinMaxValues(0, self.maxTime)
         self:Show()
       end

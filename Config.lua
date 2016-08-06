@@ -27,14 +27,14 @@ local function optionsTable()
         cmdHidden = true,
         inline = true,
         args = {
-          scale = {
+          --[[scale = {
             order = 1,
             type = "range",
             name = L["Scale"],
             min = 0,
             max = 3,
             step = 0.01
-          },
+          },]]--
           --[[reset = {
             order = 2,
             type = "execute",
@@ -60,13 +60,8 @@ local function optionsTable()
               DS:Build()
             end
           },
-          spacer = {
-            order = 3.5,
-            type = "description",
-            name = ""
-          },
           lock = {
-            order = 4,
+            order = 1,
             type = "execute",
             name = L["Toggle Lock"],
             desc = L["Shows the frame and toggles it for repositioning."],
@@ -80,7 +75,7 @@ local function optionsTable()
             end
           },
           testMode = {
-            order = 5,
+            order = 2,
             type = "execute",
             name = L["Test Mode"],
             func = function()
@@ -97,7 +92,6 @@ end
 
 DS.defaultSettings = {
   profile = {
-    scale = 1,
     debug = false,
     debugSA = false
   }
