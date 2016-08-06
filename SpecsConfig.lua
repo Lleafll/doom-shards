@@ -176,7 +176,6 @@ DS:AddSpecSettings(266,
     [157695] = 1,  -- Demonbolt
     [105174] = -4,  -- Hand of Gul'dan
     [686] = 1,  -- Shadow Bolt
-    [196098] = 5,  -- Soul Harvest
     [18540] = -1,  -- Summon Doomguard
     [688] = -1,  -- Summon Imp
     [1122] = -1,  -- Summon Infernal
@@ -212,7 +211,6 @@ DS:AddSpecSettings(267,
   {
     [116858] = -2,  -- Chaos Bolt
     [5740] = -3,  -- Rain of Fire
-    [196098] = 5,  -- Soul Harvest
     [18540] = -1,  -- Summon Doomguard
     [688] = -1,  -- Summon Imp
     [1122] = -1,  -- Summon Infernal
