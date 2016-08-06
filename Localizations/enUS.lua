@@ -167,4 +167,7 @@ L["Really import profile?"] = true
 
 L["Color the text will change to if doom will tick before next possible Hand of Gul'dan cast."] = "Color the text will change to if prediction ends before end of the next possible filler cast (Shadow Bolt/Incinerate/2 ticks of Drain Life)."
 L["Font Color for Hand of Gul'dan Prediction"] = "Font Color for low remaining time"
+
+L["Failed to import profile: "] = true
+L["not a table"] = true
 --@end-do-not-package@

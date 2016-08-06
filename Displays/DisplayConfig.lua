@@ -272,6 +272,11 @@ local function displayOptions()
               DS:Build()
             end
           },
+          spacer5 = {
+            order = 14.5,
+            type = "description",
+            name = ""
+          },
           resourceSpendIncludeHoG = {
             order = 15,
             type = "toggle",
@@ -345,15 +350,11 @@ local function displayOptions()
             type="header",
             name=L["Text"]
           },
-          desc = {
-            order = 19.9,
-            type = "description",
-            name = L["Color the text will change to if doom will tick before next possible Hand of Gul'dan cast."],
-          },
           fontColorHoGPrediction = {
             order = 20,
             type = "color",
             name = L["Font Color for Hand of Gul'dan Prediction"],
+            desc = L["Color the text will change to if doom will tick before next possible Hand of Gul'dan cast."],
             hasAlpha = true,
             get = function()
               return DS.db.display.fontColorHoGPrediction.r, DS.db.display.fontColorHoGPrediction.b, DS.db.display.fontColorHoGPrediction.g, DS.db.display.fontColorHoGPrediction.a
