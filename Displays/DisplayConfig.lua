@@ -35,13 +35,8 @@ local function displayOptions()
         type = "group",
         name = L["Soul Shard Bars"],
         args = {
-          header0 = {
-            order = 0,
-            type="header",
-            name=L["Dimensions"]
-          },
           resourceEnable = {
-            order = 0.1,
+            order = 0,
             type = "toggle",
             name = L["Enable"]
           },
