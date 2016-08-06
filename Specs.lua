@@ -172,6 +172,7 @@ function DS:AddSpecSettings(specID, resourceGeneration, trackedAuras)
   for k, v in pairs(trackedAuras) do
     setmetatable(v, trackedAurasMetaTable)
     
+    -- Properties
     v.id = k
     v.name = GetSpellInfo(k)
     if not v.pandemic then
@@ -182,6 +183,7 @@ function DS:AddSpecSettings(specID, resourceGeneration, trackedAuras)
     v.removeEvent = v.removeEvent or "SPELL_AURA_REMOVED"
     v.tickEvent = v.tickEvent or "SPELL_PERIODIC_DAMAGE"
     
+    -- Methods
     v.Apply = v.Apply or applyMethod
     v.Tick = v.Tick or tickMethod
     v.Refresh = v.Refresh or refreshMethod
