@@ -216,36 +216,35 @@ function CD:Update()
   
   local indicators = self:BuildSortedAuraIndicators()
   
-  if resourceEnable then
-    -- Shards
-    local spendThreshold = resource + ((resourceSpendPrediction and resourceGeneration < 0) and resourceGeneration or 0)
-    for i = 1, maxResource do
+  -- Shards
+  local spendThreshold = resource + ((resourceSpendPrediction and resourceGeneration < 0) and resourceGeneration or 0)
+  for i = 1, maxResource do
+    if resourceEnable then
       self:UpdateResource(resourceFrames[i], i <= resource, i > spendThreshold and "spending" or (resourceCappedEnable and resource == maxResource) and "capped" or nil)
-      self:UpdateDoomPrediction(i, false)
     end
+    self:UpdateDoomPrediction(i, false)
+  end
     
-    -- Show shard spending for doom prediction in timeframe of currently cast spender
-    if resourceSpendIncludeHoG and nextCast then
-      local additionalResources = - resource - resourceGeneration
-      if additionalResources > 0 then
-        for t = 1, additionalResources do
-          local indicator = indicators[t]
-          if indicator then
-            if indicator.tick < nextCast then
-              CD:UpdateHoGPrediction(resourceFrames[resource + t])
-            else
-              break
-            end
-            
+  -- Show shard spending for doom prediction in timeframe of currently cast spender
+  if resourceEnable and resourceSpendIncludeHoG and nextCast then
+    local additionalResources = - resource - resourceGeneration
+    if additionalResources > 0 then
+      for t = 1, additionalResources do
+        local indicator = indicators[t]
+        if indicator then
+          if indicator.tick < nextCast then
+            CD:UpdateHoGPrediction(resourceFrames[resource + t])
           else
             break
-            
           end
+          
+        else
+          break
+          
         end
       end
     end
   end
-  
   
   -- Doom prediction
   local generatedResource
