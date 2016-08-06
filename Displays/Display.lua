@@ -35,7 +35,7 @@ CDOnUpdateFrame:Hide()
 ---------------
 -- Constants --
 ---------------
-local maxResource = 5
+local MAX_RESOURCE = 5
 local backdrop = {
   bgFile = nil,
   edgeFile = nil,
@@ -221,9 +221,9 @@ function CD:Update()
   
   -- Shards
   local spendThreshold = resource + ((resourceSpendPrediction and resourceGeneration < 0) and resourceGeneration or 0)
-  for i = 1, maxResource do
+  for i = 1, MAX_RESOURCE do
     if resourceEnable then
-      self:UpdateResource(resourceFrames[i], i <= resource, i > spendThreshold and "spending" or (resourceCappedEnable and resource == maxResource) and "capped" or nil)
+      self:UpdateResource(resourceFrames[i], i <= resource, i > spendThreshold and "spending" or (resourceCappedEnable and resource == MAX_RESOURCE) and "capped" or nil)
     end
     self:UpdateDoomPrediction(i, false)
   end
@@ -260,7 +260,7 @@ function CD:Update()
   local indicator = indicators[t]
   for i = resource + 1, statusbarCount do
     if resourceGainPrediction and castEnd and (not indicator or castEnd < indicator.tick) then
-      if resourceEnable and i <= maxResource then
+      if resourceEnable and i <= MAX_RESOURCE then
         self:UpdateResourceGainPrediction(resourceFrames[i])
       end
       self:UpdateDoomPrediction(i, false)
@@ -489,7 +489,7 @@ local function buildFrames()
       
       frame:SetBackdrop(backdrop)
       
-      if numeration <= maxResource then
+      if numeration <= MAX_RESOURCE then
         frame:Show()
         
         if not frame.border then
@@ -507,7 +507,7 @@ local function buildFrames()
         frame:Hide()
       end
       
-      if numeration <= maxResource then
+      if numeration <= MAX_RESOURCE then
         local color = db["color"..numeration]
         local cr, cb, cg, ca = color.r, color.b, color.g, color.a
         function frame:SetOriginalColor()
@@ -687,7 +687,7 @@ local function buildFrames()
       
       local c1r, c1b, c1g, c1a
       local c2r, c2b, c2g, c2a
-      if numeration <= maxResource then
+      if numeration <= MAX_RESOURCE then
         c1r, c1b, c1g, c1a = db.statusbarColorBackground.r, db.statusbarColorBackground.b, db.statusbarColorBackground.g, db.statusbarColorBackground.a
         c2r, c2b, c2g, c2a = db.statusbarColor.r, db.statusbarColor.b, db.statusbarColor.g, db.statusbarColor.a
       else
