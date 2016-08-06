@@ -40,7 +40,7 @@ local buildHastedIntervalFunc = DS.buildHastedIntervalFunc
 -----------
 -- Specs --
 -----------
--- Dummy Spec
+-- Dummy Spec (used for Test Mode)
 DS:AddSpecSettings(-1,
   {
   },
