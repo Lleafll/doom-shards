@@ -359,6 +359,11 @@ do
   CDOnUpdateFrame:SetScript("OnShow", function(self)
     currentState = nil
     self:EvaluateConditionals()
+    self:RegisterEvents()
+  end)
+  
+  CDOnUpdateFrame:SetScript("OnHide", function(self)
+    self:UnregisterEvents()
   end)
   
   CDOnUpdateFrame:SetScript("OnEvent", function(self)
@@ -716,7 +721,6 @@ end
 function CD:Unlock()
   CDFrame.fader:Stop()
   CDOnUpdateFrame:Hide()
-  CDOnUpdateFrame:UnregisterEvents()
   for i = 1, statusbarCount do
     if textEnable then
       SATimers[i]:Show()
@@ -739,7 +743,6 @@ end
 function CD:Lock()
   CDFrame.fader:Stop()  -- necessary?
   CDOnUpdateFrame:Show()
-  CDOnUpdateFrame:RegisterEvents()
   self:Update()
 end
 
@@ -778,5 +781,4 @@ end
 function CD:OnDisable()
   self:UnregisterMessage("DOOM_SHARDS_UPDATE")
   CDOnUpdateFrame:Hide()
-  CDOnUpdateFrame:UnregisterEvents()
 end
