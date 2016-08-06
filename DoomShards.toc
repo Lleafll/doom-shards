@@ -38,6 +38,7 @@ Localizations\koKR.lua
 
 DoomShards.lua
 Config.lua
+ExportImportConfig.lua
 Specs.lua
 SpecsConfig.lua
 Core.lua
