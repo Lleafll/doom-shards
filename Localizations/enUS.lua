@@ -33,7 +33,6 @@ L["Color Shard 2"] = true
 L["Color Shard 3"] = true
 L["Color Shard 4"] = true
 L["Color Shard 5"] = true
-L["Color the text will change to if doom will tick before next possible Hand of Gul'dan cast."] = "Color the text will change to if Doom will tick before end of the next possible Hand of Gul'dan cast."
 L["Color When Shard Capped"] = true
 L["Colors"] = true
 L["Dimensions"] = true
@@ -54,7 +53,6 @@ L["Fill indicator from right to left"] = "Fill indicator from right to left."
 L["Flash on Shard Gain"] = true
 L["Font"] = true
 L["Font Color"] = true
-L["Font Color for Hand of Gul'dan Prediction"] = true
 L["Font Flags"] = true
 L["Font Size"] = true
 L["Functionality"] = true
@@ -167,4 +165,6 @@ L["Import"] = true
 L["Paste import string here"] = true
 L["Really import profile?"] = true
 
+L["Color the text will change to if doom will tick before next possible Hand of Gul'dan cast."] = "Color the text will change to if prediction ends before end of the next possible filler cast (Shadow Bolt/Incinerate/2 ticks of Drain Life)."
+L["Font Color for Hand of Gul'dan Prediction"] = "Font Color for low remaining time"
 --@end-do-not-package@

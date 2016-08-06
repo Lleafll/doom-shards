@@ -64,6 +64,8 @@ local consolidateTicks
 local db
 local gainFlash
 local nextCast
+local referenceSpell
+local referenceTime
 local resourceCappedEnable
 local resource
 local remainingTimeThreshold
@@ -80,12 +82,22 @@ local timeStamp
 local visibilityConditionals = ""
 
 
+-------------
+-- Utility --
+-------------
+local getHasteMod = DS.GetHasteMod
+
+
 ---------------
 -- Functions --
 ---------------
-function CD:GetHoGCastingTime()  -- TODO: Cache to possibly improve performance
-  local _, _, _, castingTime = GetSpellInfo(105174)
-  return (nextCast and (nextCast - GetTime()) or 0) + castingTime / 1000
+function CD:GetReferenceSpellCastingTime()
+  if referenceTime then
+    return (nextCast and (nextCast - GetTime()) or 0) + referenceTime * getHasteMod()
+  else
+    local _, _, _, castingTime = GetSpellInfo(referenceSpell)
+    return (nextCast and (nextCast - GetTime()) or 0) + castingTime / 1000
+  end
 end
 
 do
@@ -299,7 +311,7 @@ local function SATimerOnUpdate(self, elapsed)
     else
       self.fontString:SetText(stringformat("%.0f", remaining))
     end
-    if remaining < CD:GetHoGCastingTime() then
+    if remaining < CD:GetReferenceSpellCastingTime() then
       if not self.fontString.hogColored then
         self.fontString:SetHoGColor()
       end
@@ -761,6 +773,10 @@ function CD:Build()
   textEnable = db.textEnable
   visibilityConditionals = db.visibilityConditionals or ""
   consolidateTicks = db.consolidateTicks
+  
+  local specHandling = DS.specSettings[DS.specializationID].specHandling
+  referenceSpell = specHandling.referenceSpell
+  referenceTime = specHandling.referenceTime
   
   statusbarCount = 5 + db.statusbarCount
   

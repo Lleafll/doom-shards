@@ -162,11 +162,12 @@ local function tickMethod(self)
   self:OnTick()
 end
 
-function DS:AddSpecSettings(specID, resourceGeneration, trackedAuras)
+function DS:AddSpecSettings(specID, resourceGeneration, trackedAuras, specHandling)
   local settings = {}
   specSettings[specID] = settings
   settings.resourceGeneration = resourceGeneration
   settings.trackedAuras = trackedAuras
+  settings.specHandling = specHandling
   
   auraMetaTable[specID] = {}
   for k, v in pairs(trackedAuras) do

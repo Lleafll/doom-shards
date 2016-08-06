@@ -50,6 +50,9 @@ DS:AddSpecSettings(-1,
       tickLength = 10,
       resourceChance = 1,
     }
+  },
+  {
+    referenceSpell = 5782  -- Fear (a spell every warlock spec has)
   }
 )
 
@@ -155,6 +158,9 @@ do
           end
         end
       }
+    },
+    {
+      referenceTime = 2  -- 2 ticks of Drain Life
     }
   )
 end
@@ -203,6 +209,9 @@ DS:AddSpecSettings(266,
         end
       end
     }
+  },
+  {
+    referenceSpell = 686  -- Shadow Bolt
   }
 )
 
@@ -242,6 +251,9 @@ DS:AddSpecSettings(267,
         self:Tick(timeStamp)
       end
     }
+  },
+  {
+    referenceSpell = 29722  -- Incinerate
   }
 )
 
