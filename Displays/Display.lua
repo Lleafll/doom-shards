@@ -404,7 +404,6 @@ local function buildFlasher(parentFrame)
   parentFrame.flasher = smoke:CreateAnimationGroup()
   parentFrame.flasher:SetScript("OnFinished", function()
     smoke:SetAlpha(0)
-    smoke:Hide()
   end)
   
   parentFrame.flasher.start = parentFrame.flasher:CreateAnimation("Alpha")
