@@ -23,6 +23,7 @@ local wipe = wipe
 local CDFrame = DS:CreateParentFrame("Doom Shards Display", "display")
 CD.frame = CDFrame
 CDFrame:Hide()
+local basePositions = {}
 local resourceFrames = {}
 local fontStringParent
 local SATimers = {}
@@ -215,29 +216,31 @@ function CD:Update()
   
   local indicators = self:BuildSortedAuraIndicators()
   
-  -- Shards
-  local spendThreshold = resource + ((resourceSpendPrediction and resourceGeneration < 0) and resourceGeneration or 0)
-  for i = 1, maxResource do
-    self:UpdateResource(resourceFrames[i], i <= resource, i > spendThreshold and "spending" or (resourceCappedEnable and resource == maxResource) and "capped" or nil)
-    self:UpdateDoomPrediction(i, false)
-  end
-  
-  -- Show shard spending for doom prediction in timeframe of currently cast spender
-  if resourceSpendIncludeHoG and nextCast then
-    local additionalResources = - resource - resourceGeneration
-    if additionalResources > 0 then
-      for t = 1, additionalResources do
-        local indicator = indicators[t]
-        if indicator then
-          if indicator.tick < nextCast then
-            CD:UpdateHoGPrediction(resourceFrames[resource + t])
+  if resourceEnable then
+    -- Shards
+    local spendThreshold = resource + ((resourceSpendPrediction and resourceGeneration < 0) and resourceGeneration or 0)
+    for i = 1, maxResource do
+      self:UpdateResource(resourceFrames[i], i <= resource, i > spendThreshold and "spending" or (resourceCappedEnable and resource == maxResource) and "capped" or nil)
+      self:UpdateDoomPrediction(i, false)
+    end
+    
+    -- Show shard spending for doom prediction in timeframe of currently cast spender
+    if resourceSpendIncludeHoG and nextCast then
+      local additionalResources = - resource - resourceGeneration
+      if additionalResources > 0 then
+        for t = 1, additionalResources do
+          local indicator = indicators[t]
+          if indicator then
+            if indicator.tick < nextCast then
+              CD:UpdateHoGPrediction(resourceFrames[resource + t])
+            else
+              break
+            end
+            
           else
             break
+            
           end
-          
-        else
-          break
-          
         end
       end
     end
@@ -255,7 +258,7 @@ function CD:Update()
   local indicator = indicators[t]
   for i = resource + 1, statusbarCount do
     if resourceGainPrediction and castEnd and (not indicator or castEnd < indicator.tick) then
-      if i <= maxResource then
+      if resourceEnable and i <= maxResource then
         self:UpdateResourceGainPrediction(resourceFrames[i])
       end
       self:UpdateDoomPrediction(i, false)
@@ -449,25 +452,30 @@ local function buildFrames()
   end
   
   do
+    for i = 1, statusbarCount do
+      basePositions[i] = (width + db.spacing) * (i - 1)
+    end
+  end
+  
+  if resourceEnable then
     local function createResourceFrame(numeration)
       local frame = resourceFrames[numeration] or CreateFrame("frame", nil, CDFrame)
       frame:ClearAllPoints()
-      local displacement = (width + db.spacing) * (numeration - 1)
       if orientation == "Vertical" then
         frame:SetHeight(width)
         frame:SetWidth(height)
         if growthDirection == "Reversed" then
-          frame:SetPoint("TOPRIGHT", 0, -displacement)
+          frame:SetPoint("TOPRIGHT", 0, -basePositions[numeration])
         else
-          frame:SetPoint("BOTTOMRIGHT", 0, displacement)
+          frame:SetPoint("BOTTOMRIGHT", 0, basePositions[numeration])
         end
       else
         frame:SetHeight(height)
         frame:SetWidth(width)
         if growthDirection == "Reversed" then
-          frame:SetPoint("BOTTOMRIGHT", -displacement, 0)
+          frame:SetPoint("BOTTOMRIGHT", -basePositions[numeration], 0)
         else
-          frame:SetPoint("BOTTOMLEFT", displacement, 0)
+          frame:SetPoint("BOTTOMLEFT", basePositions[numeration], 0)
         end
       end
       
@@ -529,7 +537,7 @@ local function buildFrames()
   end
   
   if textEnable then
-    local function createTimerFontString(referenceFrame, numeration)
+    local function createTimerFontString(numeration)
       local parentFrame
       local fontString
       if not SATimers[numeration] then
@@ -543,12 +551,32 @@ local function buildFrames()
         fontString = parentFrame.fontString
       end
       
+      parentFrame:ClearAllPoints()      
+      if orientation == "Vertical" then
+        parentFrame:SetHeight(width)
+        parentFrame:SetWidth(height)
+        if growthDirection == "Reversed" then
+          parentFrame:SetPoint("TOPRIGHT", -height - stringYOffset - 1, -basePositions[numeration] - stringXOffset)
+        else
+          parentFrame:SetPoint("BOTTOMRIGHT", -height - stringYOffset - 1, basePositions[numeration] + stringXOffset)
+        end
+      else
+        parentFrame:SetWidth(width)
+        parentFrame:SetHeight(height)
+        if growthDirection == "Reversed" then
+          parentFrame:SetPoint("BOTTOMRIGHT", -basePositions[numeration] - stringXOffset, height + stringYOffset + 1)
+        else
+          parentFrame:SetPoint("BOTTOMLEFT", basePositions[numeration] + stringXOffset, height + stringYOffset + 1)
+        end
+      end
+      
       fontString:ClearAllPoints()
       if orientation == "Vertical" then
-        fontString:SetPoint("RIGHT", referenceFrame, "LEFT", -stringYOffset - 1, stringXOffset)
+        fontString:SetPoint("RIGHT")
       else
-        fontString:SetPoint("BOTTOM", referenceFrame, "TOP", stringXOffset, stringYOffset + 1)
+        fontString:SetPoint("BOTTOM")
       end
+      
       fontString:SetFont(LSM:Fetch("font", db.fontName), db.fontSize, (flags == "MONOCHROMEOUTLINE" or flags == "OUTLINE" or flags == "THICKOUTLINE") and flags or nil)
       fontString:SetShadowOffset(1, -1)
       fontString:SetShadowColor(0, 0, 0, db.fontFlags == "Shadow" and 1 or 0)
@@ -579,7 +607,7 @@ local function buildFrames()
       return parentFrame
     end
     for i = 1, statusbarCount do
-      SATimers[i] = createTimerFontString(resourceFrames[i], i)
+      SATimers[i] = createTimerFontString(i)
       SATimers[i]:Show()
     end
     if #SATimers > statusbarCount then
@@ -590,7 +618,7 @@ local function buildFrames()
   end
   
   if statusbarEnable then
-    local function createStatusBars(referenceFrame, numeration)
+    local function createStatusBars(numeration)
       local frame
       local statusbar
       if statusbars[numeration] then
@@ -601,13 +629,24 @@ local function buildFrames()
         statusbar = CreateFrame("StatusBar", nil, frame)
         frame.statusbar = statusbar
       end
-      frame:ClearAllPoints()
+      
+      frame:ClearAllPoints()      
       if orientation == "Vertical" then
-        frame:SetPoint("BOTTOMRIGHT", referenceFrame, -statusbarYOffset, statusbarXOffset)
-        frame:SetPoint("TOPLEFT", referenceFrame, -statusbarYOffset, statusbarXOffset)
+        frame:SetHeight(width)
+        frame:SetWidth(height)
+        if growthDirection == "Reversed" then
+          frame:SetPoint("TOPRIGHT", -statusbarYOffset, statusbarXOffset - basePositions[numeration])
+        else
+          frame:SetPoint("BOTTOMRIGHT", -statusbarYOffset, statusbarXOffset + basePositions[numeration])
+        end
       else
-        frame:SetPoint("BOTTOMRIGHT", referenceFrame, statusbarXOffset, statusbarYOffset)
-        frame:SetPoint("TOPLEFT", referenceFrame, statusbarXOffset, statusbarYOffset)
+        frame:SetHeight(height)
+        frame:SetWidth(width)
+        if growthDirection == "Reversed" then
+          frame:SetPoint("BOTTOMRIGHT", statusbarXOffset - basePositions[numeration], statusbarYOffset)
+        else
+          frame:SetPoint("BOTTOMLEFT", statusbarXOffset + basePositions[numeration], statusbarYOffset)
+        end
       end
       frame:SetBackdrop(statusbarBackdrop)
       frame:SetBackdropColor(db.statusbarColorBackground.r, db.statusbarColorBackground.b, db.statusbarColorBackground.g, db.statusbarColorBackground.a)
@@ -660,7 +699,7 @@ local function buildFrames()
       return frame
     end
     for i = 1, statusbarCount do
-      statusbars[i] = createStatusBars(resourceFrames[i], i)
+      statusbars[i] = createStatusBars(i)
     end
     if #statusbars > statusbarCount then
       for i = statusbarCount + 1, #statusbars do
@@ -687,9 +726,13 @@ function CD:Unlock()
       statusbars[i]:Show()
     end
     
-    if i == statusbarCount then break end
+    if i == statusbarCount then
+      break
+    end
     
-    resourceFrames[i]:Show()
+    if resourceEnable then
+      resourceFrames[i]:Show()
+    end
   end
 end
 
@@ -703,6 +746,7 @@ end
 function CD:Build()
   db = DS.db.display
   gainFlash = db.gainFlash
+  resourceEnable = db.resourceEnable
   resourceCappedEnable = db.resourceCappedEnable
   remainingTimeThreshold = db.remainingTimeThreshold
   resourceGainPrediction = db.resourceGainPrediction

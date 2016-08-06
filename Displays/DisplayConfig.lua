@@ -40,6 +40,11 @@ local function displayOptions()
             type="header",
             name=L["Dimensions"]
           },
+          resourceEnable = {
+            order = 0.1,
+            type = "toggle",
+            name = L["Enable"]
+          },
           height = {
             order = 1,
             type = "range",
@@ -727,6 +732,7 @@ end
 local defaultSettings = {
   profile = {
     enable = true,
+    resourceEnable = true,
     anchor = "CENTER",
     anchorFrame = "UIParent",
     posX = 0,
