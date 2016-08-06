@@ -40,6 +40,11 @@ local function displayOptions()
             type = "toggle",
             name = L["Enable"]
           },
+          header0 = {
+            order = 0.1,
+            type="header",
+            name=L["Dimensions"]
+          },
           height = {
             order = 1,
             type = "range",
@@ -173,7 +178,8 @@ local function displayOptions()
             set = function(info, r, b, g, a)
               DS.db.display.resourceCappedColor.r, DS.db.display.resourceCappedColor.b, DS.db.display.resourceCappedColor.g, DS.db.display.resourceCappedColor.a = r, b, g, a
               DS:Build()
-            end
+            end,
+            hidden = not DS.db.display.resourceCappedEnable
           },
           header3 = {
             order = 8.5,
@@ -194,7 +200,8 @@ local function displayOptions()
             type = "select",
             dialogControl = "LSM30_Statusbar",
             name = L["Texture"],
-            values = LSM:HashTable("statusbar")
+            values = LSM:HashTable("statusbar"),
+            hidden = not DS.db.display.useTexture
           },
           header4 = {
             order = 9.5,
@@ -241,7 +248,8 @@ local function displayOptions()
             name = L["Fade Duration"],
             min = 0.1,
             max = 10,
-            step = 0.1
+            step = 0.1,
+            hidden = not (DS.db.display.visibilityConditionals and DS.db.display.visibilityConditionals:find("fade"))
           },
         }
       },
@@ -300,7 +308,8 @@ local function displayOptions()
             set = function(info, r, b, g, a)
               DS.db.display.resourceGainColor.r, DS.db.display.resourceGainColor.b, DS.db.display.resourceGainColor.g, DS.db.display.resourceGainColor.a = r, b, g, a
               DS:Build()
-            end
+            end,
+            hidden = not DS.db.display.resourceGainPrediction
           },
           spacer7 = {
             order = 17.5,
@@ -328,7 +337,8 @@ local function displayOptions()
             set = function(info, r, b, g, a)
               DS.db.display.resourceSpendColor.r, DS.db.display.resourceSpendColor.b, DS.db.display.resourceSpendColor.g, DS.db.display.resourceSpendColor.a = r, b, g, a
               DS:Build()
-            end
+            end,
+            hidden = not DS.db.display.resourceSpendPrediction
           },
           header7 = {
             order = 19.5,
