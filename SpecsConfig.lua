@@ -34,7 +34,7 @@ local UnitGUID = UnitGUID
 -- Utility --
 -------------
 local getHasteMod = DS.GetHasteMod
-local buildHastedIntervalFunc = DS.buildHastedIntervalFunc
+local buildHastedIntervalFunc = DS.BuildHastedIntervalFunc
 
 
 -----------

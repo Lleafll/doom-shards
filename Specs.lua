@@ -40,7 +40,7 @@ local function buildHastedIntervalFunc(base)
     return base / getHasteMod()
   end
 end
-DS.buildHastedIntervalFunc = buildHastedIntervalFunc
+DS.BuildHastedIntervalFunc = buildHastedIntervalFunc
 
 
 ----------------------------------
