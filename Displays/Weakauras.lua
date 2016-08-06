@@ -30,14 +30,8 @@ end
 -- Functions --
 ---------------
 local function WeakAurasLoaded()
-  -- Debug
-  print("WeakAurasLoaded")
-  
   local WeakAuras_ScanEvents = WeakAuras.ScanEvents
   function WA:DOOM_SHARDS_DISPLAY_UPDATE()
-    -- Debug
-    print("Send DOOM_SHARDS_DISPLAY_UPDATE")
-    
     WeakAuras_ScanEvents("DOOM_SHARDS_DISPLAY_UPDATE")
   end
   
