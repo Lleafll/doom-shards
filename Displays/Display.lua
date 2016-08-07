@@ -401,7 +401,10 @@ end
 -- Animations --
 ----------------
 local function buildFader()
-  CDFrame.fader = CDFrame:CreateAnimationGroup()
+  CDFrame.fader = CDFrame.fader or CDFrame:CreateAnimationGroup()
+  CDFrame.fader:SetScript("OnPlay", function()
+    CDFrame:StopAnimating()
+  end)
   CDFrame.fader:SetScript("OnFinished", function()
     CDFrame:SetAlpha(1)
     CDFrame:Hide()
@@ -409,6 +412,7 @@ local function buildFader()
   CDFrame.fader.fadeOut = CDFrame.fader:CreateAnimation("Alpha")
   CDFrame.fader.fadeOut:SetFromAlpha(1)
   CDFrame.fader.fadeOut:SetToAlpha(0)
+  CDFrame.fader.fadeOut:SetDuration(db.fadeOutDuration)
   CDFrame.fader.fadeOut:SetSmoothing("IN")
 end
 
@@ -425,9 +429,10 @@ local function buildFlasher(parentFrame)
   end
   
   parentFrame.flasher = smoke:CreateAnimationGroup()
-  parentFrame.flasher:SetScript("OnFinished", function()
+  local function hideSmoke()
     smoke:SetAlpha(0)
-  end)
+  end
+  parentFrame.flasher:SetScript("OnFinished", hideSmoke)
   
   parentFrame.flasher.start = parentFrame.flasher:CreateAnimation("Alpha")
   parentFrame.flasher.start:SetFromAlpha(0)
@@ -781,10 +786,7 @@ function CD:Build()
   statusbarCount = 5 + db.statusbarCount
   
   buildFrames()
-  if not CDFrame.fader then
-    buildFader()
-  end
-  CDFrame.fader.fadeOut:SetDuration(db.fadeOutDuration)
+  buildFader()
   if DS.locked then
     CDOnUpdateFrame:Show()
   end
