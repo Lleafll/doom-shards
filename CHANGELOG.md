@@ -1,6 +1,6 @@
 # Change Log
 
-## [Unreleased]
+## [v14] - 2016-08-10
 ### Added
 - Added option to enable/disable Soul Shards bars
 - Added WeakAuras interface once again
@@ -14,7 +14,6 @@
 - Removed scale option
 
 ### Fixed
-- Fixed Soul Shards sometimes being stuck in wrong alpha after fading out
 - Fixed animation on shard gain not showing most of the time
 - Fixed partial Doom ticks showing when "Consolidate ticks" is selected
 - Fixed notification showing twice after ending test mode
