@@ -145,8 +145,8 @@ local function setExpiration(aura)
   aura.expiration = expires or calculateExpiration(aura)
 end
 
-local function calculateNextTick(self)
-  self.nextTick = GetTime() + self.tickLength
+local function calculateNextTick(aura)
+  aura.nextTick = GetTime() + aura.tickLength
 end
 
 local function applyMethod(self)

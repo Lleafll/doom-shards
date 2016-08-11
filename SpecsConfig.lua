@@ -248,8 +248,8 @@ DS:AddSpecSettings(267,
           return self.nextTick, self.resourceChance, false
         end
       end,
-      Refresh = function(self, timeStamp)
-        self:Tick(timeStamp)
+      OnRefresh = function(self)
+        self:Tick()
       end
     }
   },
