@@ -196,7 +196,7 @@ DS:AddSpecSettings(266,
       pandemicFunc = buildHastedIntervalFunc(6),
       tickLengthFunc = buildHastedIntervalFunc(20),
       resourceChance = 1,
-      initialTick = false,
+      hasInitialTick = false,
       IterateTick = function(self, timeStamp)
         if timeStamp then
           local expiration = self.expiration

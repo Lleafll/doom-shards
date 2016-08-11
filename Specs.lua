@@ -151,7 +151,7 @@ end
 
 local function applyMethod(self)
   setExpiration(self)
-  if self.initialTick then
+  if self.hasInitialTick then
     self:Tick()
   else
     calculateNextTick(self)
@@ -186,7 +186,7 @@ function DS:AddSpecSettings(specID, resourceGeneration, trackedAuras, specHandli
     if not v.pandemic then
       v.pandemicFunc = v.pandemicFunc or pandemicFunc
     end
-    v.initialTick = v.initialTick == nil and true or v.initialTick
+    v.hasInitialTick = v.hasInitialTick == nil and true or v.hasInitialTick
     v.applyEvent = v.applyEvent or "SPELL_AURA_APPLIED"
     v.refreshEvent = v.refreshEvent or "SPELL_AURA_REFRESH"
     v.removeEvent = v.removeEvent or "SPELL_AURA_REMOVED"
