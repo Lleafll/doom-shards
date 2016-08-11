@@ -1,5 +1,9 @@
 # Change Log
 
+## [v15] - 2016-08-11
+### Fixed
+- Fixed a bug occuring when multidotting with Agony (#1)
+
 ## [v14] - 2016-08-10
 ### Added
 - Added option to enable/disable Soul Shards bars
