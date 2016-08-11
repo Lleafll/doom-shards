@@ -1,5 +1,9 @@
 # Change Log
 
+## [Unreleased]
+### Fixed
+- Shadowburn indicator no longer gets removed when refreshed too often (#2)
+
 ## [v15] - 2016-08-11
 ### Fixed
 - Fixed a bug occuring when multidotting with Agony (#1)
