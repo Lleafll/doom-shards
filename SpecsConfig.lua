@@ -119,7 +119,7 @@ do
         end,
         tickLengthFunc = buildHastedIntervalFunc(2),
         resourceChanceFunc = function(self)
-          return (BASE_AVERAGE_ACCUMULATOR_INCREASE / sqrt(DS.agonyCounter)) / BASE_AVERAGE_ACCUMULATOR_RESET_VALUE
+          return (BASE_AVERAGE_ACCUMULATOR_INCREASE / sqrt(DS.agonyCounter or 1)) / BASE_AVERAGE_ACCUMULATOR_RESET_VALUE
         end,
         refreshEvent = "SPELL_CAST_SUCCESS",
         IterateTick = function(self, timeStamp)
@@ -196,6 +196,7 @@ DS:AddSpecSettings(266,
       pandemicFunc = buildHastedIntervalFunc(6),
       tickLengthFunc = buildHastedIntervalFunc(20),
       resourceChance = 1,
+      initialTick = false,
       IterateTick = function(self, timeStamp)
         if timeStamp then
           local expiration = self.expiration

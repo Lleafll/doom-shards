@@ -145,11 +145,18 @@ local function setExpiration(aura)
   aura.expiration = expires or calculateExpiration(aura)
 end
 
+local function calculateNextTick(self)
+  self.nextTick = GetTime() + self.tickLength
+end
+
 local function applyMethod(self)
   setExpiration(self)
+  if self.initialTick then
+    self:Tick()
+  else
+    calculateNextTick(self)
+  end
   self:OnApply()
-  
-  self:Tick()
 end
 
 local function refreshMethod(self)
@@ -158,7 +165,7 @@ local function refreshMethod(self)
 end
 
 local function tickMethod(self)
-  self.nextTick = GetTime() + self.tickLength
+  calculateNextTick(self)
   self:OnTick()
 end
 
@@ -179,6 +186,7 @@ function DS:AddSpecSettings(specID, resourceGeneration, trackedAuras, specHandli
     if not v.pandemic then
       v.pandemicFunc = v.pandemicFunc or pandemicFunc
     end
+    v.initialTick = v.initialTick == nil and true or v.initialTick
     v.applyEvent = v.applyEvent or "SPELL_AURA_APPLIED"
     v.refreshEvent = v.refreshEvent or "SPELL_AURA_REFRESH"
     v.removeEvent = v.removeEvent or "SPELL_AURA_REMOVED"
