@@ -1,5 +1,3 @@
-# Change Log
-
 ## [Unreleased]
 ### Fixed
 - Shadowburn indicator no longer gets removed when refreshed too often (#2)
