@@ -1,5 +1,6 @@
-## [Unreleased]
+## [v16] - 2016-08-13
 ### Fixed
+- All Soul Shards indicators now properly hide when disabled while being shown
 - Shadowburn indicator no longer gets removed when refreshed too often (#2)
 
 ## [v15] - 2016-08-11
