@@ -558,6 +558,11 @@ local function buildFrames()
     for i = 1, statusbarCount do
       resourceFrames[i] = createResourceFrame(i)
     end
+    
+  else
+    for i = 1, #resourceFrames do
+      resourceFrames[i]:Hide()
+    end
   end
   
   if textEnable then
