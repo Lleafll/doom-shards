@@ -160,6 +160,8 @@ function DS:COMBAT_LOG_EVENT_UNFILTERED(_, timeStamp, event, _, sourceGUID, _, _
           resource = resource + 1
           self:UNIT_POWER_FREQUENT("UNIT_POWER_FREQUENT", "player", "SOUL_SHARDS")  -- fail safe in case the corresponding UNIT_POWER_FREQUENT fires wonkily
         end
+      elseif event == trackedAura.missedEvent then
+        self:Missed(destGUID, spellID)
       end
     end
   end

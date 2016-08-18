@@ -169,6 +169,11 @@ local function tickMethod(self)
   self:OnTick()
 end
 
+local function missedMethod(self)
+  calculateNextTick(self)
+  self:OnMissed()
+end
+
 function DS:AddSpecSettings(specID, resourceGeneration, trackedAuras, specHandling)
   local settings = {}
   specSettings[specID] = settings
@@ -191,16 +196,19 @@ function DS:AddSpecSettings(specID, resourceGeneration, trackedAuras, specHandli
     v.refreshEvent = v.refreshEvent or "SPELL_AURA_REFRESH"
     v.removeEvent = v.removeEvent or "SPELL_AURA_REMOVED"
     v.tickEvent = v.tickEvent or "SPELL_PERIODIC_DAMAGE"
+    v.missedEvent = v.missedEvent or "SPELL_PERIODIC_MISSED"
     
     -- Methods
     v.Apply = v.Apply or applyMethod
     v.Tick = v.Tick or tickMethod
     v.Refresh = v.Refresh or refreshMethod
     v.IterateTick = v.IterateTick or iterateTickMethod
+    v.Missed = v.Missed or missedMethod
     v.OnApply = v.OnApply or dummyFunc
     v.OnTick = v.OnTick or dummyFunc
     v.OnRefresh = v.OnRefresh or dummyFunc
     v.OnRemove = v.OnRemove or dummyFunc
+    v.OnMissed = v.OnMissed or dummyFunc
     
     auraMetaTable[specID][k] = {__index = v}
   end
