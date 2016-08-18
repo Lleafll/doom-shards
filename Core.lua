@@ -229,20 +229,25 @@ end
 --------------------
 -- Cleanup Ticker --
 --------------------
-local function cleanUp()
-  local timeStamp = GetTime() - 3
-  for GUID, tbl in pairs(auras) do
-    for spellID, aura in pairs(tbl) do
-      if aura.expiration < timeStamp then
-        DS:Remove(GUID, spellID)
-        DS:Update()
+do
+  local CLEANUP_TOLERANCE = 1
+  local CLEANUP_INTERVAL = 1
+  
+  local function cleanUp()
+    local timeStamp = GetTime() - CLEANUP_TOLERANCE
+    for GUID, tbl in pairs(auras) do
+      for spellID, aura in pairs(tbl) do
+        if aura.expiration < timeStamp then
+          DS:Remove(GUID, spellID)
+          DS:Update()
+        end
       end
     end
+    C_TimerAfter(CLEANUP_INTERVAL, cleanUp)
   end
-  C_TimerAfter(2, cleanUp)
+  DS.CleanUp = cleanUp
+  cleanUp()
 end
-DS.CleanUp = cleanUp
-cleanUp()
 
 
 -----------------------
