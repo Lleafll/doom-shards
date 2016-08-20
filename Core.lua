@@ -101,15 +101,13 @@ end
 
 function DS:Refresh(GUID, spellID)
   auras[GUID][spellID]:Refresh()
-  self:Update(GetTime())
+  self:Update()
 end
 
 function DS:Tick(GUID, spellID)
   if auras[GUID] and auras[GUID][spellID] then
-    local timeStamp = GetTime()
-    local aura = auras[GUID][spellID]
-    aura:Tick(timeStamp)
-    self:Update(timeStamp)
+    auras[GUID][spellID]:Tick()
+    self:Update()
   end
 end
 
