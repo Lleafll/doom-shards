@@ -27,7 +27,7 @@ local UnitGUID = UnitGUID
 ---------------
 -- Constants --
 ---------------
-local MAX_BOSSES = 5
+local MAX_BOSS_FRAMES = 5
 local MAX_NAMEPLATES_TO_CHECK = 20
 local MAX_PARTY_SIZE = 5
 local MAX_RAID_SIZE = 40
@@ -62,7 +62,7 @@ DS.BuildUnitIDTable = buildUnitIDTable
 -------------------
 -- Lookup Tables --
 -------------------
-local bossTable = buildUnitIDTable("boss", MAX_BOSSES)
+local bossTable = buildUnitIDTable("boss", MAX_BOSS_FRAMES)
 local nameplateTable = buildUnitIDTable("nameplate", MAX_NAMEPLATES_TO_CHECK)
 local partyTable = buildUnitIDTable("party", MAX_PARTY_SIZE, "target")
 local raidTable = buildUnitIDTable("raid", MAX_RAID_SIZE, "target")
