@@ -135,6 +135,10 @@ do
             return nextTick, resourceChance, nextTick >= self.expiration
           end
         end,
+        Refresh = function(self)
+          self.expiration = DS.CalculateExpiration(self)  -- SPELL_CAST_SUCCESS triggers before aura is applied -> setExpiration can't be used
+          self:OnRefresh()
+        end,
         OnApply = function(self)
           if not DS.agonyCounter then
             spellEnergizeFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
