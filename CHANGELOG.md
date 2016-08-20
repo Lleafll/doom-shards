@@ -1,6 +1,7 @@
 ## [Unreleased]
 ### Added
 - Added Unstable Affliction tracking
+- Added support for Hood of Eternal Disdain
 
 ### Fixed
 - Fixed a bug where refreshing Doom with a partial tick remaining overwrote this tick
