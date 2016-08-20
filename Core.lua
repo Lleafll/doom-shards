@@ -71,7 +71,6 @@ end
 
 -- resets all data
 function DS:ResetCount()
-  --auras = {}
   self:Update()
 end
 
@@ -112,7 +111,10 @@ function DS:Tick(GUID, spellID)
 end
 
 function DS:Missed(GUID, spellID)
-  auras[GUID][spellID]:Missed()
+  if auras[GUID] and auras[GUID][spellID] then
+    auras[GUID][spellID]:Missed()
+    self:Update()
+  end
 end
 
 do
@@ -147,7 +149,7 @@ end
 --------------------
 function DS:COMBAT_LOG_EVENT_UNFILTERED(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, ...)
   if sourceGUID == PLAYER_GUID then
-    local spellID, _, _, _, _ = ...
+    local spellID = ...
     if trackedAuras[spellID] and sourceGUID == PLAYER_GUID and self.db.specializations[spellID] then
       local trackedAura = trackedAuras[spellID]
       if auras[destGUID] and auras[destGUID][spellID] and event == trackedAura.refreshEvent then
