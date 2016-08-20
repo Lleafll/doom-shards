@@ -104,6 +104,7 @@ do
     {
       [980] = {  -- Agony
         durationFunc = function(self)
+          local duration = 18
           local FOTDS_ID = 124522  -- Fragment of the Dark Star
           if IsEquippedItem(FOTDS_ID) then
             local ilink
@@ -113,10 +114,12 @@ do
               ilink = GetInventoryItemLink("player", 14) 
             end
             local _, _, _, ilvl = GetItemInfo(ilink)
-            return -1.183E-4 * ilvl*ilvl + 0.141 * ilvl - 25.336
-          else
-            return 18
+            duration = -1.183E-4 * ilvl*ilvl + 0.141 * ilvl - 25.336
           end
+          if IsEquippedItem(132394) then  -- Hood of Eternal Disdain
+            duration = duration / 1.2
+          end
+          return duration
         end,
         tickLengthFunc = buildHastedIntervalFunc(2),
         resourceChanceFunc = function(self)
