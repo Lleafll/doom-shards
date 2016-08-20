@@ -71,7 +71,6 @@ end
 
 -- resets all data
 function DS:ResetCount()
-  --auras = {}
   self:Update()
 end
 
@@ -101,15 +100,20 @@ end
 
 function DS:Refresh(GUID, spellID)
   auras[GUID][spellID]:Refresh()
-  self:Update(GetTime())
+  self:Update()
 end
 
 function DS:Tick(GUID, spellID)
   if auras[GUID] and auras[GUID][spellID] then
-    local timeStamp = GetTime()
-    local aura = auras[GUID][spellID]
-    aura:Tick(timeStamp)
-    self:Update(timeStamp)
+    auras[GUID][spellID]:Tick()
+    self:Update()
+  end
+end
+
+function DS:Missed(GUID, spellID)
+  if auras[GUID] and auras[GUID][spellID] then
+    auras[GUID][spellID]:Missed()
+    self:Update()
   end
 end
 
@@ -145,7 +149,7 @@ end
 --------------------
 function DS:COMBAT_LOG_EVENT_UNFILTERED(_, timeStamp, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, ...)
   if sourceGUID == PLAYER_GUID then
-    local spellID, _, _, _, _ = ...
+    local spellID = ...
     if trackedAuras[spellID] and sourceGUID == PLAYER_GUID and self.db.specializations[spellID] then
       local trackedAura = trackedAuras[spellID]
       if auras[destGUID] and auras[destGUID][spellID] and event == trackedAura.refreshEvent then
@@ -160,6 +164,8 @@ function DS:COMBAT_LOG_EVENT_UNFILTERED(_, timeStamp, event, _, sourceGUID, _, _
           resource = resource + 1
           self:UNIT_POWER_FREQUENT("UNIT_POWER_FREQUENT", "player", "SOUL_SHARDS")  -- fail safe in case the corresponding UNIT_POWER_FREQUENT fires wonkily
         end
+      elseif event == trackedAura.missedEvent then
+        self:Missed(destGUID, spellID)
       end
     end
   end
