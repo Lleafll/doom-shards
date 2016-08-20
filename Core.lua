@@ -66,6 +66,12 @@ end
 
 function DS:Remove(GUID, spellID)
   if not spellID then
+    local auras_GUID = auras[GUID]
+    if auras_GUID then
+      for _, aura in pairs(auras_GUID) do
+        aura:OnRemove()
+      end
+    end
     auras[GUID] = nil
   else
     local auras_GUID = auras[GUID]
