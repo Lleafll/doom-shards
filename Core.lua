@@ -74,10 +74,10 @@ function DS:Remove(GUID, spellID)
       if aura then
         aura:OnRemove()
         auras_GUID[spellID] = nil
-        self:Update()
       end
     end
   end
+  self:Update()
 end
 
 function DS:Refresh(GUID, spellID)
