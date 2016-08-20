@@ -103,10 +103,10 @@ do
     {
       [980] = {  -- Agony
         durationFunc = function(self)
-          local fotdsID = 124522  -- Fragment of the Dark Star
-          if IsEquippedItem(fotdsID) then
+          local FOTDS_ID = 124522  -- Fragment of the Dark Star
+          if IsEquippedItem(FOTDS_ID) then
             local ilink
-            if GetInventoryItemID("player", 13) == fotdsID then
+            if GetInventoryItemID("player", 13) == FOTDS_ID then
               ilink = GetInventoryItemLink("player", 13) 
             else
               ilink = GetInventoryItemLink("player", 14) 
