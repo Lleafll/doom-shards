@@ -1,3 +1,7 @@
+## [Unreleased]
+### Fixed
+- Fix when tick misses due to e.g. immunity 
+
 ## [v16] - 2016-08-13
 ### Fixed
 - All Soul Shards indicators now properly hide when disabled while being shown
