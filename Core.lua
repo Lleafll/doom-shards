@@ -111,6 +111,10 @@ function DS:Tick(GUID, spellID)
   end
 end
 
+function DS:Missed(GUID, spellID)
+  auras[GUID][spellID]:Missed()
+end
+
 do
   local function spellGUIDToID(GUID)
     local _, _, _, _, ID = strsplit("-", GUID)
