@@ -1,5 +1,6 @@
 ## [Unreleased]
 ### Fixed
+- Fixed a bug where refreshing Doom with a partial tick remaining overwrote this tick
 - Fix when tick misses due to e.g. immunity 
 
 ## [v16] - 2016-08-13
