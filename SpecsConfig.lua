@@ -158,7 +158,29 @@ do
             setGlobalNextAgonyTick()
           end
         end
-      }
+      },
+      [30108] = {  -- Unstable Affliction
+        durationFunc = buildHastedIntervalFunc(8),
+        pandemic = 0,
+        tickLengthFunc = buildHastedIntervalFunc(8),
+        resourceChance = 1,
+        hasInitialTick = false,
+        IterateTick = function(self, timeStamp)
+          if timeStamp then
+            local expiration = self.expiration
+            local iteratedTick = timeStamp + self.tickLength
+            local isLastTick = iteratedTick >= expiration
+            local resourceChance = (expiration - self.nextTick) / self.duration
+            return isLastTick and expiration or iteratedTick, resourceChance, isLastTick
+          else
+            local isLastTick = self.nextTick >= self.expiration
+            return isLastTick and self.expiration or self.nextTick, self.resourceChance, isLastTick
+          end
+        end,
+        OnRefresh = function(self)
+          self:Tick()
+        end,
+      },
     },
     {
       referenceTime = 2  -- 2 ticks of Drain Life
@@ -287,6 +309,11 @@ local function specializationsOptions()
         name = L["Track Agony"],
         type = "toggle"
       },
+      ["30108"] = {
+        order = 3,
+        name = L["Track Unstable Affliction"],
+        type = "toggle"
+      },
       headerDemonology = {
         order = 10,
         name = L["Demonology"],
@@ -314,6 +341,7 @@ end
 local defaultSettings = {
   profile = {
     [980] = true,
+    [30108] = true,
     [603] = true,
     [17877] = true,
   }
