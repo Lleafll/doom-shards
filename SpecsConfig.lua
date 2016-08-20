@@ -167,55 +167,52 @@ do
 end
 
 -- Demonology
-local demonicCallingString = GetSpellInfo(205146)
-DS:AddSpecSettings(266,
-  {
-    [104316] = function()  -- Call Dreadstalkers  -- TODO: possibly cache and update on event
-      local generates = -2
-      if UnitBuff("player", demonicCallingString) then
-        generates = generates + 2
-      end
-      if IsEquippedItem(132393) then  -- Recurrent Ritual
-        generates = generates + 2
-      end
-      return generates
-    end,
-    [157695] = 1,  -- Demonbolt
-    [105174] = -4,  -- Hand of Gul'dan
-    [686] = 1,  -- Shadow Bolt
-    [18540] = -1,  -- Summon Doomguard
-    [688] = -1,  -- Summon Imp
-    [1122] = -1,  -- Summon Infernal
-    [30146] = -1,  -- Summon Felguard
-    [691] = -1,  -- Summon Felhunter
-    [712] = -1,  -- Summon Succubus
-    [697] = -1,  -- Summon Voidwalker
-  },
-  {
-    [603] = {  -- Doom
-      durationFunc = buildHastedIntervalFunc(20),
-      pandemicFunc = buildHastedIntervalFunc(6),
-      tickLengthFunc = buildHastedIntervalFunc(20),
-      resourceChance = 1,
-      hasInitialTick = false,
-      IterateTick = function(self, timeStamp)
-        if timeStamp then
-          local expiration = self.expiration
-          local iteratedTick = timeStamp + self.tickLength
-          local isLastTick = iteratedTick >= expiration
-          local resourceChance = (expiration - self.nextTick) / self.duration
-          return isLastTick and expiration or iteratedTick, resourceChance, isLastTick
-        else
-          local isLastTick = self.nextTick >= self.expiration
-          return isLastTick and self.expiration or self.nextTick, self.resourceChance, isLastTick
+do
+  local demonicCallingString = GetSpellInfo(205146)
+  DS:AddSpecSettings(266,
+    {
+      [104316] = function()  -- Call Dreadstalkers  -- TODO: possibly cache and update on event
+        local generates = -2
+        if UnitBuff("player", demonicCallingString) then
+          generates = generates + 2
         end
-      end
+        if IsEquippedItem(132393) then  -- Recurrent Ritual
+          generates = generates + 2
+        end
+        return generates
+      end,
+      [157695] = 1,  -- Demonbolt
+      [105174] = -4,  -- Hand of Gul'dan
+      [686] = 1,  -- Shadow Bolt
+      [18540] = -1,  -- Summon Doomguard
+      [688] = -1,  -- Summon Imp
+      [1122] = -1,  -- Summon Infernal
+      [30146] = -1,  -- Summon Felguard
+      [691] = -1,  -- Summon Felhunter
+      [712] = -1,  -- Summon Succubus
+      [697] = -1,  -- Summon Voidwalker
+    },
+    {
+      [603] = {  -- Doom
+        durationFunc = buildHastedIntervalFunc(20),
+        pandemicFunc = buildHastedIntervalFunc(6),
+        tickLengthFunc = buildHastedIntervalFunc(20),
+        resourceChance = 1,
+        hasInitialTick = false,
+        IterateTick = function(self, timeStamp)
+          if timeStamp then
+          return self.nextTick, self.resourceChance, true
+          else
+            return self.nextTick, self.resourceChance, false
+          end
+        end
+      }
+    },
+    {
+      referenceSpell = 686  -- Shadow Bolt
     }
-  },
-  {
-    referenceSpell = 686  -- Shadow Bolt
-  }
-)
+  )
+end
 
 -- Destruction
 DS:AddSpecSettings(267,
