@@ -124,6 +124,7 @@ local function calculateExpiration(aura)
     return timestamp + aura.duration
   end
 end
+DS.CalculateExpiration = calculateExpiration
 
 local function setExpiration(aura)
   local GUID = aura.GUID
@@ -144,11 +145,13 @@ local function setExpiration(aura)
   
   aura.expiration = expires or calculateExpiration(aura)
 end
+DS.SetExpiration = setExpiration
 
 local function calculateNextTick(aura)
   local fullNextTick = GetTime() + aura.tickLength
   aura.nextTick = fullNextTick < aura.expiration and fullNextTick or aura.expiration
 end
+DS.CalculateNextTick = calculateNextTick
 
 local function applyMethod(self)
   setExpiration(self)
