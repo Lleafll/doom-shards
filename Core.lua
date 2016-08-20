@@ -7,31 +7,13 @@ local L = LibStub("AceLocale-3.0"):GetLocale("DoomShards")
 -- Upvalues --
 --------------
 local C_TimerAfter = C_Timer.After
-local GetActiveSpecGroup = GetActiveSpecGroup
-local GetHaste = GetHaste
 local GetSpecializationInfo = GetSpecializationInfo
-local GetSpellDescription = GetSpellDescription
-local GetTalentInfo = GetTalentInfo
 local GetTime = GetTime
-local gsub = gsub
-local IsEquippedItem = IsEquippedItem
-local IsInGroup = IsInGroup
-local IsInRaid = IsInRaid
-local IsItemInRange = IsItemInRange
-local ItemHasRange = ItemHasRange
-local mathmin = math.min
 local pairs = pairs
-local select = select
-local stringmatch = string.match
 local strsplit = strsplit
-local tableinsert = table.insert  -- only used sparingly
-local tableremove = table.remove
 local tonumber = tonumber
 local type = type
-local UnitBuff = UnitBuff
-local UnitCanAttack = UnitCanAttack
 local UnitCastingInfo = UnitCastingInfo
-local UnitExists = UnitExists
 local UnitGUID = UnitGUID
 local UnitPower = UnitPower
 
