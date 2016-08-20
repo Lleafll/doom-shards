@@ -14,6 +14,7 @@ local L = LibStub("AceLocale-3.0"):GetLocale("DoomShards")
 local exp = exp
 local GetActiveSpecGroup = GetActiveSpecGroup
 local GetHaste = GetHaste
+local GetTime = GetTime
 local GetInventoryItemID = GetInventoryItemID
 local GetSpellCritChance = GetSpellCritChance
 local GetSpecialization = GetSpecialization
@@ -197,6 +198,10 @@ DS:AddSpecSettings(266,
       tickLengthFunc = buildHastedIntervalFunc(20),
       resourceChance = 1,
       hasInitialTick = false,
+      Tick = function(self)
+        local fullNextTick = GetTime() + self.tickLength
+        self.nextTick = fullNextTick < self.expiration and fullNextTick or self.expiration
+      end,
       IterateTick = function(self, timeStamp)
         if timeStamp then
           local expiration = self.expiration
