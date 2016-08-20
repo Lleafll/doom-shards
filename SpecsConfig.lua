@@ -63,28 +63,28 @@ do
   local BASE_AVERAGE_ACCUMULATOR_RESET_VALUE = 0.5
   
   DS.agonyAccumulator = BASE_AVERAGE_ACCUMULATOR_RESET_VALUE
-  DS.globalNextAgonyTick = {}
+  DS.globalNextAgony = {}
   DS.globalAppliedAgonies = {}
   local spellEnergizeFrame = CreateFrame("Frame")
   spellEnergizeFrame:Show()
   spellEnergizeFrame:SetScript("OnEvent", function(self, _, _, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
     if event == "SPELL_ENERGIZE" and spellID == 17941 and sourceGUID == UnitGUID("player") and DS.agonyAccumulator then
-      DS.agonyAccumulator = BASE_AVERAGE_ACCUMULATOR_RESET_VALUE - DS.globalNextAgonyTick.aura.resourceChance  -- SPELL_ENERGIZE fire before respective SPELL_DAMAGE from Agony
+      DS.agonyAccumulator = BASE_AVERAGE_ACCUMULATOR_RESET_VALUE - DS.globalNextAgony.aura.resourceChance  -- SPELL_ENERGIZE fire before respective SPELL_DAMAGE from Agony
     end
   end)
   
-  local function setGlobalNextAgonyTick()
+  local function setGlobalNextAgony()
     local globalNextAgonyTick
-    local globalNextTickAura
+    local globalNextAgonyAura
     for aura in pairs(DS.globalAppliedAgonies) do
       local nextTick = aura.nextTick
       if not globalNextAgonyTick or nextTick < globalNextAgonyTick then
         globalNextAgonyTick = nextTick
-        globalNextTickAura = aura
+        globalNextAgonyAura = aura
       end
     end
-    DS.globalNextAgonyTick.tick = globalNextTick
-    DS.globalNextAgonyTick.aura = globalNextTickAura
+    DS.globalNextAgony.tick = globalNextAgonyTick
+    DS.globalNextAgony.aura = globalNextAgonyAura
   end
   
   DS:AddSpecSettings(265,
@@ -131,7 +131,7 @@ do
             return isLastTick and expiration or iteratedTick, self.resourceChance, isLastTick
           else
             local nextTick = self.nextTick
-            local resourceChance = (DS.globalNextAgonyTick.aura == self) and (DS.agonyAccumulator) or (self.resourceChance)
+            local resourceChance = (DS.globalNextAgony.aura == self) and (DS.agonyAccumulator) or (self.resourceChance)
             return nextTick, resourceChance, nextTick >= self.expiration
           end
         end,
@@ -141,11 +141,11 @@ do
           end
           DS.agonyCounter = (DS.agonyCounter or 0) + 1
           DS.globalAppliedAgonies[self] = true
-          setGlobalNextAgonyTick()
+          setGlobalNextAgony()
         end,
         OnTick = function(self)
           DS.agonyAccumulator = DS.agonyAccumulator + self.resourceChance
-          setGlobalNextAgonyTick()
+          setGlobalNextAgony()
         end,
         OnRemove = function(self)
           if DS.globalAppliedAgonies[self] then
@@ -155,7 +155,7 @@ do
               DS.agonyCounter = nil
               spellEnergizeFrame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
             end
-            setGlobalNextAgonyTick()
+            setGlobalNextAgony()
           end
         end
       },
