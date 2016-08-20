@@ -134,7 +134,7 @@ do
             return nextTick, resourceChance, nextTick >= self.expiration
           end
         end,
-        OnApply = function(self, timeStamp)
+        OnApply = function(self)
           if not DS.agonyCounter then
             spellEnergizeFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
           end
@@ -142,7 +142,7 @@ do
           DS.globalAppliedAgonies[self] = true
           setGlobalNextAgonyTick()
         end,
-        OnTick = function(self, timeStamp)
+        OnTick = function(self)
           DS.agonyAccumulator = DS.agonyAccumulator + self.resourceChance
           setGlobalNextAgonyTick()
         end,
