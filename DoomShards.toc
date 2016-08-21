@@ -39,7 +39,6 @@ Localization\koKR.lua
 
 DoomShards.lua
 Config.lua
-ExportImportConfig.lua
 Specs.lua
 SpecsConfig.lua
 Core.lua
@@ -50,3 +49,4 @@ Modules\WeakaurasConfig.lua
 Modules\Weakauras.lua
 Modules\Sound.lua
 Modules\SoundConfig.lua
+Modules\ExportImportConfig.lua
