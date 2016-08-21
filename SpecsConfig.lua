@@ -230,9 +230,14 @@ do
         hasInitialTick = false,
         IterateTick = function(self, timeStamp)
           if timeStamp then
-            return self.nextTick, self.resourceChance, true
+            local expiration = self.expiration
+            local iteratedTick = timeStamp + self.tickLength
+            local isLastTick = iteratedTick >= expiration
+            local resourceChance = ((isLastTick and expiration or iteratedTick) - timeStamp) / self.duration
+            return isLastTick and expiration or iteratedTick, resourceChance, isLastTick
           else
-            return self.nextTick, self.resourceChance, false
+            local isLastTick = self.nextTick >= self.expiration
+            return isLastTick and self.expiration or self.nextTick, self.resourceChance, isLastTick
           end
         end
       }
