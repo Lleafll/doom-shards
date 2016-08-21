@@ -2,10 +2,10 @@
 -- Addon and Modules --
 -----------------------
 local DS = LibStub("AceAddon-3.0"):GetAddon("Doom Shards", true)
-if not DS then return end
+local CD = DS:GetModule("display")
+if not DS or not CD then return end
 
 local WA = DS:NewModule("weakauras", "AceEvent-3.0")
-local CD = DS:GetModule("display")
 
 
 --------------
@@ -34,7 +34,7 @@ local function WeakAurasLoaded()
   function WA:DOOM_SHARDS_DISPLAY_UPDATE()
     WeakAuras_ScanEvents("DOOM_SHARDS_DISPLAY_UPDATE")
   end
-  
+
   WA:RegisterMessage("DOOM_SHARDS_DISPLAY_UPDATE")
 end
 
