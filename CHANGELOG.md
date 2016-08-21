@@ -6,6 +6,7 @@
 ### Fixed
 - Fixed a bug where refreshing Doom with a partial tick remaining overwrote this tick
 - Fix when tick misses due to e.g. immunity
+- Fixed wrong Shard chance calculation for additional Doom ticks
 - Fixed bug where Agony resource chance wasn't properly calculated
 
 ## [v16] - 2016-08-13
