@@ -38,10 +38,11 @@ Localization\deDE.lua
 Localization\koKR.lua
 
 DoomShards.lua
-Config.lua
-Specs.lua
-SpecsConfig.lua
-Core.lua
+
+Core\Config.lua
+Core\Specs.lua
+Core\SpecsConfig.lua
+Core\Core.lua
 
 Modules\DisplayConfig.lua
 Modules\Display.lua
