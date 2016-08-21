@@ -2,8 +2,9 @@
 -- Get addon object --
 ----------------------
 local DS = LibStub("AceAddon-3.0"):GetAddon("Doom Shards", true)
+if not DS then return end
 local CD = DS:GetModule("display")
-if not DS or not CD then return end
+if not CD then return end
 
 
 ---------------
