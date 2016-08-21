@@ -59,33 +59,44 @@ DS:AddSpecSettings(-1,
 
 -- Affliction
 do
-  local BASE_AVERAGE_ACCUMULATOR_INCREASE = 0.16
-  local BASE_AVERAGE_ACCUMULATOR_RESET_VALUE = 0.5
+  -- Affliction specific item ids
+  local FOTDS_ID = 124522  -- Fragment of the Dark Star
+  local HOED_ID = 132394  -- Hood of Eternal Disdain
+  local HOED_MOD = 1.2
 
-  DS.agonyAccumulator = BASE_AVERAGE_ACCUMULATOR_RESET_VALUE
-  DS.globalNextAgony = {}
+  -- Agony accumulator constants
+  local ACCUMULATOR_MIN_INCREASE = 1  -- Assumption
+  local ACCUMULATOR_MAX_INCREASE = 31  -- Assumption
+  local BASE_ACCUMULATOR_RESET_MIN_VALUE = 0
+  local BASE_ACCUMULATOR_RESET_MAX_VALUE = 99  -- Max accumulator value after reset due to dropping all Agonies
+
+  DS.agonyAccumulator = {}
+  local function resetAccumulator()
+    DS.agonyAccumulator.minLower = BASE_ACCUMULATOR_RESET_MIN_VALUE
+    DS.agonyAccumulator.minUpper = BASE_ACCUMULATOR_RESET_MIN_VALUE
+    DS.agonyAccumulator.maxLower = BASE_ACCUMULATOR_RESET_MAX_VALUE
+    DS.agonyAccumulator.maxUpper = BASE_ACCUMULATOR_RESET_MAX_VALUE
+  end
+  resetAccumulator()
+
   DS.globalAppliedAgonies = {}
+
+  local function getAccumulatorIncrease()
+    local modifier = sqrt(DS.agonyCounter or 1)
+    return ACCUMULATOR_MIN_INCREASE / modifier, ACCUMULATOR_MAX_INCREASE / modifier
+  end
+
   local spellEnergizeFrame = CreateFrame("Frame")
   spellEnergizeFrame:Show()
   spellEnergizeFrame:SetScript("OnEvent", function(self, _, _, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
     if event == "SPELL_ENERGIZE" and spellID == 17941 and sourceGUID == UnitGUID("player") and DS.agonyAccumulator then
-      DS.agonyAccumulator = BASE_AVERAGE_ACCUMULATOR_RESET_VALUE - DS.globalNextAgony.aura.resourceChance  -- SPELL_ENERGIZE fire before respective SPELL_DAMAGE from Agony
+      DS.agonyAccumulator.minLower = BASE_ACCUMULATOR_RESET_MIN_VALUE
+      DS.agonyAccumulator.minUpper = BASE_ACCUMULATOR_RESET_MIN_VALUE
+      local _, maxIncrease = getAccumulatorIncrease()
+      DS.agonyAccumulator.maxLower = maxIncrease - 1
+      DS.agonyAccumulator.maxUpper = maxIncrease - 1
     end
   end)
-
-  local function setGlobalNextAgony()
-    local globalNextAgonyTick
-    local globalNextAgonyAura
-    for aura in pairs(DS.globalAppliedAgonies) do
-      local nextTick = aura.nextTick
-      if not globalNextAgonyTick or nextTick < globalNextAgonyTick then
-        globalNextAgonyTick = nextTick
-        globalNextAgonyAura = aura
-      end
-    end
-    DS.globalNextAgony.tick = globalNextAgonyTick
-    DS.globalNextAgony.aura = globalNextAgonyAura
-  end
 
   DS:AddSpecSettings(265,
     {
@@ -105,7 +116,6 @@ do
       [980] = {  -- Agony
         durationFunc = function(self)
           local duration = 18
-          local FOTDS_ID = 124522  -- Fragment of the Dark Star
           if IsEquippedItem(FOTDS_ID) then
             local ilink
             if GetInventoryItemID("player", 13) == FOTDS_ID then
@@ -114,29 +124,36 @@ do
               ilink = GetInventoryItemLink("player", 14)
             end
             local _, _, _, ilvl = GetItemInfo(ilink)
-            duration = -1.183E-4 * ilvl*ilvl + 0.141 * ilvl - 25.336
+            duration = -1.183E-4 * ilvl*ilvl + 0.141 * ilvl - 25.336  -- TODO: Move magic numbers
           end
-          if IsEquippedItem(132394) then  -- Hood of Eternal Disdain
-            duration = duration / 1.2
+          if IsEquippedItem(HOED_ID) then
+            duration = duration / HOED_MOD
           end
           return duration
         end,
-        tickLengthFunc = buildHastedIntervalFunc(2),
+        tickLengthFunc = function()
+          local tickLength = 2
+          -- TODO: Insert FotDS here
+          if IsEquippedItem(HOED_ID) then
+            tickLength = tickLength / HOED_MOD
+          end
+          return tickLength / getHasteMod()
+        end,
         resourceChanceFunc = function(self)
-          return (BASE_AVERAGE_ACCUMULATOR_INCREASE / sqrt(DS.agonyCounter or 1)) / BASE_AVERAGE_ACCUMULATOR_RESET_VALUE
+          local agonyAccumulator = DS.agonyAccumulator
+          local minIncrease, maxIncrease = getAccumulatorIncrease()
+          local offset = 99 - agonyAccumulator.maxUpper
+          increaseRange = maxIncrease - offset
+          local maxMean = (agonyAccumulator.maxUpper - agonyAccumulator.maxLower) / 2
+          local minMean = (agonyAccumulator.minUpper - agonyAccumulator.minLower) / 2
+          return (maxIncrease + minIncrease) / 2 * (increaseRange / (agonyAccumulator.maxUpper + 1)) / (maxMean - minMean + 1)  -- Probably not correct
         end,
         refreshEvent = "SPELL_CAST_SUCCESS",
-        IterateTick = function(self, timeStamp)
-          if timeStamp then
-            local expiration = self.expiration
-            local iteratedTick = timeStamp + self.tickLength
-            local isLastTick = iteratedTick >= expiration
-            return isLastTick and expiration or iteratedTick, self.resourceChance, isLastTick
-          else
-            local nextTick = self.nextTick
-            local resourceChance = (DS.globalNextAgony.aura == self) and (DS.agonyAccumulator) or (self.resourceChance)
-            return nextTick, resourceChance, nextTick >= self.expiration
-          end
+        IterateTick = function(self)
+          -- Debug
+          print(self.resourceChance)
+
+          return self.nextTick, self.resourceChance, true
         end,
         Refresh = function(self)
           self.expiration = DS.CalculateExpiration(self)  -- SPELL_CAST_SUCCESS triggers before aura is applied -> setExpiration can't be used
@@ -148,11 +165,26 @@ do
           end
           DS.agonyCounter = (DS.agonyCounter or 0) + 1
           DS.globalAppliedAgonies[self] = true
-          setGlobalNextAgony()
         end,
         OnTick = function(self)
-          DS.agonyAccumulator = DS.agonyAccumulator + self.resourceChance
-          setGlobalNextAgony()
+          local agonyAccumulator = DS.agonyAccumulator
+          local minIncrease, maxIncrease = getAccumulatorIncrease()
+          agonyAccumulator.minLower = agonyAccumulator.minLower + minIncrease
+          if agonyAccumulator.minLower > 99 then
+            agonyAccumulator.minLower = 99
+          end
+          agonyAccumulator.minUpper = agonyAccumulator.minUpper + minIncrease
+          if agonyAccumulator.minUpper > 99 then
+            agonyAccumulator.minUpper = 99
+          end
+          agonyAccumulator.maxLower = agonyAccumulator.maxLower + maxIncrease
+          if agonyAccumulator.maxLower > 99 then
+            agonyAccumulator.maxLower = 99
+          end
+          agonyAccumulator.maxUpper = agonyAccumulator.maxUpper + maxIncrease
+          if agonyAccumulator.maxUpper > 99 then
+            agonyAccumulator.maxUpper = 99
+          end
         end,
         OnRemove = function(self)
           if DS.globalAppliedAgonies[self] then
@@ -160,9 +192,9 @@ do
             DS.agonyCounter = DS.agonyCounter - 1
             if DS.agonyCounter <= 0 then
               DS.agonyCounter = nil
+              resetAccumulator()
               spellEnergizeFrame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
             end
-            setGlobalNextAgony()
           end
         end
       },
