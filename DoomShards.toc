@@ -33,9 +33,9 @@ Libs\LibSharedMedia-3.0\lib.xml
 Libs\AceGUI-3.0-SharedMediaWidgets\widget.xml
 Libs\LibDualSpec-1.0\LibDualSpec-1.0.lua
 
-Localizations\enUS.lua
-Localizations\deDE.lua
-Localizations\koKR.lua
+Localization\enUS.lua
+Localization\deDE.lua
+Localization\koKR.lua
 
 DoomShards.lua
 Config.lua
