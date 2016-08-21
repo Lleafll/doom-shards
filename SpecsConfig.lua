@@ -61,7 +61,7 @@ DS:AddSpecSettings(-1,
 do
   local BASE_AVERAGE_ACCUMULATOR_INCREASE = 0.16
   local BASE_AVERAGE_ACCUMULATOR_RESET_VALUE = 0.5
-  
+
   DS.agonyAccumulator = BASE_AVERAGE_ACCUMULATOR_RESET_VALUE
   DS.globalNextAgony = {}
   DS.globalAppliedAgonies = {}
@@ -72,7 +72,7 @@ do
       DS.agonyAccumulator = BASE_AVERAGE_ACCUMULATOR_RESET_VALUE - DS.globalNextAgony.aura.resourceChance  -- SPELL_ENERGIZE fire before respective SPELL_DAMAGE from Agony
     end
   end)
-  
+
   local function setGlobalNextAgony()
     local globalNextAgonyTick
     local globalNextAgonyAura
@@ -86,7 +86,7 @@ do
     DS.globalNextAgony.tick = globalNextAgonyTick
     DS.globalNextAgony.aura = globalNextAgonyAura
   end
-  
+
   DS:AddSpecSettings(265,
     {
       [27243] = function()  -- Seed of Corruption  -- TODO: possibly cache and update on event
@@ -109,9 +109,9 @@ do
           if IsEquippedItem(FOTDS_ID) then
             local ilink
             if GetInventoryItemID("player", 13) == FOTDS_ID then
-              ilink = GetInventoryItemLink("player", 13) 
+              ilink = GetInventoryItemLink("player", 13)
             else
-              ilink = GetInventoryItemLink("player", 14) 
+              ilink = GetInventoryItemLink("player", 14)
             end
             local _, _, _, ilvl = GetItemInfo(ilink)
             duration = -1.183E-4 * ilvl*ilvl + 0.141 * ilvl - 25.336
@@ -230,7 +230,7 @@ do
         hasInitialTick = false,
         IterateTick = function(self, timeStamp)
           if timeStamp then
-          return self.nextTick, self.resourceChance, true
+            return self.nextTick, self.resourceChance, true
           else
             return self.nextTick, self.resourceChance, false
           end

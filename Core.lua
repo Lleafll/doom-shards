@@ -47,7 +47,7 @@ function DS:Update(timeStamp)
   self.auras = auras
   self.generating = generating
   self.nextCast = nextCast
-  
+
   self:SendMessage("DOOM_SHARDS_UPDATE")
 end
 
@@ -110,7 +110,7 @@ do
     local _, _, _, _, ID = strsplit("-", GUID)
     return tonumber(ID)
   end
-  
+
   function DS:Cast(spellGUID)
     if spellGUID then
       local generation = resourceGeneration[spellGUIDToID(spellGUID)]
@@ -123,7 +123,7 @@ do
         nextCast = GetTime() + (endTime - startTime) / 1000
         self:Update()
       end
-    elseif not UnitCastingInfo("player") then  -- Command Demon fires SPELL_CAST_SUCCEEDED 
+    elseif not UnitCastingInfo("player") then  -- Command Demon fires SPELL_CAST_SUCCEEDED
       generating = 0
       nextCast = nil
       self:Update()
@@ -157,13 +157,13 @@ function DS:COMBAT_LOG_EVENT_UNFILTERED(_, timeStamp, event, _, sourceGUID, _, _
       end
     end
   end
-  
+
   if event == "UNIT_DIED" or event == "UNIT_DESTROYED" or event == "PARTY_KILL" or event == "SPELL_INSTAKILL" then
     self:Remove(destGUID)
   end
 end
 
-function DS:PLAYER_REGEN_DISABLED()    
+function DS:PLAYER_REGEN_DISABLED()
   if not self.locked then
     self:Lock()
   end
@@ -176,10 +176,10 @@ function DS:PLAYER_REGEN_ENABLED()  -- player left combat or died
   self:EndTestMode()
   if UnitIsDead("player") then
     self:ResetCount()
-    
+
   else
     self:Update()
-    
+
   end
 end
 
@@ -226,7 +226,7 @@ end
 do
   local CLEANUP_TOLERANCE = 1
   local CLEANUP_INTERVAL = 1
-  
+
   local function cleanUp()
     local timeStamp = GetTime() - CLEANUP_TOLERANCE
     for GUID, tbl in pairs(auras) do
@@ -266,13 +266,13 @@ do
   function DS:Build()
     self:EndTestMode()
     self:ApplySettings()
-    
+
     resource = UnitPower("player", UNIT_POWER_ID)
-    
+
     local specSettings = DS.specSettings[DS.specializationID]
     resourceGeneration = specSettings.resourceGeneration
     trackedAuras = specSettings.trackedAuras
-    
+
     self:RegisterEvent("PLAYER_REGEN_DISABLED")
     self:RegisterEvent("PLAYER_REGEN_ENABLED")
     self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
@@ -282,15 +282,15 @@ do
     self:RegisterEvent("UNIT_SPELLCAST_START")
     self:RegisterEvent("UNIT_SPELLCAST_STOP")
     self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
-    
+
     if UnitAffectingCombat("player") then
-      self:PLAYER_REGEN_DISABLED() 
-    
+      self:PLAYER_REGEN_DISABLED()
+
     elseif self.locked and not self.testMode then
       self:PLAYER_REGEN_ENABLED()
 
     end
-    
+
   end
 end
 
@@ -300,17 +300,17 @@ end
 ---------------
 do
   local testFrame = CreateFrame("frame")
-  
+
   local resourceTicker
   local TestGUID = "Test Mode"
   local applyInterval = 10
-  
+
   local function SATickerFunc()
     local timeStamp = GetTime()
     DS:Apply(TestGUID, -1)
     C_TimerAfter(applyInterval + 0.2, function() DS:Remove("Test Mode") end)
   end
-  
+
   function DS:TestMode()
     if self.testMode then
       self:EndTestMode()
@@ -319,27 +319,27 @@ do
       if not self.locked then self:Lock() end
       self:PLAYER_REGEN_DISABLED()
       self.specializationID = -1
-      
+
       for name, module in self:IterateModules() do
         if self.db[name] and self.db[name].enable then
           if module.frame then module.frame:Show() end
         end
         self:Update()
       end
-      
+
       resourceTicker = C_Timer.NewTicker(1, function()
         resource = resource < MAX_RESOURCE and resource + 1 or 0
         DS:Update()
       end)
-      
+
       SATickerFunc()
       SATicker = C_Timer.NewTicker(applyInterval+1, SATickerFunc)
-      
+
       self.testMode = true
       print(L["Starting Test Mode"])
     end
   end
-  
+
   function DS:EndTestMode()
     if self.testMode then
       self.testMode = false
@@ -362,6 +362,6 @@ do
       print(L["Cancelled Test Mode"])
     end
   end
-  
+
   testFrame:RegisterEvent("PLAYER_REGEN_DISABLED", DS.EndTestMode)
 end
