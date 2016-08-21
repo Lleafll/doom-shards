@@ -1,6 +1,7 @@
 ## [Unreleased]
 ### Added
 - Added Unstable Affliction tracking
+- Added WeakAuras example
 - Added support for Hood of Eternal Disdain
 
 ### Fixed
