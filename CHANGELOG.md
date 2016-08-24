@@ -1,12 +1,12 @@
-## [Unreleased]
+## [v17] - 2016-08-24
 ### Added
-- Added Unstable Affliction tracking
 - Added WeakAuras example
+- Added Unstable Affliction tracking
 - Added support for Hood of Eternal Disdain
 
 ### Fixed
-- Fixed a bug where refreshing Doom with a partial tick remaining overwrote this tick
 - Fix when tick misses due to e.g. immunity
+- Fixed a bug where refreshing Doom with a partial tick remaining overwrote this tick
 - Fixed wrong Shard chance calculation for additional Doom ticks
 - Fixed bug where Agony resource chance wasn't properly calculated
 
