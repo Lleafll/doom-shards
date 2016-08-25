@@ -170,4 +170,9 @@ L["Font Color for Hand of Gul'dan Prediction"] = "Font Color for low remaining t
 
 L["Failed to import profile: "] = true
 L["not a table"] = true
+
+L["Track Unstable Affliction"] = true
+
+L["Show Depleted Shards"] = true
+L["Color of Depleted Shards"] = true
 --@end-do-not-package@
