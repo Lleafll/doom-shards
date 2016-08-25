@@ -104,7 +104,7 @@ do
   local function sortFunc(a, b)
     return a.tick < b.tick
   end
-  
+
   local tblCache = {}
   local function getRecycledTbl()
     local tblCacheLength = #tblCache
@@ -116,11 +116,11 @@ do
       return {}
     end
   end
-  
+
   local function storeRecycleTbl(tbl)
     tblCache[#tblCache+1] = tbl
   end
-  
+
   local orderedTbl = {}
   local consolidatedTbl = {}
   function CD:BuildSortedAuraIndicators()
@@ -143,7 +143,7 @@ do
       orderedTbl[k] = nil
     end
     table_sort(orderedTbl, sortFunc)
-    
+
     if consolidateTicks then
       for k, v in ipairs(consolidatedTbl) do
         consolidatedTbl[k] = nil
@@ -227,10 +227,10 @@ function CD:Update()
   if not DS.locked then
     return
   end
-  
+
   local indicators = self:BuildSortedAuraIndicators()
   CD.indicators = indicators  -- For WeakAuras methods
-  
+
   -- Shards
   local spendThreshold = resource + ((resourceSpendPrediction and resourceGeneration < 0) and resourceGeneration or 0)
   for i = 1, MAX_RESOURCE do
@@ -239,7 +239,7 @@ function CD:Update()
     end
     self:UpdateDoomPrediction(i, false)
   end
-    
+
   -- Show shard spending for doom prediction in timeframe of currently cast spender
   if resourceEnable and resourceSpendIncludeHoG and nextCast then
     local additionalResources = - resource - resourceGeneration
@@ -252,15 +252,15 @@ function CD:Update()
           else
             break
           end
-          
+
         else
           break
-          
+
         end
       end
     end
   end
-  
+
   -- Doom prediction
   local generatedResource
   local castEnd
@@ -280,12 +280,12 @@ function CD:Update()
       if generatedResource <= 0 then
         castEnd = nil
       end
-      
+
     else
       self:UpdateDoomPrediction(i, indicator)
       t = t + 1
       indicator = indicators[t]
-      
+
     end
   end
 end
@@ -296,7 +296,7 @@ function CD:DOOM_SHARDS_UPDATE()
   auras = DS.auras
   resourceGeneration = DS.generating
   nextCast = DS.nextCast
-  
+
   self:Update()
   self:SendMessage("DOOM_SHARDS_DISPLAY_UPDATE", "test")
 end
@@ -340,7 +340,7 @@ end
 do
   -- can't use RegisterStateDriver because Restricted Environment doesn't allow for animations
   local currentState = "hide"
-  
+
   function CDOnUpdateFrame:EvaluateConditionals()
     local state = SecureCmdOptionParse(visibilityConditionals)
     if state ~= currentState then
@@ -348,49 +348,49 @@ do
         CDFrame.fader:Stop()
         CDFrame:Hide()
         currentState = "hide"
-        
+
       elseif state == "fade" and currentState ~= "hide" then
         CDFrame.fader:Play()
         currentState = "hide"
-        
+
       elseif state ~= "fade" then  -- show
         CDFrame.fader:Stop()
         CDFrame:Show()
         currentState = "show"
-        
+
       end
     end
   end
-  
+
   local ticker = 0
   CDOnUpdateFrame:SetScript("OnUpdate", function(self, elapsed)
     ticker = ticker + elapsed
     if ticker > 0.2 then
-      self:EvaluateConditionals()      
+      self:EvaluateConditionals()
       ticker = 0
     end
   end)
-  
+
   CDOnUpdateFrame:SetScript("OnShow", function(self)
     currentState = nil
     self:EvaluateConditionals()
     self:RegisterEvents()
   end)
-  
+
   CDOnUpdateFrame:SetScript("OnHide", function(self)
     self:UnregisterEvents()
   end)
-  
+
   CDOnUpdateFrame:SetScript("OnEvent", function(self)
     self:EvaluateConditionals()
   end)
-  
+
   function CDOnUpdateFrame:RegisterEvents()
     self:RegisterEvent("MODIFIER_STATE_CHANGED")
     self:RegisterEvent("PLAYER_REGEN_DISABLED")
     self:RegisterEvent("PLAYER_TARGET_CHANGED")
   end
-  
+
   function CDOnUpdateFrame:UnregisterEvents()
     self:UnregisterAllEvents()
   end
@@ -427,19 +427,19 @@ local function buildFlasher(parentFrame)
     smoke:SetAlpha(0)
     smoke:Show()
   end
-  
+
   parentFrame.flasher = smoke:CreateAnimationGroup()
   local function hideSmoke()
     smoke:SetAlpha(0)
   end
   parentFrame.flasher:SetScript("OnFinished", hideSmoke)
-  
+
   parentFrame.flasher.start = parentFrame.flasher:CreateAnimation("Alpha")
   parentFrame.flasher.start:SetFromAlpha(0)
   parentFrame.flasher.start:SetToAlpha(0.5)
   parentFrame.flasher.start:SetDuration(0.2)
   parentFrame.flasher.start:SetOrder(1)
-  
+
   parentFrame.flasher.out = parentFrame.flasher:CreateAnimation("Alpha")
   parentFrame.flasher.out:SetFromAlpha(0.5)
   parentFrame.flasher.out:SetToAlpha(0)
@@ -463,24 +463,24 @@ local function buildFrames()
   local statusbarYOffset = db.statusbarYOffset
   backdrop.bgFile = (not db.useTexture or db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
   statusbarBackdrop.bgFile = (not db.useTexture or db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle)
-  
+
   local CDFrameHeight = db.height + 25
   local CDFrameWidth = statusbarCount * db.width + (statusbarCount - 1) * db.spacing
   CDFrame:ClearAllPoints()
   CDFrame:SetPoint(db.anchor, _G[db.anchorFrame], db.posX, db.posY)
   CDFrame:SetHeight(db.orientation == "Vertical" and CDFrameWidth or CDFrameHeight)
   CDFrame:SetWidth(db.orientation == "Vertical" and CDFrameHeight or CDFrameWidth)
-  
+
   if growthDirection == "Reversed" then
     stringXOffset = -1 * stringXOffset
   end
-  
+
   do
     for i = 1, statusbarCount do
       basePositions[i] = (width + db.spacing) * (i - 1)
     end
   end
-  
+
   if resourceEnable then
     local function createResourceFrame(numeration)
       local frame = resourceFrames[numeration] or CreateFrame("frame", nil, CDFrame)
@@ -502,12 +502,12 @@ local function buildFrames()
           frame:SetPoint("BOTTOMLEFT", basePositions[numeration], 0)
         end
       end
-      
+
       frame:SetBackdrop(backdrop)
-      
+
       if numeration <= MAX_RESOURCE then
         frame:Show()
-        
+
         if not frame.border then
           frame.border = CreateFrame("frame")
         end
@@ -533,38 +533,38 @@ local function buildFrames()
       else
         frame:SetBackdropColor(0, 0, 0, 0)  -- dummy frame to anchor overflow fontstring to
       end
-      
+
       local c3r, c3b, c3g, c3a = db.resourceCappedColor.r, db.resourceCappedColor.b, db.resourceCappedColor.g, db.resourceCappedColor.a
       function frame:SetCapColor()
         self:SetBackdropColor(c3r, c3b, c3g, c3a)
       end
-      
+
       local c4r, c4b, c4g, c4a = db.resourceSpendColor.r, db.resourceSpendColor.b, db.resourceSpendColor.g, db.resourceSpendColor.a
       function frame:SetSpendColor()
         self:SetBackdropColor(c4r, c4b, c4g, c4a)
       end
-      
+
       local c5r, c5b, c5g, c5a = db.resourceGainColor.r, db.resourceGainColor.b, db.resourceGainColor.g, db.resourceGainColor.a
       function frame:SetGainColor()
         self:SetBackdropColor(c5r, c5b, c5g, c5a)
       end
-      
+
       buildFlasher(frame)
-      
+
       frame.active = true
-      
+
       return frame
     end
     for i = 1, statusbarCount do
       resourceFrames[i] = createResourceFrame(i)
     end
-    
+
   else
     for i = 1, #resourceFrames do
       resourceFrames[i]:Hide()
     end
   end
-  
+
   if textEnable then
     local function createTimerFontString(numeration)
       local parentFrame
@@ -579,8 +579,8 @@ local function buildFrames()
         parentFrame = SATimers[numeration]
         fontString = parentFrame.fontString
       end
-      
-      parentFrame:ClearAllPoints()      
+
+      parentFrame:ClearAllPoints()
       if orientation == "Vertical" then
         parentFrame:SetHeight(width)
         parentFrame:SetWidth(height)
@@ -598,18 +598,18 @@ local function buildFrames()
           parentFrame:SetPoint("BOTTOMLEFT", basePositions[numeration] + stringXOffset, height + stringYOffset + 1)
         end
       end
-      
+
       fontString:ClearAllPoints()
       if orientation == "Vertical" then
         fontString:SetPoint("RIGHT")
       else
         fontString:SetPoint("BOTTOM")
       end
-      
+
       fontString:SetFont(LSM:Fetch("font", db.fontName), db.fontSize, (flags == "MONOCHROMEOUTLINE" or flags == "OUTLINE" or flags == "THICKOUTLINE") and flags or nil)
       fontString:SetShadowOffset(1, -1)
       fontString:SetShadowColor(0, 0, 0, db.fontFlags == "Shadow" and 1 or 0)
-      
+
       local c1r, c1b, c1g, c1a = db.fontColor.r, db.fontColor.b, db.fontColor.g, db.fontColor.a
       function fontString:SetOriginalColor()
         self:SetTextColor(c1r, c1b, c1g, c1a)
@@ -620,7 +620,7 @@ local function buildFrames()
         self:SetTextColor(c2r, c2b, c2g, c2a)
         self.hogColored = true
       end
-      
+
       parentFrame.elapsed = 0
       parentFrame.remaining = 0
       function parentFrame:SetTimer(indicator)
@@ -629,7 +629,7 @@ local function buildFrames()
         self:Show()
       end
       parentFrame:SetScript("OnUpdate", SATimerOnUpdate)  -- only triggers when frame is shown
-      
+
       fontString:SetText("0.0")
       fontString:SetOriginalColor()
       fontString:Show()
@@ -645,7 +645,7 @@ local function buildFrames()
       end
     end
   end
-  
+
   if statusbarEnable then
     local function createStatusBars(numeration)
       local frame
@@ -680,15 +680,15 @@ local function buildFrames()
       frame:SetBackdrop(statusbarBackdrop)
       frame:SetBackdropColor(db.statusbarColorBackground.r, db.statusbarColorBackground.b, db.statusbarColorBackground.g, db.statusbarColorBackground.a)
       frame:SetBackdropBorderColor(db.borderColor.r, db.borderColor.b, db.borderColor.g, db.borderColor.a)
-      
+
       statusbar:SetPoint("TOPLEFT", 1 , -1)  -- to properly display border
       statusbar:SetPoint("BOTTOMRIGHT", -1 , 1)
       statusbar:SetStatusBarTexture((not db.useTexture or db.textureHandle == "Empty") and "Interface\\ChatFrame\\ChatFrameBackground" or LSM:Fetch("statusbar", db.textureHandle))
-      
+
       statusbar:SetMinMaxValues(0, 20)
       statusbar:SetOrientation(orientation == "Vertical" and "VERTICAL" or "HORIZONTAL")
       statusbar:SetReverseFill(db.statusbarReverse)
-      
+
       frame.remaining = 0
       frame.elapsed = 0
       frame.maxTime = 20
@@ -703,9 +703,9 @@ local function buildFrames()
         self:Show()
       end
       frame:SetScript("OnUpdate", statusbarOnUpdate)  -- only triggers when frame is shown
-      
+
       frame:Show()
-      
+
       local c1r, c1b, c1g, c1a
       local c2r, c2b, c2g, c2a
       if numeration <= MAX_RESOURCE then
@@ -715,16 +715,16 @@ local function buildFrames()
         c1r, c1b, c1g, c1a = db.statusbarColorOverflow.r, db.statusbarColorOverflow.b, db.statusbarColorOverflow.g, db.statusbarColorOverflow.a
         c2r, c2b, c2g, c2a = db.statusbarColorOverflowForeground.r, db.statusbarColorOverflowForeground.b, db.statusbarColorOverflowForeground.g, db.statusbarColorOverflowForeground.a
       end
-      
-      
+
+
       function frame:SetOriginalColor()
         self:SetBackdropColor(c1r, c1b, c1g, c1a)
         self.gainColored = false
       end
-      
+
       statusbar:SetStatusBarColor(c2r, c2b, c2g, c2a)
       frame:SetOriginalColor()
-      
+
       return frame
     end
     for i = 1, statusbarCount do
@@ -753,11 +753,11 @@ function CD:Unlock()
       statusbars[i].statusbar:SetValue(10)
       statusbars[i]:Show()
     end
-    
+
     if i == statusbarCount then
       break
     end
-    
+
     if resourceEnable then
       resourceFrames[i]:Show()
     end
@@ -783,13 +783,13 @@ function CD:Build()
   textEnable = db.textEnable
   visibilityConditionals = db.visibilityConditionals or ""
   consolidateTicks = db.consolidateTicks
-  
+
   local specHandling = DS.specSettings[DS.specializationID].specHandling
   referenceSpell = specHandling.referenceSpell
   referenceTime = specHandling.referenceTime
-  
+
   statusbarCount = 5 + db.statusbarCount
-  
+
   buildFrames()
   buildFader()
   if DS.locked then
