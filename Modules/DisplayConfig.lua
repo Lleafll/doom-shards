@@ -181,6 +181,30 @@ local function displayOptions()
             end,
             hidden = not DS.db.display.resourceCappedEnable
           },
+          spacer3 = {
+            order = 7.1,
+            type="description",
+            name=""
+          },
+          alwaysShowBorders = {
+            order = 7.2,
+            type = "toggle",
+            name = L["Show Depleted Shards"]
+          },
+          emptyColor = {
+            order = 7.3,
+            type = "color",
+            name = L["Color of Depleted Shards"],
+            hasAlpha = true,
+            get = function()
+              return DS.db.display.emptyColor.r, DS.db.display.emptyColor.b, DS.db.display.emptyColor.g, DS.db.display.emptyColor.a
+            end,
+            set = function(info, r, b, g, a)
+              DS.db.display.emptyColor.r, DS.db.display.emptyColor.b, DS.db.display.emptyColor.g, DS.db.display.emptyColor.a = r, b, g, a
+              DS:Build()
+            end,
+            hidden = not DS.db.display.alwaysShowBorders
+          },
           header3 = {
             order = 8.5,
             type="header",
@@ -220,11 +244,6 @@ local function displayOptions()
               DS.db.display.borderColor.r, DS.db.display.borderColor.b, DS.db.display.borderColor.g, DS.db.display.borderColor.a = r, b, g, a
               DS:Build()
             end
-          },
-          alwaysShowBorders = {
-            order = 11,
-            type = "toggle",
-            name = L["Always show borders"]
           },
           header5 = {
             order = 11.5,
@@ -767,7 +786,8 @@ local defaultSettings = {
     useTexture = false,
     textureHandle = "Empty",
     borderColor = {r=0, b=0, g=0, a=1},
-    alwaysShowBorders = false,
+    alwaysShowBorders = false,  -- Legacy name, toggles showing of depleted resources
+    emptyColor = {r=0.06, b=0.06, g=0.06, a=1},
     statusbarEnable = true,
     statusbarColor = {r=0.33, b=0.33, g=0.33, a=0.5},
     statusbarColorBackground = {r=0.06, b=0.06, g=0.06, a=1},

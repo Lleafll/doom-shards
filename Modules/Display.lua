@@ -509,28 +509,45 @@ local function buildFrames()
         frame:Show()
 
         if not frame.border then
-          frame.border = CreateFrame("frame")
-        end
-        if db.alwaysShowBorders then
-          frame.border:SetParent(CDFrame)
-        else
-          frame.border:SetParent(frame)
+          frame.border = CreateFrame("frame", nil, frame)
         end
         frame.border:SetAllPoints(frame)
         frame.border:SetBackdrop(borderBackdrop)
         frame.border:SetBackdropBorderColor(db.borderColor.r, db.borderColor.b, db.borderColor.g, db.borderColor.a)
-      else
-        frame:Hide()
-      end
-      
-      if numeration <= MAX_RESOURCE then
+
         local color = db["color"..numeration]
         local cr, cb, cg, ca = color.r, color.b, color.g, color.a
         function frame:SetOriginalColor()
           self:SetBackdropColor(cr, cb, cg, ca)
         end
         frame:SetOriginalColor()
+
+        CDFrame.emptyResources = CDFrame.emptyResources or {}
+        if db.alwaysShowBorders then
+          if not CDFrame.emptyResources[numeration] then
+            CDFrame.emptyResources[numeration] = CreateFrame("frame", nil, CDFrame)
+          end
+          local emptyResourceFrame = CDFrame.emptyResources[numeration]
+          emptyResourceFrame:Show()
+          emptyResourceFrame:SetAllPoints(frame)
+          emptyResourceFrame:SetFrameLevel(frame:GetFrameLevel() - 1)
+          emptyResourceFrame:SetBackdrop(frame:GetBackdrop())
+          local emptyColor = db.emptyColor
+          emptyResourceFrame:SetBackdropColor(emptyColor.r, emptyColor.b, emptyColor.g, emptyColor.a)
+          if not emptyResourceFrame.border then
+            emptyResourceFrame.border = CreateFrame("frame", nil, emptyResourceFrame)
+          end
+          emptyResourceFrame.border:SetAllPoints(emptyResourceFrame)
+          emptyResourceFrame.border:SetBackdrop(borderBackdrop)
+          emptyResourceFrame.border:SetBackdropBorderColor(db.borderColor.r, db.borderColor.b, db.borderColor.g, db.borderColor.a)
+        else
+          if CDFrame.emptyResources[numeration] then
+            CDFrame.emptyResources[numeration]:Hide()
+          end
+        end
+
       else
+        frame:Hide()
         frame:SetBackdropColor(0, 0, 0, 0)  -- dummy frame to anchor overflow fontstring to
       end
 
@@ -658,8 +675,8 @@ local function buildFrames()
         statusbar = CreateFrame("StatusBar", nil, frame)
         frame.statusbar = statusbar
       end
-      
-      frame:ClearAllPoints()      
+
+      frame:ClearAllPoints()
       if orientation == "Vertical" then
         frame:SetHeight(width)
         frame:SetWidth(height)
