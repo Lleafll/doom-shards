@@ -63,8 +63,8 @@ do
       for spellID, aura in pairs(tbl) do
         local tick, resourceChance, isLastTick
         repeat
-          tick, resourceChance, isLastTick = aura:IterateTick(tick)
-          if tick < timeStamp then
+          tick, resourceChance, isLastTick, hide = aura:IterateTick(tick)
+          if not hide and tick < timeStamp then
             expectedShards = expectedShards + resourceChance
             i = i + 1
           end
