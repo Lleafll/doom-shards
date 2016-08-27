@@ -60,7 +60,6 @@ local borderBackdrop = {
 -- Variables --
 ---------------
 local auras
-local consolidateTicks
 local db
 local gainFlash
 local nextCast
@@ -129,40 +128,25 @@ do
       for spellID, aura in pairs(tbl) do
         local tick, resourceChance, isLastTick
         repeat
-          i = i + 1
-          tick, resourceChance, isLastTick = aura:IterateTick(tick)
-          orderedTbl[i] = orderedTbl[i] or getRecycledTbl()
-          orderedTbl[i].tick = tick
-          orderedTbl[i].resourceChance = resourceChance
-          orderedTbl[i].aura = aura
+          tick, resourceChance, isLastTick, hide = aura:IterateTick(tick)
+          if not hide then
+            i = i + 1
+            orderedTbl[i] = orderedTbl[i] or getRecycledTbl()
+            orderedTbl[i].tick = tick
+            orderedTbl[i].resourceChance = resourceChance
+            orderedTbl[i].aura = aura
+          end
         until isLastTick or i > 100
       end
     end
+
     for k = i+1, #orderedTbl do
       storeRecycleTbl(orderedTbl[k])
       orderedTbl[k] = nil
     end
     table_sort(orderedTbl, sortFunc)
 
-    if consolidateTicks then
-      for k, v in ipairs(consolidatedTbl) do
-        consolidatedTbl[k] = nil
-      end
-      i = 1
-      local chance = 0
-      for k, indicator in ipairs(orderedTbl) do
-        chance = chance + indicator.resourceChance
-        if chance >= 1 then
-          consolidatedTbl[i] = indicator
-          indicator.resourceChance = chance
-          i = i + 1
-          chance = 0
-        end
-      end
-      return consolidatedTbl
-    else
-      return orderedTbl
-    end
+    return orderedTbl
   end
 end
 
@@ -205,7 +189,11 @@ function CD:UpdateDoomPrediction(position, indicator)
   if indicator then
     if textEnable then
       local SATimer = SATimers[position]
-      SATimer:SetTimer(indicator)
+      if indicator.aura.displayChance then
+        SATimer:SetChance(indicator)
+      else
+        SATimer:SetTimer(indicator)
+      end
       SATimer:Show()
     end
     if statusbarEnable then
@@ -644,8 +632,16 @@ local function buildFrames()
         self.remaining = indicator.tick - GetTime()
         self.elapsed = 1
         self:Show()
+        parentFrame:SetScript("OnUpdate", SATimerOnUpdate)
       end
-      parentFrame:SetScript("OnUpdate", SATimerOnUpdate)  -- only triggers when frame is shown
+      parentFrame:SetScript("OnUpdate", SATimerOnUpdate)
+
+      function parentFrame:SetChance(indicator)
+        self.fontString:SetText(stringformat("%01d", indicator.resourceChance * 100))
+        self.fontString:SetOriginalColor()
+        self:SetScript("OnUpdate", nil)
+        self:Show()
+      end
 
       fontString:SetText("0.0")
       fontString:SetOriginalColor()
@@ -714,7 +710,7 @@ local function buildFrames()
         self.elapsed = 1
         self.remaining = indicator.tick - GetTime()
         local aura = indicator.aura
-        self.maxTime = aura.duration
+        self.maxTime = aura.tickLength
         self.refresh = aura.tickLength / db.width  -- TODO: cache scale
         self.statusbar:SetMinMaxValues(0, self.maxTime)
         self:Show()
@@ -799,7 +795,6 @@ function CD:Build()
   statusbarEnable = db.statusbarEnable
   textEnable = db.textEnable
   visibilityConditionals = db.visibilityConditionals or ""
-  consolidateTicks = db.consolidateTicks
 
   local specHandling = DS.specSettings[DS.specializationID].specHandling
   referenceSpell = specHandling.referenceSpell

@@ -21,6 +21,7 @@ local GetSpecialization = GetSpecialization
 local GetSpellInfo = GetSpellInfo
 local GetTalentInfo = GetTalentInfo
 local IsEquippedItem = IsEquippedItem
+local math_exp = math.exp
 local sqrt = sqrt
 local pairs = pairs
 local rawget = rawget
@@ -59,42 +60,186 @@ DS:AddSpecSettings(-1,
 
 -- Affliction
 do
+  -- Parameters for calculating Soul Shard proc chances from Agony
+  local agonyChanceParametersStart = {
+    [1] = {
+      [0] = {0, 0, 0},
+      [1] = {0, 0, 0},
+      [2] = {0, 0, 0},
+      [3] = {0.985923, 1.699051, -0.000165},
+      [4] = {1.219053, 0.975556, -0.014669},
+      [5] = {1.484172, 0.578398, -0.085888},
+      [6] = {2.086914, 0.314034, -0.330391},
+      [7] = {192.639138, 0.002557, -95.578910},
+      [8] = {262.512766, 0.001597, -130.474710},
+      [9] = {203.987032, 0.001587, -101.202790},
+    },
+    [2] = {
+      [0] = {0, 0, 0},
+      [1] = {0, 0, 0},
+      [2] = {0, 0, 0},
+      [3] = {0.783161, 2.068688, -0.001795},
+      [4] = {1.008100, 1.244726, -0.007541},
+      [5] = {1.172464, 0.753739, -0.039958},
+      [6] = {1.412528, 0.531817, -0.087239},
+      [7] = {1.913336, 0.287440, -0.316658},
+      [8] = {82.271193, 0.005205, -40.470632},
+      [9] = {224.594053, 0.001613, -111.600591},
+    },
+    [3] = {
+      [0] = {0, 0, 0},
+      [1] = {0, 0, 0},
+      [2] = {0, 0, 0},
+      [3] = {0.649231, 2.202345, -0.002346},
+      [4] = {0.847562, 1.332772, -0.005263},
+      [5] = {1.002733, 0.834009, -0.026758},
+      [6] = {1.229840, 0.547236, -0.083474},
+      [7] = {1.640880, 0.315178, -0.257107},
+      [8] = {3.818380, 0.109703, -1.313413},
+      [9] = {201.230154, 0.001766, -99.989091},
+    },
+    [4] = {
+      [0] = {0, 0, 0},
+      [1] = {0, 0, 0},
+      [2] = {0, 0, 0},
+      [3] = {0.596134, 2.361049, -0.001529},
+      [4] = {0.756916, 1.398795, -0.004219},
+      [5] = {0.899439, 0.893471, -0.019022},
+      [6] = {1.083680, 0.596073, -0.058576},
+      [7] = {1.407497, 0.346549, -0.194176},
+      [8] = {2.354677, 0.171407, -0.632861},
+      [9] = {183.191646, 0.001859, -91.021403},
+    },
+    [5] = {
+      [0] = {0, 0, 0},
+      [1] = {0, 0, 0},
+      [2] = {0, 0, 0},
+      [3] = {0.524192, 2.401449, -0.001575},
+      [4] = {0.682177, 1.431708, -0.003724},
+      [5] = {0.819778, 0.924455, -0.015950},
+      [6] = {1.005155, 0.582756, -0.065787},
+      [7] = {1.327492, 0.341802, -0.197195},
+      [8] = {2.369650, 0.160893, -0.681553},
+      [9] = {154.303533, 0.002109, -76.617586},
+    }
+  }
+
+  local agonyChanceParameters = {
+    [1] = {
+      [0] = {0, 0, 0},
+      [1] = {0, 0, 0},
+      [2] = {0, 0, 0},
+      [3] = {0.985923, 1.699051, -0.000165},
+      [4] = {1.219053, 0.975556, -0.014669},
+      [5] = {1.484172, 0.578398, -0.085888},
+      [6] = {2.086914, 0.314034, -0.330391},
+      [7] = {192.639138, 0.002557, -95.578910},
+      [8] = {262.512766, 0.001597, -130.474710},
+      [9] = {203.987032, 0.001587, -101.202790},
+    },
+    [2] = {
+      [0] = {0, 0, 0},
+      [1] = {0, 0, 0},
+      [2] = {0, 0, 0},
+      [3] = {0.783161, 2.068688, -0.001795},
+      [4] = {1.008100, 1.244726, -0.007541},
+      [5] = {1.172464, 0.753739, -0.039958},
+      [6] = {1.412528, 0.531817, -0.087239},
+      [7] = {1.913336, 0.287440, -0.316658},
+      [8] = {82.271193, 0.005205, -40.470632},
+      [9] = {224.594053, 0.001613, -111.600591},
+    },
+    [3] = {
+      [0] = {0, 0, 0},
+      [1] = {0, 0, 0},
+      [2] = {0, 0, 0},
+      [3] = {0.649231, 2.202345, -0.002346},
+      [4] = {0.847562, 1.332772, -0.005263},
+      [5] = {1.002733, 0.834009, -0.026758},
+      [6] = {1.229840, 0.547236, -0.083474},
+      [7] = {1.640880, 0.315178, -0.257107},
+      [8] = {3.818380, 0.109703, -1.313413},
+      [9] = {201.230154, 0.001766, -99.989091},
+    },
+    [4] = {
+      [0] = {0, 0, 0},
+      [1] = {0, 0, 0},
+      [2] = {0, 0, 0},
+      [3] = {0.596134, 2.361049, -0.001529},
+      [4] = {0.756916, 1.398795, -0.004219},
+      [5] = {0.899439, 0.893471, -0.019022},
+      [6] = {1.083680, 0.596073, -0.058576},
+      [7] = {1.407497, 0.346549, -0.194176},
+      [8] = {2.354677, 0.171407, -0.632861},
+      [9] = {183.191646, 0.001859, -91.021403},
+    },
+    [5] = {
+      [0] = {0, 0, 0},
+      [1] = {0, 0, 0},
+      [2] = {0, 0, 0},
+      [3] = {0.524192, 2.401449, -0.001575},
+      [4] = {0.682177, 1.431708, -0.003724},
+      [5] = {0.819778, 0.924455, -0.015950},
+      [6] = {1.005155, 0.582756, -0.065787},
+      [7] = {1.327492, 0.341802, -0.197195},
+      [8] = {2.369650, 0.160893, -0.681553},
+      [9] = {154.303533, 0.002109, -76.617586},
+    }
+  }
+
+  local ITERATION_MAX_TICKS = 9
+  local ITERATION_MAX_TARGETS = 5
+
   -- Affliction specific item ids
   local FOTDS_ID = 124522  -- Fragment of the Dark Star
   local HOED_ID = 132394  -- Hood of Eternal Disdain
   local HOED_MOD = 1.2
 
-  -- Agony accumulator constants
-  local ACCUMULATOR_MIN_INCREASE = 1  -- Assumption
-  local ACCUMULATOR_MAX_INCREASE = 31  -- Assumption
-  local BASE_ACCUMULATOR_RESET_MIN_VALUE = 0
-  local BASE_ACCUMULATOR_RESET_MAX_VALUE = 99  -- Max accumulator value after reset due to dropping all Agonies
+  -- Track Agonies
+  local targetFactor = 1
+  local targetHistory = {}
+  local ticksSinceShard = 0
+  local agonyCounter
+  local globalAppliedAgonies = {}
+  local globalNextAgony
 
-  DS.agonyAccumulator = {}
-  local function resetAccumulator()
-    DS.agonyAccumulator.minLower = BASE_ACCUMULATOR_RESET_MIN_VALUE
-    DS.agonyAccumulator.minUpper = BASE_ACCUMULATOR_RESET_MIN_VALUE
-    DS.agonyAccumulator.maxLower = BASE_ACCUMULATOR_RESET_MAX_VALUE
-    DS.agonyAccumulator.maxUpper = BASE_ACCUMULATOR_RESET_MAX_VALUE
+  local function setGlobalNextAgony()
+    local globalNextAgonyTick
+    local globalNextAgonyAura
+    for aura in pairs(globalAppliedAgonies) do
+      local nextTick = aura.nextTick
+      if not globalNextAgonyTick or nextTick < globalNextAgonyTick then
+        globalNextAgonyTick = nextTick
+        globalNextAgonyAura = aura
+      end
+    end
+    globalNextAgony = globalNextAgonyAura
   end
-  resetAccumulator()
 
-  DS.globalAppliedAgonies = {}
+  local function calculateTargetFactor()
+    local count = #targetHistory
+    if count > 0 then
+      local targetProduct = 1
+      for _, v in pairs(targetHistory) do
+        targetProduct = targetProduct * v
+      end
+      targetFactor = targetProduct ^ (1 / count)
+    else
+      targetFactor = 1
+    end
+  end
 
-  local function getAccumulatorIncrease()
-    local modifier = sqrt(DS.agonyCounter or 1)
-    return ACCUMULATOR_MIN_INCREASE / modifier, ACCUMULATOR_MAX_INCREASE / modifier
+  local function resetAgony()
+    ticksSinceShard = 0
+    targetFactor = 1
+    wipe(targetHistory)
   end
 
   local spellEnergizeFrame = CreateFrame("Frame")
   spellEnergizeFrame:Show()
   spellEnergizeFrame:SetScript("OnEvent", function(self, _, _, event, _, sourceGUID, _, _, _, destGUID, destName, _, _, spellID)
-    if event == "SPELL_ENERGIZE" and spellID == 17941 and sourceGUID == UnitGUID("player") and DS.agonyAccumulator then
-      DS.agonyAccumulator.minLower = BASE_ACCUMULATOR_RESET_MIN_VALUE
-      DS.agonyAccumulator.minUpper = BASE_ACCUMULATOR_RESET_MIN_VALUE
-      local _, maxIncrease = getAccumulatorIncrease()
-      DS.agonyAccumulator.maxLower = maxIncrease - 1
-      DS.agonyAccumulator.maxUpper = maxIncrease - 1
+    if event == "SPELL_ENERGIZE" and spellID == 17941 and sourceGUID == UnitGUID("player") then
+      resetAgony()
     end
   end)
 
@@ -114,6 +259,7 @@ do
     },
     {
       [980] = {  -- Agony
+        displayChance = true,
         durationFunc = function(self)
           local duration = 18
           if IsEquippedItem(FOTDS_ID) then
@@ -140,61 +286,62 @@ do
           return tickLength / getHasteMod()
         end,
         resourceChanceFunc = function(self)
-          local agonyAccumulator = DS.agonyAccumulator
-          local minIncrease, maxIncrease = getAccumulatorIncrease()
-          local offset = 99 - agonyAccumulator.maxUpper
-          increaseRange = maxIncrease - offset
-          local maxMean = (agonyAccumulator.maxUpper - agonyAccumulator.maxLower) / 2
-          local minMean = (agonyAccumulator.minUpper - agonyAccumulator.minLower) / 2
-          return (maxIncrease + minIncrease) / 2 * (increaseRange / (agonyAccumulator.maxUpper + 1)) / (maxMean - minMean + 1)  -- Probably not correct
+          local targetIndex = agonyCounter < ITERATION_MAX_TARGETS and agonyCounter or  ITERATION_MAX_TARGETS
+          local tickIndex = ticksSinceShard < ITERATION_MAX_TICKS and ticksSinceShard or ITERATION_MAX_TICKS
+          local chanceParameters = agonyChanceParameters[targetIndex][tickIndex]
+          return chanceParameters[1] / (1 + math_exp(chanceParameters[2] * targetFactor)) + chanceParameters[3]
         end,
         refreshEvent = "SPELL_CAST_SUCCESS",
-        IterateTick = function(self)
-          -- Debug
-          print(self.resourceChance)
-
-          return self.nextTick, self.resourceChance, true
+        IterateTick = function(self, timeStamp)
+          local tick, resourceChance, isLastTick, hide
+          if timeStamp then
+            local expiration = self.expiration
+            local iteratedTick = timeStamp + self.tickLength
+            isLastTick = iteratedTick >= expiration
+            tick = isLastTick and expiration or iteratedTick
+            resourceChance = 0
+            hide = true
+          else
+            isLastTick = self.nextTick >= self.expiration
+            tick = isLastTick and self.expiration or self.nextTick
+            if globalNextAgony == self then
+              resourceChance = self.resourceChance
+              hide = false
+            else
+              resourceChance = 0
+              hide = true
+            end
+          end
+          return tick, resourceChance, isLastTick, hide  -- Hide when resource chance is 0
         end,
         Refresh = function(self)
           self.expiration = DS.CalculateExpiration(self)  -- SPELL_CAST_SUCCESS triggers before aura is applied -> setExpiration can't be used
           self:OnRefresh()
         end,
         OnApply = function(self)
-          if not DS.agonyCounter then
+          if not agonyCounter then
             spellEnergizeFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
           end
-          DS.agonyCounter = (DS.agonyCounter or 0) + 1
-          DS.globalAppliedAgonies[self] = true
+          agonyCounter = (agonyCounter or 0) + 1
+          globalAppliedAgonies[self] = true
+          setGlobalNextAgony()
         end,
         OnTick = function(self)
-          local agonyAccumulator = DS.agonyAccumulator
-          local minIncrease, maxIncrease = getAccumulatorIncrease()
-          agonyAccumulator.minLower = agonyAccumulator.minLower + minIncrease
-          if agonyAccumulator.minLower > 99 then
-            agonyAccumulator.minLower = 99
-          end
-          agonyAccumulator.minUpper = agonyAccumulator.minUpper + minIncrease
-          if agonyAccumulator.minUpper > 99 then
-            agonyAccumulator.minUpper = 99
-          end
-          agonyAccumulator.maxLower = agonyAccumulator.maxLower + maxIncrease
-          if agonyAccumulator.maxLower > 99 then
-            agonyAccumulator.maxLower = 99
-          end
-          agonyAccumulator.maxUpper = agonyAccumulator.maxUpper + maxIncrease
-          if agonyAccumulator.maxUpper > 99 then
-            agonyAccumulator.maxUpper = 99
-          end
+          targetHistory[#targetHistory + 1] = agonyCounter
+          ticksSinceShard = ticksSinceShard + 1
+          calculateTargetFactor()
+          setGlobalNextAgony()
         end,
         OnRemove = function(self)
-          if DS.globalAppliedAgonies[self] then
-            DS.globalAppliedAgonies[self] = nil
-            DS.agonyCounter = DS.agonyCounter - 1
-            if DS.agonyCounter <= 0 then
-              DS.agonyCounter = nil
-              resetAccumulator()
+          if globalAppliedAgonies[self] then
+            globalAppliedAgonies[self] = nil
+            agonyCounter = agonyCounter - 1
+            if agonyCounter <= 0 then
+              agonyCounter = nil
               spellEnergizeFrame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+              resetAgony()
             end
+            setGlobalNextAgony()
           end
         end
       },
@@ -266,10 +413,10 @@ do
             local iteratedTick = timeStamp + self.tickLength
             local isLastTick = iteratedTick >= expiration
             local resourceChance = ((isLastTick and expiration or iteratedTick) - timeStamp) / self.duration
-            return isLastTick and expiration or iteratedTick, resourceChance, isLastTick
+            return isLastTick and expiration or iteratedTick, resourceChance, isLastTick, resourceChance < 1 and DS.db.consolidateTicks
           else
             local isLastTick = self.nextTick >= self.expiration
-            return isLastTick and self.expiration or self.nextTick, self.resourceChance, isLastTick
+            return isLastTick and self.expiration or self.nextTick, self.resourceChance, isLastTick, resourceChance < 1 and DS.db.consolidateTicks
           end
         end
       }

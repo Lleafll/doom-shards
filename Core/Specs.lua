@@ -195,6 +195,7 @@ function DS:AddSpecSettings(specID, resourceGeneration, trackedAuras, specHandli
     if not v.pandemic then
       v.pandemicFunc = v.pandemicFunc or pandemicFunc
     end
+    v.displayChance = v.displayChance == nil and false or v.displayChance
     v.hasInitialTick = v.hasInitialTick == nil and true or v.hasInitialTick
     v.applyEvent = v.applyEvent or "SPELL_AURA_APPLIED"
     v.refreshEvent = v.refreshEvent or "SPELL_AURA_REFRESH"
