@@ -128,7 +128,7 @@ DS.CalculateExpiration = calculateExpiration
 
 local function setExpiration(aura)
   local GUID = aura.GUID
-  
+
   local expires
   if UnitGUID("target") == GUID then  -- Implies UnitExists
     expires = auraUnitDebuff("target", aura.name)
@@ -142,7 +142,7 @@ local function setExpiration(aura)
       end
     end
   end
-  
+
   aura.expiration = expires or calculateExpiration(aura)
 end
 DS.SetExpiration = setExpiration
@@ -184,11 +184,11 @@ function DS:AddSpecSettings(specID, resourceGeneration, trackedAuras, specHandli
   settings.resourceGeneration = resourceGeneration
   settings.trackedAuras = trackedAuras
   settings.specHandling = specHandling
-  
+
   auraMetaTable[specID] = {}
   for k, v in pairs(trackedAuras) do
     setmetatable(v, trackedAurasMetaTable)
-    
+
     -- Properties
     v.id = k
     v.name = GetSpellInfo(k)
@@ -201,7 +201,7 @@ function DS:AddSpecSettings(specID, resourceGeneration, trackedAuras, specHandli
     v.removeEvent = v.removeEvent or "SPELL_AURA_REMOVED"
     v.tickEvent = v.tickEvent or "SPELL_PERIODIC_DAMAGE"
     v.missedEvent = v.missedEvent or "SPELL_PERIODIC_MISSED"
-    
+
     -- Methods
     v.Apply = v.Apply or applyMethod
     v.Tick = v.Tick or tickMethod
@@ -213,7 +213,7 @@ function DS:AddSpecSettings(specID, resourceGeneration, trackedAuras, specHandli
     v.OnRefresh = v.OnRefresh or dummyFunc
     v.OnRemove = v.OnRemove or dummyFunc
     v.OnMissed = v.OnMissed or dummyFunc
-    
+
     auraMetaTable[specID][k] = {__index = v}
   end
 end
@@ -222,6 +222,6 @@ function DS:BuildAura(spellID, GUID)
   local aura = {}
   setmetatable(aura, auraMetaTable[self.specializationID][spellID])
   aura.GUID = GUID
-  
+
   return aura
 end
