@@ -21,10 +21,7 @@ local UnitPower = UnitPower
 ---------------
 -- Constants --
 ---------------
-local MAX_RESOURCE = 5
 local PLAYER_GUID
-local UNIT_POWER_TYPE = "SOUL_SHARDS"
-local UNIT_POWER_ID = SPELL_POWER_SOUL_SHARDS
 
 
 ---------------
@@ -36,6 +33,9 @@ local resource = 0
 local auras = {}
 local resourceGeneration
 local trackedAuras
+local unitPowerID
+local unitPowerMax
+local unitPowerType
 
 
 ---------------
@@ -148,7 +148,7 @@ function DS:COMBAT_LOG_EVENT_UNFILTERED(_, timeStamp, event, _, sourceGUID, _, _
         self:Remove(destGUID, spellID)
       elseif event == trackedAura.tickEvent then
         self:Tick(destGUID, spellID)
-        if resource < MAX_RESOURCE then
+        if resource < unitPowerMax then
           resource = resource + 1
           self:UNIT_POWER_FREQUENT("UNIT_POWER_FREQUENT", "player", "SOUL_SHARDS")  -- fail safe in case the corresponding UNIT_POWER_FREQUENT fires wonkily
         end
@@ -184,8 +184,10 @@ function DS:PLAYER_REGEN_ENABLED()  -- player left combat or died
 end
 
 function DS:UNIT_POWER_FREQUENT(_, unitID, power)
-  if not (unitID == "player" and power == UNIT_POWER_TYPE) then return end
-  resource = UnitPower("player", UNIT_POWER_ID)
+  if not (unitID == "player" and power == unitPowerType) then
+    return
+  end
+  resource = UnitPower("player", unitPowerID)
   DS:Update()
 end
 
@@ -267,11 +269,18 @@ do
     self:EndTestMode()
     self:ApplySettings()
 
-    resource = UnitPower("player", UNIT_POWER_ID)
+    resource = UnitPower("player", unitPowerID)
 
     local specSettings = DS.specSettings[DS.specializationID]
     resourceGeneration = specSettings.resourceGeneration
     trackedAuras = specSettings.trackedAuras
+    local specHandling = specSettings.specHandling
+    unitPowerID = specHandling.unitPowerID
+    unitPowerMax = specHandling.unitPowerMax
+    if type(unitPowerMax) == "function" then
+      unitPowerMax = unitPowerMax()
+    end
+    unitPowerType = specHandling.unitPowerType
 
     self:RegisterEvent("PLAYER_REGEN_DISABLED")
     self:RegisterEvent("PLAYER_REGEN_ENABLED")
@@ -328,7 +337,7 @@ do
       end
 
       resourceTicker = C_Timer.NewTicker(1, function()
-        resource = resource < MAX_RESOURCE and resource + 1 or 0
+        resource = resource < unitPowerMax and resource + 1 or 0
         DS:Update()
       end)
 
@@ -354,7 +363,7 @@ do
       self:Remove("Test Mode")
       self:ResetCount()
       self:SpecializationsCheck()
-      resource = UnitPower("player", UNIT_POWER_ID)
+      resource = UnitPower("player", unitPowerID)
       self:Lock()
       if not UnitAffectingCombat("player") then
         self:PLAYER_REGEN_ENABLED()

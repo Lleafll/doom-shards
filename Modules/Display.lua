@@ -35,7 +35,6 @@ CDOnUpdateFrame:Hide()
 ---------------
 -- Constants --
 ---------------
-local MAX_RESOURCE = 5
 local backdrop = {
   bgFile = nil,
   edgeFile = nil,
@@ -79,6 +78,7 @@ local statusbarEnable
 local statusbarRefresh
 local textEnable
 local timeStamp
+local unitPowerMax
 local visibilityConditionals = ""
 
 
@@ -233,9 +233,9 @@ function CD:Update()
 
   -- Shards
   local spendThreshold = resource + ((resourceSpendPrediction and resourceGeneration < 0) and resourceGeneration or 0)
-  for i = 1, MAX_RESOURCE do
+  for i = 1, unitPowerMax do
     if resourceEnable then
-      self:UpdateResource(resourceFrames[i], i <= resource, i > spendThreshold and "spending" or (resourceCappedEnable and resource == MAX_RESOURCE) and "capped" or nil)
+      self:UpdateResource(resourceFrames[i], i <= resource, i > spendThreshold and "spending" or (resourceCappedEnable and resource == unitPowerMax) and "capped" or nil)
     end
     self:UpdateDoomPrediction(i, false)
   end
@@ -272,7 +272,7 @@ function CD:Update()
   local indicator = indicators[t]
   for i = resource + 1, statusbarCount do
     if resourceGainPrediction and castEnd and (not indicator or castEnd < indicator.tick) then
-      if resourceEnable and i <= MAX_RESOURCE then
+      if resourceEnable and i <= unitPowerMax then
         self:UpdateResourceGainPrediction(resourceFrames[i])
       end
       self:UpdateDoomPrediction(i, false)
@@ -505,7 +505,7 @@ local function buildFrames()
 
       frame:SetBackdrop(backdrop)
 
-      if numeration <= MAX_RESOURCE then
+      if numeration <= unitPowerMax then
         frame:Show()
 
         if not frame.border then
@@ -725,7 +725,7 @@ local function buildFrames()
 
       local c1r, c1b, c1g, c1a
       local c2r, c2b, c2g, c2a
-      if numeration <= MAX_RESOURCE then
+      if numeration <= unitPowerMax then
         c1r, c1b, c1g, c1a = db.statusbarColorBackground.r, db.statusbarColorBackground.b, db.statusbarColorBackground.g, db.statusbarColorBackground.a
         c2r, c2b, c2g, c2a = db.statusbarColor.r, db.statusbarColor.b, db.statusbarColor.g, db.statusbarColor.a
       else
@@ -804,6 +804,10 @@ function CD:Build()
   local specHandling = DS.specSettings[DS.specializationID].specHandling
   referenceSpell = specHandling.referenceSpell
   referenceTime = specHandling.referenceTime
+  unitPowerMax = specHandling.unitPowerMax
+  if type(unitPowerMax) == "function" then
+    unitPowerMax = unitPowerMax()
+  end
 
   statusbarCount = 5 + db.statusbarCount
 

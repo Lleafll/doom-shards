@@ -38,9 +38,10 @@ local getHasteMod = DS.GetHasteMod
 local buildHastedIntervalFunc = DS.BuildHastedIntervalFunc
 
 
------------
--- Specs --
------------
+
+----------------
+-- Dummy Spec --
+----------------
 -- Dummy Spec (used for Test Mode)
 DS:AddSpecSettings(-1,
   {
@@ -53,10 +54,17 @@ DS:AddSpecSettings(-1,
     }
   },
   {
+    unitPowerType = "SOUL_SHARDS",
+    unitPowerID = SPELL_POWER_SOUL_SHARDS,
     referenceSpell = 5782  -- Fear (a spell every warlock spec has)
   }
 )
 
+
+
+-------------------
+-- Warlock Specs --
+-------------------
 -- Affliction
 do
   local BASE_AVERAGE_ACCUMULATOR_INCREASE = 0.16
@@ -190,6 +198,8 @@ do
       },
     },
     {
+      unitPowerType = "SOUL_SHARDS",
+      unitPowerID = SPELL_POWER_SOUL_SHARDS,
       referenceTime = 2  -- 2 ticks of Drain Life
     }
   )
@@ -286,7 +296,38 @@ DS:AddSpecSettings(267,
     }
   },
   {
+    unitPowerType = "SOUL_SHARDS",
+    unitPowerID = SPELL_POWER_SOUL_SHARDS,
     referenceSpell = 29722  -- Incinerate
+  }
+)
+
+
+
+-----------------
+-- Rogue Specs --
+-----------------
+-- Assassination
+DS:AddSpecSettings(259,
+  {
+  },
+  {
+  },
+  {
+    unitPowerID = SPELL_POWER_COMBO_POINTS,
+    unitPowerType = "COMBO_POINTS",
+    unitPowerMax = function()
+      local _, _, _, _, selected = GetTalentInfo(3, 1, 1)
+      if selected then
+        return 6
+      end
+      _, _, _, _, selected = GetTalentInfo(3, 2, 1)
+      if selected then
+        return 8
+      end
+      return 5
+    end,
+    referenceTime = 0,  -- Not needed for rogue
   }
 )
 

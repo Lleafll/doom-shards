@@ -1,6 +1,3 @@
-local _, class = UnitClass("player")
-if class ~= "WARLOCK" then return end
-
 local DS = LibStub("AceAddon-3.0"):NewAddon("Doom Shards", "AceEvent-3.0", "AceTimer-3.0", "AceConsole-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("DoomShards")
 local ACR = LibStub("AceConfigRegistry-3.0")
