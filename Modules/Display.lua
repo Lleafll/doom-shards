@@ -20,7 +20,7 @@ local wipe = wipe
 ------------
 -- Frames --
 ------------
-local CDFrame = DS:CreateParentFrame("Doom Shards Display", "display")
+local CDFrame = DS:CreateParentFrame("DoomShardsDisplay", "display")
 CD.frame = CDFrame
 CDFrame:Hide()
 local basePositions = {}
@@ -418,7 +418,7 @@ end
 local function buildFlasher(parentFrame)
   local smoke = parentFrame.smoke
   if not smoke then
-    parentFrame.smoke = CreateFrame("frame", nil, parentFrame)
+    parentFrame.smoke = CreateFrame("frame", "$parentSmoke", parentFrame)
     smoke = parentFrame.smoke
     smoke:SetBackdrop(backdrop)
     smoke:SetBackdropColor(1, 1, 1, 1)
@@ -482,7 +482,7 @@ local function buildFrames()
 
   if resourceEnable then
     local function createResourceFrame(numeration)
-      local frame = resourceFrames[numeration] or CreateFrame("frame", nil, CDFrame)
+      local frame = resourceFrames[numeration] or CreateFrame("frame", "$parentResource", CDFrame)
       frame:ClearAllPoints()
       if orientation == "Vertical" then
         frame:SetHeight(width)
@@ -508,7 +508,7 @@ local function buildFrames()
         frame:Show()
 
         if not frame.border then
-          frame.border = CreateFrame("frame", nil, frame)
+          frame.border = CreateFrame("frame", "$parentBorder", frame)
         end
         frame.border:SetAllPoints(frame)
         frame.border:SetBackdrop(borderBackdrop)
@@ -524,7 +524,7 @@ local function buildFrames()
         CDFrame.emptyResources = CDFrame.emptyResources or {}
         if db.alwaysShowBorders then
           if not CDFrame.emptyResources[numeration] then
-            CDFrame.emptyResources[numeration] = CreateFrame("frame", nil, CDFrame)
+            CDFrame.emptyResources[numeration] = CreateFrame("frame", "$parentBorderParent", CDFrame)
           end
           local emptyResourceFrame = CDFrame.emptyResources[numeration]
           emptyResourceFrame:Show()
@@ -534,7 +534,7 @@ local function buildFrames()
           local emptyColor = db.emptyColor
           emptyResourceFrame:SetBackdropColor(emptyColor.r, emptyColor.b, emptyColor.g, emptyColor.a)
           if not emptyResourceFrame.border then
-            emptyResourceFrame.border = CreateFrame("frame", nil, emptyResourceFrame)
+            emptyResourceFrame.border = CreateFrame("frame", "$parentBorder", emptyResourceFrame)
           end
           emptyResourceFrame.border:SetAllPoints(emptyResourceFrame)
           emptyResourceFrame.border:SetBackdrop(borderBackdrop)
@@ -586,7 +586,7 @@ local function buildFrames()
       local parentFrame
       local fontString
       if not SATimers[numeration] then
-        parentFrame = SATimers[numeration] or CreateFrame("frame", nil, CDFrame)
+        parentFrame = SATimers[numeration] or CreateFrame("frame", "$parentTextParent", CDFrame)
         parentFrame:SetFrameStrata("MEDIUM")
         parentFrame:Show()
         fontString = parentFrame:CreateFontString(nil, "OVERLAY")
@@ -670,8 +670,8 @@ local function buildFrames()
         frame = statusbars[numeration]
         statusbar = frame.statusbar
       else
-        frame = CreateFrame("Frame", nil, CDFrame)
-        statusbar = CreateFrame("StatusBar", nil, frame)
+        frame = CreateFrame("Frame", "$parentIndicatorParent", CDFrame)
+        statusbar = CreateFrame("StatusBar", "$parentIndicator", frame)
         frame.statusbar = statusbar
       end
 
