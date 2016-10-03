@@ -170,16 +170,15 @@ function DS:PLAYER_REGEN_DISABLED()
   if self.testMode then
     self:EndTestMode()
   end
+  self:Update()
 end
 
 function DS:PLAYER_REGEN_ENABLED()  -- player left combat or died
   self:EndTestMode()
   if UnitIsDead("player") then
     self:ResetCount()
-
   else
     self:Update()
-
   end
 end
 
