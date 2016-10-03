@@ -1,3 +1,7 @@
+## [Unreleased]
+### Fixed
+- Fixed a rare bug where a shard animation got stuck on 100% alpha
+
 ## [v18] - 2016-09-01
 ### Changed
 - Replaced "Always Show Borders" option with option to show background for depleted Soul Shards along with option to change this background's color; set color alpha to 0 for the old behavior
