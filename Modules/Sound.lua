@@ -51,11 +51,11 @@ do
 
   function WS:DOOM_SHARDS_UPDATE()
     local updatedOrbs = DS.resource
-    
+
     if updatedOrbs < previousOrbs then counter = 0 end
-    
+
     previousOrbs = updatedOrbs
-    
+
     local expectedShards = 0
     local timeStamp = GetTime() + timeFrame
     for GUID, tbl in pairs(DS.auras) do
@@ -71,7 +71,7 @@ do
         until isLastTick or tick > timeStamp or i > 100
       end
     end
-    
+
     isOverOrbThreshold = (updatedOrbs >= 3) and (updatedOrbs + expectedShards) >= 5
   end
 end
@@ -99,15 +99,13 @@ function WS:Build()
   soundFile = LSM:Fetch("sound", DS.db.warningSound.soundHandle)
   soundInterval = DS.db.warningSound.soundInterval
   timeFrame = db.timeFrame
-end
 
-function WS:OnInitialize()
-end
-
-function WS:OnEnable()
   if UnitAffectingCombat("player") then
     self:PLAYER_REGEN_DISABLED()
   end
+end
+
+function WS:OnEnable()
   self:RegisterMessage("DOOM_SHARDS_UPDATE")
   self:RegisterEvent("PLAYER_REGEN_DISABLED")
   self:RegisterEvent("PLAYER_REGEN_ENABLED")
