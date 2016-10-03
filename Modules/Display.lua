@@ -346,7 +346,7 @@ do
     if state ~= currentState then
       if state == "hide" then
         CDFrame.fader:Stop()
-        CDFrame:Hide()
+        CDFrame:SetAlpha(0)
         currentState = "hide"
 
       elseif state == "fade" and currentState ~= "hide" then
@@ -355,7 +355,7 @@ do
 
       elseif state ~= "fade" then  -- show
         CDFrame.fader:Stop()
-        CDFrame:Show()
+        CDFrame:SetAlpha(1)
         currentState = "show"
 
       end
@@ -406,8 +406,7 @@ local function buildFader()
     CDFrame:StopAnimating()
   end)
   CDFrame.fader:SetScript("OnFinished", function()
-    CDFrame:SetAlpha(1)
-    CDFrame:Hide()
+    CDFrame:SetAlpha(0)
   end)
   CDFrame.fader.fadeOut = CDFrame.fader:CreateAnimation("Alpha")
   CDFrame.fader.fadeOut:SetFromAlpha(1)
@@ -812,6 +811,9 @@ function CD:Build()
   if DS.locked then
     CDOnUpdateFrame:Show()
   end
+
+  CDFrame:Show()
+  CDOnUpdateFrame:EvaluateConditionals()  -- In case very first frame stays on screen longer due to e.g. loading
 end
 
 function CD:OnInitialize()
