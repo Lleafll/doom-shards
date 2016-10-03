@@ -1,6 +1,7 @@
 ## [Unreleased]
 ### Fixed
-- Fixed a rare bug where a shard animation got stuck on 100% alpha
+- Fixed bug where shard animation could get stuck on 100% alpha
+- Fixed error when logging in/reloading while in combat
 
 ## [v18] - 2016-09-01
 ### Changed
