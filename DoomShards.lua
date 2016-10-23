@@ -185,7 +185,8 @@ function DS:OnInitialize()
   local DSDB = LibStub("AceDB-3.0"):New("DoomShardsDB", self.defaultSettings, true)
   DS.DSDB = DSDB
 
-  if next(DSDB.global) ~= nil then  -- Copy settings from old database (TODO: Deprecate in the future)
+  -- Copy settings from old database (TODO: Deprecate in the future)
+  if next(DSDB.global) ~= nil then
     for k, v in pairs(DSDB.global) do
       if type(v) == "table" then
         for k2, v2 in pairs(v) do
@@ -199,6 +200,18 @@ function DS:OnInitialize()
   end
 
   self.db = DSDB.profile
+
+  -- Handle legacy options
+  if self.db.specializations[30108] ~= nil then
+    local oldUASetting = self.db.specializations[30108]
+    self.db.specializations[233490] = oldUASetting
+    self.db.specializations[233496] = oldUASetting
+    self.db.specializations[233497] = oldUASetting
+    self.db.specializations[233498] = oldUASetting
+    self.db.specializations[233499] = oldUASetting
+    self.db.specializations[30108] = nil
+  end
+
   self:AddDisplayOptions("Profile",
     function()
       local options = OPT:GetOptionsTable(DSDB)

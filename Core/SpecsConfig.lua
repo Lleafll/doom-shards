@@ -87,6 +87,33 @@ do
     DS.globalNextAgony.aura = globalNextAgonyAura
   end
 
+  -- Unstable Affliction template (there are 5 different UA debuff IDs)
+  local function unstableAfflictionTemplate()
+      return {  -- Unstable Affliction
+        durationFunc = buildHastedIntervalFunc(8),
+        pandemic = 0,
+        tickLengthFunc = buildHastedIntervalFunc(8),
+        resourceChance = 1,
+        hasInitialTick = false,
+        nameIsShared = true,
+        IterateTick = function(self, timeStamp)
+          if timeStamp then
+            local expiration = self.expiration
+            local iteratedTick = timeStamp + self.tickLength
+            local isLastTick = iteratedTick >= expiration
+            local resourceChance = (expiration - self.nextTick) / self.duration
+            return isLastTick and expiration or iteratedTick, resourceChance, isLastTick
+          else
+            local isLastTick = self.nextTick >= self.expiration
+            return isLastTick and self.expiration or self.nextTick, self.resourceChance, isLastTick
+          end
+        end,
+        OnRefresh = function(self)
+          self:Tick()
+        end,
+      }
+  end
+
   DS:AddSpecSettings(265,
     {
       [27243] = function()  -- Seed of Corruption  -- TODO: possibly cache and update on event
@@ -166,28 +193,11 @@ do
           end
         end
       },
-      [30108] = {  -- Unstable Affliction
-        durationFunc = buildHastedIntervalFunc(8),
-        pandemic = 0,
-        tickLengthFunc = buildHastedIntervalFunc(8),
-        resourceChance = 1,
-        hasInitialTick = false,
-        IterateTick = function(self, timeStamp)
-          if timeStamp then
-            local expiration = self.expiration
-            local iteratedTick = timeStamp + self.tickLength
-            local isLastTick = iteratedTick >= expiration
-            local resourceChance = (expiration - self.nextTick) / self.duration
-            return isLastTick and expiration or iteratedTick, resourceChance, isLastTick
-          else
-            local isLastTick = self.nextTick >= self.expiration
-            return isLastTick and self.expiration or self.nextTick, self.resourceChance, isLastTick
-          end
-        end,
-        OnRefresh = function(self)
-          self:Tick()
-        end,
-      },
+      [233490] = unstableAfflictionTemplate(),
+      [233496] = unstableAfflictionTemplate(),
+      [233497] = unstableAfflictionTemplate(),
+      [233498] = unstableAfflictionTemplate(),
+      [233499] = unstableAfflictionTemplate(),
     },
     {
       referenceTime = 2  -- 2 ticks of Drain Life
@@ -321,10 +331,18 @@ local function specializationsOptions()
         name = L["Track Agony"],
         type = "toggle"
       },
-      ["30108"] = {
+      ["233490"] = {
         order = 3,
         name = L["Track Unstable Affliction"],
-        type = "toggle"
+        type = "toggle",
+        set = function(info, value)  -- 5 different Unstable Affliction IDs
+          DS.db.specializations[233490] = value
+          DS.db.specializations[233496] = value
+          DS.db.specializations[233497] = value
+          DS.db.specializations[233498] = value
+          DS.db.specializations[233499] = value
+          DS:Build()
+        end,
       },
       headerDemonology = {
         order = 10,
@@ -353,7 +371,11 @@ end
 local defaultSettings = {
   profile = {
     [980] = true,
-    [30108] = true,
+    [233490] = true,
+    [233496] = true,
+    [233497] = true,
+    [233498] = true,
+    [233499] = true,
     [603] = true,
     [17877] = true,
   }
