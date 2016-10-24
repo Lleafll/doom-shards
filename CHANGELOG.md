@@ -1,4 +1,4 @@
-## [Unreleased]
+## [v21] - 2016-10-25
 ### Fixed
 - Incorporate 7.1's mechanical change to Unstable Affliction
 
