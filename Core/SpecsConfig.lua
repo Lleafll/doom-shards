@@ -148,7 +148,7 @@ do
           end
           return duration
         end,
-        tickLengthFunc = buildHastedIntervalFunc(2),
+        tickLengthFunc = buildHastedIntervalFunc(2),  -- should be decreased with duration
         resourceChanceFunc = function(self)
           return (BASE_AVERAGE_ACCUMULATOR_INCREASE / sqrt(DS.agonyCounter or 1)) / BASE_AVERAGE_ACCUMULATOR_RESET_VALUE
         end,
@@ -233,9 +233,20 @@ do
     },
     {
       [603] = {  -- Doom
-        durationFunc = buildHastedIntervalFunc(20),
-        pandemicFunc = buildHastedIntervalFunc(6),
-        tickLengthFunc = buildHastedIntervalFunc(20),
+        durationFunc = function(self)
+            baseDuration = 20
+            local _, _, _, _, selected = GetTalentInfo(2, 1, GetActiveSpecGroup())
+            if selected then
+              baseDuration = baseDuration - 3
+            end
+            return baseDuration / getHasteMod()
+          end,
+        pandemicFunc = function(self)
+            return self.duration * 0.3
+          end,
+        tickLengthFunc = function(self)
+            return self.duration
+          end,
         resourceChance = 1,
         hasInitialTick = false,
         IterateTick = function(self, timeStamp)
