@@ -1,6 +1,6 @@
 ## Unrelased
 ### Fixed
-- Corrected Doom fallback duration when using Impending Doom
+- Corrected Doom fallback duration when using Impending Doom (7.1.5 changes)
 
 ## [v21] - 2016-10-25
 ### Fixed
