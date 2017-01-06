@@ -295,11 +295,7 @@ DS:AddSpecSettings(267,
       tickLength = 5,
       resourceChance = 1,
       IterateTick = function(self, timeStamp)
-        if timeStamp then
-          return self.nextTick, self.resourceChance, true
-        else
-          return self.nextTick, self.resourceChance, false
-        end
+        return self.nextTick, self.resourceChance, true
       end,
       OnRefresh = function(self)
         self:Tick()

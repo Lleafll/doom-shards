@@ -1,6 +1,7 @@
 ## Unrelased
 ### Fixed
 - Corrected Doom fallback duration when using Impending Doom (7.1.5 changes)
+- Changed Shadowburn shard generation on kill to 1 (7.1.5 changes)
 
 ## [v21] - 2016-10-25
 ### Fixed
