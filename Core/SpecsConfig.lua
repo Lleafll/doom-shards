@@ -141,7 +141,7 @@ do
             duration = -1.183E-4 * ilvl*ilvl + 0.141 * ilvl - 25.336
           end
           if IsEquippedItem(132394) then  -- Hood of Eternal Disdain
-            duration = duration / 1.2
+            duration = duration / 1.1
           end
           return duration
         end,
