@@ -116,10 +116,7 @@ do
 
   DS:AddSpecSettings(265,
     {
-      [27243] = function()  -- Seed of Corruption  -- TODO: possibly cache and update on event
-        local _, _, _, _, selected = GetTalentInfo(4, 2, GetActiveSpecGroup())
-        return selected and -1 or 0
-      end,
+      [27243] = -1,  -- Seed of Corruption
       [18540] = -1,  -- Summon Doomguard
       [688] = -1,  -- Summon Imp
       [1122] = -1,  -- Summon Infernal
