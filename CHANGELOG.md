@@ -2,6 +2,8 @@
 ### Fixed
 - Corrected Doom fallback duration when using Impending Doom (7.1.5 changes)
 - Changed Shadowburn shard generation on kill to 1 (7.1.5 changes)
+- Set Seed of Corruption cost to 1 Soul Shard (7.1.5 changes)
+- Set Hood of Eternal Agony's tick rate modifier to 10% (7.1.5 changes)
 
 ## [v21] - 2016-10-25
 ### Fixed
