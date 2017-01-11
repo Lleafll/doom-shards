@@ -232,10 +232,10 @@ do
       [603] = {  -- Doom
         durationFunc = function(self)
             baseDuration = 20
-            local _, _, _, _, selected = GetTalentInfo(2, 1, GetActiveSpecGroup())
-            if selected then
-              baseDuration = baseDuration - 3
-            end
+--            local _, _, _, _, selected = GetTalentInfo(2, 1, GetActiveSpecGroup())
+--            if selected then
+--              baseDuration = baseDuration - 3
+--            end
             return baseDuration / getHasteMod()
           end,
         pandemicFunc = function(self)
