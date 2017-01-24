@@ -21,6 +21,7 @@ local rawset = rawset
 local setmetatable = setmetatable
 local sqrt = sqrt
 local UnitBuff = UnitBuff
+local UnitDebuff = UnitDebuff
 local UnitGUID = UnitGUID
 
 
@@ -42,9 +43,16 @@ local function getHasteMod()
 end
 DS.GetHasteMod = getHasteMod
 
+local function buildUnhastedIntervalFunc(base)
+  return function(aura)
+    return base * DS.globalTimeMod
+  end
+end
+DS.BuildUnhastedIntervalFunc = buildUnhastedIntervalFunc
+
 local function buildHastedIntervalFunc(base)
-  return function()
-    return base / getHasteMod()
+  return function(aura)
+    return base / getHasteMod() * DS.globalTimeMod
   end
 end
 DS.BuildHastedIntervalFunc = buildHastedIntervalFunc
@@ -57,6 +65,11 @@ local function buildUnitIDTable(str1, maxNum, str2)
   return tbl
 end
 DS.BuildUnitIDTable = buildUnitIDTable
+
+local function pandemicFunc(self)
+  return PANDEMIC_RANGE * self.duration
+end
+DS.PandemicFunc = pandamicFunc
 
 
 -------------------
@@ -97,19 +110,16 @@ local function iterateTickMethod(self, timeStamp)
   end
 end
 
-local function pandemicFunc(self)
-  return PANDEMIC_RANGE * self.duration
-end
-
 local function auraUnitDebuff(unit, auraName)
-  local _, _, _, _, _, _, expires = UnitDebuff(unit, auraName, nil, "PLAYER")
-  return expires
+  local _, _, _, _, _, _, expires, _, _, _, _, _, _, _, _, timeMod = UnitDebuff(unit, auraName, nil, "PLAYER")
+  return expires, timeMod
 end
 
 local function iterateUnitTable(aura, unitTable, GUID)
   for _, unit in ipairs(nameplateTable) do
     if UnitGUID(unit) == GUID then
-      return auraUnitDebuff(unit, aura.name)
+      local expires, timeMod = auraUnitDebuff(unit, aura.name)
+      return expires, timeMod
     end
   end
 end
@@ -126,30 +136,32 @@ local function calculateExpiration(aura)
 end
 DS.CalculateExpiration = calculateExpiration
 
+DS.globalTimeMod = 1
 local function setExpiration(aura)
   local GUID = aura.GUID
-
   local expires
-  if aura.nameIsShared then  -- In case of multiple spells with the same name
-    aura.expiration = calculateExpiration(aura)
+  local timeMod
 
+  if UnitGUID("target") == GUID then  -- Implies UnitExists
+    expires, timeMod = auraUnitDebuff("target", aura.name)
   else
-    if UnitGUID("target") == GUID then  -- Implies UnitExists
-      expires = auraUnitDebuff("target", aura.name)
-    else
-      expires = iterateUnitTable(aura, nameplateTable, GUID)
-      if not expires then
-        if IsInRaid() then
-          expires = iterateUnitTable(aura, raidTable, GUID)
-        elseif IsInGroup() then
-          expires = iterateUnitTable(aura, partyTable, GUID)
-        end
+    expires, timeMod = iterateUnitTable(aura, nameplateTable, GUID)
+    if not expires then
+      if IsInRaid() then
+        expires, timeMod = iterateUnitTable(aura, raidTable, GUID)
+      elseif IsInGroup() then
+        expires, timeMod = iterateUnitTable(aura, partyTable, GUID)
       end
     end
-
-    aura.expiration = expires or calculateExpiration(aura)
-
   end
+
+  if aura.nameIsShared then  -- In case of multiple spells with the same name
+    aura.expiration = calculateExpiration(aura)
+  else
+    aura.expiration = expires or calculateExpiration(aura)
+  end
+  DS.globalTimeMod = timeMod or 1
+
 end
 DS.SetExpiration = setExpiration
 
@@ -198,9 +210,6 @@ function DS:AddSpecSettings(specID, resourceGeneration, trackedAuras, specHandli
     -- Properties
     v.id = k
     v.name = GetSpellInfo(k)
-    if not v.pandemic then
-      v.pandemicFunc = v.pandemicFunc or pandemicFunc
-    end
     v.hasInitialTick = v.hasInitialTick == nil and true or v.hasInitialTick
     v.nameIsShared = v.nameIsShared or false  -- In case name is not unique for e.g. UnitDebuff
     v.applyEvent = v.applyEvent or "SPELL_AURA_APPLIED"

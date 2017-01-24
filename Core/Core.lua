@@ -34,6 +34,7 @@ local generating = 0
 local nextCast
 local resource = 0
 local auras = {}
+DS.auras = auras
 local resourceGeneration
 local trackedAuras
 

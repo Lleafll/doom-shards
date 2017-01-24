@@ -16,6 +16,7 @@ local GetActiveSpecGroup = GetActiveSpecGroup
 local GetHaste = GetHaste
 local GetTime = GetTime
 local GetInventoryItemID = GetInventoryItemID
+local GetInventoryItemLink = GetInventoryItemLink
 local GetSpellCritChance = GetSpellCritChance
 local GetSpecialization = GetSpecialization
 local GetSpellInfo = GetSpellInfo
@@ -36,6 +37,8 @@ local UnitGUID = UnitGUID
 -------------
 local getHasteMod = DS.GetHasteMod
 local buildHastedIntervalFunc = DS.BuildHastedIntervalFunc
+local buildUnhastedIntervalFunc = DS.BuildUnhastedIntervalFunc
+local pandemicFunc = DS.PandemicFunc
 
 
 -----------
@@ -89,29 +92,29 @@ do
 
   -- Unstable Affliction template (there are 5 different UA debuff IDs)
   local function unstableAfflictionTemplate()
-      return {  -- Unstable Affliction
-        durationFunc = buildHastedIntervalFunc(8),
-        pandemic = 0,
-        tickLengthFunc = buildHastedIntervalFunc(8),
-        resourceChance = 1,
-        hasInitialTick = false,
-        nameIsShared = true,
-        IterateTick = function(self, timeStamp)
-          if timeStamp then
-            local expiration = self.expiration
-            local iteratedTick = timeStamp + self.tickLength
-            local isLastTick = iteratedTick >= expiration
-            local resourceChance = (expiration - self.nextTick) / self.duration
-            return isLastTick and expiration or iteratedTick, resourceChance, isLastTick
-          else
-            local isLastTick = self.nextTick >= self.expiration
-            return isLastTick and self.expiration or self.nextTick, self.resourceChance, isLastTick
-          end
-        end,
-        OnRefresh = function(self)
-          self:Tick()
-        end,
-      }
+    return {  -- Unstable Affliction
+      durationFunc = buildHastedIntervalFunc(8),
+      pandemic = 0,
+      tickLengthFunc = buildHastedIntervalFunc(8),
+      resourceChance = 1,
+      hasInitialTick = false,
+      nameIsShared = true,
+      IterateTick = function(self, timeStamp)
+        if timeStamp then
+          local expiration = self.expiration
+          local iteratedTick = timeStamp + self.tickLength
+          local isLastTick = iteratedTick >= expiration
+          local resourceChance = (expiration - self.nextTick) / self.duration
+          return isLastTick and expiration or iteratedTick, resourceChance, isLastTick
+        else
+          local isLastTick = self.nextTick >= self.expiration
+          return isLastTick and self.expiration or self.nextTick, self.resourceChance, isLastTick
+        end
+      end,
+      OnRefresh = function(self)
+        self:Tick()
+      end,
+    }
   end
 
   DS:AddSpecSettings(265,
@@ -143,9 +146,14 @@ do
           if IsEquippedItem(132394) then  -- Hood of Eternal Disdain
             duration = duration / 1.1
           end
+          duration = duration * DS.globalTimeMod
           return duration
         end,
-        tickLengthFunc = buildHastedIntervalFunc(2),  -- should be decreased with duration
+        pandemicFunc = pandemicFunc,
+        tickLengthFunc = function(self)
+          local ticks = 9
+          return self.duration / ticks
+        end,
         resourceChanceFunc = function(self)
           return (BASE_AVERAGE_ACCUMULATOR_INCREASE / sqrt(DS.agonyCounter or 1)) / BASE_AVERAGE_ACCUMULATOR_RESET_VALUE
         end,
@@ -231,19 +239,17 @@ do
     {
       [603] = {  -- Doom
         durationFunc = function(self)
-            baseDuration = 20
-            local _, _, _, _, selected = GetTalentInfo(2, 1, GetActiveSpecGroup())
-            if selected then
-              baseDuration = baseDuration - 3
-            end
-            return baseDuration / getHasteMod()
-          end,
-        pandemicFunc = function(self)
-            return self.duration * 0.3
-          end,
+          baseDuration = 20
+          local _, _, _, _, selected = GetTalentInfo(2, 1, GetActiveSpecGroup())
+          if selected then
+            baseDuration = baseDuration - 3
+          end
+          return baseDuration / getHasteMod() * DS.globalTimeMod
+        end,
+        pandemicFunc = pandemicFunc,
         tickLengthFunc = function(self)
-            return self.duration
-          end,
+          return self.duration
+        end,
         resourceChance = 1,
         hasInitialTick = false,
         IterateTick = function(self, timeStamp)
@@ -287,9 +293,9 @@ DS:AddSpecSettings(267,
       end
     },]]--
     [17877] = {   -- Shadowburn
-      duration = 5,
+      durationFunc = buildUnhastedIntervalFunc(5),
       pandemic = 0,
-      tickLength = 5,
+      tickLengthFunc = buildUnhastedIntervalFunc(5),
       resourceChance = 1,
       IterateTick = function(self, timeStamp)
         return self.nextTick, self.resourceChance, true
