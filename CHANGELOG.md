@@ -1,6 +1,6 @@
 ## [v24] - Unreleased
 ### Changed
-- Changed Demonology's reference spell for low remaining time to Hand of Gul'dan (was Shadowbolt)
+- Changed Demonology's reference spell for low remaining time to Hand of Gul'dan (was Shadow Bolt)
 
 ### Fixed
 - Tick prediction for Chronomatic Anomaly should now work properly
