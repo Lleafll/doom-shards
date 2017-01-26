@@ -1,3 +1,10 @@
+## [v24] - Unreleased
+### Changed
+- Demonology's reference spell for low remaining time to Hand of Gul'dan (was Shadowbolt)
+
+### Fixed
+- Tick prediction for Chronomatic Anomaly should now work properly 
+
 ## [v23] - 2017-01-13
 ### Fixed
 - Implemented 17 s Doom fallback duration when using Impending Doom (recent 7.1.5 hotfix)
