@@ -261,7 +261,7 @@ do
       }
     },
     {
-      referenceSpell = 686  -- Shadow Bolt
+      referenceSpell = 105174  -- Shadow Bolt
     }
   )
 end
