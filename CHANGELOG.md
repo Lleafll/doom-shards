@@ -1,3 +1,7 @@
+## [v25] - 2017-02-03
+### Fixed
+- Fixed error that occured when refreshing certain DoTs
+
 ## [v24] - 2017-02-01
 ### Changed
 - Changed Demonology's reference spell for low remaining time to Hand of Gul'dan (was Shadow Bolt)
