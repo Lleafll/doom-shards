@@ -69,7 +69,7 @@ DS.BuildUnitIDTable = buildUnitIDTable
 local function pandemicFunc(self)
   return PANDEMIC_RANGE * self.duration
 end
-DS.PandemicFunc = pandamicFunc
+DS.PandemicFunc = pandemicFunc
 
 
 -------------------
